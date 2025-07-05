@@ -15,12 +15,12 @@
 
 适配横屏，增加横屏书架列数等功能。
 
-
-
 注意，目前不使用官方的主题系统，一些设置无效，且很多界面与官方差异较大。
 
 日后会增加基于现在主题系统的自定义功能。
 
+应用截图：
+![retouch_2025070603074170](https://github.com/user-attachments/assets/e1fda51d-f6ca-43fc-ab4a-786816b07acb)
 
 # Function-主要功能
 [English](English.md)
