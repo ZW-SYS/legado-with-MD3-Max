@@ -1,24 +1,32 @@
 package io.legato.kazusa.ui.config
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.InputType
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
+import androidx.preference.PreferenceManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.dialog.MaterialDialogs
 import io.legato.kazusa.R
 import io.legato.kazusa.constant.AppLog
 import io.legato.kazusa.constant.PreferKey
+import io.legato.kazusa.databinding.DialogWebdavAuthBinding
 import io.legato.kazusa.exception.NoStackTraceException
 import io.legato.kazusa.help.AppWebDav
+import io.legato.kazusa.help.AppWebDav.testWebDav
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.config.LocalConfig
 import io.legato.kazusa.help.coroutine.Coroutine
@@ -53,6 +61,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import splitties.init.appCtx
 import kotlin.coroutines.coroutineContext
+import androidx.core.content.edit
 
 class BackupConfigFragment : PreferenceFragment(),
     SharedPreferences.OnSharedPreferenceChangeListener,
@@ -107,12 +116,6 @@ class BackupConfigFragment : PreferenceFragment(),
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.pref_config_backup)
-        findPreference<EditTextPreference>(PreferKey.webDavPassword)?.let {
-            it.setOnBindEditTextListener { editText ->
-                editText.inputType =
-                    InputType.TYPE_TEXT_VARIATION_PASSWORD or InputType.TYPE_CLASS_TEXT
-            }
-        }
         findPreference<EditTextPreference>(PreferKey.webDavDir)?.let {
             it.setOnBindEditTextListener { editText ->
                 editText.text = AppConfig.webDavDir?.toEditable()
@@ -124,8 +127,6 @@ class BackupConfigFragment : PreferenceFragment(),
             }
         }
         upPreferenceSummary(PreferKey.webDavUrl, getPrefString(PreferKey.webDavUrl))
-        upPreferenceSummary(PreferKey.webDavAccount, getPrefString(PreferKey.webDavAccount))
-        upPreferenceSummary(PreferKey.webDavPassword, getPrefString(PreferKey.webDavPassword))
         upPreferenceSummary(PreferKey.webDavDir, AppConfig.webDavDir)
         upPreferenceSummary(PreferKey.webDavDeviceName, AppConfig.webDavDeviceName)
         upPreferenceSummary(PreferKey.backupPath, getPrefString(PreferKey.backupPath))
@@ -149,7 +150,6 @@ class BackupConfigFragment : PreferenceFragment(),
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.backup_restore, menu)
-        menu.applyTint(requireContext())
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -194,20 +194,6 @@ class BackupConfigFragment : PreferenceFragment(),
                     preference.summary = value
                 }
 
-            PreferKey.webDavAccount ->
-                if (value.isNullOrBlank()) {
-                    preference.summary = getString(R.string.web_dav_account_s)
-                } else {
-                    preference.summary = value
-                }
-
-            PreferKey.webDavPassword ->
-                if (value.isNullOrEmpty()) {
-                    preference.summary = getString(R.string.web_dav_pw_s)
-                } else {
-                    preference.summary = "*".repeat(value.length)
-                }
-
             PreferKey.webDavDir -> preference.summary = when (value) {
                 null -> "legado"
                 else -> value
@@ -229,11 +215,49 @@ class BackupConfigFragment : PreferenceFragment(),
         when (preference.key) {
             PreferKey.backupPath -> selectBackupPath.launch()
             PreferKey.restoreIgnore -> backupIgnore()
+            "web_dav_test" -> {
+                lifecycleScope.launch {
+                    testWebDav()
+                }
+            }
+            "web_dav_auth" -> {
+                showWebDavAuthDialog()
+                lifecycleScope.launch {
+                    testWebDav()
+                }
+            }
             "web_dav_backup" -> backup()
             "web_dav_restore" -> restore()
             "import_old" -> restoreOld.launch()
         }
         return super.onPreferenceTreeClick(preference)
+    }
+
+    private fun showWebDavAuthDialog() {
+        val binding = DialogWebdavAuthBinding.inflate(layoutInflater).apply {
+            editAccount.setText(PreferenceManager.getDefaultSharedPreferences(requireContext()).getString(PreferKey.webDavAccount, ""))
+            editPassword.setText(PreferenceManager.getDefaultSharedPreferences(requireContext()).getString(PreferKey.webDavPassword, ""))
+            editPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        }
+
+        alert(titleResource = R.string.web_dav_account) {
+            customView { binding.root }
+
+            okButton {
+                val account = binding.editAccount.text.toString()
+                val password = binding.editPassword.text.toString()
+
+                PreferenceManager.getDefaultSharedPreferences(requireContext()).edit {
+                    putString(PreferKey.webDavAccount, account)
+                        .putString(PreferKey.webDavPassword, password)
+                }
+
+                upPreferenceSummary(PreferKey.webDavAccount, account)
+                upPreferenceSummary(PreferKey.webDavPassword, password)
+            }
+
+            cancelButton()
+        }
     }
 
     /**

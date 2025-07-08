@@ -93,7 +93,7 @@ object AppWebDav {
     @Throws(WebDavException::class)
     private suspend fun checkAuthorization(authorization: Authorization) {
         if (!WebDav(rootWebDavUrl, authorization).check()) {
-            appCtx.removePref(PreferKey.webDavPassword)
+            //appCtx.removePref(PreferKey.webDavPassword)
             appCtx.toastOnUi(R.string.webdav_application_authorization_error)
             throw WebDavException(appCtx.getString(R.string.webdav_application_authorization_error))
         }
@@ -153,6 +153,31 @@ object AppWebDav {
             }
         }
     }
+
+    suspend fun testWebDav(): Boolean {
+        return kotlin.runCatching {
+            val account = appCtx.getPrefString(PreferKey.webDavAccount)
+            val password = appCtx.getPrefString(PreferKey.webDavPassword)
+            if (account.isNullOrEmpty() || password.isNullOrEmpty()) {
+                appCtx.toastOnUi("账号或密码为空")
+                return false
+            }
+
+            val auth = Authorization(account, password)
+            checkAuthorization(auth)
+
+            appCtx.toastOnUi("WebDAV 服务正常")
+            true
+        }.getOrElse {
+            it.printStackTrace()
+            if (it !is WebDavException) {
+                appCtx.toastOnUi(it.message ?: "未知错误")
+            }
+            false
+        }
+    }
+
+
 
     /**
      * webDav备份
