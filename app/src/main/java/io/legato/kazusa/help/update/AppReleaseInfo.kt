@@ -13,7 +13,10 @@ data class AppReleaseInfo(
     val downloadUrl: String,
     val assetUrl: String
 ) {
-    val versionName: String = name.split("_").getOrNull(2)?.dropLast(2) ?: ""
+    val versionName: String = Regex("""legado_app_([\d.]+)""")
+        .find(name)
+        ?.groupValues?.get(1)
+        ?: ""
 }
 
 enum class AppVariant {

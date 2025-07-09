@@ -25,7 +25,6 @@ import io.legato.kazusa.utils.compress.ZipUtils
 import io.legato.kazusa.utils.fromJsonObject
 import io.legato.kazusa.utils.getPrefString
 import io.legato.kazusa.utils.isJson
-import io.legato.kazusa.utils.removePref
 import io.legato.kazusa.utils.toastOnUi
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.runBlocking
@@ -166,7 +165,7 @@ object AppWebDav {
             val auth = Authorization(account, password)
             checkAuthorization(auth)
 
-            appCtx.toastOnUi("WebDAV 服务正常")
+            appCtx.toastOnUi("WebDAV 服务可用")
             true
         }.getOrElse {
             it.printStackTrace()

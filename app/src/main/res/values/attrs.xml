@@ -74,9 +74,12 @@
         <attr name="speed" format="dimension" />
     </declare-styleable>
 
+    <attr name="title" format="string" />
+    <attr name="max" format="integer" />
+
     <declare-styleable name="DetailSeekBar">
-        <attr name="title" format="string" />
-        <attr name="max" format="integer" />
+        <attr name="title" />
+        <attr name="max" />
         <attr name="isBottomBackground" />
     </declare-styleable>
 
@@ -234,6 +237,12 @@
             <enum name="left_bottom_fill" value="6" />
             <enum name="right_bottom_fill" value="7" />
         </attr>
+    </declare-styleable>
+
+    <declare-styleable name="SimpleCounterView">
+        <attr name="title" />
+        <attr name="max" />
+        <attr name="min" format="integer" />
     </declare-styleable>
 
 </resources>

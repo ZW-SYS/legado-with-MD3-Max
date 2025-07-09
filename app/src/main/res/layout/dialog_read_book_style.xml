@@ -41,8 +41,8 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/tv_day_night"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
                     style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
                     android:layout_marginStart="8dp"
                     app:icon="@drawable/ic_brightness"
@@ -68,6 +68,7 @@
                     style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
+                    android:layout_weight="2"
                     app:icon="@drawable/font_bold"
                     app:iconGravity="textTop"
                     android:text="@string/font_weight_text" />
@@ -81,6 +82,7 @@
                     android:id="@+id/tv_text_font"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
+                    android:layout_weight="2"
                     style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
                     app:icon="@drawable/font_style"
                     app:iconGravity="textTop"
@@ -95,6 +97,7 @@
                     android:id="@+id/tv_text_indent"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
+                    android:layout_weight="2"
                     style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
                     app:icon="@drawable/ic_segment"
                     app:iconGravity="textTop"
@@ -109,6 +112,7 @@
                     android:id="@+id/tv_padding"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
+                    android:layout_weight="2"
                     style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
                     app:icon="@drawable/ic_padding"
                     app:iconGravity="textTop"
@@ -151,42 +155,64 @@
 
         </LinearLayout>
 
-        <io.legato.kazusa.ui.widget.DetailSeekBar
-            android:id="@+id/dsb_text_size"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
             android:layout_marginTop="8dp"
-            app:isBottomBackground="true"
-            app:max="45"
-            app:title="@string/text_size" />
+            android:layout_marginHorizontal="16dp">
+            <io.legato.kazusa.ui.widget.SimpleCounterView
+                android:id="@+id/dsb_text_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:isBottomBackground="true"
+                app:max="45"
+                app:title="@string/text_size" />
 
-        <io.legato.kazusa.ui.widget.DetailSeekBar
-            android:id="@+id/dsb_text_letter_spacing"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            app:isBottomBackground="true"
-            app:max="100"
-            app:title="@string/text_letter_spacing" />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
 
-        <io.legato.kazusa.ui.widget.DetailSeekBar
+            <io.legato.kazusa.ui.widget.SimpleCounterView
+                android:id="@+id/dsb_text_letter_spacing"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:isBottomBackground="true"
+                app:max="100"
+                app:title="@string/text_letter_spacing" />
+        </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp"
+        android:layout_marginHorizontal="16dp">
+
+        <io.legato.kazusa.ui.widget.SimpleCounterView
             android:id="@+id/dsb_line_size"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
             app:isBottomBackground="true"
             app:max="20"
             app:title="@string/line_size" />
 
-        <io.legato.kazusa.ui.widget.DetailSeekBar
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+
+        <io.legato.kazusa.ui.widget.SimpleCounterView
             android:id="@+id/dsb_paragraph_spacing"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
             app:isBottomBackground="true"
             app:max="20"
             app:title="@string/paragraph_size" />
+    </LinearLayout>
 
         <LinearLayout
             android:id="@+id/set_bottom_bar"
@@ -201,6 +227,7 @@
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginBottom="4dp"
                 android:text="@string/page_anim"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="12sp" />
 
             <HorizontalScrollView
@@ -222,8 +249,7 @@
                         style="@style/Widget.Material3.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/page_anim_cover"
-                        />
+                        android:text="@string/page_anim_cover" />
 
                     <!-- 滑动动画 Chip -->
                     <com.google.android.material.chip.Chip
@@ -232,8 +258,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="4dp"
-                        android:text="@string/page_anim_slide"
-                        app:chipStrokeWidth="1dp" />
+                        android:text="@string/page_anim_slide" />
 
                     <!-- 仿真翻页 Chip -->
                     <com.google.android.material.chip.Chip
@@ -242,8 +267,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="4dp"
-                        android:text="@string/page_anim_simulation"
-                        app:chipStrokeWidth="1dp" />
+                        android:text="@string/page_anim_simulation" />
 
                     <!-- 滚动动画 Chip -->
                     <com.google.android.material.chip.Chip
@@ -252,8 +276,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="4dp"
-                        android:text="@string/page_anim_scroll"
-                        app:chipStrokeWidth="1dp" />
+                        android:text="@string/page_anim_scroll" />
 
                     <!-- 无动画 Chip -->
                     <com.google.android.material.chip.Chip
@@ -262,8 +285,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="4dp"
-                        android:text="@string/page_anim_none"
-                        app:chipStrokeWidth="1dp" />
+                        android:text="@string/page_anim_none" />
 
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
@@ -280,7 +302,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_weight="1"
-                    android:alpha="0.75"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:text="@string/text_bg_style"
                     android:textSize="12sp" />
 

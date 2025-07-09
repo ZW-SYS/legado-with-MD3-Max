@@ -28,6 +28,7 @@
         android:label="${app_name}"
         android:networkSecurityConfig="@xml/network_security_config"
         android:requestLegacyExternalStorage="true"
+        android:enableOnBackInvokedCallback="true"
         android:supportsRtl="true"
         android:theme="@style/Base.AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning,UnusedAttribute">
@@ -125,6 +126,7 @@
         <activity
             android:name=".ui.book.read.ReadBookActivity"
             android:configChanges="locale|keyboardHidden|smallestScreenSize|screenLayout"
+            android:enableOnBackInvokedCallback="true"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
@@ -140,6 +142,7 @@
         <activity
             android:name=".ui.book.manga.ReadMangaActivity"
             android:exported="false"
+            android:enableOnBackInvokedCallback="true"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="com.samsung.android.support.REMOTE_ACTION" />
@@ -214,56 +217,47 @@
         <activity
             android:name=".ui.about.AboutActivity"
             android:enableOnBackInvokedCallback="true"
-            android:launchMode="singleTask"
-            android:screenOrientation="behind" />
+            android:launchMode="singleTask" />
         <!-- 书源管理 -->
         <activity
             android:name=".ui.book.source.manage.BookSourceActivity"
             android:enableOnBackInvokedCallback="true"
-            android:launchMode="singleTop"
-            android:screenOrientation="behind" />
+            android:launchMode="singleTop" />
         <!-- 订阅源管理 -->
         <activity
             android:name=".ui.rss.source.manage.RssSourceActivity"
             android:enableOnBackInvokedCallback="true"
-            android:launchMode="singleTop"
-            android:screenOrientation="behind" />
+            android:launchMode="singleTop" />
         <!-- txt目录规则管理 -->
         <activity
             android:name=".ui.book.toc.rule.TxtTocRuleActivity"
             android:enableOnBackInvokedCallback="true"
-            android:launchMode="singleTop"
-            android:screenOrientation="behind" />
+            android:launchMode="singleTop" />
         <!-- 替换规则界面 -->
         <activity
             android:name=".ui.replace.ReplaceRuleActivity"
             android:enableOnBackInvokedCallback="true"
-            android:launchMode="singleTop"
-            android:screenOrientation="behind" />
+            android:launchMode="singleTop" />
         <!-- 书籍管理 -->
         <activity
             android:name=".ui.book.manage.BookshelfManageActivity"
             android:enableOnBackInvokedCallback="true"
-            android:launchMode="singleTop"
-            android:screenOrientation="behind" />
+            android:launchMode="singleTop" />
         <!-- 书源调试 -->
         <activity
             android:name=".ui.book.source.debug.BookSourceDebugActivity"
             android:enableOnBackInvokedCallback="true"
-            android:launchMode="singleTop"
-            android:screenOrientation="behind" />
+            android:launchMode="singleTop" />
         <!-- 目录 -->
         <activity
             android:name=".ui.book.toc.TocActivity"
             android:enableOnBackInvokedCallback="true"
-            android:launchMode="singleTop"
-            android:screenOrientation="behind" />
+            android:launchMode="singleTop" />
         <!-- 正文搜索 -->
         <activity
             android:name=".ui.book.searchContent.SearchContentActivity"
             android:enableOnBackInvokedCallback="true"
-            android:launchMode="singleTop"
-            android:screenOrientation="behind" />
+            android:launchMode="singleTop" />
         <!-- RSS条目 -->
         <activity
             android:name=".ui.rss.article.RssSortActivity"

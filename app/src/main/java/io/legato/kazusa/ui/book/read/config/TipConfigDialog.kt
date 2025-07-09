@@ -2,10 +2,9 @@ package io.legato.kazusa.ui.book.read.config
 
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import io.legato.kazusa.R
-import io.legato.kazusa.base.BaseDialogFragment
+import io.legato.kazusa.base.BaseBottomSheetDialogFragment
 import io.legato.kazusa.constant.EventBus
 import io.legato.kazusa.databinding.DialogTipConfigBinding
 import io.legato.kazusa.help.config.ReadBookConfig
@@ -16,11 +15,10 @@ import io.legato.kazusa.utils.getIndexById
 import io.legato.kazusa.utils.hexString
 import io.legato.kazusa.utils.observeEvent
 import io.legato.kazusa.utils.postEvent
-import io.legato.kazusa.utils.setLayout
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 
 
-class TipConfigDialog : BaseDialogFragment(R.layout.dialog_tip_config) {
+class TipConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_tip_config) {
 
     companion object {
         const val TIP_COLOR = 7897
@@ -31,7 +29,6 @@ class TipConfigDialog : BaseDialogFragment(R.layout.dialog_tip_config) {
 
     override fun onStart() {
         super.onStart()
-        setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
     }
 
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {

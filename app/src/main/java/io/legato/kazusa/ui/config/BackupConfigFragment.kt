@@ -1,16 +1,13 @@
 package io.legato.kazusa.ui.config
 
-import android.app.AlertDialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.InputType
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.EditText
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -18,8 +15,6 @@ import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceManager
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.dialog.MaterialDialogs
 import io.legato.kazusa.R
 import io.legato.kazusa.constant.AppLog
 import io.legato.kazusa.constant.PreferKey
@@ -39,12 +34,10 @@ import io.legato.kazusa.lib.dialogs.selector
 import io.legato.kazusa.lib.permission.Permissions
 import io.legato.kazusa.lib.permission.PermissionsCompat
 import io.legato.kazusa.lib.prefs.fragment.PreferenceFragment
-//import io.legado.app.lib.theme.primaryColor
 import io.legato.kazusa.ui.about.AppLogDialog
 import io.legato.kazusa.ui.file.HandleFileContract
 import io.legato.kazusa.ui.widget.dialog.WaitDialog
 import io.legato.kazusa.utils.FileDoc
-import io.legato.kazusa.utils.applyTint
 import io.legato.kazusa.utils.checkWrite
 import io.legato.kazusa.utils.getPrefString
 import io.legato.kazusa.utils.isContentScheme
@@ -222,9 +215,6 @@ class BackupConfigFragment : PreferenceFragment(),
             }
             "web_dav_auth" -> {
                 showWebDavAuthDialog()
-                lifecycleScope.launch {
-                    testWebDav()
-                }
             }
             "web_dav_backup" -> backup()
             "web_dav_restore" -> restore()
@@ -254,6 +244,9 @@ class BackupConfigFragment : PreferenceFragment(),
 
                 upPreferenceSummary(PreferKey.webDavAccount, account)
                 upPreferenceSummary(PreferKey.webDavPassword, password)
+                lifecycleScope.launch {
+                    testWebDav()
+                }
             }
 
             cancelButton()

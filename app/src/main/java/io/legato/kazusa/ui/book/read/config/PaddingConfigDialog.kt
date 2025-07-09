@@ -4,14 +4,14 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import io.legato.kazusa.R
-import io.legato.kazusa.base.BaseDialogFragment
+import io.legato.kazusa.base.BaseBottomSheetDialogFragment
 import io.legato.kazusa.constant.EventBus
 import io.legato.kazusa.databinding.DialogReadPaddingBinding
 import io.legato.kazusa.help.config.ReadBookConfig
 import io.legato.kazusa.utils.postEvent
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 
-class PaddingConfigDialog : BaseDialogFragment(R.layout.dialog_read_padding) {
+class PaddingConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_padding) {
 
     private val binding by viewBinding(DialogReadPaddingBinding::bind)
 

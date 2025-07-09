@@ -8,7 +8,32 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="10dp">
+        android:paddingHorizontal="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingVertical="16dp"
+            android:paddingHorizontal="16dp">
+
+            <View
+                android:layout_width="36dp"
+                android:layout_height="4dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/bg_bottom_sheet_handle"
+                android:layout_marginBottom="16dp" />
+
+            <TextView
+                android:id="@+id/bottom_sheet_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="界面设置"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/ll_header_padding"
@@ -20,16 +45,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingBottom="10dp">
+                android:orientation="horizontal">
 
                 <io.legato.kazusa.ui.widget.text.AccentTextView
                     android:id="@+id/tv_header_padding"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginVertical="8dp"
                     android:layout_weight="1"
                     android:text="@string/header"
-                    android:textSize="18sp" />
+                    style="@style/ChapterNameText" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -39,38 +64,61 @@
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/cb_show_top_line"
                     android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_margin="6dp" />
+                    android:layout_height="20dp" />
 
             </LinearLayout>
 
-            <io.legato.kazusa.ui.widget.DetailSeekBar
-                android:id="@+id/dsb_header_padding_top"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:max="100"
-                app:title="@string/padding_top" />
+                android:orientation="horizontal">
 
-            <io.legato.kazusa.ui.widget.DetailSeekBar
-                android:id="@+id/dsb_header_padding_bottom"
+                <io.legato.kazusa.ui.widget.SimpleCounterView
+                    android:id="@+id/dsb_header_padding_top"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:max="100"
+                    app:title="@string/padding_top" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+
+                <io.legato.kazusa.ui.widget.SimpleCounterView
+                    android:id="@+id/dsb_header_padding_bottom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:max="100"
+                    app:title="@string/padding_bottom" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:max="100"
-                app:title="@string/padding_bottom" />
+                android:orientation="horizontal">
 
-            <io.legato.kazusa.ui.widget.DetailSeekBar
+                <io.legato.kazusa.ui.widget.SimpleCounterView
                 android:id="@+id/dsb_header_padding_left"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:max="100"
                 app:title="@string/padding_left" />
 
-            <io.legato.kazusa.ui.widget.DetailSeekBar
-                android:id="@+id/dsb_header_padding_right"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:max="100"
-                app:title="@string/padding_right" />
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+
+                <io.legato.kazusa.ui.widget.SimpleCounterView
+                    android:id="@+id/dsb_header_padding_right"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:max="100"
+                    app:title="@string/padding_right" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -78,38 +126,62 @@
             android:id="@+id/tv_body_padding"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
             android:text="@string/main_body"
-            android:textSize="18sp" />
+            style="@style/ChapterNameText" />
 
-        <io.legato.kazusa.ui.widget.DetailSeekBar
-            android:id="@+id/dsb_padding_top"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:max="200"
-            app:title="@string/padding_top" />
+            android:orientation="horizontal">
 
-        <io.legato.kazusa.ui.widget.DetailSeekBar
-            android:id="@+id/dsb_padding_bottom"
+            <io.legato.kazusa.ui.widget.SimpleCounterView
+                android:id="@+id/dsb_padding_top"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:max="200"
+                app:title="@string/padding_top" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+
+            <io.legato.kazusa.ui.widget.SimpleCounterView
+                android:id="@+id/dsb_padding_bottom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:max="100"
+                app:title="@string/padding_bottom" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:max="100"
-            app:title="@string/padding_bottom" />
+            android:orientation="horizontal">
 
-        <io.legato.kazusa.ui.widget.DetailSeekBar
-            android:id="@+id/dsb_padding_left"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:max="100"
-            app:title="@string/padding_left" />
+            <io.legato.kazusa.ui.widget.SimpleCounterView
+                android:id="@+id/dsb_padding_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:max="100"
+                app:title="@string/padding_left" />
 
-        <io.legato.kazusa.ui.widget.DetailSeekBar
-            android:id="@+id/dsb_padding_right"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:max="100"
-            app:title="@string/padding_right" />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+
+            <io.legato.kazusa.ui.widget.SimpleCounterView
+                android:id="@+id/dsb_padding_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:max="100"
+                app:title="@string/padding_right" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -121,10 +193,10 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
                 android:text="@string/footer"
-                android:textSize="18sp" />
+                style="@style/ChapterNameText" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -139,33 +211,57 @@
 
         </LinearLayout>
 
-        <io.legato.kazusa.ui.widget.DetailSeekBar
-            android:id="@+id/dsb_footer_padding_top"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:max="100"
-            app:title="@string/padding_top" />
+            android:orientation="horizontal">
 
-        <io.legato.kazusa.ui.widget.DetailSeekBar
-            android:id="@+id/dsb_footer_padding_bottom"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:max="100"
-            app:title="@string/padding_bottom" />
+            <io.legato.kazusa.ui.widget.SimpleCounterView
+                android:id="@+id/dsb_footer_padding_top"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:max="100"
+                app:title="@string/padding_top" />
 
-        <io.legato.kazusa.ui.widget.DetailSeekBar
-            android:id="@+id/dsb_footer_padding_left"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:max="100"
-            app:title="@string/padding_left" />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
 
-        <io.legato.kazusa.ui.widget.DetailSeekBar
-            android:id="@+id/dsb_footer_padding_right"
+            <io.legato.kazusa.ui.widget.SimpleCounterView
+                android:id="@+id/dsb_footer_padding_bottom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:max="100"
+                app:title="@string/padding_bottom" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:max="100"
-            app:title="@string/padding_right" />
+            android:orientation="horizontal">
+
+            <io.legato.kazusa.ui.widget.SimpleCounterView
+                android:id="@+id/dsb_footer_padding_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:max="100"
+                app:title="@string/padding_left" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+
+            <io.legato.kazusa.ui.widget.SimpleCounterView
+                android:id="@+id/dsb_footer_padding_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:max="100"
+                app:title="@string/padding_right" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

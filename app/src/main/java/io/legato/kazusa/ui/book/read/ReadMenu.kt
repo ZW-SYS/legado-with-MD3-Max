@@ -6,6 +6,7 @@ import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.FrameLayout
 import android.widget.SeekBar
@@ -36,6 +37,7 @@ import io.legato.kazusa.utils.modifyBegin
 import io.legato.kazusa.utils.openUrl
 import io.legato.kazusa.utils.putPrefBoolean
 import io.legato.kazusa.utils.startActivity
+import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.visible
 import splitties.views.onClick
 import splitties.views.onLongClick
@@ -52,6 +54,7 @@ class ReadMenu @JvmOverloads constructor(
     private val binding = ViewReadMenuBinding.inflate(LayoutInflater.from(context), this, true)
     private var confirmSkipToChapter: Boolean = false
     private var isMenuOutAnimating = false
+
     private val menuTopIn: Animation by lazy {
         loadAnimation(context, R.anim.anim_readbook_top_in)
     }
@@ -64,6 +67,17 @@ class ReadMenu @JvmOverloads constructor(
     private val menuBottomOut: Animation by lazy {
         loadAnimation(context, R.anim.anim_readbook_bottom_out)
     }
+
+    private val fadeIn = AlphaAnimation(0f, 1f).apply {
+        duration = 280
+        fillAfter = true
+    }
+
+    private val fadeOut = AlphaAnimation(1f, 0f).apply {
+        duration = 280
+        fillAfter = true
+    }
+
 //    private val immersiveMenu: Boolean
 //        get() = AppConfig.readBarStyleFollowPage && ReadBookConfig.durConfig.curBgType() == 0
 //    private var bgColor: Int = if (immersiveMenu) {
@@ -84,11 +98,13 @@ class ReadMenu @JvmOverloads constructor(
 //        .setPressedColor(ColorUtils.darkenColor(bgColor))
 //        .create()
     private var onMenuOutEnd: (() -> Unit)? = null
+
     private val showBrightnessView
         get() = context.getPrefBoolean(
             PreferKey.showBrightnessView,
             true
         )
+
     private val sourceMenu by lazy {
         PopupMenu(context, binding.tvSourceAction).apply {
             inflate(R.menu.book_read_source)
@@ -249,10 +265,10 @@ class ReadMenu @JvmOverloads constructor(
 
     fun upBrightnessState() {
         if (brightnessAuto()) {
-            //binding.ivBrightnessAuto.setColorFilter(context.accentColor)
+            binding.ivBrightnessAuto.setColorFilter(context.themeColor(com.google.android.material.R.attr.colorPrimary))
             binding.seekBrightness.isEnabled = false
         } else {
-            //binding.ivBrightnessAuto.setColorFilter(context.buttonDisabledColor)
+            binding.ivBrightnessAuto.setColorFilter(context.themeColor(com.google.android.material.R.attr.colorOnSurface))
             binding.seekBrightness.isEnabled = true
         }
         setScreenBrightness(AppConfig.readBrightness.toFloat())
@@ -283,6 +299,7 @@ class ReadMenu @JvmOverloads constructor(
         if (anim) {
             binding.titleBar.startAnimation(menuTopIn)
             binding.bottomMenu.startAnimation(menuBottomIn)
+            updateBrightnessVisibility(true)
         } else {
             menuInListener.onAnimationStart(menuBottomIn)
             menuInListener.onAnimationEnd(menuBottomIn)
@@ -299,9 +316,21 @@ class ReadMenu @JvmOverloads constructor(
             if (anim) {
                 binding.titleBar.startAnimation(menuTopOut)
                 binding.bottomMenu.startAnimation(menuBottomOut)
+                updateBrightnessVisibility(false)
+
             } else {
                 menuOutListener.onAnimationStart(menuBottomOut)
                 menuOutListener.onAnimationEnd(menuBottomOut)
+            }
+        }
+    }
+
+    fun updateBrightnessVisibility(boolean: Boolean) {
+        if (showBrightnessView) {
+            if(boolean){
+                binding.llBrightness.startAnimation(fadeIn)
+            }else{
+                binding.llBrightness.startAnimation(fadeOut)
             }
         }
     }

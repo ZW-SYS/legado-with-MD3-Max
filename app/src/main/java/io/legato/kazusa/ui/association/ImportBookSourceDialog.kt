@@ -11,7 +11,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.legato.kazusa.R
-import io.legato.kazusa.base.BaseDialogFragment
+import io.legato.kazusa.base.BaseBottomSheetDialogFragment
 import io.legato.kazusa.base.adapter.ItemViewHolder
 import io.legato.kazusa.base.adapter.RecyclerAdapter
 import io.legato.kazusa.constant.PreferKey
@@ -33,7 +33,7 @@ import splitties.views.onClick
 /**
  * 导入书源弹出窗口
  */
-class ImportBookSourceDialog() : BaseDialogFragment(R.layout.dialog_recycler_view),
+class ImportBookSourceDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_recycler_view),
     Toolbar.OnMenuItemClickListener,
     CodeDialog.Callback {
 
@@ -50,7 +50,6 @@ class ImportBookSourceDialog() : BaseDialogFragment(R.layout.dialog_recycler_vie
 
     override fun onStart() {
         super.onStart()
-        setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
     }
 
     override fun onDismiss(dialog: DialogInterface) {
