@@ -48,22 +48,27 @@ object AppUpdateGitHub : AppUpdate.AppUpdateInterface {
             .sortedByDescending { it.createdAt }
     }
 
-    override fun check(
-        scope: CoroutineScope,
-    ): Coroutine<AppUpdate.UpdateInfo> {
+    override fun check(scope: CoroutineScope): Coroutine<AppUpdate.UpdateInfo> {
         return Coroutine.async(scope) {
-            getLatestRelease()
+            val currentVersion = AppConst.appInfo.versionName
+            val releases = getLatestRelease()
                 .filter { it.appVariant == checkVariant }
-                .firstOrNull { it.versionName > AppConst.appInfo.versionName }
-                ?.let {
-                    return@async AppUpdate.UpdateInfo(
-                        it.versionName,
-                        it.note,
-                        it.downloadUrl,
-                        it.name
-                    )
-                }
-                ?: throw NoStackTraceException("已是最新版本")
+
+
+            val latest = releases
+                .firstOrNull { it.versionName > currentVersion }
+
+            if (latest != null) {
+                return@async AppUpdate.UpdateInfo(
+                    latest.versionName,
+                    latest.note,
+                    latest.downloadUrl,
+                    latest.name
+                )
+            }
+
+            throw NoStackTraceException("已是最新版本")
         }.timeout(10000)
     }
+
 }

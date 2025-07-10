@@ -3,6 +3,7 @@ package io.legato.kazusa.ui.about
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import io.legato.kazusa.BuildConfig
 import io.legato.kazusa.R
 import io.legato.kazusa.base.BaseBottomSheetDialogFragment
 import io.legato.kazusa.databinding.DialogUpdateBinding
@@ -34,7 +35,13 @@ class UpdateDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_update) {
 
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
         //binding.toolBar.setBackgroundColor(primaryColor)
-        binding.toolBar.title = arguments?.getString("newVersion")
+
+        binding.tvCurrentVersion.text = BuildConfig.VERSION_NAME
+        binding.tvVersion.text = arguments?.getString("newVersion")
+
+        binding.tvAbi.text = Build.SUPPORTED_ABIS.firstOrNull() ?: "unknown"
+        binding.tvUrl.text = arguments?.getString("url")
+
         val updateBody = arguments?.getString("updateBody")
         if (updateBody == null) {
             toastOnUi("没有数据")
@@ -49,31 +56,33 @@ class UpdateDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_update) {
                 .build()
                 .setMarkdown(binding.textView, updateBody)
         }
-        binding.toolBar.inflateMenu(R.menu.app_update)
-        binding.toolBar.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.menu_download -> {
-                    val url = arguments?.getString("url")
-                    val baseName = arguments?.getString("name")
-                        ?.removeSuffix(".apk")
 
-                    val abi = Build.SUPPORTED_ABIS.firstOrNull() ?: "universal"
-                    val abiSuffix = when {
-                        abi.contains("arm64") -> "arm64-v8a"
-                        abi.contains("armeabi") -> "armeabi-v7a"
-                        else -> "universal"
-                    }
+        binding.btnUpdate.setOnClickListener {
+            val urlPrefix = arguments?.getString("url")
+            val baseName = arguments?.getString("name")?.removeSuffix(".apk")
 
-                    val name = "${baseName}_$abiSuffix.apk"
-
-                    if (url != null && baseName != null) {
-                        Download.start(requireContext(), url, name)
-                        toastOnUi(R.string.download_start)
-                    }
-                }
+            if (urlPrefix == null || baseName == null) {
+                toastOnUi("下载信息不完整")
+                return@setOnClickListener
             }
-            return@setOnMenuItemClickListener true
+
+            // 获取当前 ABI 后缀
+            val abi = Build.SUPPORTED_ABIS.firstOrNull() ?: ""
+            val abiSuffix = when {
+                abi.contains("arm64") -> "arm64-v8a"
+                abi.contains("armeabi") -> "armeabi-v7a"
+                else -> ""
+            }
+
+            // 拼接文件名和下载链接
+            val fileName = "${baseName}_$abiSuffix.apk"
+            val fullUrl = urlPrefix
+                .substringBeforeLast("/") + "/" + fileName
+
+            Download.start(requireContext(), fullUrl, fileName)
+            toastOnUi("开始下载: $fileName")
         }
+
     }
 
 }

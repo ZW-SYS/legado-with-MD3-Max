@@ -7,7 +7,6 @@ import io.legato.kazusa.utils.startService
 
 object Download {
 
-
     fun start(context: Context, url: String, fileName: String) {
         context.startService<DownloadService> {
             action = IntentAction.start

@@ -1,7 +1,5 @@
 package io.legato.kazusa.ui.about
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
@@ -35,6 +33,7 @@ import io.legato.kazusa.utils.toastOnUi
 import kotlinx.coroutines.delay
 import splitties.init.appCtx
 import java.io.File
+import androidx.core.net.toUri
 
 class AboutFragment : PreferenceFragmentCompat() {
 
@@ -103,23 +102,23 @@ class AboutFragment : PreferenceFragmentCompat() {
     }
 
 
-    /**
-     * 加入qq群
-     */
-    private fun joinQQGroup(key: String): Boolean {
-        val intent = Intent()
-        intent.data =
-            Uri.parse("mqqopensdkapi://bizAgent/qm/qr?url=http%3A%2F%2Fqm.qq.com%2Fcgi-bin%2Fqm%2Fqr%3Ffrom%3Dapp%26p%3Dandroid%26k%3D$key")
-        // 此Flag可根据具体产品需要自定义，如设置，则在加群界面按返回，返回手Q主界面，不设置，按返回会返回到呼起产品界面
-        // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        kotlin.runCatching {
-            startActivity(intent)
-            return true
-        }.onFailure {
-            toastOnUi("添加失败,请手动添加")
-        }
-        return false
-    }
+//    /**
+//     * 加入qq群
+//     */
+//    private fun joinQQGroup(key: String): Boolean {
+//        val intent = Intent()
+//        intent.data =
+//            "mqqopensdkapi://bizAgent/qm/qr?url=http%3A%2F%2Fqm.qq.com%2Fcgi-bin%2Fqm%2Fqr%3Ffrom%3Dapp%26p%3Dandroid%26k%3D$key".toUri()
+//        // 此Flag可根据具体产品需要自定义，如设置，则在加群界面按返回，返回手Q主界面，不设置，按返回会返回到呼起产品界面
+//        // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//        kotlin.runCatching {
+//            startActivity(intent)
+//            return true
+//        }.onFailure {
+//            toastOnUi("添加失败,请手动添加")
+//        }
+//        return false
+//    }
 
     private fun saveLog() {
         Coroutine.async {
@@ -131,7 +130,7 @@ class AboutFragment : PreferenceFragmentCompat() {
                 appCtx.toastOnUi("未开启日志记录，请去其他设置里打开记录日志")
                 delay(3000)
             }
-            val doc = FileDoc.fromUri(Uri.parse(backupPath), true)
+            val doc = FileDoc.fromUri(backupPath.toUri(), true)
             copyLogs(doc)
             copyHeapDump(doc)
             appCtx.toastOnUi("已保存至备份目录")
@@ -153,7 +152,7 @@ class AboutFragment : PreferenceFragmentCompat() {
             appCtx.toastOnUi("开始创建堆转储")
             System.gc()
             CrashHandler.doHeapDump(true)
-            val doc = FileDoc.fromUri(Uri.parse(backupPath), true)
+            val doc = FileDoc.fromUri(backupPath.toUri(), true)
             if (!copyHeapDump(doc)) {
                 appCtx.toastOnUi("未找到堆转储文件")
             } else {

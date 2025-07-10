@@ -23,19 +23,10 @@
           "other_platform_oauth_client": []
         }
       }
-    }
-  ],
-  "configuration_version": "1",
-
-  "project_info": {
-    "project_number": "735500663982",
-    "project_id": "kazesa-debug",
-    "storage_bucket": "kazesa-debug.firebasestorage.app"
-  },
-  "client": [
+    },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:735500663982:android:68276b2e9a0c230069013f",
+        "mobilesdk_app_id": "1:499897677610:android:f3b742fbea52bbfec09053",
         "android_client_info": {
           "package_name": "io.legato.kazusa.debug"
         }
@@ -43,7 +34,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDt65UOURbutB8DnTOEGuDf6Vhw56T9nq4"
+          "current_key": "AIzaSyAaA79qTqF3S67JUVnUK7pdWx3Y3-sbOZI"
         }
       ],
       "services": {

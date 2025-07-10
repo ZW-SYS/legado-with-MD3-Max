@@ -13,7 +13,7 @@ data class AppReleaseInfo(
     val downloadUrl: String,
     val assetUrl: String
 ) {
-    val versionName: String = Regex("""legado_app_([\d.]+)""")
+    val versionName: String = Regex("""legado_app_([\d.]+)\.apk""")
         .find(name)
         ?.groupValues?.get(1)
         ?: ""
