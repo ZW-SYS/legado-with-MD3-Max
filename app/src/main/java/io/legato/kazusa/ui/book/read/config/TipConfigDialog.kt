@@ -10,8 +10,6 @@ import io.legato.kazusa.databinding.DialogTipConfigBinding
 import io.legato.kazusa.help.config.ReadBookConfig
 import io.legato.kazusa.help.config.ReadTipConfig
 import io.legato.kazusa.lib.dialogs.selector
-import io.legato.kazusa.utils.checkByIndex
-import io.legato.kazusa.utils.getIndexById
 import io.legato.kazusa.utils.hexString
 import io.legato.kazusa.utils.observeEvent
 import io.legato.kazusa.utils.postEvent
@@ -41,7 +39,14 @@ class TipConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_tip_config
     }
 
     private fun initView() {
-        binding.rgTitleMode.checkByIndex(ReadBookConfig.titleMode)
+
+        when (ReadBookConfig.titleMode) {
+            0 -> binding.rgTitleMode.check(R.id.rb_title_mode1)
+            1 -> binding.rgTitleMode.check(R.id.rb_title_mode2)
+            2 -> binding.rgTitleMode.check(R.id.rb_title_mode3)
+            else -> {  }
+        }
+
         binding.dsbTitleSize.progress = ReadBookConfig.titleSize
         binding.dsbTitleTop.progress = ReadBookConfig.titleTopSpacing
         binding.dsbTitleBottom.progress = ReadBookConfig.titleBottomSpacing
@@ -91,9 +96,11 @@ class TipConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_tip_config
     }
 
     private fun initEvent() = binding.run {
-        rgTitleMode.setOnCheckedChangeListener { _, checkedId ->
-            ReadBookConfig.titleMode = rgTitleMode.getIndexById(checkedId)
-            postEvent(EventBus.UP_CONFIG, arrayListOf(5))
+        binding.rgTitleMode.setOnCheckedStateChangeListener { group, checkedIds ->
+            if (checkedIds.isNotEmpty()) {
+                ReadBookConfig.titleMode = group.indexOfChild(group.findViewById(checkedIds.first()))
+                postEvent(EventBus.UP_CONFIG, arrayListOf(5))
+            }
         }
         dsbTitleSize.onChanged = {
             ReadBookConfig.titleSize = it

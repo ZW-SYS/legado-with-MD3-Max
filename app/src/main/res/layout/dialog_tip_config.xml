@@ -43,54 +43,67 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
-        <RadioGroup
+        <com.google.android.material.chip.ChipGroup
             android:id="@+id/rg_title_mode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            app:singleLine="true"
+            app:singleSelection="true"
+            app:selectionRequired="true">
 
-            <com.google.android.material.radiobutton.MaterialRadioButton
+            <com.google.android.material.chip.Chip
                 android:id="@+id/rb_title_mode1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="3dp"
                 android:text="@string/title_left" />
 
-            <com.google.android.material.radiobutton.MaterialRadioButton
+            <com.google.android.material.chip.Chip
                 android:id="@+id/rb_title_mode2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="3dp"
                 android:text="@string/title_center" />
 
-            <com.google.android.material.radiobutton.MaterialRadioButton
+            <com.google.android.material.chip.Chip
                 android:id="@+id/rb_title_mode3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="3dp"
                 android:text="@string/title_hide" />
-        </RadioGroup>
 
-        <io.legato.kazusa.ui.widget.DetailSeekBar
+
+        </com.google.android.material.chip.ChipGroup>
+
+        <io.legato.kazusa.ui.widget.SimpleCounterView
             android:id="@+id/dsb_title_size"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:max="10"
             app:title="@string/title_font_size" />
 
-        <io.legato.kazusa.ui.widget.DetailSeekBar
-            android:id="@+id/dsb_title_top"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:max="100"
-            app:title="@string/title_margin_top" />
+            android:orientation="horizontal">
+            <io.legato.kazusa.ui.widget.SimpleCounterView
+                android:id="@+id/dsb_title_top"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:max="100"
+                app:title="@string/title_margin_top" />
 
-        <io.legato.kazusa.ui.widget.DetailSeekBar
-            android:id="@+id/dsb_title_bottom"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:max="100"
-            app:title="@string/title_margin_bottom" />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+
+            <io.legato.kazusa.ui.widget.SimpleCounterView
+                android:id="@+id/dsb_title_bottom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:max="100"
+                app:title="@string/title_margin_bottom" />
+        </LinearLayout>
+
+
 
         <TextView
             android:id="@+id/tv_header_padding"

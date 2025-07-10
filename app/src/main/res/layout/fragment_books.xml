@@ -17,16 +17,27 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <TextView
+    <LinearLayout
         android:id="@+id/tv_empty_msg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:orientation="vertical"
         android:layout_gravity="center"
         android:layout_margin="16dp"
-        android:gravity="center"
-        android:text="@string/bookshelf_empty"
-        android:visibility="gone"
-        tools:text="TextView" />
+        android:gravity="center">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="(๑`^´๑)"
+            android:textSize="30sp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="@string/bookshelf_empty" />
+    </LinearLayout>
+
 
 </FrameLayout>
 

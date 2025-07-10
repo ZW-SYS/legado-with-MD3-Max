@@ -56,6 +56,8 @@ import kotlin.coroutines.suspendCoroutine
 import androidx.core.view.get
 import com.google.android.material.navigation.NavigationBarView
 import io.legato.kazusa.ui.main.bookshelf.books.BookshelfFragment3
+import io.legato.kazusa.utils.gone
+import io.legato.kazusa.utils.visible
 
 /**
  * 主界面
@@ -382,40 +384,46 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
 
 
     private fun upBottomMenu() {
+        if (AppConfig.showBottomView)
+        {
+            getNavigationBarView().visible()
+            val showDiscovery = AppConfig.showDiscovery
+            val showRss = AppConfig.showRSS
+            val menu = getNavigationBarView().menu
+            menu.findItem(R.id.menu_discovery).isVisible = showDiscovery
+            menu.findItem(R.id.menu_rss).isVisible = showRss
 
-        val showDiscovery = AppConfig.showDiscovery
-        val showRss = AppConfig.showRSS
-        val menu = getNavigationBarView().menu
-        menu.findItem(R.id.menu_discovery).isVisible = showDiscovery
-        menu.findItem(R.id.menu_rss).isVisible = showRss
-
-        var index = 0
-        if (showDiscovery) {
+            var index = 0
+            if (showDiscovery) {
+                index++
+                realPositions[index] = idExplore
+            }
+            if (showRss) {
+                index++
+                realPositions[index] = idRss
+            }
             index++
-            realPositions[index] = idExplore
+            realPositions[index] = idMy
+            bottomMenuCount = index + 1
+            adapter.notifyDataSetChanged()
         }
-        if (showRss) {
-            index++
-            realPositions[index] = idRss
-        }
-        index++
-        realPositions[index] = idMy
-        bottomMenuCount = index + 1
-        adapter.notifyDataSetChanged()
+        else getNavigationBarView().gone()
     }
 
     private fun upHomePage() {
         when (AppConfig.defaultHomePage) {
             "bookshelf" -> {}
-            "explore" -> if (AppConfig.showDiscovery) {
+            "explore" -> if (AppConfig.showDiscovery && AppConfig.showBottomView) {
                 binding.viewPagerMain.setCurrentItem(realPositions.indexOf(idExplore), false)
             }
 
-            "rss" -> if (AppConfig.showRSS) {
+            "rss" -> if (AppConfig.showRSS && AppConfig.showBottomView) {
                 binding.viewPagerMain.setCurrentItem(realPositions.indexOf(idRss), false)
             }
 
-            "my" -> binding.viewPagerMain.setCurrentItem(realPositions.indexOf(idMy), false)
+            "my" -> if (AppConfig.showBottomView) {
+                binding.viewPagerMain.setCurrentItem(realPositions.indexOf(idMy), false)
+            }
         }
     }
 

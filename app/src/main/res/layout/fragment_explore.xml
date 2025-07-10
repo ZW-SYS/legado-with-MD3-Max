@@ -54,17 +54,29 @@
         tools:listitem="@layout/item_find_book"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
-    <TextView
+    <LinearLayout
         android:id="@+id/tv_empty_msg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:gravity="center"
-        android:visibility="gone"
-        android:text="@string/explore_empty"
         app:layout_anchor="@id/app_bar"
-        app:layout_anchorGravity="bottom|center"
+        app:layout_anchorGravity="center"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:text="TextView" />
+        android:visibility="gone"
+        android:orientation="vertical"
+        android:layout_gravity="center"
+        android:layout_margin="16dp"
+        android:gravity="center">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="(っ˘ω˘ς )"
+            android:textSize="30sp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:gravity="center"
+            android:text="@string/explore_empty" />
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

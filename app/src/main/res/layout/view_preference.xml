@@ -32,7 +32,7 @@
         <TextView
             android:id="@+id/preference_title"
             android:singleLine="true"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:text="@string/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -43,7 +43,7 @@
             android:text="@string/default1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp" />
+            android:layout_marginTop="2dp" />
 
     </LinearLayout>
 
@@ -53,7 +53,7 @@
         android:layout_gravity="center_vertical"
         android:layout_marginStart="16dp"
         android:visibility="gone"
-        android:gravity="right|center_vertical"
+        android:gravity="end|center_vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:ignore="RtlHardcoded" />

@@ -154,8 +154,8 @@ class ExploreAdapter(context: Context, val callBack: CallBack) :
         }
     }
 
-    private fun showMenu(view: View, position: Int): Boolean {
-        val source = getItem(position) ?: return true
+    private fun showMenu(view: View, position: Int) {
+        val source = getItem(position) ?: return
         val popupMenu = PopupMenu(context, view)
         popupMenu.inflate(R.menu.explore_item)
         popupMenu.menu.findItem(R.id.menu_login).isVisible = source.hasLoginUrl
@@ -180,7 +180,6 @@ class ExploreAdapter(context: Context, val callBack: CallBack) :
             true
         }
         popupMenu.show()
-        return true
     }
 
     interface CallBack {

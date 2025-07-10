@@ -32,6 +32,11 @@
         <item name="android:layout" tools:ignore="PrivateResource">@layout/m3_alert_dialog</item>
     </style>
 
+    <style name="TextActionMenuAnimation">
+        <item name="android:windowEnterAnimation">@anim/popup_enter</item>
+        <item name="android:windowExitAnimation">@anim/popup_exit</item>
+    </style>
+
     <style name="ChapterNameText">
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>

@@ -184,4 +184,5 @@ object PreferKey {
 
     const val themePref = "themePref"
     const val bookshelfSortOrder = "bookshelfSortOrder"
+    const val showBottomView = "showBottomView"
 }

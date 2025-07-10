@@ -5,15 +5,12 @@ import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ResolveInfo
-import android.net.Uri
-import android.os.Build
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
-import androidx.annotation.RequiresApi
 import androidx.appcompat.view.SupportMenuInflater
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuItemImpl
@@ -43,6 +40,7 @@ class TextActionMenu(private val context: Context, private val callBack: CallBac
     private val adapter = Adapter(context).apply {
         setHasStableIds(true)
     }
+
     private val menuItems: List<MenuItemImpl>
     private val visibleMenuItems = arrayListOf<MenuItemImpl>()
     private val moreMenuItems = arrayListOf<MenuItemImpl>()
@@ -55,13 +53,12 @@ class TextActionMenu(private val context: Context, private val callBack: CallBac
         isTouchable = true
         isOutsideTouchable = false
         isFocusable = false
+        animationStyle = R.style.TextActionMenuAnimation
 
         val myMenu = MenuBuilder(context)
         val otherMenu = MenuBuilder(context)
         SupportMenuInflater(context).inflate(R.menu.content_select_action, myMenu)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            onInitializeMenu(otherMenu)
-        }
+        onInitializeMenu(otherMenu)
         menuItems = myMenu.visibleItems + otherMenu.visibleItems
         visibleMenuItems.addAll(menuItems.subList(0, 5))
         moreMenuItems.addAll(menuItems.subList(5, menuItems.size))
@@ -114,10 +111,7 @@ class TextActionMenu(private val context: Context, private val callBack: CallBac
             when {
                 startTopY > 500 -> {
                     showAtLocation(
-                        view,
-                        Gravity.BOTTOM or Gravity.START,
-                        startX,
-                        windowHeight - startTopY
+                        view, Gravity.BOTTOM or Gravity.START, startX, windowHeight - startTopY
                     )
                 }
 
@@ -138,28 +132,19 @@ class TextActionMenu(private val context: Context, private val callBack: CallBac
             when {
                 startBottomY > 500 -> {
                     showAtLocation(
-                        view,
-                        Gravity.TOP or Gravity.START,
-                        startX,
-                        startTopY - popupHeight
+                        view, Gravity.TOP or Gravity.START, startX, startTopY - popupHeight
                     )
                 }
 
                 endBottomY - startBottomY > 500 -> {
                     showAtLocation(
-                        view,
-                        Gravity.TOP or Gravity.START,
-                        startX,
-                        startBottomY
+                        view, Gravity.TOP or Gravity.START, startX, startBottomY
                     )
                 }
 
                 else -> {
                     showAtLocation(
-                        view,
-                        Gravity.TOP or Gravity.START,
-                        endX,
-                        endBottomY
+                        view, Gravity.TOP or Gravity.START, endX, endBottomY
                     )
                 }
             }
@@ -233,28 +218,23 @@ class TextActionMenu(private val context: Context, private val callBack: CallBac
             }
 
             else -> item.intent?.let {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    it.putExtra(Intent.EXTRA_PROCESS_TEXT, callBack.selectedText)
-                    context.startActivity(it)
-                }
+                it.putExtra(Intent.EXTRA_PROCESS_TEXT, callBack.selectedText)
+                context.startActivity(it)
             }
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     private fun createProcessTextIntent(): Intent {
         return Intent()
             .setAction(Intent.ACTION_PROCESS_TEXT)
             .setType("text/plain")
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     private fun getSupportedActivities(): List<ResolveInfo> {
         return context.packageManager
             .queryIntentActivities(createProcessTextIntent(), 0)
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     private fun createProcessTextIntentForResolveInfo(info: ResolveInfo): Intent {
         return createProcessTextIntent()
             .putExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, false)
@@ -266,7 +246,6 @@ class TextActionMenu(private val context: Context, private val callBack: CallBac
      * so that your "PROCESS_TEXT" menu items appear after the
      * standard selection menu items like Cut, Copy, Paste.
      */
-    @RequiresApi(Build.VERSION_CODES.M)
     private fun onInitializeMenu(menu: Menu) {
         kotlin.runCatching {
             var menuItemOrder = 100
