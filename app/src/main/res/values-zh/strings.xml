@@ -1217,8 +1217,18 @@
     <string name="manga_color_filter">滤镜</string>
     <string name="hide_manga_title">隐藏漫画列表标题</string>
     <string name="refresh_explore">刷新发现</string>
+    <string name="ungroup">未分组</string>
+    <string name="dynamic_colors">动态取色</string>
     <string name="change_icon_success">图标已修改</string>
+    <string name="replace_rule_title_setting">配置替换规则</string>
+    <string name="more_setting">更多设置</string>
     <string name="read_chapter_total">共 %d 章</string>
     <string name="read_chapter_index">已读 %d 章</string>
+
+    <string name="manga_epaper">墨水屏</string>
+    <string name="manga_epaper_stting">墨水屏设置</string>
+    <string name="manga_epaper_value">阈值</string>
+    <string name="disable_horizontal_animation">禁用水平滚动动画</string>
+    <string name="enable_manga_gray">开启图片灰色</string>
 
 </resources>

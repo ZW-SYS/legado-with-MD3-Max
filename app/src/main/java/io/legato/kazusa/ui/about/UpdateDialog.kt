@@ -6,8 +6,11 @@ import android.view.View
 import io.legato.kazusa.BuildConfig
 import io.legato.kazusa.R
 import io.legato.kazusa.base.BaseBottomSheetDialogFragment
+import io.legato.kazusa.constant.AppConst
 import io.legato.kazusa.databinding.DialogUpdateBinding
+import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.update.AppUpdate
+import io.legato.kazusa.help.update.AppVariant
 import io.legato.kazusa.model.Download
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
@@ -27,6 +30,14 @@ class UpdateDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_update) {
         }
     }
 
+    private val checkVariant: AppVariant
+        get() = when (AppConfig.updateToVariant) {
+            "official_version" -> AppVariant.OFFICIAL
+            "beta_release_version" -> AppVariant.BETA_RELEASE
+            "beta_releaseA_version" -> AppVariant.BETA_RELEASEA
+            else -> AppConst.appInfo.appVariant
+        }
+
     val binding by viewBinding(DialogUpdateBinding::bind)
 
     override fun onStart() {
@@ -41,6 +52,7 @@ class UpdateDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_update) {
 
         binding.tvAbi.text = Build.SUPPORTED_ABIS.firstOrNull() ?: "unknown"
         binding.tvUrl.text = arguments?.getString("url")
+        binding.tvVariable.text = checkVariant.toString()
 
         val updateBody = arguments?.getString("updateBody")
         if (updateBody == null) {

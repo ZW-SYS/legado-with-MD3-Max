@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.annotation.IntRange
+import androidx.core.util.size
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
@@ -16,6 +17,7 @@ import androidx.viewbinding.ViewBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.ListPreloader.PreloadModelProvider
 import com.bumptech.glide.RequestBuilder
+import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import io.legato.kazusa.base.adapter.ItemViewHolder
 import io.legato.kazusa.base.adapter.RecyclerAdapter.Companion.TYPE_FOOTER_VIEW
 import io.legato.kazusa.databinding.ItemBookMangaEdgeBinding
@@ -24,6 +26,8 @@ import io.legato.kazusa.help.glide.progress.ProgressManager
 import io.legato.kazusa.model.BookCover
 import io.legato.kazusa.model.ReadManga
 import io.legato.kazusa.ui.book.manga.config.MangaColorFilterConfig
+import io.legato.kazusa.ui.book.manga.entities.EpaperTransformation
+import io.legato.kazusa.ui.book.manga.entities.GrayscaleTransformation
 import io.legato.kazusa.ui.book.manga.entities.MangaPage
 import io.legato.kazusa.ui.book.manga.entities.ReaderLoading
 import io.legato.kazusa.utils.dpToPx
@@ -34,6 +38,8 @@ class MangaAdapter(private val context: Context) :
 
     private val inflater: LayoutInflater = LayoutInflater.from(context)
     private lateinit var mConfig: MangaColorFilterConfig
+    private var mTransformation: BitmapTransformation? = null
+    private var currentMangaEInkThreshold = 0
 
     companion object {
         private const val LOADING_VIEW = 0
@@ -91,7 +97,7 @@ class MangaAdapter(private val context: Context) :
                 if (item is MangaPage) {
                     val isLastImage = item.imageCount > 0 && item.index == item.imageCount - 1
                     loadImageWithRetry(
-                        item.mImageUrl, isHorizontal, isLastImage
+                        item.mImageUrl, isHorizontal, isLastImage, mTransformation
                     )
                 }
             }
@@ -100,7 +106,7 @@ class MangaAdapter(private val context: Context) :
         fun onBind(item: MangaPage) {
             setImageColorFilter()
             val isLastImage = item.imageCount > 0 && item.index == item.imageCount - 1
-            loadImageWithRetry(item.mImageUrl, isHorizontal, isLastImage)
+            loadImageWithRetry(item.mImageUrl, isHorizontal, isLastImage, mTransformation)
         }
 
         fun setImageColorFilter() {
@@ -167,7 +173,7 @@ class MangaAdapter(private val context: Context) :
         }
     }
 
-    fun getFooterCount() = footerItems.size()
+    fun getFooterCount() = footerItems.size
 
     private fun isFooter(position: Int) = position >= getActualItemCount()
 
@@ -199,8 +205,8 @@ class MangaAdapter(private val context: Context) :
     @Synchronized
     fun addFooterView(footer: ((parent: ViewGroup) -> ViewBinding)) {
         kotlin.runCatching {
-            val index = getActualItemCount() + footerItems.size()
-            footerItems.put(TYPE_FOOTER_VIEW + footerItems.size(), footer)
+            val index = getActualItemCount() + footerItems.size
+            footerItems.put(TYPE_FOOTER_VIEW + footerItems.size, footer)
             notifyItemInserted(index)
         }
     }
@@ -241,6 +247,34 @@ class MangaAdapter(private val context: Context) :
 
     fun setMangaImageColorFilter(config: MangaColorFilterConfig) {
         mConfig = config
+        notifyItemRangeChanged(0, itemCount)
+    }
+
+    fun enableMangaEInk(enable: Boolean, value: Int) {
+        if (enable) {
+            currentMangaEInkThreshold = value
+            mTransformation = EpaperTransformation(currentMangaEInkThreshold)
+        } else {
+            mTransformation = null
+        }
+        notifyItemRangeChanged(0, itemCount)
+    }
+
+    fun updateThreshold(mangaEInkThreshold: Int) {
+        if (currentMangaEInkThreshold != mangaEInkThreshold) {
+            currentMangaEInkThreshold = mangaEInkThreshold
+            mTransformation = EpaperTransformation(currentMangaEInkThreshold)
+            notifyItemRangeChanged(0, itemCount)
+        }
+    }
+
+    //开启灰色图片
+    fun enableGray(enable: Boolean) {
+        mTransformation = if (enable) {
+            GrayscaleTransformation()
+        } else {
+            null
+        }
         notifyItemRangeChanged(0, itemCount)
     }
 

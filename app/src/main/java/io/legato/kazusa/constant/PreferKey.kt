@@ -104,6 +104,11 @@ object PreferKey {
     const val enableMangaHorizontalScroll = "enableMangaHorizontalScroll"
     const val hideMangaTitle = "hideMangaTitle"
     const val mangaColorFilter = "mangaColorFilter"
+    const val enableMangaEInk = "enableMangaEInk"
+    const val mangaEInkThreshold = "mangaEInkThreshold"
+    const val disableHorizontalAnimator = "disableHorizontalAnimator"
+    const val enableMangaGray = "enableMangaGray"
+
     const val autoRefresh = "auto_refresh"
     const val defaultToRead = "defaultToRead"
     const val exportCharset = "exportCharset"
