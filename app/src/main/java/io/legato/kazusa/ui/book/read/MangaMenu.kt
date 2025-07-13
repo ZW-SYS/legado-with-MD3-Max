@@ -1,8 +1,8 @@
 package io.legato.kazusa.ui.book.read
 
+//import io.legado.app.lib.theme.bottomBackground
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.animation.Animation
@@ -15,14 +15,12 @@ import io.legato.kazusa.databinding.ViewMangaMenuBinding
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.source.getSourceType
 import io.legato.kazusa.lib.dialogs.alert
-//import io.legado.app.lib.theme.bottomBackground
 import io.legato.kazusa.model.ReadBook
 import io.legato.kazusa.model.ReadManga
 import io.legato.kazusa.ui.browser.WebViewActivity
 import io.legato.kazusa.utils.ConstraintModify
 import io.legato.kazusa.utils.activity
 import io.legato.kazusa.utils.applyNavigationBarPadding
-import io.legato.kazusa.utils.dpToPx
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.invisible
 import io.legato.kazusa.utils.loadAnimation
@@ -95,15 +93,15 @@ class MangaMenu @JvmOverloads constructor(
 
     private fun initView() = binding.run {
         initAnimation()
-        val brightnessBackground = GradientDrawable()
-        brightnessBackground.cornerRadius = 5F.dpToPx()
-        //brightnessBackground.setColor(ColorUtils.adjustAlpha(bgColor, 0.5f))
-        if (AppConfig.isEInkMode) {
-            titleBar.setBackgroundResource(R.drawable.bg_eink_border_bottom)
-            bottomMenu.setBackgroundResource(R.drawable.bg_eink_border_top)
-        } else {
-            //bottomMenu.setBackgroundColor(bgColor)
-        }
+//        val brightnessBackground = GradientDrawable()
+//        brightnessBackground.cornerRadius = 5F.dpToPx()
+//        //brightnessBackground.setColor(ColorUtils.adjustAlpha(bgColor, 0.5f))
+//        if (AppConfig.isEInkMode) {
+//            titleBar.setBackgroundResource(R.drawable.bg_eink_border_bottom)
+//            bottomMenu.setBackgroundResource(R.drawable.bg_eink_border_top)
+//        } else {
+//            //bottomMenu.setBackgroundColor(bgColor)
+//        }
         if (AppConfig.showReadTitleBarAddition) {
             titleBarAddition.visible()
         } else {
@@ -113,7 +111,7 @@ class MangaMenu @JvmOverloads constructor(
         /**
          * 确保视图不被导航栏遮挡
          */
-        bottomMenu.applyNavigationBarPadding()
+        bottomView.applyNavigationBarPadding()
     }
 
     private fun upBrightnessVwPos() {
@@ -163,6 +161,18 @@ class MangaMenu @JvmOverloads constructor(
         }
     }
 
+    fun upBookView() {
+        binding.titleBar.title = " "
+        binding.tvBookName.text = ReadManga.book?.name
+        ReadManga.curMangaChapter?.let {
+            binding.tvChapterName.text = ReadManga.book?.durChapterTitle
+            binding.tvPre.isEnabled = ReadManga.durChapterIndex != 0
+            binding.tvNext.isEnabled =
+                ReadManga.durChapterIndex != ReadManga.simulatedChapterSize - 1
+        } ?: let {
+            binding.tvChapterUrl.gone()
+        }
+    }
 
     private fun bindEvent() = binding.run {
         vwMenuBg.setOnClickListener { runMenuOut() }
@@ -224,14 +234,26 @@ class MangaMenu @JvmOverloads constructor(
             }
         })
 
+        ivCatalog.setOnClickListener {
+            callBack.openCatalog()
+        }
+
+        ivSetting.setOnClickListener {
+            callBack.showFooterConfig()
+        }
+
+        btnAutoPage.setOnClickListener {
+            callBack.showFooterConfig()
+        }
+
     }
 
     fun upSeekBar(value: Int, count: Int) {
         binding.seekReadPage.apply {
             valueFrom = 1f
-            valueTo = (count).toFloat()
-            this.value = value.toFloat().coerceIn(1f,valueFrom)
+            valueTo = count.toFloat()
             stepSize = 1f
+            this.value = value.toFloat().coerceIn(valueFrom, valueTo)
         }
     }
 
@@ -239,6 +261,8 @@ class MangaMenu @JvmOverloads constructor(
         fun openBookInfoActivity()
         fun upSystemUiVisibility(menuIsVisible: Boolean)
         fun skipToPage(index: Int)
+        fun openCatalog()
+        fun showFooterConfig()
     }
 
 }

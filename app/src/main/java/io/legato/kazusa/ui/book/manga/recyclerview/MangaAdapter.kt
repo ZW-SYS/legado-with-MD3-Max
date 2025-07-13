@@ -253,19 +253,11 @@ class MangaAdapter(private val context: Context) :
     fun enableMangaEInk(enable: Boolean, value: Int) {
         if (enable) {
             currentMangaEInkThreshold = value
-            mTransformation = EpaperTransformation(currentMangaEInkThreshold)
+            mTransformation = EpaperTransformation(value)
         } else {
             mTransformation = null
         }
         notifyItemRangeChanged(0, itemCount)
-    }
-
-    fun updateThreshold(mangaEInkThreshold: Int) {
-        if (currentMangaEInkThreshold != mangaEInkThreshold) {
-            currentMangaEInkThreshold = mangaEInkThreshold
-            mTransformation = EpaperTransformation(currentMangaEInkThreshold)
-            notifyItemRangeChanged(0, itemCount)
-        }
     }
 
     //开启灰色图片

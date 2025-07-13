@@ -76,7 +76,7 @@ object BookCover {
             return
         }
         defaultDrawable = kotlin.runCatching {
-            BitmapUtils.decodeBitmap(path, 600, 900).toDrawable(appCtx.resources)
+            BitmapUtils.decodeBitmap(path, 600, 900)!!.toDrawable(appCtx.resources)
         }.getOrDefault(appCtx.resources.getDrawable(R.drawable.image_cover_default, null))
     }
 
@@ -158,6 +158,7 @@ object BookCover {
                 }
                 it
             }
+            .transition(DrawableTransitionOptions.withCrossFade())
     }
 
     fun preloadManga(

@@ -22,9 +22,8 @@ class EpaperTransformation(
     @IntRange(0, 255) private val threshold: Int = 128,
 ) : BitmapTransformation() {
 
-    private val ID =
-        "io.legado.app.model.EpaperTransformation.${threshold}"
-    private val ID_BYTES = ID.toByteArray(CHARSET)
+    private val ID get() = "io.legado.app.model.EpaperTransformation.$threshold"
+    private val ID_BYTES get() = ID.toByteArray(CHARSET)
 
     override fun transform(
         pool: BitmapPool,

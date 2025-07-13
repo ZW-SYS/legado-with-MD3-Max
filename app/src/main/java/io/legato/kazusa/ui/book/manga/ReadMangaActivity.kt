@@ -43,7 +43,6 @@ import io.legato.kazusa.ui.book.changesource.ChangeBookSourceDialog
 import io.legato.kazusa.ui.book.info.BookInfoActivity
 import io.legato.kazusa.ui.book.manga.config.MangaColorFilterConfig
 import io.legato.kazusa.ui.book.manga.config.MangaColorFilterDialog
-import io.legato.kazusa.ui.book.manga.config.MangaEpaperDialog
 import io.legato.kazusa.ui.book.manga.config.MangaFooterConfig
 import io.legato.kazusa.ui.book.manga.config.MangaFooterSettingDialog
 import io.legato.kazusa.ui.book.manga.entities.BaseMangaPage
@@ -78,7 +77,7 @@ import kotlin.math.ceil
 
 class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewModel>(),
     ReadManga.Callback, ChangeBookSourceDialog.CallBack, MangaMenu.CallBack,
-    MangaColorFilterDialog.Callback, ScrollTimer.ScrollCallback, MangaEpaperDialog.Callback {
+    MangaColorFilterDialog.Callback, ScrollTimer.ScrollCallback, MangaFooterSettingDialog.Callback {
 
     private val mLayoutManager by lazy {
         MangaLayoutManager(this)
@@ -253,7 +252,7 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
 
     override fun upContent() {
         lifecycleScope.launch {
-            setTitle(ReadManga.book?.name)
+            binding.mangaMenu.upBookView()
             val data = withContext(IO) { ReadManga.mangaContents }
             val pos = data.pos
             val list = data.items
@@ -450,7 +449,11 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
 
     override fun updateColorFilter(config: MangaColorFilterConfig) {
         mAdapter.setMangaImageColorFilter(config)
-        updateWindowBrightness(config.l)
+        if (config.autoBrightness) {
+            resetWindowToSystemBrightness()
+        } else {
+            updateWindowBrightness(config.l)
+        }
     }
 
     @SuppressLint("StringFormatMatches")
@@ -470,12 +473,6 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
                 binding.mangaMenu.runMenuOut()
                 ReadManga.book?.let {
                     showDialogFragment(ChangeBookSourceDialog(it.name, it.author))
-                }
-            }
-
-            R.id.menu_catalog -> {
-                ReadManga.book?.let {
-                    tocActivity.launch(it.bookUrl)
                 }
             }
 
@@ -510,35 +507,6 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
                 setDisableClickScroll(item.isChecked)
             }
 
-            R.id.menu_enable_auto_page -> {
-                item.isChecked = !item.isChecked
-                val menuMangaAutoPageSpeed = mMenu?.findItem(R.id.menu_manga_auto_page_speed)
-                mScrollTimer.isEnabledPage = item.isChecked
-                menuMangaAutoPageSpeed?.isVisible = item.isChecked
-                enableAutoScrollPage = item.isChecked
-                enableAutoScroll = false
-                mScrollTimer.isEnabled = false
-                mMenu?.findItem(R.id.menu_enable_auto_scroll)?.isChecked = false
-            }
-
-            R.id.menu_manga_auto_page_speed -> {
-                showNumberPickerDialog(
-                    1, getString(R.string.setting_manga_auto_page_speed),
-                    AppConfig.mangaAutoPageSpeed
-                ) {
-                    AppConfig.mangaAutoPageSpeed = it
-                    item.title = getString(R.string.manga_auto_page_speed, it)
-                    mScrollTimer.setSpeed(it)
-                    if (enableAutoScrollPage) {
-                        mScrollTimer.isEnabledPage = true
-                    }
-                }
-            }
-
-            R.id.menu_manga_footer_config -> {
-                showDialogFragment(MangaFooterSettingDialog())
-            }
-
             R.id.menu_enable_horizontal_scroll -> {
                 item.isChecked = !item.isChecked
                 AppConfig.enableMangaHorizontalScroll = item.isChecked
@@ -555,11 +523,11 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
             R.id.menu_enable_auto_scroll -> {
                 item.isChecked = !item.isChecked
                 mScrollTimer.isEnabled = item.isChecked
-                mMenu?.findItem(R.id.menu_enable_auto_page)?.isChecked = false
+
                 enableAutoScroll = item.isChecked
                 enableAutoScrollPage = false
                 mScrollTimer.isEnabledPage = false
-                mMenu?.findItem(R.id.menu_manga_auto_page_speed)?.isVisible = item.isChecked
+
                 if (enableAutoScroll) {
                     mPagerSnapHelper.attachToRecyclerView(null)
                 } else if (AppConfig.enableMangaHorizontalScroll) {
@@ -573,18 +541,7 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
                 ReadManga.loadContent()
             }
 
-            R.id.menu_epaper_manga -> {
-                item.isChecked = !item.isChecked
-                AppConfig.enableMangaEInk = item.isChecked
-                mMenu?.findItem(R.id.menu_gray_manga)?.isChecked = false
-                AppConfig.enableMangaGray = false
-                mMenu?.findItem(R.id.menu_epaper_manga_setting)?.isVisible = item.isChecked
-                mAdapter.enableMangaEInk(item.isChecked, AppConfig.mangaEInkThreshold)
-            }
 
-            R.id.menu_epaper_manga_setting -> {
-                showDialogFragment(MangaEpaperDialog())
-            }
 
             R.id.menu_disable_horizontal_animation -> {
                 item.isChecked = !item.isChecked
@@ -596,17 +553,43 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
                 }
             }
 
-            R.id.menu_gray_manga -> {
-                item.isChecked = !item.isChecked
-                AppConfig.enableMangaGray = item.isChecked
-                mMenu?.findItem(R.id.menu_epaper_manga)?.isChecked = false
-                AppConfig.enableMangaEInk = false
-                mMenu?.findItem(R.id.menu_epaper_manga_setting)?.isVisible = false
-                mAdapter.enableGray(item.isChecked)
-            }
+
         }
         return super.onCompatOptionsItemSelected(item)
     }
+
+    override fun openCatalog() {
+        ReadManga.book?.let {
+            tocActivity.launch(it.bookUrl)
+        }
+    }
+
+    override fun showFooterConfig() {
+        showDialogFragment(MangaFooterSettingDialog().apply {
+            initialAutoPageEnabled = enableAutoScrollPage
+            initialAutoPageSpeed = AppConfig.mangaAutoPageSpeed
+            callback = this@ReadMangaActivity
+        })
+    }
+
+    override fun showColorFilterConfig() {
+        binding.mangaMenu.runMenuOut()
+        showDialogFragment(MangaColorFilterDialog())
+    }
+
+    override fun updateEpaperMode(enabled: Boolean, threshold: Int) {
+        AppConfig.enableMangaEInk = enabled
+        AppConfig.enableMangaGray = false
+        AppConfig.mangaEInkThreshold = threshold
+        mAdapter.enableMangaEInk(enabled, threshold)
+    }
+
+    override fun updateGrayMode(enabled: Boolean) {
+        AppConfig.enableMangaGray = enabled
+        AppConfig.enableMangaEInk = false
+        mAdapter.enableGray(enabled)
+    }
+
 
     override fun openBookInfoActivity() {
         ReadManga.book?.let {
@@ -616,6 +599,26 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
             }
         }
     }
+
+    override fun onAutoPageToggle(enabled: Boolean) {
+        mScrollTimer.isEnabledPage = enabled
+        mScrollTimer.isEnabled = false
+
+        enableAutoScrollPage = enabled
+        enableAutoScroll = false
+
+        mMenu?.findItem(R.id.menu_enable_auto_scroll)?.isChecked = false
+    }
+
+    override fun onAutoPageSpeedChanged(speed: Int) {
+        AppConfig.mangaAutoPageSpeed = speed
+        mScrollTimer.setSpeed(speed)
+
+        if (enableAutoScrollPage) {
+            mScrollTimer.isEnabledPage = true
+        }
+    }
+
 
     override fun upSystemUiVisibility(menuIsVisible: Boolean) {
         toggleSystemBar(menuIsVisible)
@@ -680,19 +683,16 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
             getString(R.string.pre_download_m, AppConfig.mangaPreDownloadNum)
         menu.findItem(R.id.menu_disable_manga_scale).isChecked = AppConfig.disableMangaScale
         menu.findItem(R.id.menu_disable_click_scroll).isChecked = AppConfig.disableClickScroll
-        menu.findItem(R.id.menu_manga_auto_page_speed).title =
-            getString(R.string.manga_auto_page_speed, AppConfig.mangaAutoPageSpeed)
         menu.findItem(R.id.menu_enable_horizontal_scroll).isChecked =
             AppConfig.enableMangaHorizontalScroll
         menu.findItem(R.id.menu_hide_manga_title).isChecked = AppConfig.hideMangaTitle
-        menu.findItem(R.id.menu_epaper_manga).isChecked = AppConfig.enableMangaEInk
-        menu.findItem(R.id.menu_epaper_manga_setting).isVisible = AppConfig.enableMangaEInk
+
         menu.findItem(R.id.menu_disable_horizontal_animation).run {
             isVisible =
                 AppConfig.enableMangaHorizontalScroll
             isChecked = AppConfig.disableHorizontalAnimator
         }
-        menu.findItem(R.id.menu_gray_manga).isChecked = AppConfig.enableMangaGray
+
     }
 
     private fun setDisableMangaScale(disable: Boolean) {
@@ -782,6 +782,11 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
             }
         }
     }
+    fun resetWindowToSystemBrightness() {
+        val layoutParams = window.attributes
+        layoutParams.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+        window.attributes = layoutParams
+    }
 
     fun updateWindowBrightness(brightness: Int) {
         val layoutParams = window.attributes
@@ -832,7 +837,5 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
         return super.onKeyDown(keyCode, event)
     }
 
-    override fun updateEepaper(value: Int) {
-        mAdapter.updateThreshold(value)
-    }
+
 }

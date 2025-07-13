@@ -143,8 +143,6 @@ class SimpleCounterView @JvmOverloads constructor(
         }
     }
 
-
-
     private fun updateValue() {
         binding.tvSeekValue.text = valueFormat?.invoke(_progress) ?: _progress.toString()
     }
@@ -183,6 +181,14 @@ class SimpleCounterView @JvmOverloads constructor(
         handler.removeCallbacks(incrementRunnable)
         handler.removeCallbacks(decrementRunnable)
         super.onDetachedFromWindow()
+    }
+
+    override fun setEnabled(enabled: Boolean) {
+        super.setEnabled(enabled)
+        binding.tvSeekTitle.isEnabled = enabled
+        binding.ivSeekPlus.isEnabled = enabled
+        binding.ivSeekReduce.isEnabled = enabled
+        binding.tvSeekValue.isEnabled = enabled
     }
 
 }
