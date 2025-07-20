@@ -190,4 +190,6 @@ object PreferKey {
     const val themePref = "themePref"
     const val bookshelfSortOrder = "bookshelfSortOrder"
     const val showBottomView = "showBottomView"
+    const val mangaScrollMode = "mangaScrollMode"
+    const val webtoonSidePaddingDp = "webtoonSidePaddingDp"
 }

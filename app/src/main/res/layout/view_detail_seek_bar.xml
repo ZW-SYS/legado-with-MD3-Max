@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_marginVertical="4dp"
+    android:layout_marginVertical="8dp"
     android:orientation="vertical">
 
     <LinearLayout
@@ -12,6 +11,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
         android:paddingTop="8dp"
         android:paddingBottom="4dp">
 
@@ -19,10 +19,9 @@
             android:id="@+id/tv_seek_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
             android:singleLine="true"
             android:text="seek"
-            tools:ignore="HardcodedText" />
+            android:textStyle="bold" />
 
         <View
             android:layout_width="0dp"
@@ -32,7 +31,6 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="4dp"
             app:strokeWidth="0dp"
             app:cardBackgroundColor="?attr/colorSurfaceVariant">
             <TextView
@@ -47,35 +45,10 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <com.google.android.material.slider.Slider
+        android:id="@+id/slider"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/iv_seek_reduce"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
-            android:contentDescription="@string/reduce"
-            app:icon="@drawable/ic_reduce" />
-
-        <io.legato.kazusa.lib.theme.view.ThemeSlider
-            android:id="@+id/slider"
-            android:layout_width="0dp"
-            android:layout_height="25dp"
-            android:layout_gravity="center_vertical"
-            app:labelBehavior="gone"
-            android:layout_weight="4"
-            android:stepSize="1"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/iv_seek_plus"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
-            android:contentDescription="@string/plus"
-            app:icon="@drawable/ic_add" />
-    </LinearLayout>
+        android:stepSize="1" />
 
 </LinearLayout>

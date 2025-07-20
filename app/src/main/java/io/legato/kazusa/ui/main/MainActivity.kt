@@ -10,6 +10,7 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.activity.viewModels
+import androidx.core.view.get
 import androidx.core.view.postDelayed
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -17,6 +18,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.navigation.NavigationBarView
 import io.legato.kazusa.BuildConfig
 import io.legato.kazusa.R
 import io.legato.kazusa.base.VMBaseActivity
@@ -37,10 +39,12 @@ import io.legato.kazusa.ui.about.CrashLogsDialog
 import io.legato.kazusa.ui.main.bookshelf.BaseBookshelfFragment
 import io.legato.kazusa.ui.main.bookshelf.books.BookshelfFragment1
 import io.legato.kazusa.ui.main.bookshelf.books.BookshelfFragment2
+import io.legato.kazusa.ui.main.bookshelf.books.BookshelfFragment3
 import io.legato.kazusa.ui.main.explore.ExploreFragment
 import io.legato.kazusa.ui.main.my.MyFragment
 import io.legato.kazusa.ui.main.rss.RssFragment
 import io.legato.kazusa.ui.widget.dialog.TextDialog
+import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.hideSoftInput
 import io.legato.kazusa.utils.isCreated
 import io.legato.kazusa.utils.observeEvent
@@ -48,16 +52,12 @@ import io.legato.kazusa.utils.shouldHideSoftInput
 import io.legato.kazusa.utils.showDialogFragment
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
+import io.legato.kazusa.utils.visible
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-import androidx.core.view.get
-import com.google.android.material.navigation.NavigationBarView
-import io.legato.kazusa.ui.main.bookshelf.books.BookshelfFragment3
-import io.legato.kazusa.utils.gone
-import io.legato.kazusa.utils.visible
 
 /**
  * 主界面
@@ -89,7 +89,6 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
     private val badge by lazy {
         getNavigationBarView().getOrCreateBadge(R.id.menu_bookshelf)
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -382,32 +381,25 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
         )
     }
 
-
     private fun upBottomMenu() {
-        if (AppConfig.showBottomView)
-        {
-            getNavigationBarView().visible()
-            val showDiscovery = AppConfig.showDiscovery
-            val showRss = AppConfig.showRSS
-            val menu = getNavigationBarView().menu
-            menu.findItem(R.id.menu_discovery).isVisible = showDiscovery
-            menu.findItem(R.id.menu_rss).isVisible = showRss
-
-            var index = 0
-            if (showDiscovery) {
-                index++
-                realPositions[index] = idExplore
-            }
-            if (showRss) {
-                index++
-                realPositions[index] = idRss
-            }
+        val menu = getNavigationBarView().menu
+        menu.findItem(R.id.menu_discovery).isVisible = AppConfig.showDiscovery
+        menu.findItem(R.id.menu_rss).isVisible = AppConfig.showRSS
+        var index = 0
+        if (AppConfig.showDiscovery) {
             index++
-            realPositions[index] = idMy
-            bottomMenuCount = index + 1
-            adapter.notifyDataSetChanged()
+            realPositions[index] = idExplore
         }
-        else getNavigationBarView().gone()
+        if (AppConfig.showRSS) {
+            index++
+            realPositions[index] = idRss
+        }
+        index++
+        realPositions[index] = idMy
+        bottomMenuCount = index + 1
+        adapter.notifyDataSetChanged()
+        if (AppConfig.showBottomView) getNavigationBarView().visible()
+        else binding.bottomNavigationView?.gone()
     }
 
     private fun upHomePage() {
@@ -449,7 +441,6 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
         }
 
     }
-
 
     private inner class TabFragmentPageAdapter(fm: FragmentManager) :
         FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {

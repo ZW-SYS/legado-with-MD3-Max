@@ -44,6 +44,12 @@ class DetailSeekBar @JvmOverloads constructor(
             binding.slider.valueTo = value.toFloat()
         }
 
+    var min: Int
+        get() = binding.slider.valueFrom.toInt()
+        set(value) {
+            binding.slider.valueFrom = value.toFloat()
+        }
+
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.DetailSeekBar)
         isBottomBackground =
@@ -57,17 +63,6 @@ class DetailSeekBar @JvmOverloads constructor(
 
         binding.slider.valueTo = typedArray.getInteger(R.styleable.DetailSeekBar_max, 0).toFloat()
         typedArray.recycle()
-        binding.ivSeekPlus.setOnClickListener {
-            val newValue = (binding.slider.value + 1).coerceAtMost(binding.slider.valueTo)
-            binding.slider.value = newValue
-            onChanged?.invoke(newValue.toInt())
-        }
-
-        binding.ivSeekReduce.setOnClickListener {
-            val newValue = (binding.slider.value - 1).coerceAtLeast(binding.slider.valueFrom)
-            binding.slider.value = newValue
-            onChanged?.invoke(newValue.toInt())
-        }
 
         binding.slider.addOnChangeListener { _, value, fromUser ->
             upValue(value.toInt())

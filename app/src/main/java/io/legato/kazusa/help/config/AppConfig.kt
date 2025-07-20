@@ -5,6 +5,7 @@ import android.os.Build
 import io.legato.kazusa.BuildConfig
 import io.legato.kazusa.constant.PreferKey
 import io.legato.kazusa.data.appDb
+import io.legato.kazusa.ui.book.manga.config.MangaScrollMode
 import io.legato.kazusa.utils.canvasrecorder.CanvasRecorderFactory
 import io.legato.kazusa.utils.getPrefBoolean
 import io.legato.kazusa.utils.getPrefInt
@@ -664,6 +665,14 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
             appCtx.putPrefBoolean(PreferKey.enableMangaHorizontalScroll, value)
         }
 
+    //漫画滚动方式
+    var mangaScrollMode: Int
+        get() = appCtx.getPrefInt(PreferKey.mangaScrollMode, MangaScrollMode.PAGE_RIGHT_TO_LEFT)
+        set(value) {
+            appCtx.putPrefInt(PreferKey.mangaScrollMode, value)
+        }
+
+    //漫画滤镜
     var mangaColorFilter
         get() = appCtx.getPrefString(PreferKey.mangaColorFilter, "")
         set(value) {
@@ -701,5 +710,12 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
         set(value) {
             appCtx.putPrefBoolean(PreferKey.enableMangaGray, value)
         }
+
+    var webtoonSidePaddingDp: Int
+        get() = appCtx.getPrefInt(PreferKey.webtoonSidePaddingDp, 0)
+        set(value) {
+            appCtx.putPrefInt(PreferKey.webtoonSidePaddingDp, value)
+        }
+
 }
 

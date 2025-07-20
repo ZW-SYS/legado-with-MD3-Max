@@ -48,8 +48,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:text="@string/footer"
+                android:textStyle="bold"
                 android:textSize="14sp" />
-
             <View
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -165,35 +165,10 @@
                 android:text="2.1%" />
         </com.google.android.material.chip.ChipGroup>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_autoPage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/enable_auto_page_scroll" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1" />
-
-            <io.legato.kazusa.ui.widget.SimpleCounterView
-                android:id="@+id/scv_autoPageSpeed"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:max="100"
-                app:title="翻页速度" />
-
-        </LinearLayout>
-
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_color_filter"
-            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+            style="@style/Widget.Material3.Button.TonalButton"
+            app:icon="@drawable/ic_filter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/manga_color_filter" />

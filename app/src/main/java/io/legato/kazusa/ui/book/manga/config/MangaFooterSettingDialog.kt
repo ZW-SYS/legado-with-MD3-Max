@@ -129,36 +129,12 @@ class MangaFooterSettingDialog :
             postEvent(EventBus.UP_MANGA_CONFIG, config)
         }
 
-
-        binding.chipAutoPage.run {
-            isChecked = initialAutoPageEnabled
-            setOnCheckedChangeListener { _, isChecked ->
-                callback?.onAutoPageToggle(isChecked)
-                initAutoPageSpeed(isChecked)
-            }
-        }
-
         binding.btnColorFilter.setOnClickListener {
             callback?.showColorFilterConfig()
             dismiss()
         }
 
-        initAutoPageSpeed(initialAutoPageEnabled)
-
         updateChapterText()
-    }
-
-    private fun initAutoPageSpeed(boolean: Boolean) {
-        TransitionManager.beginDelayedTransition(binding.rootView)
-        binding.scvAutoPageSpeed.run {
-            isEnabled = boolean
-            valueFormat = { "$it 秒" }
-            progress = initialAutoPageSpeed
-
-            onChanged = { newValue ->
-                callback?.onAutoPageSpeedChanged(newValue)
-            }
-        }
     }
 
     override fun onDismiss(dialog: DialogInterface) {

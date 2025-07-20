@@ -30,7 +30,6 @@ import io.legato.kazusa.ui.book.manga.entities.EpaperTransformation
 import io.legato.kazusa.ui.book.manga.entities.GrayscaleTransformation
 import io.legato.kazusa.ui.book.manga.entities.MangaPage
 import io.legato.kazusa.ui.book.manga.entities.ReaderLoading
-import io.legato.kazusa.utils.dpToPx
 
 
 class MangaAdapter(private val context: Context) :
@@ -47,6 +46,8 @@ class MangaAdapter(private val context: Context) :
     }
 
     var isHorizontal = false
+    var enableDoublePageInLandscape = false
+
 
     private val mDiffCallback: DiffUtil.ItemCallback<Any> = object : DiffUtil.ItemCallback<Any>() {
         override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
@@ -131,17 +132,18 @@ class MangaAdapter(private val context: Context) :
     inner class PageMoreViewHolder(val binding: ItemBookMangaEdgeBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun onBind(item: ReaderLoading) {
-            val message = item.mMessage
-            binding.text.text = message
-            itemView.updateLayoutParams {
-                height = if (item.isVolume) {
-                    MATCH_PARENT
-                } else {
-                    96.dpToPx()
-                }
+            val message = item.mMessage ?: ""
+            val parts = message.split(" ", limit = 2)
+            if (parts.size == 2) {
+                binding.text.text = parts[0]
+                binding.textChapter.text = parts[1]
+            } else {
+                binding.text.text = message
+                binding.textChapter.text = ""
             }
         }
     }
+
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {

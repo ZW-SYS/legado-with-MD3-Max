@@ -24,33 +24,6 @@
         android:title="@string/pre_download"
         app:showAsAction="never" />
 
-    <item
-        android:id="@+id/menu_disable_manga_scale"
-        android:checkable="true"
-        android:checked="false"
-        android:title="@string/disable_manga_scale"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/menu_disable_click_scroll"
-        android:checkable="true"
-        android:checked="false"
-        android:title="@string/disable_manga_click_scroll"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/menu_enable_auto_scroll"
-        android:checkable="true"
-        android:checked="false"
-        android:title="@string/enable_auto_scroll"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/menu_enable_horizontal_scroll"
-        android:checkable="true"
-        android:checked="false"
-        android:title="@string/enable_manga_horizontal_scroll"
-        app:showAsAction="never" />
 
     <item
         android:id="@+id/menu_disable_horizontal_animation"

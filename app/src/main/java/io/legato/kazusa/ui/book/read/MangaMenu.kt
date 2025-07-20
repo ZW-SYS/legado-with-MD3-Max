@@ -243,7 +243,7 @@ class MangaMenu @JvmOverloads constructor(
         }
 
         btnAutoPage.setOnClickListener {
-            callBack.showFooterConfig()
+            callBack.showScrollModeDialog()
         }
 
     }
@@ -263,6 +263,7 @@ class MangaMenu @JvmOverloads constructor(
         fun skipToPage(index: Int)
         fun openCatalog()
         fun showFooterConfig()
+        fun showScrollModeDialog()
     }
 
 }

@@ -80,6 +80,7 @@
     <declare-styleable name="DetailSeekBar">
         <attr name="title" />
         <attr name="max" />
+        <attr name="min" />
         <attr name="isBottomBackground" />
     </declare-styleable>
 

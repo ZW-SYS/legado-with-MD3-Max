@@ -403,6 +403,8 @@ data class Book(
         var startDate: LocalDate? = null,
         var startChapter: Int? = null,     // 用户设置的起始章节
         var dailyChapters: Int = 3    // 用户设置的每日更新章节数
+
+
     ) : Parcelable
 
     class Converters {
