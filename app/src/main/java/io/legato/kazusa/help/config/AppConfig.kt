@@ -36,6 +36,18 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
     var clickActionBL = appCtx.getPrefInt(PreferKey.clickActionBL, 2)
     var clickActionBC = appCtx.getPrefInt(PreferKey.clickActionBC, 1)
     var clickActionBR = appCtx.getPrefInt(PreferKey.clickActionBR, 1)
+
+    //    -1无操作 1下一页 2上一页 0显示菜单
+    var mangaClickActionTL = appCtx.getPrefInt(PreferKey.mangaClickActionTL, -1)
+    var mangaClickActionTC = appCtx.getPrefInt(PreferKey.mangaClickActionTC, -1)
+    var mangaClickActionTR = appCtx.getPrefInt(PreferKey.mangaClickActionTR, 1)
+    var mangaClickActionML = appCtx.getPrefInt(PreferKey.mangaClickActionML, 2)
+    var mangaClickActionMC = appCtx.getPrefInt(PreferKey.mangaClickActionMC, 0)
+    var mangaClickActionMR = appCtx.getPrefInt(PreferKey.mangaClickActionMR, 1)
+    var mangaClickActionBL = appCtx.getPrefInt(PreferKey.mangaClickActionBL, 2)
+    var mangaClickActionBC = appCtx.getPrefInt(PreferKey.mangaClickActionBC, 1)
+    var mangaClickActionBR = appCtx.getPrefInt(PreferKey.mangaClickActionBR, 1)
+
     var themeMode = appCtx.getPrefString(PreferKey.themeMode, "0")
     var useDefaultCover = appCtx.getPrefBoolean(PreferKey.useDefaultCover, false)
     var optimizeRender = CanvasRecorderFactory.isSupport
@@ -75,6 +87,33 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
 
             PreferKey.clickActionBR -> clickActionBR =
                 appCtx.getPrefInt(PreferKey.clickActionBR, 1)
+
+            PreferKey.mangaClickActionTL -> mangaClickActionTL =
+                appCtx.getPrefInt(PreferKey.mangaClickActionTL, -1)
+
+            PreferKey.mangaClickActionTC -> mangaClickActionTC =
+                appCtx.getPrefInt(PreferKey.mangaClickActionTC, -1)
+
+            PreferKey.mangaClickActionTR -> mangaClickActionTR =
+                appCtx.getPrefInt(PreferKey.mangaClickActionTR, 1)
+
+            PreferKey.mangaClickActionML -> mangaClickActionML =
+                appCtx.getPrefInt(PreferKey.mangaClickActionML, 2)
+
+            PreferKey.mangaClickActionMC -> mangaClickActionMC =
+                appCtx.getPrefInt(PreferKey.mangaClickActionMC, 0)
+
+            PreferKey.mangaClickActionMR -> mangaClickActionMR =
+                appCtx.getPrefInt(PreferKey.mangaClickActionMR, 1)
+
+            PreferKey.mangaClickActionBL -> mangaClickActionBL =
+                appCtx.getPrefInt(PreferKey.mangaClickActionBL, 2)
+
+            PreferKey.mangaClickActionBC -> mangaClickActionBC =
+                appCtx.getPrefInt(PreferKey.mangaClickActionBC, 1)
+
+            PreferKey.mangaClickActionBR -> mangaClickActionBR =
+                appCtx.getPrefInt(PreferKey.mangaClickActionBR, 1)
 
             PreferKey.readBodyToLh -> ReadBookConfig.readBodyToLh =
                 appCtx.getPrefBoolean(PreferKey.readBodyToLh, true)
@@ -618,6 +657,17 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
             appCtx.toastOnUi("当前没有配置菜单区域,自动恢复中间区域为菜单.")
         }
     }
+
+    fun detectMangaClickArea() {
+        if (mangaClickActionTL * mangaClickActionTC * mangaClickActionTR
+            * mangaClickActionML * mangaClickActionMC * mangaClickActionMR
+            * mangaClickActionBL * mangaClickActionBC * mangaClickActionBR != 0
+        ) {
+            appCtx.putPrefInt(PreferKey.mangaClickActionMC, 0)
+            appCtx.toastOnUi("当前没有配置菜单区域,自动恢复中间区域为菜单.")
+        }
+    }
+
 
     //跳转到漫画界面不使用富文本模式
     val showMangaUi: Boolean

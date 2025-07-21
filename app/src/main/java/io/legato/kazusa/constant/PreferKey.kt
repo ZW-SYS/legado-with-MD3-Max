@@ -192,4 +192,15 @@ object PreferKey {
     const val showBottomView = "showBottomView"
     const val mangaScrollMode = "mangaScrollMode"
     const val webtoonSidePaddingDp = "webtoonSidePaddingDp"
+
+    const val mangaClickActionTL = "mangaClickActionTopLeft"
+    const val mangaClickActionTC = "mangaClickActionTopCenter"
+    const val mangaClickActionTR = "mangaClickActionTopRight"
+    const val mangaClickActionML = "mangaClickActionMiddleLeft"
+    const val mangaClickActionMC = "mangaClickActionMiddleCenter"
+    const val mangaClickActionMR = "mangaClickActionMiddleRight"
+    const val mangaClickActionBL = "mangaClickActionBottomLeft"
+    const val mangaClickActionBC = "mangaClickActionBottomCenter"
+    const val mangaClickActionBR = "mangaClickActionBottomRight"
+
 }

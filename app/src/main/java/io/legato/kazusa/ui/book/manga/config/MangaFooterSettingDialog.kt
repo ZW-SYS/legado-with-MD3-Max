@@ -23,8 +23,6 @@ class MangaFooterSettingDialog :
 
     var callback: Callback? = null
 
-    var initialAutoPageEnabled: Boolean = false
-
     private val binding by viewBinding(DialogMangaFooterSettingBinding::bind)
 
     override fun onStart() {
@@ -134,6 +132,11 @@ class MangaFooterSettingDialog :
             dismiss()
         }
 
+        binding.btnClickSet.setOnClickListener {
+            callback?.showClickConfig()
+            dismiss()
+        }
+
         updateChapterText()
     }
 
@@ -183,6 +186,7 @@ class MangaFooterSettingDialog :
         fun onAutoPageToggle(enable: Boolean)
         fun onAutoPageSpeedChanged(speed: Int)
         fun showColorFilterConfig()
+        fun showClickConfig()
     }
 
 }

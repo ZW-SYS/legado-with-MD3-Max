@@ -15,6 +15,7 @@ class ScrollTimer(
 ) : RecyclerView.OnScrollListener() {
     private var distance = 1
     private var mScrollPageJob: Job? = null
+
     var isEnabled: Boolean = false
         set(value) {
             if (field != value) {

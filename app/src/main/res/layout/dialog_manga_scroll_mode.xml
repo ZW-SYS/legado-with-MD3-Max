@@ -102,7 +102,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp"
+            android:paddingTop="8dp"
             android:text="条漫"
             android:textStyle="bold" />
 
@@ -112,6 +112,7 @@
             android:layout_height="wrap_content"
             app:max="30"
             app:title="侧边留白" />
+
     </LinearLayout>
 
     <LinearLayout

@@ -42,6 +42,7 @@ import io.legato.kazusa.model.ReadManga
 import io.legato.kazusa.receiver.NetworkChangedListener
 import io.legato.kazusa.ui.book.changesource.ChangeBookSourceDialog
 import io.legato.kazusa.ui.book.info.BookInfoActivity
+import io.legato.kazusa.ui.book.manga.config.MangaClickActionConfigDialog
 import io.legato.kazusa.ui.book.manga.config.MangaColorFilterConfig
 import io.legato.kazusa.ui.book.manga.config.MangaColorFilterDialog
 import io.legato.kazusa.ui.book.manga.config.MangaFooterConfig
@@ -53,6 +54,7 @@ import io.legato.kazusa.ui.book.manga.entities.MangaPage
 import io.legato.kazusa.ui.book.manga.recyclerview.MangaAdapter
 import io.legato.kazusa.ui.book.manga.recyclerview.MangaLayoutManager
 import io.legato.kazusa.ui.book.manga.recyclerview.ScrollTimer
+import io.legato.kazusa.ui.book.manga.recyclerview.WebtoonFrame
 import io.legato.kazusa.ui.book.read.MangaMenu
 import io.legato.kazusa.ui.book.read.ReadBookActivity.Companion.RESULT_DELETED
 import io.legato.kazusa.ui.book.toc.TocActivityResult
@@ -121,6 +123,7 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
     }
     private var enableAutoScrollPage = false
     private var enableAutoScroll = false
+    private var enableScroll = false
     private val mLinearInterpolator by lazy {
         LinearInterpolator()
     }
@@ -230,19 +233,31 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
                 }
             }
         }
-        binding.webtoonFrame.run {
-            onTouchMiddle {
+
+        binding.webtoonFrame.actionHandler = object : WebtoonFrame.ClickActionHandler {
+            override fun showMenu() {
                 if (!binding.mangaMenu.isVisible && !loadingViewVisible) {
                     binding.mangaMenu.runMenuIn()
                 }
             }
-            onNextPage {
+
+            override fun nextPage() {
                 scrollToNext()
             }
-            onPrevPage {
+
+            override fun prevPage() {
                 scrollToPrev()
             }
+
+            override fun nextChapter() {
+                ReadManga.moveToNextChapter()
+            }
+
+            override fun prevChapter() {
+                ReadManga.moveToPrevChapter()
+            }
         }
+
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -532,7 +547,6 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
 
     override fun showFooterConfig() {
         showDialogFragment(MangaFooterSettingDialog().apply {
-            initialAutoPageEnabled = enableAutoScrollPage
             callback = this@ReadMangaActivity
         })
     }
@@ -542,8 +556,14 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
         showDialogFragment(MangaColorFilterDialog())
     }
 
+    override fun showClickConfig() {
+        binding.mangaMenu.runMenuOut()
+        showDialogFragment(MangaClickActionConfigDialog())
+    }
+
     override fun showScrollModeDialog() {
         showDialogFragment(MangaScrollModeDialog().apply {
+            initialAutoPageEnabled = enableScroll
             callback = this@ReadMangaActivity
         })
     }
@@ -591,7 +611,7 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
 
     //自动翻页
     override fun onAutoPageToggle(enabled: Boolean) {
-        enableAutoScroll = enabled
+        enableScroll = enabled
         setAutoReadEnabled(enabled)
     }
 
@@ -622,6 +642,7 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
 
     //1 自动翻页 2 自动滚动 0 关闭
     fun setAutoReadEnabled(enabled: Boolean) {
+        enableScroll = enabled
         val isWebtoonMode =
             scrollMode == MangaScrollMode.WEBTOON || scrollMode == MangaScrollMode.WEBTOON_WITH_GAP
         if (enabled) {
