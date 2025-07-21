@@ -2,8 +2,8 @@ package io.legato.kazusa.ui.book.manga.config
 
 import android.content.DialogInterface
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
-import androidx.transition.TransitionManager
 import io.legato.kazusa.R
 import io.legato.kazusa.base.BaseBottomSheetDialogFragment
 import io.legato.kazusa.constant.EventBus
@@ -24,7 +24,6 @@ class MangaFooterSettingDialog :
     var callback: Callback? = null
 
     var initialAutoPageEnabled: Boolean = false
-    var initialAutoPageSpeed: Int = 3
 
     private val binding by viewBinding(DialogMangaFooterSettingBinding::bind)
 
@@ -126,6 +125,7 @@ class MangaFooterSettingDialog :
                     config.hideFooter = true
                 }
             }
+            updateChapterText()
             postEvent(EventBus.UP_MANGA_CONFIG, config)
         }
 
@@ -143,6 +143,20 @@ class MangaFooterSettingDialog :
     }
 
     private fun updateChapterText() {
+
+        if (config.hideFooter) {
+            binding.tvChapter.visibility = View.INVISIBLE
+            return
+        } else {
+            binding.tvChapter.visibility = View.VISIBLE
+        }
+
+        binding.tvChapter.gravity = when (config.footerOrientation) {
+            ReaderInfoBarView.ALIGN_LEFT -> Gravity.START or Gravity.CENTER_VERTICAL
+            ReaderInfoBarView.ALIGN_CENTER -> Gravity.CENTER
+            else -> Gravity.START
+        }
+
         val label = if (!config.hideChapterLabel) "章节" else ""
         val chapter = if (!config.hideChapter) "1/45 " else ""
         val name = if (!config.hideChapterName) "第三话 " else ""
@@ -162,7 +176,6 @@ class MangaFooterSettingDialog :
             progressLabel,
             progress
         ).filter { it.isNotEmpty() }
-        TransitionManager.beginDelayedTransition(binding.rootView)
         binding.tvChapter.text = parts.joinToString(" ")
     }
 

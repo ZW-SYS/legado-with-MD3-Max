@@ -44,7 +44,8 @@
         <LinearLayout
             android:id="@+id/ll_loading"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:background="?attr/colorSurface"
             android:layout_gravity="center"
             android:gravity="center"
             android:orientation="vertical">
@@ -61,7 +62,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:textColor="?attr/colorSurface"
                 android:text="@string/loading" />
         </LinearLayout>
 
@@ -74,18 +74,28 @@
             android:visibility="gone">
 
             <TextView
+                android:id="@+id/tv_msg2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Σ(#`O′)"
+                android:textColor="@color/white"
+                android:textSize="24sp" />
+
+            <TextView
                 android:id="@+id/tv_msg"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:textColor="@color/white" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/tv_retry"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/Widget.Material3.Button.TonalButton"
+                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                app:icon="@drawable/ic_refresh"
                 android:layout_margin="16dp"
+                app:iconPadding="4dp"
                 android:text="重新加载"
-                android:textSize="18sp"
                 tools:visibility="visible" />
         </LinearLayout>
 

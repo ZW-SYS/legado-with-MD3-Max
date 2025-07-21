@@ -30,6 +30,7 @@ import io.legato.kazusa.ui.book.manga.entities.EpaperTransformation
 import io.legato.kazusa.ui.book.manga.entities.GrayscaleTransformation
 import io.legato.kazusa.ui.book.manga.entities.MangaPage
 import io.legato.kazusa.ui.book.manga.entities.ReaderLoading
+import io.legato.kazusa.utils.dpToPx
 
 
 class MangaAdapter(private val context: Context) :
@@ -140,6 +141,13 @@ class MangaAdapter(private val context: Context) :
             } else {
                 binding.text.text = message
                 binding.textChapter.text = ""
+            }
+            itemView.updateLayoutParams {
+                height = if (isHorizontal) {
+                    MATCH_PARENT
+                } else {
+                    96.dpToPx()
+                }
             }
         }
     }

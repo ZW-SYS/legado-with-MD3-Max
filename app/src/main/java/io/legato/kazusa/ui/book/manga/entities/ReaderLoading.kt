@@ -7,3 +7,5 @@ data class ReaderLoading(
     val isVolume: Boolean = false
 ) : BaseMangaPage
 
+
+

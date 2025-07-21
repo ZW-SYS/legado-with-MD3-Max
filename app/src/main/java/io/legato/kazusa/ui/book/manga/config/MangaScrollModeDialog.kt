@@ -2,7 +2,6 @@ package io.legato.kazusa.ui.book.manga.config
 
 import android.os.Bundle
 import android.view.View
-import androidx.transition.TransitionManager
 import com.google.android.material.chip.Chip
 import io.legato.kazusa.R
 import io.legato.kazusa.base.BaseBottomSheetDialogFragment
@@ -14,9 +13,6 @@ class MangaScrollModeDialog : BaseBottomSheetDialogFragment(R.layout.dialog_mang
 
     private val binding by viewBinding(DialogMangaScrollModeBinding::bind)
 
-    var initialScrollMode: Int = AppConfig.mangaScrollMode
-    var initialAutoPageSpeed: Int = AppConfig.mangaAutoPageSpeed
-    var initialSidePadding: Int = AppConfig.webtoonSidePaddingDp
     var initialAutoPageEnabled: Boolean = false
     var callback: Callback? = null
 
@@ -31,10 +27,9 @@ class MangaScrollModeDialog : BaseBottomSheetDialogFragment(R.layout.dialog_mang
             binding.chipGroupScrollMode.addView(Chip(requireContext()).apply {
                 text = MangaScrollMode.labelOf(mode)
                 isCheckable = true
-                isChecked = (mode == initialScrollMode)
+                isChecked = (mode == AppConfig.mangaScrollMode)
 
                 setOnClickListener {
-                    AppConfig.mangaScrollMode = mode
                     callback?.onScrollModeChanged(mode)
                     binding.chipAutoPage.isChecked = false
                 }
@@ -52,7 +47,6 @@ class MangaScrollModeDialog : BaseBottomSheetDialogFragment(R.layout.dialog_mang
         binding.checkboxDisableClickScroll.apply {
             isChecked = AppConfig.disableClickScroll
             setOnCheckedChangeListener { _, isChecked ->
-                AppConfig.disableClickScroll = isChecked
                 callback?.onClickScrollDisabledChanged(isChecked)
             }
         }
@@ -60,17 +54,22 @@ class MangaScrollModeDialog : BaseBottomSheetDialogFragment(R.layout.dialog_mang
         binding.checkboxDisableMangaScale.apply {
             isChecked = AppConfig.disableMangaScale
             setOnCheckedChangeListener { _, isChecked ->
-                AppConfig.disableMangaScale = isChecked
                 callback?.onMangaScaleDisabledChanged(isChecked)
+            }
+        }
+
+        binding.checkboxHideMangaTitle.apply {
+            isChecked = AppConfig.hideMangaTitle
+            setOnCheckedChangeListener { _, isChecked ->
+                callback?.onHideMangaTitleChanged(isChecked)
             }
         }
 
         binding.scvPadding.apply {
             valueFormat = { "$it %" }
-            progress = initialSidePadding
+            progress = AppConfig.webtoonSidePaddingDp
             onChanged = { newValue ->
                 callback?.upSidePadding(newValue)
-                initialSidePadding = newValue
             }
         }
 
@@ -78,15 +77,13 @@ class MangaScrollModeDialog : BaseBottomSheetDialogFragment(R.layout.dialog_mang
     }
 
     private fun initAutoPageSpeed(boolean: Boolean) {
-        TransitionManager.beginDelayedTransition(binding.rootView)
         binding.scvAutoPageSpeed.run {
             isEnabled = boolean
             valueFormat = { "$it 秒" }
-            progress = initialAutoPageSpeed
+            progress = AppConfig.mangaAutoPageSpeed
 
             onChanged = { newValue ->
                 callback?.onAutoPageSpeedChanged(newValue)
-                initialAutoPageSpeed = newValue
             }
         }
     }
@@ -98,6 +95,7 @@ class MangaScrollModeDialog : BaseBottomSheetDialogFragment(R.layout.dialog_mang
         fun onClickScrollDisabledChanged(disabled: Boolean)
         fun onMangaScaleDisabledChanged(disabled: Boolean)
         fun upSidePadding(padding: Int)
+        fun onHideMangaTitleChanged(hide: Boolean)
     }
 
 }

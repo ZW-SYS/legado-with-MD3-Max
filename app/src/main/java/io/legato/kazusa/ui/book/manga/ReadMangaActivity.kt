@@ -520,30 +520,6 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
                 }
             }
 
-            R.id.menu_manga_color_filter -> {
-                binding.mangaMenu.runMenuOut()
-                showDialogFragment(MangaColorFilterDialog())
-            }
-
-            R.id.menu_hide_manga_title -> {
-                item.isChecked = !item.isChecked
-                AppConfig.hideMangaTitle = item.isChecked
-                ReadManga.loadContent()
-            }
-
-
-
-            R.id.menu_disable_horizontal_animation -> {
-                item.isChecked = !item.isChecked
-                AppConfig.disableHorizontalAnimator = item.isChecked
-                if (item.isChecked) {
-                    mPagerSnapHelper.attachToRecyclerView(null)
-                } else {
-                    mPagerSnapHelper.attachToRecyclerView(binding.recyclerView)
-                }
-            }
-
-
         }
         return super.onCompatOptionsItemSelected(item)
     }
@@ -557,7 +533,6 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
     override fun showFooterConfig() {
         showDialogFragment(MangaFooterSettingDialog().apply {
             initialAutoPageEnabled = enableAutoScrollPage
-            initialAutoPageSpeed = AppConfig.mangaAutoPageSpeed
             callback = this@ReadMangaActivity
         })
     }
@@ -569,7 +544,6 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
 
     override fun showScrollModeDialog() {
         showDialogFragment(MangaScrollModeDialog().apply {
-            initialScrollMode = AppConfig.mangaScrollMode
             callback = this@ReadMangaActivity
         })
     }
@@ -617,6 +591,7 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
 
     //自动翻页
     override fun onAutoPageToggle(enabled: Boolean) {
+        enableAutoScroll = enabled
         setAutoReadEnabled(enabled)
     }
 
@@ -629,6 +604,11 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
 //        if (enableAutoScrollPage) {
 //            mScrollTimer.isEnabledPage = true
 //        }
+    }
+
+    override fun onHideMangaTitleChanged(hide: Boolean) {
+        AppConfig.hideMangaTitle = hide
+        ReadManga.loadContent()
     }
 
     override fun openBookInfoActivity() {
@@ -693,6 +673,10 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
         return super.dispatchKeyEvent(event)
     }
 
+    /**
+     * 调整漫画类型
+     * @param mode 漫画类型
+     */
     @SuppressLint("NotifyDataSetChanged")
     private fun setScrollMode(mode: Int) {
         scrollMode = mode
@@ -729,12 +713,12 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
             mPagerSnapHelper.attachToRecyclerView(null)
         }
 
-        mAdapter.notifyDataSetChanged()
+        mAdapter.notifyItemRangeChanged(0, mAdapter.itemCount)
     }
 
     /**
      * 调整条漫侧边留白设置
-     * @param paddingDp 侧边留白距离，单位dp，默认16dp
+     * @param paddingDp 侧边留白距离，单位dp
      */
     private fun updateWebtoonSidePadding(paddingDp: Int) {
         if (scrollMode != MangaScrollMode.WEBTOON && scrollMode != MangaScrollMode.WEBTOON_WITH_GAP) {
@@ -772,14 +756,6 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
         this.mMenu = menu
         menu.findItem(R.id.menu_pre_manga_number).title =
             getString(R.string.pre_download_m, AppConfig.mangaPreDownloadNum)
-        menu.findItem(R.id.menu_hide_manga_title).isChecked = AppConfig.hideMangaTitle
-
-        menu.findItem(R.id.menu_disable_horizontal_animation).run {
-            isVisible =
-                AppConfig.enableMangaHorizontalScroll
-            isChecked = AppConfig.disableHorizontalAnimator
-        }
-
     }
 
     private fun setDisableMangaScale(disable: Boolean) {
