@@ -1,11 +1,11 @@
 package io.legato.kazusa.ui.book.changesource
 
+//import io.legado.app.lib.theme.getPrimaryTextColor
+//import io.legado.app.lib.theme.primaryColor
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageButton
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.legato.kazusa.R
 import io.legato.kazusa.base.BaseBottomSheetDialogFragment
-import io.legato.kazusa.base.BaseDialogFragment
 import io.legato.kazusa.constant.AppLog
 import io.legato.kazusa.constant.EventBus
 import io.legato.kazusa.data.appDb
@@ -29,8 +28,6 @@ import io.legato.kazusa.data.entities.SearchBook
 import io.legato.kazusa.databinding.DialogBookChangeSourceBinding
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.lib.dialogs.alert
-//import io.legado.app.lib.theme.getPrimaryTextColor
-//import io.legado.app.lib.theme.primaryColor
 import io.legato.kazusa.ui.book.read.ReadBookActivity
 import io.legato.kazusa.ui.book.source.edit.BookSourceEditActivity
 import io.legato.kazusa.ui.book.source.manage.BookSourceActivity
@@ -41,7 +38,6 @@ import io.legato.kazusa.utils.applyTint
 import io.legato.kazusa.utils.dpToPx
 import io.legato.kazusa.utils.getCompatDrawable
 import io.legato.kazusa.utils.observeEvent
-import io.legato.kazusa.utils.setLayout
 import io.legato.kazusa.utils.startActivity
 import io.legato.kazusa.utils.transaction
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
@@ -93,11 +89,6 @@ class ChangeBookSourceDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_b
                 }
             }
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        //setLayout(1f, ViewGroup.LayoutParams.MATCH_PARENT)
     }
 
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
@@ -234,6 +225,10 @@ class ChangeBookSourceDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_b
             repeatOnLifecycle(STARTED) {
                 viewModel.searchDataFlow.conflate().collect {
                     adapter.setItems(it)
+
+                    binding.loadingIndicator.isVisible = it.isEmpty()
+                    binding.recyclerView.isVisible = it.isNotEmpty()
+
                     delay(1000)
                 }
             }

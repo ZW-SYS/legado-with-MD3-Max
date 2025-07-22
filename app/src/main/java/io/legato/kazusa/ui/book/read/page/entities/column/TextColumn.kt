@@ -4,7 +4,6 @@ import android.graphics.Canvas
 import android.os.Build
 import androidx.annotation.Keep
 import io.legato.kazusa.help.config.ReadBookConfig
-import io.legato.kazusa.lib.theme.ThemeStore
 import io.legato.kazusa.ui.book.read.page.ContentTextView
 import io.legato.kazusa.ui.book.read.page.entities.TextLine
 import io.legato.kazusa.ui.book.read.page.entities.TextLine.Companion.emptyTextLine
@@ -50,7 +49,7 @@ data class TextColumn(
             ChapterProvider.contentPaint
         }
         val textColor = if (textLine.isReadAloud || isSearchResult) {
-            view.context.themeColor(com.google.android.material.R.attr.colorPrimary)
+            view.context.themeColor(androidx.appcompat.R.attr.colorPrimary)
         } else {
             ReadBookConfig.textColor
         }

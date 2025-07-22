@@ -29,7 +29,8 @@ class BookmarkDecoration(
 
     private val textPaint = TextPaint().apply {
         textSize = 16f.spToPx()
-        color = MaterialColors.getColor(context, com.google.android.material.R.attr.colorPrimary, Color.BLACK)
+        color =
+            MaterialColors.getColor(context, androidx.appcompat.R.attr.colorPrimary, Color.BLACK)
         isAntiAlias = true
     }
 

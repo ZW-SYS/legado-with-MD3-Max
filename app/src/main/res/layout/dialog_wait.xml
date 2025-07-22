@@ -6,12 +6,11 @@
     android:padding="16dp"
     android:orientation="horizontal">
 
-    <com.google.android.material.progressindicator.CircularProgressIndicator
+    <com.google.android.material.loadingindicator.LoadingIndicator
         android:id="@+id/pb"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:indeterminateBehavior="repeat"
-        android:indeterminateOnly="true" />
+        style="@style/Widget.Material3.LoadingIndicator.Contained"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <TextView
         android:id="@+id/tv_msg"

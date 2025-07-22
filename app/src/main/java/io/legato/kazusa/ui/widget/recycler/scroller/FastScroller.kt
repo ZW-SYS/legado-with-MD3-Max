@@ -1,5 +1,6 @@
 package io.legato.kazusa.ui.widget.recycler.scroller
 
+//import io.legado.app.lib.theme.accentColor
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
@@ -11,7 +12,11 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewPropertyAnimator
-import android.widget.*
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
+import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -20,13 +25,11 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.GravityCompat
-import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import io.legato.kazusa.R
-//import io.legado.app.lib.theme.accentColor
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -502,7 +505,7 @@ class FastScroller : LinearLayout {
         mScrollbar = findViewById(R.id.fastscroll_scrollbar)
         mHandleImage = mHandleView.drawable?.mutate()
         val typedValue = TypedValue()
-        context.theme.resolveAttribute(com.google.android.material.R.attr.colorPrimary, typedValue, true)
+        context.theme.resolveAttribute(androidx.appcompat.R.attr.colorPrimary, typedValue, true)
         val defaultColor = typedValue.data
         var bubbleColor = defaultColor
         var handleColor = defaultColor

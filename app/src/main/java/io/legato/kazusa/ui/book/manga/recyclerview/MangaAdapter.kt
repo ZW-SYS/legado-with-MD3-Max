@@ -152,8 +152,6 @@ class MangaAdapter(private val context: Context) :
         }
     }
 
-
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when {
             viewType >= TYPE_FOOTER_VIEW -> {

@@ -1,13 +1,11 @@
 package io.legato.kazusa.ui.book.read.page
 
-import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.os.SystemClock
 import androidx.core.graphics.withClip
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.config.ReadBookConfig
-import io.legato.kazusa.lib.theme.ThemeStore
 import io.legato.kazusa.ui.book.read.page.entities.PageDirection
 import io.legato.kazusa.utils.canvasrecorder.CanvasRecorderFactory
 import io.legato.kazusa.utils.canvasrecorder.recordIfNeeded
@@ -31,7 +29,7 @@ class AutoPager(
 
     fun start() {
         isRunning = true
-        paint.color = readView.context.themeColor(com.google.android.material.R.attr.colorPrimary)
+        paint.color = readView.context.themeColor(androidx.appcompat.R.attr.colorPrimary)
         lastTimeMillis = SystemClock.uptimeMillis()
         readView.curPage.upSelectAble(false)
         readView.invalidate()

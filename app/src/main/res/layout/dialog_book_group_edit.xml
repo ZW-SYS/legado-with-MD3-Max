@@ -91,7 +91,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="16dp">
+        android:paddingHorizontal="16dp">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_delete"

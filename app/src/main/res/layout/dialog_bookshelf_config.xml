@@ -206,7 +206,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCancel"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.Material3Expressive.Button.OutlinedButton"
                 android:text="取消"
                 android:layout_marginEnd="8dp"
                 android:layout_width="wrap_content"
@@ -214,7 +214,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnOk"
-                style="@style/Widget.Material3.Button"
+                style="@style/Widget.Material3Expressive.Button"
                 android:text="确定"
 
                 android:layout_width="wrap_content"

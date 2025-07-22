@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import io.legato.kazusa.R
-import androidx.core.graphics.toColorInt
 import io.legato.kazusa.constant.EventBus
 import io.legato.kazusa.utils.postEvent
 
@@ -106,7 +105,7 @@ class ThemeCardPreference(context: Context, attrs: AttributeSet) : Preference(co
             com.google.android.material.R.attr.colorSecondaryContainer,
             com.google.android.material.R.attr.colorSecondaryVariant,
             com.google.android.material.R.attr.colorSurfaceContainer,
-            com.google.android.material.R.attr.colorPrimary,
+            androidx.appcompat.R.attr.colorPrimary,
             com.google.android.material.R.attr.colorOnSurfaceVariant,
             com.google.android.material.R.attr.colorSurface,
             com.google.android.material.R.attr.colorSecondaryContainer,

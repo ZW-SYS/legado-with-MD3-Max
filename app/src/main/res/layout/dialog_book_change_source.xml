@@ -23,6 +23,15 @@
         android:indeterminate="true"
         app:layout_constraintTop_toBottomOf="@+id/tool_bar" />
 
+    <com.google.android.material.loadingindicator.LoadingIndicator
+        android:id="@+id/loading_indicator"
+        style="@style/Widget.Material3.LoadingIndicator.Contained"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="32dp"
+        android:visibility="visible" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"

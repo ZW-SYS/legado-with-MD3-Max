@@ -25,19 +25,18 @@
             android:id="@+id/loading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/Widget.Material3.CircularProgressIndicator"
+            android:indeterminate="false"
+            app:indicatorSize="80dp"
             android:layout_gravity="center"
-            android:indeterminate="true"
-            app:indicatorSize="64dp" />
+            app:showAnimationBehavior="outward" />
 
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/retry"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.Material3Expressive.Button.TonalButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:padding="8dp"
             android:text="重新加载"
             android:textSize="18sp"
             android:textColor="?attr/colorSurfaceVariant"

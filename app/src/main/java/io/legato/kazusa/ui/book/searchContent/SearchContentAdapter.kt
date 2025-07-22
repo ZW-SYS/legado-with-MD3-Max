@@ -1,13 +1,11 @@
 package io.legato.kazusa.ui.book.searchContent
 
+//import io.legado.app.lib.theme.accentColor
 import android.content.Context
 import android.view.ViewGroup
-import io.legato.kazusa.R
 import io.legato.kazusa.base.adapter.ItemViewHolder
 import io.legato.kazusa.base.adapter.RecyclerAdapter
 import io.legato.kazusa.databinding.ItemSearchListBinding
-//import io.legado.app.lib.theme.accentColor
-import io.legato.kazusa.utils.getCompatColor
 import io.legato.kazusa.utils.hexString
 import io.legato.kazusa.utils.themeColor
 
@@ -16,7 +14,8 @@ class SearchContentAdapter(context: Context, val callback: Callback) :
     RecyclerAdapter<SearchResult, ItemSearchListBinding>(context) {
 
     val textColor = context.themeColor(com.google.android.material.R.attr.colorOnSurface).hexString.substring(2)
-    val accentColor = context.themeColor(com.google.android.material.R.attr.colorPrimary).hexString.substring(2)
+    val accentColor =
+        context.themeColor(androidx.appcompat.R.attr.colorPrimary).hexString.substring(2)
 
     override fun getViewBinding(parent: ViewGroup): ItemSearchListBinding {
         return ItemSearchListBinding.inflate(inflater, parent, false)

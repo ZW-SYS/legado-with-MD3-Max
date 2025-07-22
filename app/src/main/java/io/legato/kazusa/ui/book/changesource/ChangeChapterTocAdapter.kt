@@ -33,7 +33,7 @@ class ChangeChapterTocAdapter(context: Context, val callback: Callback) :
             val isDur = durChapterIndex == item.index
 
             if (isDur) {
-                tvChapterName.setTextColor(context.themeColor(com.google.android.material.R.attr.colorPrimary))
+                tvChapterName.setTextColor(context.themeColor(androidx.appcompat.R.attr.colorPrimary))
             } else {
                 tvChapterName.setTextColor(context.themeColor(com.google.android.material.R.attr.colorOnSurface))
             }

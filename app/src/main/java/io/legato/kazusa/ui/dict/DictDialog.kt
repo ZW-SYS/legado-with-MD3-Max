@@ -9,7 +9,7 @@ import io.legato.kazusa.R
 import io.legato.kazusa.base.BaseBottomSheetDialogFragment
 import io.legato.kazusa.data.entities.DictRule
 import io.legato.kazusa.databinding.DialogDictBinding
-import io.legato.kazusa.utils.invisible
+import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.setHtml
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
@@ -53,7 +53,7 @@ class DictDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_dict) {
                 val dictRule = tab.tag as DictRule
                 binding.rotateLoading.visible()
                 viewModel.dict(dictRule, word!!) {
-                    binding.rotateLoading.invisible()
+                    binding.rotateLoading.gone()
                     binding.tvDict.setHtml(it)
                 }
             }

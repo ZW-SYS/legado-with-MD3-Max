@@ -265,7 +265,7 @@ class ReadMenu @JvmOverloads constructor(
 
     fun upBrightnessState() {
         if (brightnessAuto()) {
-            binding.ivBrightnessAuto.setColorFilter(context.themeColor(com.google.android.material.R.attr.colorPrimary))
+            binding.ivBrightnessAuto.setColorFilter(context.themeColor(androidx.appcompat.R.attr.colorPrimary))
             binding.seekBrightness.isEnabled = false
         } else {
             binding.ivBrightnessAuto.setColorFilter(context.themeColor(com.google.android.material.R.attr.colorOnSurface))

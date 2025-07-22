@@ -9,7 +9,6 @@ import io.legato.kazusa.help.PaintPool
 import io.legato.kazusa.help.book.isImage
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.config.ReadBookConfig
-import io.legato.kazusa.lib.theme.ThemeStore
 import io.legato.kazusa.model.ReadBook
 import io.legato.kazusa.ui.book.read.page.ContentTextView
 import io.legato.kazusa.ui.book.read.page.entities.TextPage.Companion.emptyTextPage
@@ -174,7 +173,7 @@ data class TextLine(
             ChapterProvider.contentPaint
         }
         val textColor = if (isReadAloud) {
-            view.context.themeColor(com.google.android.material.R.attr.colorPrimary)
+            view.context.themeColor(androidx.appcompat.R.attr.colorPrimary)
         } else {
             ReadBookConfig.textColor
         }
@@ -242,7 +241,7 @@ data class TextLine(
     @SuppressLint("NewApi")
     companion object {
         val emptyTextLine = TextLine()
-        private val atLeastApi26 = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+        private val atLeastApi26 = true
         private val atLeastApi35 = Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
         private val wordSpacingWorking by lazy {
             // issue 3785 3846
