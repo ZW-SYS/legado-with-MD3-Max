@@ -19,6 +19,7 @@ import io.legato.kazusa.model.ReadBook
 import io.legato.kazusa.model.ReadManga
 import io.legato.kazusa.ui.browser.WebViewActivity
 import io.legato.kazusa.utils.ConstraintModify
+import io.legato.kazusa.utils.VibrationUtils
 import io.legato.kazusa.utils.activity
 import io.legato.kazusa.utils.applyNavigationBarPadding
 import io.legato.kazusa.utils.gone
@@ -220,12 +221,14 @@ class MangaMenu @JvmOverloads constructor(
 
         seekReadPage.addOnChangeListener { slider, value, fromUser ->
             if (fromUser) {
+                VibrationUtils.vibrate(context, 12)
                 callBack.skipToPage(value.toInt() - 1)
             }
         }
 
         seekReadPage.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
             override fun onStartTrackingTouch(slider: Slider) {
+                VibrationUtils.vibrate(context, 16)
                 vwMenuBg.setOnClickListener(null)
             }
 

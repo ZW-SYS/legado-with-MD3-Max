@@ -90,6 +90,11 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
         getNavigationBarView().getOrCreateBadge(R.id.menu_bookshelf)
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        recreate()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

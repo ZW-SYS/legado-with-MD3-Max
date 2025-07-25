@@ -26,6 +26,7 @@ import io.legato.kazusa.model.ReadBook
 import io.legato.kazusa.ui.browser.WebViewActivity
 import io.legato.kazusa.ui.widget.seekbar.SeekBarChangeListener
 import io.legato.kazusa.utils.ConstraintModify
+import io.legato.kazusa.utils.VibrationUtils
 import io.legato.kazusa.utils.activity
 import io.legato.kazusa.utils.applyNavigationBarPadding
 import io.legato.kazusa.utils.dpToPx
@@ -415,10 +416,19 @@ class ReadMenu @JvmOverloads constructor(
             AppConfig.brightnessVwPos = !AppConfig.brightnessVwPos
             upBrightnessVwPos()
         }
+        seekReadPage.addOnChangeListener { slider, value, fromUser ->
+            if (fromUser) {
+                VibrationUtils.vibrate(context, 12)
+                if (AppConfig.progressBarBehavior == "page") ReadBook.skipToPage(slider.value.toInt() - 1)
+                ReadBook.skipToPage(slider.value.toInt() - 1)
+            }
+        }
+
         //阅读进度
         seekReadPage.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
             override fun onStartTrackingTouch(slider: Slider) {
                 vwMenuBg.setOnClickListener(null)
+                VibrationUtils.vibrate(context, 16)
             }
 
             override fun onStopTrackingTouch(slider: Slider) {
