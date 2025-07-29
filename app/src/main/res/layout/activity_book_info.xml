@@ -344,16 +344,15 @@
         android:id="@+id/btn_read"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:minWidth="56dp"
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="24dp"
         android:text="@string/reading"
         android:textColor="?attr/colorOnPrimary"
         android:contentDescription="@string/reading"
-        app:iconGravity="textStart"
         app:icon="@drawable/ic_bottom_books"
         app:backgroundTint="?attr/colorSecondary"
-        app:iconTint="?attr/colorOnPrimary"
-        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior" />
+        app:iconTint="?attr/colorOnPrimary" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

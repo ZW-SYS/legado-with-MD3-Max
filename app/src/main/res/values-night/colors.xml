@@ -289,6 +289,55 @@
     <color name="phoebe_theme_surfaceContainerHigh">#2C2A21</color>
     <color name="phoebe_theme_surfaceContainerHighest">#37352B</color>
 
+    <color name="transparent_theme_primary">#A0FFFFFF</color>
+    <color name="transparent_theme_onPrimary">#000000</color>
+    <color name="transparent_theme_primaryContainer">#80FFFFFF</color>
+    <color name="transparent_theme_onPrimaryContainer">#FF000000</color>
+    <color name="transparent_theme_secondary">#80FFFFFF</color>
+    <color name="transparent_theme_onSecondary">#FF000000</color>
+    <color name="transparent_theme_secondaryContainer">#40FFFFFF</color>
+    <color name="transparent_theme_onSecondaryContainer">#FF000000</color>
+    <color name="transparent_theme_tertiary">#80FFFFFF</color>
+    <color name="transparent_theme_onTertiary">#FF000000</color>
+    <color name="transparent_theme_tertiaryContainer">#40FFFFFF</color>
+    <color name="transparent_theme_onTertiaryContainer">#FF000000</color>
+    <color name="transparent_theme_error">#CF6679</color>
+    <color name="transparent_theme_onError">#000000</color>
+    <color name="transparent_theme_errorContainer">#8B0000</color>
+    <color name="transparent_theme_onErrorContainer">#FFFFFF</color>
+    <color name="transparent_theme_background">#00000000</color>
+    <color name="transparent_theme_onBackground">#EDE6FF</color>
+    <color name="transparent_theme_surface">#00FFFFFF</color>
+    <color name="transparent_theme_onSurface">#EDE6FF</color>
+    <color name="transparent_theme_surfaceVariant">#40FFFFFF</color>
+    <color name="transparent_theme_onSurfaceVariant">#B3FFFFFF</color>
+    <color name="transparent_theme_outline">#8AFFFFFF</color>
+    <color name="transparent_theme_outlineVariant">#33FFFFFF</color>
+    <color name="transparent_theme_scrim">#66000000</color>
+    <color name="transparent_theme_inverseSurface">#FFF9EC</color>
+    <color name="transparent_theme_inverseOnSurface">#1E1C13</color>
+    <color name="transparent_theme_inversePrimary">#A0FFFFFF</color>
+    <color name="transparent_theme_primaryFixed">#A0FFFFFF</color>
+    <color name="transparent_theme_onPrimaryFixed">#000000</color>
+    <color name="transparent_theme_primaryFixedDim">#A0FFFFFF</color>
+    <color name="transparent_theme_onPrimaryFixedVariant">#A0FFFFFF</color>
+    <color name="transparent_theme_secondaryFixed">#A0FFFFFF</color>
+    <color name="transparent_theme_onSecondaryFixed">#000000</color>
+    <color name="transparent_theme_secondaryFixedDim">#A0FFFFFF</color>
+    <color name="transparent_theme_onSecondaryFixedVariant">#A0FFFFFF</color>
+    <color name="transparent_theme_tertiaryFixed">#A0FFFFFF</color>
+    <color name="transparent_theme_onTertiaryFixed">#000000</color>
+    <color name="transparent_theme_tertiaryFixedDim">#A0FFFFFF</color>
+    <color name="transparent_theme_onTertiaryFixedVariant">#A0FFFFFF</color>
+    <color name="transparent_theme_surfaceDim">#1AFFFFFF</color>
+    <color name="transparent_theme_surfaceBright">#33FFFFFF</color>
+    <color name="transparent_theme_surfaceContainerLowest">#0DFFFFFF</color>
+    <color name="transparent_theme_surfaceContainerLow">#1AFFFFFF</color>
+    <color name="transparent_theme_surfaceContainer">#33FFFFFF</color>
+    <color name="transparent_theme_surfaceContainerHigh">#4DFFFFFF</color>
+    <color name="transparent_theme_surfaceContainerHighest">#66FFFFFF</color>
+
+
     <color name="disabled">@color/md_dark_disabled</color>
 
     <color name="background_prefs">#10303030</color>

@@ -246,4 +246,8 @@
         <attr name="min" format="integer" />
     </declare-styleable>
 
+    <declare-styleable name="TipPreference">
+        <attr name="tipText" format="string" />
+    </declare-styleable>
+
 </resources>

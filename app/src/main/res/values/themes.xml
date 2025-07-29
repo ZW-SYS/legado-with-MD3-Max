@@ -4,9 +4,62 @@
 
     <!-- 透明主题 -->
     <style name="AppTheme.Transparent" parent="Base.AppTheme">
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
+
+
+        <item name="colorPrimary">@color/transparent_theme_primary</item>
+        <item name="colorOnPrimary">@color/transparent_theme_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/transparent_theme_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/transparent_theme_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/transparent_theme_secondary</item>
+        <item name="colorOnSecondary">@color/transparent_theme_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/transparent_theme_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/transparent_theme_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/transparent_theme_tertiary</item>
+        <item name="colorOnTertiary">@color/transparent_theme_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/transparent_theme_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/transparent_theme_onTertiaryContainer</item>
+        <item name="colorError">@color/transparent_theme_error</item>
+        <item name="colorOnError">@color/transparent_theme_onError</item>
+        <item name="colorErrorContainer">@color/transparent_theme_errorContainer</item>
+        <item name="colorOnErrorContainer">@color/transparent_theme_onErrorContainer</item>
+        <item name="android:colorBackground">@color/transparent_theme_background</item>
+        <item name="android:textColor">@color/transparent_theme_onSurface</item>
+        <item name="colorOnBackground">@color/transparent_theme_onBackground</item>
+        <item name="colorSurface">@color/transparent_theme_surface</item>
+        <item name="colorOnSurface">@color/transparent_theme_onSurface</item>
+        <item name="colorSurfaceVariant">@color/transparent_theme_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/transparent_theme_onSurfaceVariant</item>
+        <item name="colorOutline">@color/transparent_theme_outline</item>
+        <item name="colorOutlineVariant">@color/transparent_theme_outlineVariant</item>
+        <item name="colorSurfaceInverse">@color/transparent_theme_inverseSurface</item>
+        <item name="colorOnSurfaceInverse">@color/transparent_theme_inverseOnSurface</item>
+        <item name="colorPrimaryInverse">@color/transparent_theme_inversePrimary</item>
+        <item name="colorPrimaryFixed">@color/transparent_theme_primaryFixed</item>
+        <item name="colorOnPrimaryFixed">@color/transparent_theme_onPrimaryFixed</item>
+        <item name="colorPrimaryFixedDim">@color/transparent_theme_primaryFixedDim</item>
+        <item name="colorOnPrimaryFixedVariant">@color/transparent_theme_onPrimaryFixedVariant
+        </item>
+        <item name="colorSecondaryFixed">@color/transparent_theme_secondaryFixed</item>
+        <item name="colorOnSecondaryFixed">@color/transparent_theme_onSecondaryFixed</item>
+        <item name="colorSecondaryFixedDim">@color/transparent_theme_secondaryFixedDim</item>
+        <item name="colorOnSecondaryFixedVariant">@color/transparent_theme_onSecondaryFixedVariant
+        </item>
+        <item name="colorTertiaryFixed">@color/transparent_theme_tertiaryFixed</item>
+        <item name="colorOnTertiaryFixed">@color/transparent_theme_onTertiaryFixed</item>
+        <item name="colorTertiaryFixedDim">@color/transparent_theme_tertiaryFixedDim</item>
+        <item name="colorOnTertiaryFixedVariant">@color/transparent_theme_onTertiaryFixedVariant
+        </item>
+        <item name="colorSurfaceDim">@color/transparent_theme_surfaceDim</item>
+        <item name="colorSurfaceBright">@color/transparent_theme_surfaceBright</item>
+        <item name="colorSurfaceContainerLowest">@color/transparent_theme_surfaceContainerLowest
+        </item>
+        <item name="colorSurfaceContainerLow">@color/transparent_theme_surfaceContainerLow</item>
+        <item name="colorSurfaceContainer">@color/transparent_theme_surfaceContainer</item>
+        <item name="colorSurfaceContainerHigh">@color/transparent_theme_surfaceContainerHigh</item>
+        <item name="colorSurfaceContainerHighest">@color/transparent_theme_surfaceContainerHighest
+        </item>
     </style>
+
 
     <style name="Base.AppTheme" parent="Theme.Material3Expressive.DynamicColors.DayNight.NoActionBar">
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>

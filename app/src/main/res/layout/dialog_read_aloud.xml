@@ -43,7 +43,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/iv_play_prev"
-            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+            style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:contentDescription="@string/prev_sentence"
@@ -53,7 +53,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/iv_play_pause"
-            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+            style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginHorizontal="6dp"
@@ -64,7 +64,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/iv_stop"
-            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+            style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginEnd="6dp"
@@ -75,7 +75,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/iv_play_next"
-            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+            style="@style/Widget.Material3Expressive.Button.TonalButton"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:contentDescription="@string/next_sentence"
@@ -124,9 +124,10 @@
         <!-- 上一章按钮 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/tv_pre"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.Material3Expressive.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:textColor="?attr/colorPrimary"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
             android:minHeight="36dp"
@@ -137,7 +138,7 @@
         <!-- 计时器文本按钮 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_timer"
-            style="@style/Widget.Material3.Button.TonalButton"
+            style="@style/Widget.Material3Expressive.Button.TonalButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginHorizontal="6dp"
@@ -148,9 +149,10 @@
         <!-- 下一章按钮 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/tv_next"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.Material3Expressive.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:textColor="?attr/colorPrimary"
             android:layout_weight="1"
             android:layout_marginStart="6dp"
             android:text="@string/next_chapter"

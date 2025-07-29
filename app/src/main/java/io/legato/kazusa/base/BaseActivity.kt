@@ -12,6 +12,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.drawable.toDrawable
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.color.DynamicColors
@@ -28,7 +29,6 @@ import io.legato.kazusa.utils.hideSoftInput
 import io.legato.kazusa.utils.observeEvent
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.windowSize
-import androidx.core.graphics.drawable.toDrawable
 
 
 abstract class BaseActivity<VB : ViewBinding>(
@@ -134,6 +134,7 @@ abstract class BaseActivity<VB : ViewBinding>(
             "4" -> setTheme(R.style.Theme_Base_Koharu)
             "5" -> setTheme(R.style.Theme_Base_Yuuka)
             "6" -> setTheme(R.style.Theme_Base_Phoebe)
+            "7" -> setTheme(R.style.AppTheme_Transparent)
         }
     }
 

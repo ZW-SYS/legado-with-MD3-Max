@@ -39,7 +39,7 @@
             android:id="@+id/tv_go_back"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+            style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
             app:icon="@drawable/ic_return"
             app:iconGravity="textStart"
             tools:ignore="UnusedAttribute" />

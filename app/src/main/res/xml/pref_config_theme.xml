@@ -14,9 +14,7 @@
             android:defaultValue="0"
             android:entries="@array/theme_mode"
             android:entryValues="@array/theme_mode_v"
-            android:key="themeMode"
-            android:title="@string/theme_mode"
-            android:summary="切换浅色/深色/跟随系统" />
+            android:key="themeMode" />
 
         <io.legato.kazusa.lib.prefs.ThemeCardPreference
             android:key="app_theme"
@@ -25,6 +23,12 @@
             android:entries="@array/themes_item"
             android:entryValues="@array/themes_value"
             android:defaultValue="0" />
+
+        <io.legato.kazusa.lib.prefs.TipPreference
+            android:key="theme_tip"
+            android:selectable="false"
+            app:iconSpaceReserved="false"
+            app:tipText="透明主题请于设置背景图片后设置" />
 
         <io.legato.kazusa.lib.prefs.IconListPreference
             android:defaultValue="ic_launcher"
