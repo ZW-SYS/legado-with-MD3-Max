@@ -4,24 +4,39 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:fillViewport="true"
+    android:paddingHorizontal="16dp"
+    android:paddingBottom="16dp"
     android:orientation="vertical">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/tool_bar"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="?attr/actionBarStyle"
-        app:displayHomeAsUp="false"
-        app:fitStatusBar="false"
-        app:title="@string/group_edit"
-        app:titleTextAppearance="@style/ToolbarTitle" />
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingBottom="8dp">
+
+        <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:id="@+id/bottom_sheet_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/group_edit"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_horizontal"
-        android:padding="16dp">
+        android:paddingVertical="16dp">
 
         <io.legato.kazusa.ui.widget.image.CoverImageView
             android:id="@+id/iv_cover"
@@ -60,19 +75,15 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp">
 
-                <io.legato.kazusa.ui.widget.text.AccentTextView
-                    android:id="@+id/tv_sort"
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_sort_menu"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/sort" />
+                    android:clickable="true"
+                    android:text="排序方式"
+                    app:chipIcon="@drawable/ic_arrow_drop_down"
+                    app:chipIconVisible="true" />
 
-                <androidx.appcompat.widget.AppCompatSpinner
-                    android:id="@+id/sp_sort"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:entries="@array/book_sort"
-                    tools:ignore="RtlHardcoded" />
             </LinearLayout>
 
             <com.google.android.material.materialswitch.MaterialSwitch
@@ -90,14 +101,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="16dp">
+        android:gravity="center_vertical">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/Widget.Material3.Button.IconButton.Outlined"
+            style="@style/Widget.Material3Expressive.Button.IconButton.Outlined"
             android:layout_marginEnd="4dp"
             app:icon="@drawable/ic_clear_all"
             tools:ignore="RtlHardcoded" />
@@ -107,7 +117,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:icon="@drawable/ic_restore"
-            style="@style/Widget.Material3.Button.IconButton.Outlined"/>
+            style="@style/Widget.Material3Expressive.Button.IconButton.Outlined" />
 
         <Space
             android:layout_width="0dp"
@@ -118,7 +128,7 @@
             android:id="@+id/btn_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/Widget.Material3.Button.TonalButton"
+            style="@style/Widget.Material3Expressive.Button.TonalButton"
             android:layout_marginEnd="8dp"
             android:text="@string/cancel" />
 
@@ -126,7 +136,7 @@
             android:id="@+id/btn_ok"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/Widget.Material3.Button.UnelevatedButton"
+            style="@style/Widget.Material3Expressive.Button"
             android:text="@string/ok"
             tools:ignore="RtlHardcoded" />
 

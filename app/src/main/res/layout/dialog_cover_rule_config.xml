@@ -92,7 +92,7 @@
             android:id="@+id/tv_footer_left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/Widget.Material3.Button.TonalButton"
+            style="@style/Widget.Material3Expressive.Button.TonalButton"
             android:text="@string/btn_default_s"
             tools:ignore="RtlHardcoded" />
 
@@ -105,7 +105,7 @@
                 android:id="@+id/tv_cancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/Widget.Material3.Button.TonalButton"
+                style="@style/Widget.Material3Expressive.Button.TonalButton"
                 android:layout_marginEnd="8dp"
                 android:text="@string/cancel"
                 tools:ignore="RtlHardcoded" />
@@ -114,7 +114,7 @@
                 android:id="@+id/tv_ok"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/Widget.Material3.Button.TonalButton"
+                style="@style/Widget.Material3Expressive.Button.TonalButton"
                 android:text="@string/ok"
                 tools:ignore="RtlHardcoded" />
 

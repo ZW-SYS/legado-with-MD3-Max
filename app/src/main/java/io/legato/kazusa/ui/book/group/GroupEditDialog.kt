@@ -1,14 +1,15 @@
 package io.legato.kazusa.ui.book.group
 
+//import io.legado.app.lib.theme.primaryColor
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.viewModels
 import io.legato.kazusa.R
 import io.legato.kazusa.base.BaseBottomSheetDialogFragment
 import io.legato.kazusa.data.entities.BookGroup
 import io.legato.kazusa.databinding.DialogBookGroupEditBinding
 import io.legato.kazusa.lib.dialogs.alert
-//import io.legado.app.lib.theme.primaryColor
 import io.legato.kazusa.utils.FileUtils
 import io.legato.kazusa.utils.MD5Utils
 import io.legato.kazusa.utils.SelectImageContract
@@ -19,7 +20,6 @@ import io.legato.kazusa.utils.launch
 import io.legato.kazusa.utils.readUri
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
-import io.legato.kazusa.utils.visible
 import splitties.init.appCtx
 import splitties.views.onClick
 import java.io.FileOutputStream
@@ -31,6 +31,9 @@ class GroupEditDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_book_gro
             putParcelable("group", bookGroup?.copy())
         }
     }
+
+    private var selectedSortIndex = -1
+    private lateinit var sortOptions: List<String>
 
     private val binding by viewBinding(DialogBookGroupEditBinding::bind)
     private val viewModel by viewModels<GroupViewModel>()
@@ -62,21 +65,40 @@ class GroupEditDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_book_gro
 
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
         //binding.toolBar.setBackgroundColor(primaryColor)
+        sortOptions = resources.getStringArray(R.array.book_sort).toList()
+
         @Suppress("DEPRECATION")
         bookGroup = arguments?.getParcelable("group")
         bookGroup?.let {
-            binding.btnDelete.visible(it.groupId > 0 || it.groupId == Long.MIN_VALUE)
+            binding.btnDelete.isEnabled = (it.groupId > 0 || it.groupId == Long.MIN_VALUE)
             binding.tieGroupName.setText(it.groupName)
             if (bookGroup?.cover != null)
                 binding.ivCover.load(it.cover)
-            binding.spSort.setSelection(it.bookSort + 1)
             binding.cbEnableRefresh.isChecked = it.enableRefresh
+            if (it.bookSort in sortOptions.indices) {
+                selectedSortIndex = it.bookSort
+                binding.chipSortMenu.text = sortOptions[selectedSortIndex]
+            }
         } ?: let {
-            binding.toolBar.title = getString(R.string.add_group)
             binding.btnDelete.gone()
             binding.ivCover.load()
         }
+
         binding.run {
+            chipSortMenu.setOnClickListener { chip ->
+                PopupMenu(requireContext(), chip).apply {
+                    sortOptions.forEachIndexed { index, title ->
+                        menu.add(0, index, index, title)
+                    }
+                    setOnMenuItemClickListener { item ->
+                        selectedSortIndex = item.itemId
+                        chipSortMenu.text = sortOptions[selectedSortIndex]
+                        true
+                    }
+                    show()
+                }
+            }
+
             ivCover.onClick {
                 selectImage.launch()
             }
@@ -88,15 +110,17 @@ class GroupEditDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_book_gro
                     }
                 }
             }
+
             btnCancel.onClick {
                 dismiss()
             }
+
             btnOk.onClick {
                 val groupName = tieGroupName.text?.toString()
                 if (groupName.isNullOrEmpty()) {
                     toastOnUi("分组名称不能为空")
                 } else {
-                    val bookSort = binding.spSort.selectedItemPosition - 1
+                    val bookSort = selectedSortIndex
                     val coverPath = binding.ivCover.bitmapPath
                     val enableRefresh = binding.cbEnableRefresh.isChecked
                     bookGroup?.let {

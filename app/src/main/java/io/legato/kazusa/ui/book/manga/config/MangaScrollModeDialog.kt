@@ -14,6 +14,9 @@ class MangaScrollModeDialog : BaseBottomSheetDialogFragment(R.layout.dialog_mang
     private val binding by viewBinding(DialogMangaScrollModeBinding::bind)
 
     var initialAutoPageEnabled: Boolean = false
+    var initialWebtoonSidePadding: Int = 0
+    var initialScrollMode: Int = MangaScrollMode.PAGE_RIGHT_TO_LEFT
+
     var callback: Callback? = null
 
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
@@ -27,7 +30,7 @@ class MangaScrollModeDialog : BaseBottomSheetDialogFragment(R.layout.dialog_mang
             binding.chipGroupScrollMode.addView(Chip(requireContext()).apply {
                 text = MangaScrollMode.labelOf(mode)
                 isCheckable = true
-                isChecked = (mode == AppConfig.mangaScrollMode)
+                isChecked = (mode == initialScrollMode)
 
                 setOnClickListener {
                     callback?.onScrollModeChanged(mode)
@@ -65,9 +68,16 @@ class MangaScrollModeDialog : BaseBottomSheetDialogFragment(R.layout.dialog_mang
             }
         }
 
+        binding.checkboxVolumeKeyPage.apply {
+            isChecked = AppConfig.MangaVolumeKeyPage
+            setOnCheckedChangeListener { _, isChecked ->
+                callback?.onVolumeKeyPageChanged(isChecked)
+            }
+        }
+
         binding.scvPadding.apply {
             valueFormat = { "$it %" }
-            progress = AppConfig.webtoonSidePaddingDp
+            progress = initialWebtoonSidePadding
             onChanged = { newValue ->
                 callback?.upSidePadding(newValue)
             }
@@ -96,6 +106,7 @@ class MangaScrollModeDialog : BaseBottomSheetDialogFragment(R.layout.dialog_mang
         fun onMangaScaleDisabledChanged(disabled: Boolean)
         fun upSidePadding(padding: Int)
         fun onHideMangaTitleChanged(hide: Boolean)
+        fun onVolumeKeyPageChanged(enable: Boolean)
     }
 
 }

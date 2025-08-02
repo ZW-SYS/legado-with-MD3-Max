@@ -6,19 +6,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:paddingHorizontal="16dp"
+    android:paddingBottom="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:gravity="center"
-        android:padding="6dp">
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp">
+
+        <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" />
+
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingBottom="8dp">
 
         <TextView
             android:id="@+id/tv_name_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             android:text="@string/style_name"
             android:textSize="16sp"
             android:textStyle="bold"/>
@@ -27,29 +44,74 @@
             android:id="@+id/tv_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="8dp"
-            android:textSize="16sp"
+            android:paddingVertical="8dp"
+            android:textSize="22sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_name_title"
             tools:text="文字" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/iv_edit"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
-            android:layout_marginEnd="8dp"
+            style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:contentDescription="@string/edit"
             app:iconGravity="textStart"
-            app:icon="@drawable/ic_edit" />
+            app:icon="@drawable/ic_edit"
+            app:layout_constraintBottom_toBottomOf="@id/tv_name"
+            app:layout_constraintEnd_toStartOf="@id/iv_delete"
+            app:layout_constraintTop_toTopOf="@id/tv_name" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/iv_delete"
+            style="@style/Widget.Material3Expressive.Button.IconButton.Outlined"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/delete"
+            app:icon="@drawable/ic_clear_all"
+            app:layout_constraintBottom_toBottomOf="@id/iv_edit"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/iv_edit"
+            tools:ignore="UnusedAttribute" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/tv_restore"
             android:layout_width="wrap_content"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_height="40dp"
-            android:text="@string/restore" />
+            style="@style/Widget.Material3Expressive.Button.OutlinedButton"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/restore"
+            app:icon="@drawable/ic_restore"
+            app:layout_constraintEnd_toStartOf="@id/iv_import"
+            app:layout_constraintTop_toBottomOf="@id/iv_edit" />
 
-    </LinearLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/iv_import"
+            style="@style/Widget.Material3Expressive.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="@string/import_str"
+            android:text="@string/import_str"
+            app:icon="@drawable/ic_import"
+            app:layout_constraintBottom_toBottomOf="@id/tv_restore"
+            app:layout_constraintEnd_toStartOf="@id/iv_export"
+            app:layout_constraintTop_toTopOf="@id/tv_restore" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/iv_export"
+            style="@style/Widget.Material3Expressive.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/import_str"
+            android:text="@string/export_str"
+            app:icon="@drawable/ic_export"
+            app:layout_constraintBottom_toBottomOf="@id/iv_import"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/iv_import" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/sw_dark_status_icon"
@@ -71,80 +133,31 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:padding="3dp"
+        android:paddingBottom="8dp"
         android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/tv_text_color"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:singleLine="true"
+            style="@style/Widget.Material3Expressive.Button.TonalButton"
+            android:layout_marginEnd="16dp"
+            android:layout_weight="1"
             app:icon="@drawable/ic_palette"
             android:text="@string/text_color"
             android:textSize="14sp"
-            tools:ignore="HardcodedText" />
+            app:cornerRadius="12dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/tv_bg_color"
-            android:layout_width="0dp"
+            style="@style/Widget.Material3Expressive.Button.TonalButton"
             android:layout_height="wrap_content"
-            style="@style/Widget.Material3.Button.TonalButton"
             android:layout_weight="1"
-            android:layout_gravity="center"
-            android:layout_marginStart="16dp"
-            android:gravity="center"
-            android:singleLine="true"
+            android:layout_width="wrap_content"
+            android:textSize="14sp"
             app:icon="@drawable/ic_fill_colors"
             android:text="@string/bg_color"
-            android:textSize="14sp"
-            tools:ignore="HardcodedText" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/iv_import"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            style="@style/Widget.Material3.Button.IconButton.Outlined"
-            android:layout_weight="1"
-            android:contentDescription="@string/import_str"
-            app:icon="@drawable/ic_import"
-            android:text="@string/import_str"
-            tools:ignore="UnusedAttribute" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/iv_export"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            style="@style/Widget.Material3.Button.IconButton.Outlined"
-            android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:contentDescription="@string/import_str"
-            app:icon="@drawable/ic_export"
-            android:text="@string/export_str"
-            tools:ignore="UnusedAttribute" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/iv_delete"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            style="@style/Widget.Material3.Button.IconButton.Outlined"
-            android:layout_weight="1"
-            android:contentDescription="@string/delete"
-            app:icon="@drawable/ic_clear_all"
-            android:text="@string/delete"
-            tools:ignore="UnusedAttribute" />
-
+            app:cornerRadius="12dp" />
 
     </LinearLayout>
 
@@ -175,6 +188,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
+        android:paddingVertical="8dp"
         android:layout_height="100dp"
         android:orientation="horizontal"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"

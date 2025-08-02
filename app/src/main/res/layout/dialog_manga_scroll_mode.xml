@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-
-    android:paddingVertical="8dp">
+    android:paddingBottom="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,14 +13,12 @@
         android:gravity="center"
         android:orientation="vertical"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="8dp">
+        android:paddingBottom="8dp">
 
-        <View
-            android:layout_width="36dp"
-            android:layout_height="4dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/bg_bottom_sheet_handle" />
+        <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" />
 
         <TextView
             android:id="@+id/bottom_sheet_title"
@@ -73,6 +70,7 @@
                 android:id="@+id/chip_autoPage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:checkable="true"
                 android:text="@string/enable_auto_page_scroll" />
 
             <View
@@ -138,6 +136,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/hide_manga_title" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/checkboxVolumeKeyPage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/volume_key_page" />
     </LinearLayout>
 
 

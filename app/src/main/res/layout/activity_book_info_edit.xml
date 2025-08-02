@@ -107,7 +107,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    style="@style/Widget.Material3.Button.TonalButton"
+                    style="@style/Widget.Material3Expressive.Button.TonalButton"
                     android:padding="8dp"
                     android:text="@string/select_local_image" />
 
@@ -116,7 +116,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    style="@style/Widget.Material3.Button.TonalButton"
+                    style="@style/Widget.Material3Expressive.Button.TonalButton"
                     android:layout_marginStart="8dp"
                     android:padding="8dp"
                     android:text="@string/change_cover_source" />
@@ -126,7 +126,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    style="@style/Widget.Material3.Button.TonalButton"
+                    style="@style/Widget.Material3Expressive.Button.TonalButton"
                     android:layout_marginStart="8dp"
                     android:padding="8dp"
                     android:text="@string/refresh_cover" />

@@ -1,225 +1,231 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:paddingHorizontal="16dp"
     android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fillViewport="true"
+        android:gravity="center"
+        android:orientation="vertical"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="8dp"
-        android:orientation="vertical">
+        android:paddingBottom="8dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:paddingVertical="8dp"
-            android:paddingHorizontal="16dp">
-
-            <View
-                android:layout_width="36dp"
-                android:layout_height="4dp"
-                android:layout_gravity="center_horizontal"
-                android:background="@drawable/bg_bottom_sheet_handle"
-                android:layout_marginBottom="16dp" />
-
-            <TextView
-                android:id="@+id/bottom_sheet_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/bookshelf_layout"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-        </LinearLayout>
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/sw_show_unread"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/show_unread"
-            tools:ignore="TouchTargetSizeCheck" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/sw_show_last_update_time"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/show_last_update_time"
-            tools:ignore="TouchTargetSizeCheck" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/sw_show_wait_up_books"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/show_wait_up_count"
-            tools:ignore="TouchTargetSizeCheck" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/sw_show_bookshelf_fast_scroller"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/show_bookshelf_fast_scroller"
-            tools:ignore="TouchTargetSizeCheck" />
-
+            android:layout_gravity="center_horizontal" />
 
         <TextView
-            android:layout_width="match_parent"
+            android:id="@+id/bottom_sheet_title"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="8dp"
-            android:text="@string/group_style"
-            android:textSize="14sp"
+            android:text="@string/bookshelf_layout"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chip_group_style"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:checkableBehavior="single"
-            android:paddingBottom="8dp"
-            app:singleSelection="true"
-            app:selectionRequired="true">
-        </com.google.android.material.chip.ChipGroup>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="8dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:text="排列视图"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"/>
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chip_group_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:singleSelection="true"
-                app:selectionRequired="true">
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_list"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="列表" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_grid"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="网格" />
-            </com.google.android.material.chip.ChipGroup>
-        </LinearLayout>
-
-
-
-        <TextView
-            android:id="@+id/slider_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="每行列数"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp" />
-
-        <com.google.android.material.slider.Slider
-            android:id="@+id/slider_grid_count"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="8dp"
-            android:valueFrom="1"
-            android:valueTo="9"
-            android:stepSize="1"
-            android:value="3" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:text="@string/sort"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"/>
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupOrder"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:singleSelection="true">
-
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/chip_asc"
-                    android:text="升序"
-                    android:checkable="true" />
-
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/chip_desc"
-                    android:text="降序"
-                    android:checkable="true" />
-            </com.google.android.material.chip.ChipGroup>
-        </LinearLayout>
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chip_group_sort"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:singleSelection="true"
-            app:selectionRequired="true"
-            android:orientation="horizontal" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCancel"
-                style="@style/Widget.Material3Expressive.Button.OutlinedButton"
-                android:text="取消"
-                android:layout_marginEnd="8dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnOk"
-                style="@style/Widget.Material3Expressive.Button"
-                android:text="确定"
-
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-        </LinearLayout>
     </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/sw_show_unread"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/show_unread"
+                tools:ignore="TouchTargetSizeCheck" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/sw_show_last_update_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/show_last_update_time"
+                tools:ignore="TouchTargetSizeCheck" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/sw_show_wait_up_books"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/show_wait_up_count"
+                tools:ignore="TouchTargetSizeCheck" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/sw_show_bookshelf_fast_scroller"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/show_bookshelf_fast_scroller"
+                tools:ignore="TouchTargetSizeCheck" />
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:text="@string/group_style"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group_style"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checkableBehavior="single"
+                android:paddingBottom="8dp"
+                app:selectionRequired="true"
+                app:singleSelection="true" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/sortview"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chip_group_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:selectionRequired="true"
+                    app:singleSelection="true">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_list"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkable="true"
+                        android:text="@string/list" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_grid"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkable="true"
+                        android:text="@string/grid" />
+                </com.google.android.material.chip.ChipGroup>
+            </LinearLayout>
+
+
+            <TextView
+                android:id="@+id/slider_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:text="@string/number_rows_columns"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/slider_grid_count"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="8dp"
+                android:stepSize="1"
+                android:value="3"
+                android:valueFrom="1"
+                android:valueTo="9" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/sort"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupOrder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_asc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkable="true"
+                        android:text="@string/ascending_order" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_desc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkable="true"
+                        android:text="@string/descending_order" />
+                </com.google.android.material.chip.ChipGroup>
+            </LinearLayout>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group_sort"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:chipSpacingVertical="0dp"
+                app:selectionRequired="true"
+                app:singleSelection="true" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingVertical="16dp">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            style="@style/Widget.Material3Expressive.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/cancel" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnOk"
+            style="@style/Widget.Material3Expressive.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/confirm" />
+
+    </LinearLayout>
+
+</LinearLayout>

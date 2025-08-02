@@ -41,7 +41,7 @@
         android:id="@+id/tv_ok"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/Widget.Material3.Button.TonalButton"
+        style="@style/Widget.Material3Expressive.Button.TonalButton"
         android:layout_margin="8dp"
         android:text="@string/ok"
         android:gravity="center" />

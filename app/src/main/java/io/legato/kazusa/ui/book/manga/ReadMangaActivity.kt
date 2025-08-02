@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.os.Looper
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
@@ -202,8 +201,12 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
             enableMangaEInk(AppConfig.enableMangaEInk, AppConfig.mangaEInkThreshold)
             enableGray(AppConfig.enableMangaGray)
         }
-        //setHorizontalScroll(AppConfig.enableMangaHorizontalScroll)
-        setScrollMode(AppConfig.mangaScrollMode)
+
+        viewModel.initData(intent) {
+            setScrollMode(viewModel.getEffectiveScrollMode())
+            updateWebtoonSidePadding(viewModel.getEffectiveWebtoonSidePadding())
+        }
+
         binding.recyclerView.run {
             adapter = mAdapter
             itemAnimator = null
@@ -212,7 +215,6 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
             setDisableClickScroll(AppConfig.disableClickScroll)
             setDisableMangaScale(AppConfig.disableMangaScale)
             setRecyclerViewPreloader(AppConfig.mangaPreDownloadNum)
-            updateWebtoonSidePadding(AppConfig.webtoonSidePaddingDp)
             setPreScrollListener { _, _, _, position ->
                 if (mAdapter.isNotEmpty()) {
                     val item = mAdapter.getItem(position)
@@ -267,10 +269,10 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        Looper.myQueue().addIdleHandler {
-            viewModel.initData(intent)
-            false
-        }
+//        Looper.myQueue().addIdleHandler {
+//            viewModel.initData(intent)
+//            false
+//        }
         justInitData = true
     }
 
@@ -563,6 +565,8 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
 
     override fun showScrollModeDialog() {
         showDialogFragment(MangaScrollModeDialog().apply {
+            initialScrollMode = viewModel.getEffectiveScrollMode()
+            initialWebtoonSidePadding = viewModel.getEffectiveWebtoonSidePadding()
             initialAutoPageEnabled = enableScroll
             callback = this@ReadMangaActivity
         })
@@ -570,7 +574,10 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
 
     //漫画模式
     override fun onScrollModeChanged(mode: Int) {
-        AppConfig.mangaScrollMode = mode
+        //AppConfig.mangaScrollMode = mode
+        viewModel.updateReadConfig {
+            mangaScrollMode = mode
+        }
         setScrollMode(mode)
         updateWebtoonSidePadding(AppConfig.webtoonSidePaddingDp)
         setAutoReadEnabled(false)
@@ -590,7 +597,9 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
 
     //侧边留白
     override fun upSidePadding(paddingDp: Int) {
-        AppConfig.webtoonSidePaddingDp = paddingDp
+        viewModel.updateReadConfig {
+            webtoonSidePaddingDp = paddingDp
+        }
         updateWebtoonSidePadding(paddingDp)
     }
 
@@ -624,6 +633,10 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
 //        if (enableAutoScrollPage) {
 //            mScrollTimer.isEnabledPage = true
 //        }
+    }
+
+    override fun onVolumeKeyPageChanged(enable: Boolean) {
+        AppConfig.MangaVolumeKeyPage = enable
     }
 
     override fun onHideMangaTitleChanged(hide: Boolean) {
@@ -907,17 +920,20 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        when (keyCode) {
-            KeyEvent.KEYCODE_VOLUME_UP -> {
-                scrollToPrev()
-                return true
-            }
+        if (AppConfig.MangaVolumeKeyPage) {
+            when (keyCode) {
+                KeyEvent.KEYCODE_VOLUME_UP -> {
+                    scrollToPrev()
+                    return true
+                }
 
-            KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                scrollToNext()
-                return true
+                KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                    scrollToNext()
+                    return true
+                }
             }
         }
+
         return super.onKeyDown(keyCode, event)
     }
 

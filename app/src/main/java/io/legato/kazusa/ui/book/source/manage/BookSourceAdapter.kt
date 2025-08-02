@@ -1,22 +1,21 @@
 package io.legato.kazusa.ui.book.source.manage
 
+//import io.legado.app.lib.theme.backgroundColor
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.PopupMenu
 import androidx.core.os.bundleOf
 import androidx.core.view.doOnLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.card.MaterialCardView
 import io.legato.kazusa.R
 import io.legato.kazusa.base.adapter.ItemViewHolder
 import io.legato.kazusa.base.adapter.RecyclerAdapter
 import io.legato.kazusa.data.entities.BookSourcePart
 import io.legato.kazusa.databinding.ItemBookSourceBinding
-//import io.legado.app.lib.theme.backgroundColor
 import io.legato.kazusa.model.Debug
 import io.legato.kazusa.ui.login.SourceLoginActivity
 import io.legato.kazusa.ui.widget.recycler.DragSelectTouchHelper
@@ -25,6 +24,7 @@ import io.legato.kazusa.utils.buildMainHandler
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.invisible
 import io.legato.kazusa.utils.startActivity
+import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.visible
 import java.util.Collections
 
@@ -208,20 +208,20 @@ class BookSourceAdapter(
         popupMenu.show()
     }
 
-    private fun upShowExplore(iv: ImageView, source: BookSourcePart) {
+    private fun upShowExplore(iv: MaterialCardView, source: BookSourcePart) {
         when {
             !source.hasExploreUrl -> {
                 iv.invisible()
             }
 
             source.enabledExplore -> {
-                iv.setColorFilter(Color.GREEN)
+                iv.setCardBackgroundColor(context.themeColor(androidx.appcompat.R.attr.colorPrimary))
                 iv.visible()
                 iv.contentDescription = context.getString(R.string.tag_explore_enabled)
             }
 
             else -> {
-                iv.setColorFilter(Color.RED)
+                iv.setCardBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorOnError))
                 iv.visible()
                 iv.contentDescription = context.getString(R.string.tag_explore_disabled)
             }

@@ -89,7 +89,7 @@
                 android:id="@+id/tv_pre"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
                 app:icon="@drawable/ic_previous"
                 tools:ignore="TouchTargetSizeCheck" />
 
@@ -112,7 +112,7 @@
                 android:id="@+id/tv_next"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
                 app:icon="@drawable/ic_next"
                 tools:ignore="TouchTargetSizeCheck" />
         </LinearLayout>
@@ -127,12 +127,19 @@
             android:paddingHorizontal="16dp"
             android:paddingVertical="8dp">
 
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:importantForAccessibility="no" />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/iv_catalog"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@android:color/transparent"
+                style="@style/Widget.Material3Expressive.Button.IconButton"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                app:iconTint="?attr/colorPrimary"
                 android:contentDescription="@string/chapter_list"
                 android:maxHeight="24dp"
                 android:tooltipText="@string/chapter_list"
@@ -148,10 +155,11 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_autoPage"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@android:color/transparent"
+                style="@style/Widget.Material3Expressive.Button.IconButton"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                app:iconTint="?attr/colorPrimary"
                 android:contentDescription="@string/auto_next_page"
                 android:tooltipText="@string/auto_next_page"
                 app:icon="@drawable/ic_auto_page"
@@ -166,16 +174,23 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/iv_setting"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@android:color/transparent"
+                style="@style/Widget.Material3Expressive.Button.IconButton"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                app:iconTint="?attr/colorPrimary"
                 android:contentDescription="@string/setting"
                 android:maxHeight="24dp"
                 android:tooltipText="@string/setting"
                 app:icon="@drawable/ic_settings"
                 app:iconGravity="textStart"
                 tools:ignore="NestedWeights" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:importantForAccessibility="no" />
 
         </LinearLayout>
 

@@ -129,7 +129,7 @@
             android:maxLines="1"
             android:scrollbars="none"
             android:singleLine="true"
-            android:text="123"
+            android:text="@string/text"
             android:textSize="13sp"
             app:layout_constraintBottom_toBottomOf="@+id/tv_author"
             app:layout_constraintEnd_toEndOf="parent"

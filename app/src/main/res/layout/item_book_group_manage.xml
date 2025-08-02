@@ -20,7 +20,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginEnd="8dp"
-        style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+        style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
         app:icon="@drawable/ic_edit" />
 
     <io.legato.kazusa.lib.theme.view.ThemeSwitch

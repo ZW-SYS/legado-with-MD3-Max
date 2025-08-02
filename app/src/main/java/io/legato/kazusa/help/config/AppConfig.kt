@@ -743,28 +743,32 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
             appCtx.putPrefBoolean(PreferKey.enableMangaEInk, value)
         }
 
+    //墨水屏阈值
     var mangaEInkThreshold
         get() = appCtx.getPrefInt(PreferKey.mangaEInkThreshold, 150)
         set(value) {
             appCtx.putPrefInt(PreferKey.mangaEInkThreshold, value)
         }
 
-    var disableHorizontalAnimator
-        get() = appCtx.getPrefBoolean(PreferKey.disableHorizontalAnimator, false)
-        set(value) {
-            appCtx.putPrefBoolean(PreferKey.disableHorizontalAnimator, value)
-        }
-
+    //漫画灰度
     var enableMangaGray
         get() = appCtx.getPrefBoolean(PreferKey.enableMangaGray, false)
         set(value) {
             appCtx.putPrefBoolean(PreferKey.enableMangaGray, value)
         }
 
+    //条漫侧边距
     var webtoonSidePaddingDp: Int
         get() = appCtx.getPrefInt(PreferKey.webtoonSidePaddingDp, 0)
         set(value) {
             appCtx.putPrefInt(PreferKey.webtoonSidePaddingDp, value)
+        }
+
+    //漫画音量键翻页
+    var MangaVolumeKeyPage: Boolean
+        get() = appCtx.getPrefBoolean(PreferKey.mangaVolumeKeyPage, false)
+        set(value) {
+            appCtx.putPrefBoolean(PreferKey.mangaVolumeKeyPage, value)
         }
 
 }

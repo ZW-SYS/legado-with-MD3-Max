@@ -203,7 +203,7 @@
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_shelf"
-                                style="@style/Widget.Material3.Button.TonalButton"
+                                style="@style/Widget.Material3Expressive.Button.TonalButton"
                                 android:backgroundTint="?attr/colorSurfaceContainer"
                                 app:cornerRadius="16dp"
                                 android:layout_width="wrap_content"
@@ -220,7 +220,7 @@
                             <!-- 查看目录按钮 -->
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/tv_toc_view"
-                                style="@style/Widget.Material3.Button.TonalButton"
+                                style="@style/Widget.Material3Expressive.Button.TonalButton"
                                 android:backgroundTint="?attr/colorSurfaceContainer"
                                 app:cornerRadius="16dp"
                                 android:layout_width="wrap_content"
@@ -237,7 +237,7 @@
                             <!-- 更换分组按钮 -->
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/tv_change_group"
-                                style="@style/Widget.Material3.Button.TonalButton"
+                                style="@style/Widget.Material3Expressive.Button.TonalButton"
                                 android:backgroundTint="?attr/colorSurfaceContainer"
                                 app:cornerRadius="16dp"
                                 android:layout_width="wrap_content"
@@ -254,7 +254,7 @@
                             <!-- 更换来源按钮（保持原样） -->
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_change_source"
-                                style="@style/Widget.Material3.Button.TonalButton"
+                                style="@style/Widget.Material3Expressive.Button.TonalButton"
                                 android:backgroundTint="?attr/colorSurfaceContainer"
                                 app:cornerRadius="16dp"
                                 android:layout_width="wrap_content"
@@ -371,7 +371,6 @@
         app:iconGravity="textStart"
         app:icon="@drawable/ic_bottom_books"
         app:backgroundTint="?attr/colorSecondary"
-        app:iconTint="?attr/colorOnPrimary"
-        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior" />
+        app:iconTint="?attr/colorOnPrimary" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

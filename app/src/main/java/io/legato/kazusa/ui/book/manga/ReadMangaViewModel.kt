@@ -9,6 +9,7 @@ import io.legato.kazusa.constant.BookType
 import io.legato.kazusa.constant.EventBus
 import io.legato.kazusa.data.appDb
 import io.legato.kazusa.data.entities.Book
+import io.legato.kazusa.data.entities.Book.ReadConfig
 import io.legato.kazusa.data.entities.BookChapter
 import io.legato.kazusa.data.entities.BookProgress
 import io.legato.kazusa.exception.NoStackTraceException
@@ -270,6 +271,29 @@ class ReadMangaViewModel(application: Application) : BaseViewModel(application) 
             book?.delete()
         }.onSuccess {
             success?.invoke()
+        }
+    }
+
+
+    fun getEffectiveScrollMode(): Int {
+        return ReadManga.book?.readConfig?.mangaScrollMode ?: AppConfig.mangaScrollMode
+    }
+
+    fun getEffectiveWebtoonSidePadding(): Int {
+        return ReadManga.book?.readConfig?.webtoonSidePaddingDp ?: AppConfig.webtoonSidePaddingDp
+    }
+
+
+    fun updateReadConfig(update: ReadConfig.() -> Unit) {
+        val book = ReadManga.book ?: return
+        val config = book.readConfig ?: ReadConfig()
+        config.update()
+        book.readConfig = config
+
+        execute {
+            appDb.bookDao.update(book)
+        }.onError {
+            AppLog.put("更新阅读配置失败\n${it.localizedMessage}", it)
         }
     }
 

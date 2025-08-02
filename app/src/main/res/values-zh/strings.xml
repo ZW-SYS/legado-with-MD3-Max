@@ -802,7 +802,7 @@
     <string name="auto_clear_expired">自动清除过期搜索数据</string>
     <string name="auto_clear_expired_summary">超过一天的搜索数据</string>
     <string name="re_segment">重新分段</string>
-    <string name="style_name">样式名称:</string>
+    <string name="style_name">样式名称</string>
     <string name="empty_msg_import_book">点击右上角文件夹图标，选择文件夹</string>
     <string name="scan_folder">智能扫描</string>
     <string name="import_file_name">导入文件名</string>
@@ -1230,5 +1230,9 @@
     <string name="manga_epaper_value">阈值</string>
     <string name="disable_horizontal_animation">禁用水平滚动动画</string>
     <string name="enable_manga_gray">开启图片灰色</string>
+    <string name="sortview">排列视图</string>
+    <string name="list">列表</string>
+    <string name="grid">网格</string>
+    <string name="descending_order">降序</string>
 
 </resources>

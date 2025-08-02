@@ -2,6 +2,7 @@ package io.legato.kazusa.ui.book.read.config
 
 import android.content.DialogInterface
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.get
@@ -15,6 +16,7 @@ import io.legato.kazusa.databinding.DialogReadBookStyleBinding
 import io.legato.kazusa.databinding.ItemReadStyleBinding
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.config.ReadBookConfig
+import io.legato.kazusa.help.config.ThemeConfig
 import io.legato.kazusa.lib.dialogs.selector
 import io.legato.kazusa.model.ReadBook
 import io.legato.kazusa.ui.book.read.ReadBookActivity
@@ -22,9 +24,8 @@ import io.legato.kazusa.ui.font.FontSelectDialog
 import io.legato.kazusa.utils.ChineseUtils
 import io.legato.kazusa.utils.postEvent
 import io.legato.kazusa.utils.showDialogFragment
+import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
-import splitties.views.onLongClick
-import io.legato.kazusa.help.config.ThemeConfig
 
 class ReadStyleDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_book_style),
     FontSelectDialog.CallBack {
@@ -229,32 +230,35 @@ class ReadStyleDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_book_
             payloads: MutableList<Any>
         ) {
             binding.apply {
-                ivStyle.setText(item.name.ifBlank { "文字" })
-                ivStyle.setTextColor(item.curTextColor())
+                tvStyle.text = item.name.ifBlank { "文字" }
+                tvStyle.setTextColor(item.curTextColor())
                 ivStyle.setImageDrawable(item.curBgDrawable(100, 150))
                 if (ReadBookConfig.styleSelect == holder.layoutPosition) {
-                    //ivStyle.borderColor = accentColor
-                    ivStyle.setTextBold(true)
+                    llStyle.gravity = Gravity.TOP
+                    cdStyle.strokeColor =
+                        context.themeColor(com.google.android.material.R.attr.colorTertiary)
+                    rvStyle.setCardBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorTertiary))
+                    //tvStyle.setTextBold(true)
                 } else {
-                    ivStyle.borderColor = item.curTextColor()
-                    ivStyle.setTextBold(false)
+                    cdStyle.strokeColor = item.curTextColor()
+                    //tvStyle.setTextBold(false)
                 }
             }
         }
 
         override fun registerListener(holder: ItemViewHolder, binding: ItemReadStyleBinding) {
             binding.apply {
-                ivStyle.setOnClickListener {
-                    if (ivStyle.isInView) {
-                        changeBgTextConfig(holder.layoutPosition)
-                    }
+                // ivStyle 现在是 MaterialCardView
+                cdStyle.setOnClickListener {
+                    changeBgTextConfig(holder.layoutPosition)
                 }
-                ivStyle.onLongClick(ivStyle.isInView) {
-                    if (ivStyle.isInView) {
-                        showBgTextConfig(holder.layoutPosition)
-                    }
+
+                cdStyle.setOnLongClickListener {
+                    showBgTextConfig(holder.layoutPosition)
+                    true // 表示事件已消费
                 }
             }
         }
+
     }
 }

@@ -3,22 +3,30 @@
     android:layout_width="66dp"
     android:layout_height="88dp"
     xmlns:tool="http://schemas.android.com/tools"
-    android:padding="2dp"
+    android:layout_marginEnd="6dp"
     android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/iv_bg"
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:scaleType="fitCenter"
-        android:contentDescription="@string/bg_image"
-        tool:src="@drawable/ic_image" />
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/iv_bg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/bg_image"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:scaleType="fitCenter"
+            tool:src="@drawable/ic_image" />
+
+    </com.google.android.material.card.MaterialCardView>
 
     <TextView
         android:id="@+id/tv_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="@string/text"
         android:singleLine="true"
         android:gravity="center" />
 

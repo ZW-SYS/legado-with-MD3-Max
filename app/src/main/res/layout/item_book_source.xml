@@ -86,10 +86,11 @@
         app:layout_constraintTop_toBottomOf="@id/barrier"
         tools:ignore="RtlHardcoded" />
 
-    <io.legato.kazusa.ui.widget.image.CircleImageView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/iv_explore"
         android:layout_width="8dp"
         android:layout_height="8dp"
+        app:strokeWidth="0dp"
         android:scaleType="centerCrop"
         android:scrollbars="none"
         android:src="@color/md_green_600"
@@ -104,25 +105,24 @@
         android:scrollbars="none"
         android:singleLine="true"
         android:visibility="gone"
+        android:layout_marginStart="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/iv_progressBar"
+        app:layout_constraintStart_toEndOf="@id/iv_progressBar"
         app:layout_constraintTop_toBottomOf="@id/cb_book_source"
         tools:text="@string/debug_hint"
         tools:visibility="visible" />
 
-    <ProgressBar
+    <com.google.android.material.loadingindicator.LoadingIndicator
         android:id="@+id/iv_progressBar"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:layout_gravity="start|center_vertical"
-        android:animationResolution="1000"
-        android:indeterminate="true"
-        android:indeterminateBehavior="repeat"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="4dp"
+        app:indicatorSize="24dp"
         android:scrollbars="none"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/iv_debug_text"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/iv_debug_text"
         tools:visibility="visible" />
 

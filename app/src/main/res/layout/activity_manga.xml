@@ -50,20 +50,17 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <com.google.android.material.progressindicator.CircularProgressIndicator
+            <com.google.android.material.loadingindicator.LoadingIndicator
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:waveAmplitude="2dp"
-                app:waveSpeed="2dp"
-                app:wavelength="2dp"
-                android:indeterminate="true"
-                app:indicatorSize="40dp" />
+                app:indicatorSize="64dp" />
 
             <TextView
                 android:id="@+id/tv_loading_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
+                android:textStyle="bold"
                 android:text="@string/loading" />
         </LinearLayout>
 
