@@ -1,5 +1,6 @@
 package io.legato.kazusa.ui.widget.dialog
 
+//import io.legado.app.lib.theme.primaryColor
 import android.app.Application
 import android.os.Bundle
 import android.view.MenuItem
@@ -8,15 +9,14 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.viewModels
 import io.legato.kazusa.R
-import io.legato.kazusa.base.BaseDialogFragment
+import io.legato.kazusa.base.BaseBottomSheetDialogFragment
 import io.legato.kazusa.base.BaseViewModel
 import io.legato.kazusa.databinding.DialogVariableBinding
-//import io.legado.app.lib.theme.primaryColor
 import io.legato.kazusa.utils.applyTint
 import io.legato.kazusa.utils.setLayout
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 
-class VariableDialog() : BaseDialogFragment(R.layout.dialog_variable, true),
+class VariableDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_variable),
     Toolbar.OnMenuItemClickListener {
 
     private val binding by viewBinding(DialogVariableBinding::bind)

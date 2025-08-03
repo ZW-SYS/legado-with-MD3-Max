@@ -48,6 +48,7 @@
                     android:layout_height="36dp"
                     android:layout_width="wrap_content"
                     android:layout_marginStart="8dp"
+                    app:iconSize="16dp"
                     app:icon="@drawable/ic_brightness"
                     app:iconGravity="textStart"
                     app:layout_constraintBottom_toBottomOf="parent"

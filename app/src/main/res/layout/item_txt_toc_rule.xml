@@ -7,7 +7,7 @@
     android:background="?attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
-    android:paddingHorizontal="16dp"
+    android:paddingHorizontal="8dp"
     android:paddingVertical="8dp">
 
     <com.google.android.material.checkbox.MaterialCheckBox
@@ -28,7 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="12dp"
         app:layout_constraintBottom_toTopOf="@id/title_example"
         app:layout_constraintRight_toLeftOf="@id/iv_edit"
         app:layout_constraintTop_toTopOf="parent"
@@ -36,10 +36,11 @@
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/iv_edit"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
         android:layout_gravity="center"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:padding="4dp"
         android:contentDescription="@string/edit"
         android:layout_marginEnd="8dp"
         android:src="@drawable/ic_edit"
@@ -49,11 +50,11 @@
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/iv_menu_more"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:padding="4dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/more_menu"
-        android:layout_marginEnd="8dp"
         android:src="@drawable/ic_more_vert"
         app:layout_constraintBottom_toTopOf="@id/title_example"
         app:layout_constraintRight_toRightOf="parent"
@@ -65,6 +66,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="6dp"
+        android:layout_marginBottom="8dp"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent" />

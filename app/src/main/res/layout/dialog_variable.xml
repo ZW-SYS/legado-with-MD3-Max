@@ -1,47 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:orientation="vertical"
+    tools:ignore="UselessParent">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/tool_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:displayHomeAsUp="false"
+        app:title="Set variable"
+        app:titleTextAppearance="@style/ToolbarTitle" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:background="@drawable/shape_card_view"
         android:orientation="vertical"
-        tools:ignore="UselessParent">
+        android:padding="16dp">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/tool_bar"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:elevation="5dp"
-            android:theme="?attr/actionBarStyle"
-            app:displayHomeAsUp="false"
-            app:fitStatusBar="false"
-            app:title="Set variable"
-            app:titleTextAppearance="@style/ToolbarTitle" />
+            android:paddingBottom="8dp">
 
-        <io.legato.kazusa.ui.widget.text.AccentTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="3dp"
-            android:text="variable"
-            tools:ignore="HardcodedText" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/tv_variable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="variable"
+                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <io.legato.kazusa.lib.theme.view.ThemeEditText
-            android:id="@+id/tv_variable"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             android:overScrollMode="ifContentScrolls">
 
             <LinearLayout
@@ -49,7 +46,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <io.legato.kazusa.ui.widget.text.AccentTextView
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="3dp"
@@ -60,13 +57,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="3dp"
-                    android:textColor="@color/secondaryText"
                     android:textIsSelectable="true" />
 
             </LinearLayout>
 
         </androidx.core.widget.NestedScrollView>
-
     </LinearLayout>
 
-</FrameLayout>
+</LinearLayout>
+

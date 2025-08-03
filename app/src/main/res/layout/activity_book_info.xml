@@ -350,7 +350,7 @@
         android:textColor="?attr/colorOnPrimary"
         android:contentDescription="@string/reading"
         app:icon="@drawable/ic_bottom_books"
-        app:backgroundTint="?attr/colorSecondary"
+        app:backgroundTint="?attr/colorTertiary"
         app:iconTint="?attr/colorOnPrimary" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

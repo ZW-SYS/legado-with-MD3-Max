@@ -4,9 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?android:attr/selectableItemBackground"
+    android:background="?attr/selectableItemBackground"
     android:clipToPadding="false"
-    android:padding="16dp"
+    android:paddingHorizontal="8dp"
+    android:paddingVertical="16dp"
     android:scrollbars="none">
 
     <TextView
@@ -51,6 +52,7 @@
         android:name="@string/enable"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="12dp"
         android:layout_marginRight="6dp"
         android:scrollbars="none"
         app:layout_constraintBottom_toTopOf="@id/iv_debug_text"
@@ -60,12 +62,13 @@
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/iv_edit"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginEnd="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
         android:layout_gravity="center"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:padding="4dp"
         android:contentDescription="@string/edit"
-        android:padding="6dp"
         android:scrollbars="none"
         android:src="@drawable/ic_edit"
         app:layout_constraintBottom_toTopOf="@id/iv_debug_text"
@@ -74,11 +77,11 @@
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/iv_menu_more"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:padding="4dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/more_menu"
-        android:padding="6dp"
         android:scrollbars="none"
         android:src="@drawable/ic_more_vert"
         app:layout_constraintBottom_toTopOf="@id/iv_debug_text"

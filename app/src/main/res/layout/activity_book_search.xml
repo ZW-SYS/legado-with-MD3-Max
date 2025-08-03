@@ -72,20 +72,27 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp">
+            android:paddingVertical="4dp">
 
             <TextView
                 android:id="@+id/tv_history"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 android:layout_gravity="center_vertical"
                 android:text="@string/searchHistory" />
 
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/tv_clear_history"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                style="@style/Widget.Material3.Button.IconButton.Outlined"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Outlined"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 app:iconGravity="textStart"
                 app:icon="@drawable/ic_clear_all" />
 

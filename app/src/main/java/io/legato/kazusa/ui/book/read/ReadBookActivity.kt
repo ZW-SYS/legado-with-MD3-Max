@@ -1,5 +1,6 @@
 package io.legato.kazusa.ui.book.read
 
+//import io.legado.app.lib.theme.accentColor
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
@@ -34,7 +35,6 @@ import io.legato.kazusa.data.entities.Book
 import io.legato.kazusa.data.entities.BookChapter
 import io.legato.kazusa.data.entities.BookProgress
 import io.legato.kazusa.data.entities.BookSource
-import io.legato.kazusa.data.entities.ReplaceRule
 import io.legato.kazusa.exception.NoStackTraceException
 import io.legato.kazusa.help.AppWebDav
 import io.legato.kazusa.help.IntentData
@@ -57,7 +57,6 @@ import io.legato.kazusa.help.storage.Backup
 import io.legato.kazusa.lib.dialogs.SelectItem
 import io.legato.kazusa.lib.dialogs.alert
 import io.legato.kazusa.lib.dialogs.selector
-//import io.legado.app.lib.theme.accentColor
 import io.legato.kazusa.model.ReadAloud
 import io.legato.kazusa.model.ReadBook
 import io.legato.kazusa.model.analyzeRule.AnalyzeRule
@@ -76,7 +75,6 @@ import io.legato.kazusa.ui.book.info.BookInfoActivity
 import io.legato.kazusa.ui.book.read.config.AutoReadDialog
 import io.legato.kazusa.ui.book.read.config.BgTextConfigDialog.Companion.BG_COLOR
 import io.legato.kazusa.ui.book.read.config.BgTextConfigDialog.Companion.TEXT_COLOR
-import io.legato.kazusa.ui.book.read.config.MoreConfigDialog
 import io.legato.kazusa.ui.book.read.config.ReadAloudDialog
 import io.legato.kazusa.ui.book.read.config.ReadStyleDialog
 import io.legato.kazusa.ui.book.read.config.TipConfigDialog.Companion.TIP_COLOR
@@ -320,9 +318,11 @@ class ReadBookActivity : BaseReadBookActivity(),
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        upSystemUiVisibility()
-        binding.readView.upStatusBar()
+        //upSystemUiVisibility()
+        //binding.readView.upStatusBar()
+        recreate()
     }
+
 
     override fun onTopResumedActivityChanged(isTopResumedActivity: Boolean) {
         if (!isTopResumedActivity) {
