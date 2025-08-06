@@ -4,7 +4,6 @@ import android.view.ViewGroup
 import io.legato.kazusa.base.adapter.ItemViewHolder
 import io.legato.kazusa.base.adapter.RecyclerAdapter
 import io.legato.kazusa.data.entities.SearchKeyword
-import io.legato.kazusa.databinding.ItemFilletTextBinding
 import io.legato.kazusa.databinding.ItemSearchHistoryBinding
 import io.legato.kazusa.ui.widget.anima.explosion_field.ExplosionField
 import splitties.views.onLongClick
@@ -45,6 +44,11 @@ class HistoryKeyAdapter(activity: SearchActivity, val callBack: CallBack) :
                 getItemByLayoutPosition(holder.layoutPosition)?.let {
                     callBack.deleteHistory(it)
                 }
+            }
+        }
+        binding.btnDelete.setOnClickListener {
+            getItemByLayoutPosition(holder.layoutPosition)?.let {
+                callBack.deleteHistory(it)
             }
         }
     }

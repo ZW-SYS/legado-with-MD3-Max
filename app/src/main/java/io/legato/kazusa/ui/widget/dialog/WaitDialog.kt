@@ -2,17 +2,23 @@ package io.legato.kazusa.ui.widget.dialog
 
 import android.app.Dialog
 import android.content.Context
+import android.view.LayoutInflater
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import io.legato.kazusa.R
 import io.legato.kazusa.databinding.DialogWaitBinding
 
+class WaitDialog(context: Context) {
 
-@Suppress("unused")
-class WaitDialog(context: Context) : Dialog(context) {
+    private val binding: DialogWaitBinding =
+        DialogWaitBinding.inflate(LayoutInflater.from(context))
 
-    val binding = DialogWaitBinding.inflate(layoutInflater)
+    private val dialog: Dialog = MaterialAlertDialogBuilder(context)
+        .setView(binding.root)
+        .setCancelable(false)
+        .create()
 
     init {
-        setCanceledOnTouchOutside(false)
-        setContentView(binding.root)
+        binding.tvMsg.setText(R.string.loading)
     }
 
     fun setText(text: String): WaitDialog {
@@ -20,9 +26,31 @@ class WaitDialog(context: Context) : Dialog(context) {
         return this
     }
 
-    fun setText(res: Int): WaitDialog {
-        binding.tvMsg.setText(res)
+    fun setText(resId: Int): WaitDialog {
+        binding.tvMsg.setText(resId)
         return this
     }
 
+    fun show(): WaitDialog {
+        dialog.show()
+        return this
+    }
+
+    fun dismiss() {
+        dialog.dismiss()
+    }
+
+    fun isShowing(): Boolean {
+        return dialog.isShowing
+    }
+
+    fun setOnCancelListener(listener: () -> Unit): WaitDialog {
+        dialog.setOnCancelListener { listener() }
+        return this
+    }
+
+    fun setCancelable(cancelable: Boolean): WaitDialog {
+        dialog.setCancelable(cancelable)
+        return this
+    }
 }

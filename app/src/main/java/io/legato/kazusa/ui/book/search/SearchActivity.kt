@@ -5,17 +5,18 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View.GONE
 import android.view.View.VISIBLE
-import android.widget.TextView
+import android.view.inputmethod.EditorInfo
 import androidx.activity.viewModels
-import androidx.appcompat.widget.SearchView
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexboxLayoutManager
+import com.google.android.material.search.SearchBar
+import com.google.android.material.search.SearchView
 import io.legato.kazusa.R
 import io.legato.kazusa.base.VMBaseActivity
 import io.legato.kazusa.constant.AppLog
@@ -25,15 +26,12 @@ import io.legato.kazusa.data.entities.Book
 import io.legato.kazusa.data.entities.SearchKeyword
 import io.legato.kazusa.databinding.ActivityBookSearchBinding
 import io.legato.kazusa.lib.dialogs.alert
-//import io.legado.app.lib.theme.accentColor
-//import io.legado.app.lib.theme.backgroundColor
-//import io.legado.app.lib.theme.primaryColor
-//import io.legado.app.lib.theme.primaryTextColor
 import io.legato.kazusa.ui.about.AppLogDialog
 import io.legato.kazusa.ui.book.info.BookInfoActivity
 import io.legato.kazusa.ui.book.source.manage.BookSourceActivity
 import io.legato.kazusa.utils.applyNavigationBarMargin
 import io.legato.kazusa.utils.applyNavigationBarPadding
+import io.legato.kazusa.utils.applyStatusBarPadding
 import io.legato.kazusa.utils.getPrefBoolean
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.invisible
@@ -73,9 +71,10 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
             setHasStableIds(true)
         }
     }
-    private val searchView: SearchView by lazy {
-        binding.titleBar.findViewById(R.id.search_view)
-    }
+
+    private val searchBar: SearchBar by lazy { binding.searchBar }
+    private val searchView: SearchView by lazy { binding.searchView }
+
     private var menu: Menu? = null
     private var groups: List<String>? = null
     private var historyFlowJob: Job? = null
@@ -85,9 +84,9 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //binding.llInputHelp.setBackgroundColor(backgroundColor)
+        setSupportActionBar(binding.searchBar)
         initRecyclerView()
-        initSearchView()
+        initMaterialSearch()
         initOtherView()
         initData()
         receiptIntent(intent)
@@ -154,8 +153,8 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
                     !getPrefBoolean(PreferKey.precisionSearch)
                 )
                 precisionSearchMenuItem?.isChecked = getPrefBoolean(PreferKey.precisionSearch)
-                searchView.query?.toString()?.trim()?.let {
-                    searchView.setQuery(it, true)
+                searchView.text.toString().trim().let {
+                    searchView.setText(it)
                 }
             }
 
@@ -174,44 +173,63 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
         return super.onCompatOptionsItemSelected(item)
     }
 
-    private fun initSearchView() {
-        //searchView.applyTint(primaryTextColor)
-        searchView.isSubmitButtonEnabled = true
-        searchView.queryHint = getString(R.string.search_book_key)
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String): Boolean {
-                searchView.clearFocus()
-                query.trim().let { searchKey ->
-                    isManualStopSearch = false
-                    viewModel.saveSearchKey(searchKey)
-                    viewModel.searchKey = ""
-                    viewModel.search(searchKey)
-                }
-                visibleInputHelp(false)
-                return true
-            }
+    private fun initMaterialSearch() {
 
-            override fun onQueryTextChange(newText: String): Boolean {
-                viewModel.stop()
-                binding.fbStartStop.invisible()
-                upHistory(newText.trim())
-                return false
+        binding.appBar.applyStatusBarPadding()
+
+        searchBar.setOnMenuItemClickListener { item ->
+            onCompatOptionsItemSelected(item)
+        }
+
+        searchBar.setNavigationOnClickListener {
+            finish()
+        }
+
+        searchView.setupWithSearchBar(searchBar)
+
+        binding.searchView.show()
+        binding.searchView.editText.requestFocus()
+
+        searchView.editText.hint = getString(R.string.search_book_key)
+        searchView.editText.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                val key = searchView.text.toString().trim()
+                if (key.isNotEmpty()) {
+                    isManualStopSearch = false
+                    viewModel.saveSearchKey(key)
+                    viewModel.searchKey = ""
+                    viewModel.search(key)
+                    visibleInputHelp()
+                    searchView.hide()
+                    return@setOnEditorActionListener true
+                }
             }
-        })
-//        searchView.setOnQueryTextFocusChangeListener { _, hasFocus ->
-//            if (binding.refreshProgressBar.isAutoLoading || (!hasFocus && adapter.isNotEmpty() && searchView.query.isNotBlank())) {
-//                visibleInputHelp(false)
-//            } else {
-//                visibleInputHelp(true)
-//            }
-//        }
-        visibleInputHelp(true)
+            false
+        }
+
+        searchView.editText.doAfterTextChanged {
+            viewModel.stop()
+            binding.fbStartStop.invisible()
+            upHistory(it?.toString()?.trim().orEmpty())
+        }
+
+        searchView.addTransitionListener { _, _, newState ->
+            if (newState == SearchView.TransitionState.HIDDEN) {
+                // 当 SearchView 关闭时，将搜索文本设置回 SearchBar
+                searchBar.setText(searchView.text)
+            }
+        }
+
+        searchView.addTransitionListener { _, oldState, newState ->
+            if (oldState == SearchView.TransitionState.HIDDEN && newState == SearchView.TransitionState.SHOWN) {
+                searchView.editText.requestFocus()
+            }
+        }
+
+        visibleInputHelp()
     }
 
     private fun initRecyclerView() {
-//        binding.recyclerView.setEdgeEffectColor(primaryColor)
-//        binding.rvBookshelfSearch.setEdgeEffectColor(primaryColor)
-//        binding.rvHistoryKey.setEdgeEffectColor(primaryColor)
         binding.rvBookshelfSearch.layoutManager = FlexboxLayoutManager(this)
         binding.rvBookshelfSearch.adapter = bookAdapter
         binding.rvBookshelfSearch.applyNavigationBarMargin()
@@ -261,16 +279,10 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
     }
 
     private fun initOtherView() {
-//        binding.fbStartStop.backgroundTintList =
-//            Selector.colorBuild()
-//                .setDefaultColor(accentColor)
-//                .setPressedColor(ColorUtils.darkenColor(accentColor))
-//                .create()
         binding.fbStartStop.setOnClickListener {
             if (viewModel.isSearchLiveData.value == true) {
                 isManualStopSearch = true
                 viewModel.stop()
-                //binding.refreshProgressBar.visibility = GONE
             } else {
                 viewModel.search("")
             }
@@ -281,8 +293,8 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
     private fun initData() {
         viewModel.searchScope.stateLiveData.observe(this) {
             if (!binding.llInputHelp.isVisible) {
-                searchView.query?.toString()?.trim()?.let {
-                    searchView.setQuery(it, true)
+                searchView.text.toString().trim().let {
+                    searchView.setText(it)
                 }
             }
         }
@@ -295,6 +307,11 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
         }
         viewModel.searchBookLiveData.observe(this) {
             adapter.setItems(it)
+            if (it.isNullOrEmpty()) {
+                binding.tvEmptyMsg.visible()
+            } else {
+                binding.tvEmptyMsg.gone()
+            }
         }
         lifecycleScope.launch {
             appDb.bookSourceDao.flowEnabledGroups().collect {
@@ -313,10 +330,9 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
         }
         val key = intent?.getStringExtra("key")
         if (key.isNullOrBlank()) {
-            searchView.findViewById<TextView>(androidx.appcompat.R.id.search_src_text)
-                .requestFocus()
+            searchView.editText.requestFocus()
         } else {
-            searchView.setQuery(key, true)
+            searchView.setText(key)
         }
     }
 
@@ -338,13 +354,9 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
     /**
      * 打开关闭输入帮助
      */
-    private fun visibleInputHelp(visible: Boolean) {
-        if (visible) {
-            upHistory(searchView.query.toString())
-            binding.llInputHelp.visibility = VISIBLE
-        } else {
-            binding.llInputHelp.visibility = GONE
-        }
+    private fun visibleInputHelp() {
+        upHistory(searchView.text.toString())
+        binding.llInputHelp.visibility = VISIBLE
     }
 
     /**
@@ -401,7 +413,6 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
      * 搜索结束
      */
     private fun searchFinally() {
-        //binding.refreshProgressBar.isAutoLoading = false
         binding.refreshProgressBar.gone()
         if (!isManualStopSearch && viewModel.hasMore) {
             binding.fbStartStop.setImageResource(R.drawable.ic_play_24dp)
@@ -425,7 +436,7 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
                         appCtx.putPrefBoolean(PreferKey.precisionSearch, false)
                         precisionSearchMenuItem?.isChecked = false
                         viewModel.searchKey = ""
-                        viewModel.search(searchView.query.toString())
+                        viewModel.search(searchView.text.toString())
                     }
                 } else {
                     setMessage("${displayScope}分组搜索结果为空，是否切换到全部分组？")
@@ -469,16 +480,16 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
     override fun searchHistory(key: String) {
         lifecycleScope.launch {
             when {
-                searchView.query.toString() == key -> {
-                    searchView.setQuery(key, true)
+                searchView.text.toString() == key -> {
+                    searchView.setText(key)
                 }
 
                 withContext(IO) { appDb.bookDao.findByName(key).isEmpty() } -> {
-                    searchView.setQuery(key, true)
+                    searchView.setText(key)
                 }
 
                 else -> {
-                    searchView.setQuery(key, false)
+                    searchView.setText(key)
                 }
             }
         }

@@ -5,8 +5,8 @@ import android.view.ViewGroup
 import io.legato.kazusa.base.adapter.ItemViewHolder
 import io.legato.kazusa.base.adapter.RecyclerAdapter
 import io.legato.kazusa.data.entities.Book
-import io.legato.kazusa.databinding.ItemFilletTextBinding
 import io.legato.kazusa.databinding.ItemSearchHistoryBinding
+import io.legato.kazusa.utils.gone
 
 
 class BookAdapter(context: Context, val callBack: CallBack) :
@@ -39,6 +39,7 @@ class BookAdapter(context: Context, val callBack: CallBack) :
                 }
             }
         }
+        binding.btnDelete.gone()
     }
 
     interface CallBack {
