@@ -13,8 +13,13 @@ class HistoryKeyAdapter(activity: SearchActivity, val callBack: CallBack) :
 
     private val explosionField = ExplosionField.attach2Window(activity)
 
+    init {
+        setHasStableIds(true)
+    }
+
+
     override fun getItemId(position: Int): Long {
-        return position.toLong()
+        return getItem(position)!!.lastUseTime
     }
 
     override fun getViewBinding(parent: ViewGroup): ItemSearchHistoryBinding {
@@ -33,6 +38,7 @@ class HistoryKeyAdapter(activity: SearchActivity, val callBack: CallBack) :
     }
 
     override fun registerListener(holder: ItemViewHolder, binding: ItemSearchHistoryBinding) {
+
         holder.itemView.apply {
             setOnClickListener {
                 getItemByLayoutPosition(holder.layoutPosition)?.let {

@@ -18,6 +18,7 @@ import io.legato.kazusa.databinding.ItemReadRecordBinding
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.config.LocalConfig
 import io.legato.kazusa.lib.dialogs.alert
+import io.legato.kazusa.model.BookCover
 //import io.legado.app.lib.theme.primaryTextColor
 import io.legato.kazusa.ui.book.search.SearchActivity
 import io.legato.kazusa.utils.applyNavigationBarPadding
@@ -157,7 +158,7 @@ class ReadRecordActivity : BaseActivity<ActivityReadRecordBinding>() {
     inner class RecordAdapter(context: Context) :
         RecyclerAdapter<ReadRecordShow, ItemReadRecordBinding>(context) {
 
-        private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        private val dateFormat = SimpleDateFormat("yyyy年MM月dd日", Locale.getDefault())
 
         override fun getViewBinding(parent: ViewGroup): ItemReadRecordBinding {
             return ItemReadRecordBinding.inflate(inflater, parent, false)
@@ -175,7 +176,17 @@ class ReadRecordActivity : BaseActivity<ActivityReadRecordBinding>() {
                 if (item.lastRead > 0) {
                     tvLastReadTime.text = dateFormat.format(item.lastRead)
                 } else {
-                    tvLastReadTime.text = ""
+                    tvLastReadTime.text = "时间未知"
+                }
+
+                lifecycleScope.launch {
+                    val book = withContext(IO) {
+                        appDb.bookDao.findByName(item.bookName).firstOrNull()
+                    }
+                    if (book != null) {
+                        BookCover.load(root.context, book.getDisplayCover(), false, book.origin)
+                            .into(ivCover)
+                    }
                 }
             }
         }

@@ -1,80 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.book.search.SearchActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/app_bar"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:backgroundTint="?attr/colorSurface"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="match_parent">
 
-        <com.google.android.material.search.SearchBar
-            android:id="@+id/search_bar"
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/search_book_key"
-            app:menu="@menu/book_search"
-            app:navigationIconTint="?attr/colorOnSurface" />
+            android:backgroundTint="?attr/colorSurface"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:id="@+id/refresh_progress_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:indeterminate="true"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/app_bar">
+            <com.google.android.material.search.SearchBar
+                android:id="@+id/search_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/search_book_key"
+                app:layout_scrollFlags="scroll|enterAlways"
+                app:menu="@menu/book_search"
+                app:navigationIcon="@drawable/ic_arrow_back"
+                app:navigationIconTint="?attr/colorOnSurface" />
 
-        </com.google.android.material.progressindicator.LinearProgressIndicator>
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/refresh_progress_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:visibility="gone">
 
-    </com.google.android.material.appbar.AppBarLayout>
+            </com.google.android.material.progressindicator.LinearProgressIndicator>
 
-    <LinearLayout
-        android:id="@+id/tv_empty_msg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="16dp"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="visible">
+        </com.google.android.material.appbar.AppBarLayout>
 
-        <TextView
+        <LinearLayout
+            android:id="@+id/tv_empty_msg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="(๑`^´๑)"
-            android:textSize="30sp" />
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="visible">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:text="@string/search_empty" />
-    </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="(๑`^´๑)"
+                android:textSize="32sp" />
 
-    <io.legato.kazusa.ui.widget.dynamiclayout.DynamicFrameLayout
-        android:id="@+id/content_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:text="@string/search_empty" />
+        </LinearLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view"
+        <io.legato.kazusa.ui.widget.dynamiclayout.DynamicFrameLayout
+            android:id="@+id/content_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:clipToPadding="false"
-            tools:listitem="@layout/item_search" />
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
-    </io.legato.kazusa.ui.widget.dynamiclayout.DynamicFrameLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                tools:listitem="@layout/item_search" />
+
+        </io.legato.kazusa.ui.widget.dynamiclayout.DynamicFrameLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_stop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fb_start_stop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:contentDescription="@string/stop"
+                android:src="@drawable/ic_stop_black_24dp"
+                android:visibility="invisible" />
+        </LinearLayout>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.material.search.SearchView
         android:id="@+id/search_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:id="@+id/ll_input_help"
@@ -107,7 +137,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingHorizontal="16dp"
-                android:paddingVertical="4dp">
+                android:paddingTop="4dp">
 
                 <TextView
                     android:id="@+id/tv_history"
@@ -125,10 +155,14 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/tv_clear_history"
-                    style="@style/Widget.Material3Expressive.Button.IconButton.Outlined"
+                    style="@style/Widget.Material3Expressive.Button"
+                    android:text="@string/delete_all"
+                    app:backgroundTint="?attr/colorTertiary"
+                    app:iconTint="?attr/colorSurface"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:icon="@drawable/ic_clear_all"
+                    app:strokeColor="?attr/colorTertiary"
                     app:iconGravity="textStart" />
 
             </LinearLayout>
@@ -141,15 +175,5 @@
         </LinearLayout>
     </com.google.android.material.search.SearchView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fb_start_stop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:contentDescription="@string/stop"
-        android:src="@drawable/ic_stop_black_24dp"
-        android:visibility="invisible"
-        android:layout_gravity="bottom|end" />
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
 

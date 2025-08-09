@@ -7,7 +7,6 @@
         <item name="tabStyle">@style/Widget.App.TabLayout</item>
         <item name="popupMenuBackground">@drawable/popup_background</item>
         <item name="alertDialogTheme">@style/AppTheme.AlertDialog</item>
-        <item name="chipStyle">@style/Widget.Material3.Chip.Filter</item>
     </style>
 
 </resources>

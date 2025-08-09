@@ -15,17 +15,6 @@ class PaddingConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_p
 
     private val binding by viewBinding(DialogReadPaddingBinding::bind)
 
-    override fun onStart() {
-        super.onStart()
-//        dialog?.window?.let {
-//            it.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
-//            val attr = it.attributes
-//            attr.dimAmount = 0.0f
-//            it.attributes = attr
-//        }
-//        setLayout(0.9f, ViewGroup.LayoutParams.WRAP_CONTENT)
-    }
-
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
         initData()
         initView()

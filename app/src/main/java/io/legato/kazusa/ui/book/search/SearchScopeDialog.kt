@@ -1,5 +1,6 @@
 package io.legato.kazusa.ui.book.search
 
+//import io.legado.app.lib.theme.primaryColor
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
@@ -8,7 +9,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import io.legato.kazusa.R
-import io.legato.kazusa.base.BaseDialogFragment
+import io.legato.kazusa.base.BaseBottomSheetDialogFragment
 import io.legato.kazusa.base.adapter.ItemViewHolder
 import io.legato.kazusa.constant.AppLog
 import io.legato.kazusa.data.AppDatabase
@@ -17,10 +18,7 @@ import io.legato.kazusa.data.entities.BookSourcePart
 import io.legato.kazusa.databinding.DialogSearchScopeBinding
 import io.legato.kazusa.databinding.ItemCheckBoxBinding
 import io.legato.kazusa.databinding.ItemRadioButtonBinding
-//import io.legado.app.lib.theme.primaryColor
-import io.legato.kazusa.utils.applyTint
 import io.legato.kazusa.utils.flowWithLifecycleAndDatabaseChange
-import io.legato.kazusa.utils.setLayout
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
@@ -31,7 +29,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class SearchScopeDialog : BaseDialogFragment(R.layout.dialog_search_scope) {
+class SearchScopeDialog : BaseBottomSheetDialogFragment(R.layout.dialog_search_scope) {
 
     private val binding by viewBinding(DialogSearchScopeBinding::bind)
     private var sourceFlowJob: Job? = null
@@ -44,13 +42,7 @@ class SearchScopeDialog : BaseDialogFragment(R.layout.dialog_search_scope) {
         RecyclerAdapter()
     }
 
-    override fun onStart() {
-        super.onStart()
-        setLayout(0.9f, 0.8f)
-    }
-
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
-        //binding.toolBar.setBackgroundColor(primaryColor)
         binding.recyclerView.adapter = adapter
         initMenu()
         initSearchView()
@@ -60,7 +52,6 @@ class SearchScopeDialog : BaseDialogFragment(R.layout.dialog_search_scope) {
 
     private fun initMenu() {
         binding.toolBar.inflateMenu(R.menu.book_search_scope)
-        //binding.toolBar.menu.applyTint(requireContext())
     }
 
     private fun initSearchView() {
@@ -80,17 +71,24 @@ class SearchScopeDialog : BaseDialogFragment(R.layout.dialog_search_scope) {
     }
 
     private fun initOtherView() {
-        binding.rgScope.setOnCheckedChangeListener { _, checkedId ->
-            binding.toolBar.menu.findItem(R.id.menu_screen)?.isVisible = checkedId == R.id.rb_source
-            upData()
+
+        binding.rgScope.addOnButtonCheckedListener { group, checkedId, isChecked ->
+            if (isChecked) {
+                binding.toolBar.menu.findItem(R.id.menu_screen)?.isVisible =
+                    checkedId == R.id.rb_source
+                upData()
+            }
         }
+
         binding.tvCancel.setOnClickListener {
             dismiss()
         }
+
         binding.tvAllSource.setOnClickListener {
             callback.onSearchScopeOk(SearchScope(""))
             dismiss()
         }
+
         binding.tvOk.setOnClickListener {
             if (binding.rbGroup.isChecked) {
                 callback.onSearchScopeOk(SearchScope(adapter.selectGroups))
@@ -104,6 +102,7 @@ class SearchScopeDialog : BaseDialogFragment(R.layout.dialog_search_scope) {
             }
             dismiss()
         }
+
     }
 
     private fun initData() {

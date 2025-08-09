@@ -338,19 +338,27 @@
         </androidx.core.widget.NestedScrollView>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/btn_read"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/ll_read"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minWidth="56dp"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="24dp"
-        android:text="@string/reading"
-        android:textColor="?attr/colorOnPrimary"
-        android:contentDescription="@string/reading"
-        app:icon="@drawable/ic_bottom_books"
-        app:backgroundTint="?attr/colorTertiary"
-        app:iconTint="?attr/colorOnPrimary" />
+        android:layout_gravity="bottom"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/btn_read"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:contentDescription="@string/reading"
+            android:minWidth="56dp"
+            android:text="@string/reading"
+            android:textColor="?attr/colorOnPrimary"
+            app:backgroundTint="?attr/colorTertiary"
+            app:icon="@drawable/ic_bottom_books"
+            app:iconTint="?attr/colorOnPrimary" />
+    </LinearLayout>
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

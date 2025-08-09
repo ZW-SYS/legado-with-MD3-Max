@@ -26,18 +26,12 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <View
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="2"/>
-
             <TextView
                 android:id="@+id/bottom_sheet_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="32dp"
                 android:text="检测到更新！"
-                android:textSize="18sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <View
@@ -50,7 +44,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:icon="@drawable/ic_download"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"/>
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal" />
         </LinearLayout>
 
     </LinearLayout>

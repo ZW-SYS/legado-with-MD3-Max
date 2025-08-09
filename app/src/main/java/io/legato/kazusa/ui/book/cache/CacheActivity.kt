@@ -38,7 +38,6 @@ import io.legato.kazusa.ui.about.AppLogDialog
 import io.legato.kazusa.ui.file.HandleFileContract
 import io.legato.kazusa.utils.ACache
 import io.legato.kazusa.utils.FileDoc
-import io.legato.kazusa.utils.applyNavigationBarPadding
 import io.legato.kazusa.utils.applyOpenTint
 import io.legato.kazusa.utils.applyTint
 import io.legato.kazusa.utils.checkWrite
@@ -233,7 +232,6 @@ class CacheActivity : VMBaseActivity<ActivityCacheBookBinding, CacheViewModel>()
     private fun initRecyclerView() {
         binding.recyclerView.layoutManager = layoutManager
         binding.recyclerView.adapter = adapter
-        binding.recyclerView.applyNavigationBarPadding()
     }
 
     private fun initBookData() {
@@ -343,6 +341,11 @@ class CacheActivity : VMBaseActivity<ActivityCacheBookBinding, CacheViewModel>()
         } else {
             startExport(path, -10)
         }
+    }
+
+    override fun deleteDownload(book: Book) {
+        viewModel.clearCacheForBook(book)
+        notifyItemChanged(book.bookUrl)
     }
 
     /**

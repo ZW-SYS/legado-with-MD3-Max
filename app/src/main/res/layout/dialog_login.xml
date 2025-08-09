@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="8dp">
 
     <LinearLayout
         android:id="@+id/vw_bg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="@drawable/shape_card_view"
         android:orientation="vertical"
         tools:ignore="UselessParent">
 
@@ -19,8 +19,6 @@
             android:id="@+id/tool_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:elevation="5dp"
-            android:theme="?attr/actionBarStyle"
             app:title="@string/login"
             app:displayHomeAsUp="false"
             app:fitStatusBar="false"
@@ -35,13 +33,11 @@
                 android:id="@+id/flexbox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingVertical="8dp"
                 android:layout_marginTop="8dp"
                 android:clipToPadding="false"
-                android:padding="3dp"
-                app:dividerDrawable="@drawable/shape_space_divider"
                 app:flexDirection="row"
-                app:flexWrap="wrap"
-                app:showDivider="middle" />
+                app:flexWrap="wrap" />
 
         </androidx.core.widget.NestedScrollView>
 

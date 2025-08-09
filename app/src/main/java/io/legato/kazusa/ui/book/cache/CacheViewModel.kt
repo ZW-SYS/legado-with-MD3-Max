@@ -10,7 +10,6 @@ import io.legato.kazusa.help.book.isLocal
 import io.legato.kazusa.help.coroutine.Coroutine
 import io.legato.kazusa.utils.sendValue
 import kotlinx.coroutines.ensureActive
-import kotlin.collections.set
 
 
 class CacheViewModel(application: Application) : BaseViewModel(application) {
@@ -41,6 +40,12 @@ class CacheViewModel(application: Application) : BaseViewModel(application) {
                 ensureActive()
             }
         }
+    }
+
+    fun clearCacheForBook(book: Book) {
+        BookHelp.clearCache(book)
+        cacheChapters[book.bookUrl] = hashSetOf()
+        upAdapterLiveData.sendValue(book.bookUrl)
     }
 
 }

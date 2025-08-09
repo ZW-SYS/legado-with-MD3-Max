@@ -1,25 +1,21 @@
 package io.legato.kazusa.ui.book.read.config
 
+//import io.legado.app.lib.theme.bottomBackground
+//import io.legado.app.lib.theme.primaryColor
 import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewConfiguration
-import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import io.legato.kazusa.R
-import io.legato.kazusa.base.BasePrefDialogFragment
+import io.legato.kazusa.base.BaseBottomSheetDialogFragment
 import io.legato.kazusa.constant.EventBus
 import io.legato.kazusa.constant.PreferKey
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.config.ReadBookConfig
-import io.legato.kazusa.lib.prefs.fragment.PreferenceFragment
-//import io.legado.app.lib.theme.bottomBackground
-//import io.legado.app.lib.theme.primaryColor
 import io.legato.kazusa.model.ReadBook
 import io.legato.kazusa.ui.book.read.ReadBookActivity
 import io.legato.kazusa.ui.book.read.page.provider.ChapterProvider
@@ -29,29 +25,21 @@ import io.legato.kazusa.utils.getPrefBoolean
 import io.legato.kazusa.utils.postEvent
 import io.legato.kazusa.utils.removePref
 
-class MoreConfigDialog : BasePrefDialogFragment() {
+class MoreConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_more_config) {
     private val readPreferTag = "readPreferenceFragment"
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        (activity as ReadBookActivity).bottomDialog++
-        val view = LinearLayout(context)
-        //view.setBackgroundColor(requireContext().bottomBackground)
-        view.id = R.id.tag1
-        container?.addView(view)
-        return view
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
+        (activity as? ReadBookActivity)?.bottomDialog++
         var preferenceFragment = childFragmentManager.findFragmentByTag(readPreferTag)
         if (preferenceFragment == null) preferenceFragment = ReadPreferenceFragment()
         childFragmentManager.beginTransaction()
-            .replace(view.id, preferenceFragment, readPreferTag)
+            .replace(R.id.containerPreferences, preferenceFragment, readPreferTag)
             .commit()
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        (activity as ReadBookActivity).bottomDialog--
     }
 
     class ReadPreferenceFragment : PreferenceFragmentCompat(),
@@ -67,11 +55,6 @@ class MoreConfigDialog : BasePrefDialogFragment() {
                 removePref(PreferKey.optimizeRender)
                 preferenceScreen.removePreferenceRecursively(PreferKey.optimizeRender)
             }
-        }
-
-        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-            super.onViewCreated(view, savedInstanceState)
-            //listView.setEdgeEffectColor(primaryColor)
         }
 
         override fun onResume() {

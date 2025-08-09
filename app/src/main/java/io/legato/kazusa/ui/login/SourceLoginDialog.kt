@@ -1,16 +1,15 @@
 package io.legato.kazusa.ui.login
 
+//import io.legado.app.lib.theme.primaryColor
 import android.content.DialogInterface
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
-import android.view.ViewGroup
-import androidx.core.view.setPadding
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.script.rhino.runScriptWithContext
 import io.legato.kazusa.R
-import io.legato.kazusa.base.BaseDialogFragment
+import io.legato.kazusa.base.BaseBottomSheetDialogFragment
 import io.legato.kazusa.constant.AppLog
 import io.legato.kazusa.data.entities.BaseSource
 import io.legato.kazusa.data.entities.rule.RowUi
@@ -18,16 +17,13 @@ import io.legato.kazusa.databinding.DialogLoginBinding
 import io.legato.kazusa.databinding.ItemFilletTextBinding
 import io.legato.kazusa.databinding.ItemSourceEditBinding
 import io.legato.kazusa.lib.dialogs.alert
-//import io.legado.app.lib.theme.primaryColor
 import io.legato.kazusa.ui.about.AppLogDialog
 import io.legato.kazusa.utils.GSON
 import io.legato.kazusa.utils.applyTint
-import io.legato.kazusa.utils.dpToPx
 import io.legato.kazusa.utils.isAbsUrl
 import io.legato.kazusa.utils.openUrl
 import io.legato.kazusa.utils.printOnDebug
 import io.legato.kazusa.utils.sendToClip
-import io.legato.kazusa.utils.setLayout
 import io.legato.kazusa.utils.showDialogFragment
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
@@ -40,15 +36,10 @@ import splitties.init.appCtx
 import splitties.views.onClick
 
 
-class SourceLoginDialog : BaseDialogFragment(R.layout.dialog_login, true) {
+class SourceLoginDialog : BaseBottomSheetDialogFragment(R.layout.dialog_login) {
 
     private val binding by viewBinding(DialogLoginBinding::bind)
     private val viewModel by activityViewModels<SourceLoginViewModel>()
-
-    override fun onStart() {
-        super.onStart()
-        setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-    }
 
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
         val source = viewModel.source ?: return
@@ -91,7 +82,7 @@ class SourceLoginDialog : BaseDialogFragment(R.layout.dialog_login, true) {
                     rowUi.style().apply(it.root)
                     it.root.id = index + 1000
                     it.textView.text = rowUi.name
-                    it.textView.setPadding(16.dpToPx())
+
                     it.root.onClick {
                         handleButtonClick(source, rowUi, loginUi)
                     }

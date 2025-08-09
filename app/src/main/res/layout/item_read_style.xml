@@ -1,43 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/rv_style"
-    android:layout_width="48dp"
-    android:layout_height="54dp"
-    android:layout_marginLeft="4dp"
-    android:layout_marginRight="4dp"
-    app:cardBackgroundColor="@android:color/transparent"
-    app:strokeWidth="0dp">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_style"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center">
 
-    <LinearLayout
-        android:id="@+id/ll_style"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center">
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cd_style"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_margin="4dp"
+        android:foreground="?android:attr/selectableItemBackground">
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cd_style"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:foreground="?android:attr/selectableItemBackground">
+        <ImageView
+            android:id="@+id/iv_style"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
-            <ImageView
-                android:id="@+id/iv_style"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <TextView
-                android:id="@+id/tv_style"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:autoSizeMaxTextSize="12sp"
-                android:autoSizeMinTextSize="6sp"
-                android:autoSizeStepGranularity="1sp"
-                android:autoSizeTextType="uniform"
-                android:gravity="center"
-                android:singleLine="true"
-                android:text="@string/text" />
-        </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
-
-</com.google.android.material.card.MaterialCardView>
+        <TextView
+            android:id="@+id/tv_style"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:autoSizeMaxTextSize="12sp"
+            android:autoSizeMinTextSize="6sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:gravity="center"
+            android:singleLine="true"
+            android:text="@string/text" />
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>

@@ -44,6 +44,7 @@ import io.legato.kazusa.utils.setLightStatusBar
 import io.legato.kazusa.utils.setNavigationBarColorAuto
 import io.legato.kazusa.utils.setOnApplyWindowInsetsListenerCompat
 import io.legato.kazusa.utils.showDialogFragment
+import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -211,14 +212,14 @@ abstract class BaseReadBookActivity :
         window.decorView.systemUiVisibility = flag
     }
 
-    override fun upNavigationBarColor() {
+    fun upNavigationBarColor() {
         upNavigationBar()
         when {
-            binding.readMenu.isVisible -> super.upNavigationBarColor()
-            binding.searchMenu.bottomMenuVisible -> super.upNavigationBarColor()
-            bottomDialog > 0 -> super.upNavigationBarColor()
+            binding.readMenu.isVisible -> window.setNavigationBarColorAuto(themeColor(com.google.android.material.R.attr.colorSurfaceContainer))
+            binding.searchMenu.bottomMenuVisible -> window.setNavigationBarColorAuto(themeColor(com.google.android.material.R.attr.colorSurface))
+            bottomDialog > 0 -> window.setNavigationBarColorAuto(themeColor(com.google.android.material.R.attr.colorSurface))
             //!AppConfig.immNavigationBar -> super.upNavigationBarColor()
-            else -> setNavigationBarColorAuto(ReadBookConfig.bgMeanColor)
+            else -> window.setNavigationBarColorAuto(ReadBookConfig.bgMeanColor)
         }
     }
 

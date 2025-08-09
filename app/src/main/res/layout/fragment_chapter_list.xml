@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:descendantFocusability="blocksDescendants">
@@ -36,7 +35,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_chapter_top"
-            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+            style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
             android:layout_width="36dp"
             android:layout_height="36dp"
             app:icon="@drawable/ic_arrow_drop_up"
@@ -46,7 +45,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_chapter_bottom"
-            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+            style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
             android:layout_width="36dp"
             android:layout_height="36dp"
             app:icon="@drawable/ic_arrow_drop_down"

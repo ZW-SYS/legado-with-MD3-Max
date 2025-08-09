@@ -81,7 +81,7 @@
                 android:id="@+id/iv_search_content_up"
                 android:layout_width="36dp"
                 android:layout_height="match_parent"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
                 app:iconGravity="textStart"
                 android:contentDescription="@string/go_to_top"
                 app:icon="@drawable/ic_arrow_drop_up"
@@ -93,7 +93,7 @@
                 android:id="@+id/iv_search_content_down"
                 android:layout_width="36dp"
                 android:layout_height="match_parent"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
                 app:iconGravity="textStart"
                 android:contentDescription="@string/go_to_bottom"
                 app:icon="@drawable/ic_arrow_drop_down"
@@ -201,7 +201,7 @@
                 android:layout_height="wrap_content"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
-                android:contentDescription="退出"
+                android:contentDescription="@string/exit"
                 android:focusable="true"
                 android:orientation="vertical"
                 android:paddingBottom="7dp">
@@ -212,7 +212,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:adjustViewBounds="true"
-                    android:contentDescription="退出"
+                    android:contentDescription="@string/exit"
                     android:maxHeight="20dp"
                     android:src="@drawable/ic_auto_page_stop"
                     tools:ignore="NestedWeights" />
@@ -224,7 +224,7 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="3dp"
                     android:maxLines="1"
-                    android:text="退出"
+                    android:text="@string/exit"
                     android:textSize="12sp" />
             </LinearLayout>
 

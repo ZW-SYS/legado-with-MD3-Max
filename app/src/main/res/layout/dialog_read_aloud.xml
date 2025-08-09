@@ -215,7 +215,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/iv_tts_speech_reduce"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:contentDescription="@string/tts_speech_reduce"
@@ -235,7 +235,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/iv_tts_speech_add"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:contentDescription="@string/tts_speech_add"

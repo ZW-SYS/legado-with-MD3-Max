@@ -1,5 +1,6 @@
 package io.legato.kazusa.ui.widget.text
 
+//import io.legado.app.lib.theme.accentColor
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
@@ -9,11 +10,10 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.ImageView
 import android.widget.TextView
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import io.legato.kazusa.R
-//import io.legado.app.lib.theme.accentColor
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.visible
 
@@ -63,7 +63,7 @@ class AutoCompleteTextView @JvmOverloads constructor(
                 .inflate(R.layout.item_1line_text_and_del, parent, false)
             val textView = view.findViewById<TextView>(R.id.text_view)
             textView.text = getItem(position)
-            val ivDelete = view.findViewById<ImageView>(R.id.iv_delete)
+            val ivDelete = view.findViewById<MaterialButton>(R.id.iv_delete)
             if (delCallBack != null) ivDelete.visible() else ivDelete.gone()
             ivDelete.setOnClickListener {
                 getItem(position)?.let {

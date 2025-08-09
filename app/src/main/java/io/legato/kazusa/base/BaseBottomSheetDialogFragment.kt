@@ -12,6 +12,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.legato.kazusa.constant.AppLog
 import io.legato.kazusa.help.coroutine.Coroutine
+import io.legato.kazusa.utils.setNavigationBarColorAuto
+import io.legato.kazusa.utils.themeColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
@@ -28,6 +30,7 @@ abstract class BaseBottomSheetDialogFragment(
 
     override fun onStart() {
         super.onStart()
+        dialog?.window?.setNavigationBarColorAuto(requireContext().themeColor(com.google.android.material.R.attr.colorSurfaceContainer))
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             val screenHeight = resources.displayMetrics.heightPixels
             (dialog as? BottomSheetDialog)?.behavior?.apply {
@@ -38,7 +41,6 @@ abstract class BaseBottomSheetDialogFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         onFragmentCreated(view, savedInstanceState)
         observeLiveBus()
     }

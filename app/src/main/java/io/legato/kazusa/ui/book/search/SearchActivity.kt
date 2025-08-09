@@ -12,9 +12,11 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexboxLayoutManager
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.search.SearchBar
 import com.google.android.material.search.SearchView
 import io.legato.kazusa.R
@@ -30,7 +32,6 @@ import io.legato.kazusa.ui.about.AppLogDialog
 import io.legato.kazusa.ui.book.info.BookInfoActivity
 import io.legato.kazusa.ui.book.source.manage.BookSourceActivity
 import io.legato.kazusa.utils.applyNavigationBarMargin
-import io.legato.kazusa.utils.applyNavigationBarPadding
 import io.legato.kazusa.utils.applyStatusBarPadding
 import io.legato.kazusa.utils.getPrefBoolean
 import io.legato.kazusa.utils.gone
@@ -84,6 +85,8 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
         setSupportActionBar(binding.searchBar)
         initRecyclerView()
         initMaterialSearch()
@@ -177,6 +180,26 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
 
         binding.appBar.applyStatusBarPadding()
 
+        binding.appBar.post {
+            val maxPaddingTop = binding.appBar.paddingTop
+            binding.appBar.addOnOffsetChangedListener(
+                AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
+                    val totalScrollRange = appBarLayout.totalScrollRange
+                    val scrollRatio =
+                        (1f - (abs(verticalOffset).toFloat() / totalScrollRange)).coerceIn(0f, 1f)
+
+                    appBarLayout.alpha = scrollRatio
+                    appBarLayout.setPadding(
+                        appBarLayout.paddingLeft,
+                        (maxPaddingTop * scrollRatio).toInt(),
+                        appBarLayout.paddingRight,
+                        appBarLayout.paddingBottom
+                    )
+                }
+            )
+        }
+
+
         searchBar.setOnMenuItemClickListener { item ->
             onCompatOptionsItemSelected(item)
         }
@@ -215,7 +238,6 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
 
         searchView.addTransitionListener { _, _, newState ->
             if (newState == SearchView.TransitionState.HIDDEN) {
-                // 当 SearchView 关闭时，将搜索文本设置回 SearchBar
                 searchBar.setText(searchView.text)
             }
         }
@@ -232,14 +254,16 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
     private fun initRecyclerView() {
         binding.rvBookshelfSearch.layoutManager = FlexboxLayoutManager(this)
         binding.rvBookshelfSearch.adapter = bookAdapter
-        binding.rvBookshelfSearch.applyNavigationBarMargin()
+        binding.rvBookshelfSearch.itemAnimator = DefaultItemAnimator()
+
         binding.rvHistoryKey.layoutManager = FlexboxLayoutManager(this)
         binding.rvHistoryKey.adapter = historyKeyAdapter
-        binding.rvHistoryKey.applyNavigationBarMargin()
+        binding.rvHistoryKey.itemAnimator = DefaultItemAnimator()
+
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
-        binding.recyclerView.itemAnimator = null
-        binding.recyclerView.applyNavigationBarPadding()
+        binding.recyclerView.itemAnimator = DefaultItemAnimator()
+
         adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 super.onItemRangeInserted(positionStart, itemCount)
@@ -279,6 +303,7 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
     }
 
     private fun initOtherView() {
+        binding.llStop.applyNavigationBarMargin()
         binding.fbStartStop.setOnClickListener {
             if (viewModel.isSearchLiveData.value == true) {
                 isManualStopSearch = true

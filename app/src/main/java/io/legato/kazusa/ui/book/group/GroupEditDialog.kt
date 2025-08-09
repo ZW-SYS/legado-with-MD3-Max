@@ -64,25 +64,32 @@ class GroupEditDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_book_gro
     }
 
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
-        //binding.toolBar.setBackgroundColor(primaryColor)
         sortOptions = resources.getStringArray(R.array.book_sort).toList()
 
         @Suppress("DEPRECATION")
         bookGroup = arguments?.getParcelable("group")
-        bookGroup?.let {
-            binding.btnDelete.isEnabled = (it.groupId > 0 || it.groupId == Long.MIN_VALUE)
-            binding.tieGroupName.setText(it.groupName)
-            if (bookGroup?.cover != null)
-                binding.ivCover.load(it.cover)
-            binding.cbEnableRefresh.isChecked = it.enableRefresh
-            if (it.bookSort in sortOptions.indices) {
-                selectedSortIndex = it.bookSort
-                binding.chipSortMenu.text = sortOptions[selectedSortIndex]
+
+        bookGroup?.let { group ->
+            binding.btnDelete.isEnabled = (group.groupId > 0 || group.groupId == Long.MIN_VALUE)
+            binding.tieGroupName.setText(group.groupName)
+            if (group.cover != null) {
+                binding.ivCover.load(group.cover)
             }
-        } ?: let {
+            binding.cbEnableRefresh.isChecked = group.enableRefresh
+
+            selectedSortIndex = if (group.bookSort in sortOptions.indices) {
+                group.bookSort
+            } else {
+                0
+            }
+            binding.chipSortMenu.text = sortOptions[selectedSortIndex]
+        } ?: run {
             binding.btnDelete.gone()
             binding.ivCover.load()
+            selectedSortIndex = 0
+            binding.chipSortMenu.text = sortOptions[selectedSortIndex]
         }
+
 
         binding.run {
             chipSortMenu.setOnClickListener { chip ->

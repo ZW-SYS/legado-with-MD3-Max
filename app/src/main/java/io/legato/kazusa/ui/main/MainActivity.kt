@@ -48,8 +48,10 @@ import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.hideSoftInput
 import io.legato.kazusa.utils.isCreated
 import io.legato.kazusa.utils.observeEvent
+import io.legato.kazusa.utils.setNavigationBarColorAuto
 import io.legato.kazusa.utils.shouldHideSoftInput
 import io.legato.kazusa.utils.showDialogFragment
+import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 import io.legato.kazusa.utils.visible
@@ -203,23 +205,16 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
     }
 
     private fun initView() = binding.run {
-        //viewPagerMain.setEdgeEffectColor(primaryColor)
         viewPagerMain.offscreenPageLimit = 3
         viewPagerMain.adapter = adapter
         viewPagerMain.addOnPageChangeListener(PageChangeCallback())
-        //bottomNavigationView.elevation = elevation
         getNavigationBarView().apply {
             setOnItemSelectedListener { onNavigationItemSelected(it) }
             setOnItemReselectedListener { onNavigationItemReselected(it) }
         }
 
-        //getNavigationBarView().applyNavigationBarPadding()
 
-//        bottomNavigationView.setOnApplyWindowInsetsListenerCompat { view, windowInsets ->
-//            val height = windowInsets.navigationBarHeight
-//            view.bottomPadding = height
-//            windowInsets.inset(0, 0, 0, height)
-//        }
+        window.setNavigationBarColorAuto(themeColor(com.google.android.material.R.attr.colorSurfaceContainer))
     }
 
     /**

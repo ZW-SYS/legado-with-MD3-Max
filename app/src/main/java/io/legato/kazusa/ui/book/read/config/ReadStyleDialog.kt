@@ -22,9 +22,9 @@ import io.legato.kazusa.model.ReadBook
 import io.legato.kazusa.ui.book.read.ReadBookActivity
 import io.legato.kazusa.ui.font.FontSelectDialog
 import io.legato.kazusa.utils.ChineseUtils
+import io.legato.kazusa.utils.dpToPx
 import io.legato.kazusa.utils.postEvent
 import io.legato.kazusa.utils.showDialogFragment
-import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 
 class ReadStyleDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_book_style),
@@ -48,13 +48,6 @@ class ReadStyleDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_book_
     }
 
     private fun initView() = binding.run {
-        //val bg = requireContext().bottomBackground
-        //val isLight = ColorUtils.isColorLight(bg)
-        //val textColor = requireContext().getPrimaryTextColor(isLight)
-//        rootView.setBackgroundColor(bg)
-//        tvPageAnim.setTextColor(textColor)
-//        tvBgTs.setTextColor(textColor)
-//        tvShareLayout.setTextColor(textColor)
         if (AppConfig.isNightTheme) {
             tvDayNight.setIconResource(R.drawable.ic_daytime)
         } else {
@@ -72,10 +65,6 @@ class ReadStyleDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_book_
         rvStyle.adapter = styleAdapter
         styleAdapter.addFooterView {
             ItemReadStyleBinding.inflate(layoutInflater, it, false).apply {
-//                ivStyle.setPadding(6.dpToPx(), 6.dpToPx(), 6.dpToPx(), 6.dpToPx())
-//                ivStyle.setText(null)
-//                ivStyle.setColorFilter(textColor)
-//                ivStyle.borderColor = textColor
                 ivStyle.setImageResource(R.drawable.ic_add)
                 root.setOnClickListener {
                     ReadBookConfig.configList.add(ReadBookConfig.Config())
@@ -235,11 +224,15 @@ class ReadStyleDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_book_
                 ivStyle.setImageDrawable(item.curBgDrawable(100, 150))
                 if (ReadBookConfig.styleSelect == holder.layoutPosition) {
                     llStyle.gravity = Gravity.TOP
-                    cdStyle.strokeColor =
-                        context.themeColor(com.google.android.material.R.attr.colorTertiary)
-                    rvStyle.setCardBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorTertiary))
+                    cdStyle.cardElevation = 1f.dpToPx()
+                    cdStyle.radius = 16f.dpToPx()
+                    cdStyle.strokeWidth = 2
+                    cdStyle.strokeColor = item.curTextColor()
                     //tvStyle.setTextBold(true)
                 } else {
+                    cdStyle.cardElevation = 2f.dpToPx()
+                    cdStyle.radius = 32f.dpToPx()
+                    cdStyle.strokeWidth = 0
                     cdStyle.strokeColor = item.curTextColor()
                     //tvStyle.setTextBold(false)
                 }

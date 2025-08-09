@@ -90,7 +90,7 @@
                 android:id="@+id/tv_retry"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
                 app:icon="@drawable/ic_refresh"
                 android:layout_margin="16dp"
                 app:iconPadding="4dp"

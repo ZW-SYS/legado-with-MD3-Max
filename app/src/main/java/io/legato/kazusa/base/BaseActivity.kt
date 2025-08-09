@@ -13,6 +13,7 @@ import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.drawable.toDrawable
+import androidx.core.view.WindowCompat
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.color.DynamicColors
@@ -27,6 +28,8 @@ import io.legato.kazusa.utils.disableAutoFill
 import io.legato.kazusa.utils.getPrefString
 import io.legato.kazusa.utils.hideSoftInput
 import io.legato.kazusa.utils.observeEvent
+import io.legato.kazusa.utils.setNavigationBarColorAuto
+import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.windowSize
 
@@ -69,7 +72,9 @@ abstract class BaseActivity<VB : ViewBinding>(
         window.decorView.disableAutoFill()
         AppContextWrapper.applyLocaleAndFont(this)
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         enableEdgeToEdge()
+        window.setNavigationBarColorAuto(themeColor(com.google.android.material.R.attr.colorSurface))
         //setupSystemBar()
         setContentView(binding.root)
         upBackgroundImage()
@@ -150,15 +155,6 @@ abstract class BaseActivity<VB : ViewBinding>(
                 AppLog.put("加载背景出错\n${e.localizedMessage}", e)
             }
         }
-    }
-
-    open fun upNavigationBarColor() {
-//        if (AppConfig.immNavigationBar) {
-//            setNavigationBarColorAuto(ThemeStore.navigationBarColor(this))
-//        } else {
-//            val nbColor = ColorUtils.darkenColor(ThemeStore.navigationBarColor(this))
-//            setNavigationBarColorAuto(nbColor)
-//        }
     }
 
     open fun observeLiveBus() {

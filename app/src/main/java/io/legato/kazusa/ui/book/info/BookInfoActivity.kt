@@ -2,11 +2,8 @@ package io.legato.kazusa.ui.book.info
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.RenderEffect
 import android.graphics.Shader
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -18,7 +15,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.palette.graphics.Palette
 import io.legato.kazusa.R
 import io.legato.kazusa.base.VMBaseActivity
 import io.legato.kazusa.constant.BookType
@@ -64,6 +60,7 @@ import io.legato.kazusa.utils.ConvertUtils
 import io.legato.kazusa.utils.FileDoc
 import io.legato.kazusa.utils.GSON
 import io.legato.kazusa.utils.StartActivityContract
+import io.legato.kazusa.utils.applyNavigationBarMargin
 import io.legato.kazusa.utils.dpToPx
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.longToastOnUi
@@ -75,7 +72,6 @@ import io.legato.kazusa.utils.startActivity
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 import io.legato.kazusa.utils.visible
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -158,7 +154,7 @@ class BookInfoActivity :
         super.onCreate(savedInstanceState)
 
         setSupportActionBar(binding.topBar)
-
+        binding.llRead?.applyNavigationBarMargin()
 //        binding.refreshLayout?.setColorSchemeColors(accentColor)
 //        binding.llInfo.setBackgroundColor(backgroundColor)
 //        binding.flAction.setBackgroundColor(bottomBackground)
@@ -784,18 +780,6 @@ class BookInfoActivity :
         } else {
             waitDialog.dismiss()
         }
-    }
-
-    // 扩展函数：从Drawable中提取主色调
-    suspend fun Drawable.extractDominantColor(): Int = withContext(Dispatchers.Default) {
-        // 将Drawable转换为Bitmap
-        val bitmap = (this@extractDominantColor as? BitmapDrawable)?.bitmap ?: return@withContext Color.TRANSPARENT
-
-        // 生成Palette
-        val palette = Palette.from(bitmap).generate()
-
-        // 返回主色调，若未找到则使用默认值
-        palette.getDominantColor(Color.WHITE)
     }
 
 }

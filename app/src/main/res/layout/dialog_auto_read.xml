@@ -62,7 +62,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_catalog"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
                 android:layout_width="64dp"
                 android:layout_height="48dp"
                 app:icon="@drawable/ic_toc"
@@ -86,7 +86,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_main_menu"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
                 android:layout_width="64dp"
                 android:layout_height="48dp"
                 app:icon="@drawable/ic_menu"
@@ -112,7 +112,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_auto_page_stop"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
                 android:layout_width="64dp"
                 android:layout_height="48dp"
                 app:icon="@drawable/ic_auto_page_stop"
@@ -137,7 +137,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_setting"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
                 android:layout_width="64dp"
                 android:layout_height="48dp"
                 app:icon="@drawable/ic_settings"

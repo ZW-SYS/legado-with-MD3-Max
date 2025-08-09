@@ -3,55 +3,52 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:minHeight="560dp">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/tool_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:elevation="5dp"
-        android:theme="?attr/actionBarStyle"
         app:displayHomeAsUp="false"
         app:fitStatusBar="false"
         app:layout_constraintTop_toTopOf="parent"
         app:title="@string/search_scope"
         app:titleTextAppearance="@style/ToolbarTitle" />
 
-    <RadioGroup
+    <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/rg_scope"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="11dp"
+        android:layout_marginHorizontal="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:checkedButton="@id/rb_group"
+        app:selectionRequired="true"
+        app:singleSelection="true"
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@+id/tool_bar">
 
-        <io.legato.kazusa.lib.theme.view.ThemeRadioNoButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/rb_group"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="4dp"
+            style="@style/Widget.Material3Expressive.Button"
             android:layout_weight="1"
-            android:button="@null"
-            android:gravity="center"
-            android:padding="5dp"
-            android:singleLine="true"
             android:checked="true"
             android:text="@string/group" />
 
-        <io.legato.kazusa.lib.theme.view.ThemeRadioNoButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/rb_source"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="4dp"
+            style="@style/Widget.Material3Expressive.Button"
             android:layout_weight="1"
-            android:button="@null"
-            android:gravity="center"
-            android:padding="5dp"
             android:singleLine="true"
             android:text="@string/book_source" />
 
-    </RadioGroup>
+    </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <io.legato.kazusa.ui.widget.recycler.scroller.FastScrollRecyclerView
         android:id="@+id/recycler_view"
@@ -67,16 +64,17 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <io.legato.kazusa.ui.widget.text.AccentTextView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/tv_all_source"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            style="@style/Widget.Material3Expressive.Button.OutlinedButton"
             android:layout_marginRight="16dp"
-            android:padding="12dp"
+            android:minWidth="0dp"
             android:text="@string/all_source"
             tools:ignore="RtlHardcoded" />
 
@@ -85,24 +83,23 @@
             android:layout_height="wrap_content"
             android:layout_weight="1" />
 
-        <TextView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/tv_cancel"
+            style="@style/Widget.Material3Expressive.Button.TonalButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="16dp"
-            android:padding="12dp"
-            android:text="@string/cancel"
-            android:textColor="@color/secondaryText"
-            tools:ignore="RtlHardcoded" />
+            android:layout_marginEnd="8dp"
+            android:minWidth="0dp"
+            android:text="@string/cancel" />
 
-        <io.legato.kazusa.ui.widget.text.AccentTextView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/tv_ok"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="16dp"
-            android:padding="12dp"
-            android:text="@string/ok"
-            tools:ignore="RtlHardcoded" />
+            style="@style/Widget.Material3Expressive.Button"
+            android:layout_marginEnd="8dp"
+            android:minWidth="0dp"
+            android:text="@string/ok" />
 
     </LinearLayout>
 

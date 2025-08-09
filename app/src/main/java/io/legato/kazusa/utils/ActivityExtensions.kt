@@ -9,6 +9,7 @@ import android.util.DisplayMetrics
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
@@ -144,11 +145,12 @@ fun Activity.setLightStatusBar(isLightBar: Boolean) {
  * 设置导航栏颜色
  */
 @Suppress("DEPRECATION")
-fun Activity.setNavigationBarColorAuto(@ColorInt color: Int) {
+fun Window.setNavigationBarColorAuto(@ColorInt color: Int) {
     val isLightBor = ColorUtils.isColorLight(color)
-    window.navigationBarColor = color
+    navigationBarColor = color
+
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        window.insetsController?.let {
+        insetsController?.let {
             if (isLightBor) {
                 it.setSystemBarsAppearance(
                     WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
@@ -162,9 +164,9 @@ fun Activity.setNavigationBarColorAuto(@ColorInt color: Int) {
             }
         }
     }
+
     @Suppress("DEPRECATION")
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val decorView = window.decorView
+    if (Build.VERSION.SDK_INT in Build.VERSION_CODES.O..Build.VERSION_CODES.Q) {
         var systemUiVisibility = decorView.systemUiVisibility
         systemUiVisibility = if (isLightBor) {
             systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
@@ -174,6 +176,7 @@ fun Activity.setNavigationBarColorAuto(@ColorInt color: Int) {
         decorView.systemUiVisibility = systemUiVisibility
     }
 }
+
 
 fun Activity.keepScreenOn(on: Boolean) {
     val isScreenOn =

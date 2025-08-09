@@ -3,9 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="8dp"
+    android:background="?attr/selectableItemBackground"
+    android:paddingStart="4dp"
     android:paddingEnd="16dp"
-    android:paddingVertical="8dp">
+    android:paddingTop="2dp"
+    android:paddingBottom="8dp">
 
     <com.google.android.material.checkbox.MaterialCheckBox
         android:id="@+id/checkbox"
@@ -22,7 +24,7 @@
         android:paddingBottom="2dp"
         android:singleLine="true"
         android:text="@string/book_name"
-        android:textSize="20sp"
+        style="@style/ChapterNameText"
         app:layout_constraintStart_toEndOf="@id/checkbox"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/checkbox"
@@ -38,7 +40,7 @@
         android:textSize="12sp"
         tools:ignore="RtlHardcoded"
         app:layout_constraintStart_toStartOf="@id/tv_name"
-        app:layout_constraintEnd_toEndOf="@id/tv_name"
+        app:layout_constraintEnd_toStartOf="@id/tv_group"
         app:layout_constraintTop_toBottomOf="@id/tv_name" />
 
     <TextView
@@ -53,22 +55,24 @@
 
     <TextView
         android:id="@+id/tv_group_s"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/ungroup"
         android:layout_marginStart="8dp"
         android:singleLine="true"
         android:textSize="12sp"
         app:layout_constraintStart_toEndOf="@id/tv_origin"
+        app:layout_constraintEnd_toStartOf="@id/tv_group"
         app:layout_constraintBaseline_toBaselineOf="@id/tv_origin" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/tv_group"
-        android:layout_width="48dp"
+        android:layout_width="wrap_content"
         android:layout_height="40dp"
         style="@style/Widget.Material3Expressive.Button.TonalButton"
         android:textSize="12sp"
         android:layout_marginEnd="8dp"
+        android:minWidth="0dp"
         android:padding="0dp"
         android:text="@string/group"
         app:layout_constraintTop_toTopOf="@id/tv_group_s"

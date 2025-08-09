@@ -1,6 +1,11 @@
 package io.legato.kazusa.data.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
 import io.legato.kazusa.data.entities.ReadRecord
 import io.legato.kazusa.data.entities.ReadRecordShow
 
@@ -37,6 +42,7 @@ interface ReadRecordDao {
 
     @Query("select readTime from readRecord where deviceId = :androidId and bookName = :bookName")
     fun getReadTime(androidId: String, bookName: String): Long?
+
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(vararg readRecord: ReadRecord)

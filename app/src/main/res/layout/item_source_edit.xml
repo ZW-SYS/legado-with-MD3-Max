@@ -5,7 +5,6 @@
     android:id="@+id/textInputLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingHorizontal="16dp"
     android:paddingVertical="8dp">
 
     <io.legato.kazusa.ui.widget.code.CodeView

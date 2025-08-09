@@ -69,18 +69,24 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/sort" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_sort_menu"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:clickable="true"
-                    android:text="排序方式"
+                    android:text="@string/sort_default"
                     app:chipIcon="@drawable/ic_arrow_drop_down"
                     app:chipIconVisible="true" />
 
