@@ -50,28 +50,11 @@
         <item name="cornerSize">50%</item>
     </style>
 
-    <style name="Style.NavigationView" parent="android:Widget">
-
-    </style>
-
-    <style name="Style.Toolbar.NoPadding" parent="Base.Widget.AppCompat.Toolbar">
-
-    </style>
-
-    <style name="Style.MenuItemText" parent="TextAppearance.Material3.BodyLarge">
-
-    </style>
-
     <style name="Activity.Permission" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowDisablePreview">true</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowAnimationStyle">@null</item>
-    </style>
-
-    <style name="ToolbarTitle" parent="@style/TextAppearance.Material3.ActionBar.Title">
-
     </style>
 
 </resources>

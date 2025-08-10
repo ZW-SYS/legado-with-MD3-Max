@@ -20,8 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:theme="?attr/actionBarStyle"
-            app:title="@string/favorite"
-            app:titleTextAppearance="@style/ToolbarTitle" />
+            app:title="@string/favorite" />
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"

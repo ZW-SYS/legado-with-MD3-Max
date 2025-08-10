@@ -16,24 +16,20 @@ class LabelsBar @JvmOverloads constructor(
     private val unUsedChips = arrayListOf<Chip>()
     private val usedChips = arrayListOf<Chip>()
 
-    fun setLabels(labels: List<String>) {
-        clear()
-        labels.forEach {
-            addLabel(it)
-        }
-    }
-
-    fun setLabels(labels: Array<String>) {
-        setLabels(labels.toList())
-    }
-
     fun clear() {
         unUsedChips.addAll(usedChips)
         usedChips.clear()
         removeAllViews()
     }
 
-    fun addLabel(label: String) {
+    fun setLabels(labels: List<String>, style: (Chip) -> Unit) {
+        clear()
+        labels.forEach {
+            addLabel(it, style)
+        }
+    }
+
+    fun addLabel(label: String, style: (Chip) -> Unit) {
         val chip = if (unUsedChips.isEmpty()) {
             Chip(context).apply {
                 isClickable = false
@@ -41,11 +37,9 @@ class LabelsBar @JvmOverloads constructor(
                 chipStartPadding = 8f
                 chipEndPadding = 8f
                 chipStrokeWidth = 0f
-
                 chipBackgroundColor = ColorStateList.valueOf(
                     context.themeColor(com.google.android.material.R.attr.colorPrimaryContainer)
                 )
-
                 usedChips.add(this)
             }
         } else {
@@ -53,7 +47,9 @@ class LabelsBar @JvmOverloads constructor(
                 usedChips.add(it)
             }
         }
+        style(chip) // 在这里应用外部传入的样式
         chip.text = label
         addView(chip)
     }
+
 }

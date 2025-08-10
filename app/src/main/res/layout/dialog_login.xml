@@ -1,45 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/vw_bg"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingHorizontal="16dp"
-    android:paddingVertical="8dp">
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/vw_bg"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/tool_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="vertical"
-        tools:ignore="UselessParent">
+        app:displayHomeAsUp="false"
+        app:fitStatusBar="false"
+        app:title="@string/login" />
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/tool_bar"
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="12dp"
+        android:overScrollMode="ifContentScrolls">
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/flexbox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:title="@string/login"
-            app:displayHomeAsUp="false"
-            app:fitStatusBar="false"
-            app:titleTextAppearance="@style/ToolbarTitle" />
+            android:layout_marginTop="8dp"
+            android:clipToPadding="false"
+            android:paddingVertical="8dp"
+            app:flexDirection="row"
+            app:flexWrap="wrap" />
 
-        <androidx.core.widget.NestedScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:overScrollMode="ifContentScrolls">
+    </androidx.core.widget.NestedScrollView>
 
-            <com.google.android.flexbox.FlexboxLayout
-                android:id="@+id/flexbox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingVertical="8dp"
-                android:layout_marginTop="8dp"
-                android:clipToPadding="false"
-                app:flexDirection="row"
-                app:flexWrap="wrap" />
-
-        </androidx.core.widget.NestedScrollView>
-
-    </LinearLayout>
-</FrameLayout>
+</LinearLayout>

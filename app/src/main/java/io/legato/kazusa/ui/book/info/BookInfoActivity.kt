@@ -361,7 +361,7 @@ class BookInfoActivity :
                 lbKind.gone()
             } else {
                 lbKind.visible()
-                lbKind.setLabels(kinds)
+                lbKind.setLabels(kinds) {}
             }
         }
     }

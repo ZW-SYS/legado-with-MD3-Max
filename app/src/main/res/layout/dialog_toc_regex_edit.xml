@@ -19,8 +19,7 @@
             android:theme="?attr/actionBarStyle"
             app:displayHomeAsUp="false"
             app:fitStatusBar="false"
-            app:title="@string/txt_toc_rule"
-            app:titleTextAppearance="@style/ToolbarTitle" />
+            app:title="@string/txt_toc_rule" />
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"

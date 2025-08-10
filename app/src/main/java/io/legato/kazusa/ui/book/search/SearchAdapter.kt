@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import androidx.core.view.marginEnd
 import androidx.recyclerview.widget.DiffUtil
 import io.legato.kazusa.R
 import io.legato.kazusa.base.adapter.DiffRecyclerAdapter
@@ -11,6 +12,7 @@ import io.legato.kazusa.base.adapter.ItemViewHolder
 import io.legato.kazusa.data.entities.SearchBook
 import io.legato.kazusa.databinding.ItemSearchBinding
 import io.legato.kazusa.help.config.AppConfig
+import io.legato.kazusa.utils.dpToPx
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.visible
 
@@ -138,7 +140,9 @@ class SearchAdapter(context: Context, val callBack: CallBack) :
             llKind.gone()
         } else {
             llKind.visible()
-            llKind.setLabels(kinds)
+            llKind.setLabels(kinds) { chips ->
+                chips.textSize = 12f
+            }
         }
     }
 

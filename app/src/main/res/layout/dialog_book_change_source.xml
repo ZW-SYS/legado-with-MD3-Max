@@ -13,8 +13,7 @@
         android:theme="?attr/actionBarStyle"
         app:contentInsetStartWithNavigation="0dp"
         app:displayHomeAsUp="false"
-        app:fitStatusBar="false"
-        app:titleTextAppearance="@style/ToolbarTitle" />
+        app:fitStatusBar="false" />
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/refresh_progress_bar"

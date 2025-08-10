@@ -16,8 +16,7 @@
             style="?attr/actionBarStyle"
             app:displayHomeAsUp="false"
             app:fitStatusBar="false"
-            app:title="@string/dict_rule"
-            app:titleTextAppearance="@style/ToolbarTitle" />
+            app:title="@string/dict_rule" />
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"

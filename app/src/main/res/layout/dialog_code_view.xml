@@ -10,8 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="?attr/actionBarStyle"
-        app:title="code edit"
-        app:titleTextAppearance="@style/ToolbarTitle" />
+        app:title="code edit" />
 
     <io.legato.kazusa.ui.widget.code.CodeView
         android:id="@+id/code_view"

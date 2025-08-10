@@ -11,8 +11,7 @@
         android:layout_height="wrap_content"
         android:elevation="5dp"
         android:theme="?attr/actionBarStyle"
-        app:title="跳转确认"
-        app:titleTextAppearance="@style/ToolbarTitle" />
+        app:title="跳转确认" />
 
     <TextView
         android:id="@+id/message"

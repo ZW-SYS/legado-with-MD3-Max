@@ -37,7 +37,7 @@
             android:layout_margin="4dp"
             android:scaleType="centerCrop"
             android:visibility="visible"
-            app:cardBackgroundColor="?attr/colorPrimary"
+            app:cardBackgroundColor="?attr/colorTertiaryContainer"
             app:cardCornerRadius="4dp"
             app:strokeWidth="0dp">
 
@@ -47,7 +47,8 @@
                 android:paddingHorizontal="4dp"
                 android:paddingVertical="2dp"
                 android:text="书架中"
-                android:textColor="?attr/colorSurface"
+                android:textColor="?attr/colorTertiary"
+                android:textStyle="bold"
                 android:textSize="10sp"
                 tools:ignore="SmallSp" />
         </com.google.android.material.card.MaterialCardView>
@@ -77,7 +78,7 @@
                 android:layout_toStartOf="@id/bv_originCount"
                 android:singleLine="true"
                 android:text="@string/app_name"
-                style="@style/TextAppearance.AppCompat.Medium" />
+                style="@style/ChapterNameText" />
 
             <!-- 来源计数 -->
             <io.legato.kazusa.ui.widget.text.BadgeView
@@ -94,7 +95,6 @@
             android:id="@+id/tv_author"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="3dp"
             android:ellipsize="end"
             android:lines="1"
             android:text="@string/author"
@@ -109,7 +109,8 @@
             <io.legato.kazusa.ui.widget.LabelsBar
                 android:id="@+id/ll_kind"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="40dp"
+                app:chipSpacingHorizontal="4dp"
                 android:orientation="horizontal" />
 
         </HorizontalScrollView>
@@ -119,7 +120,6 @@
             android:id="@+id/tv_lasted"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="3dp"
             android:ellipsize="end"
             android:lines="1"
             android:text="@string/last_read"

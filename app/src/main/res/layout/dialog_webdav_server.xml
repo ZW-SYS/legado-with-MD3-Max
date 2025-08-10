@@ -24,8 +24,7 @@
             android:theme="?attr/actionBarStyle"
             app:title="@string/server_config"
             app:displayHomeAsUp="false"
-            app:fitStatusBar="false"
-            app:titleTextAppearance="@style/ToolbarTitle" />
+            app:fitStatusBar="false" />
 
         <io.legato.kazusa.ui.widget.text.TextInputLayout
             android:id="@+id/til_name"

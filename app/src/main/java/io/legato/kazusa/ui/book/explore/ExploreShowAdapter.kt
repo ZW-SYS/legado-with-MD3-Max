@@ -56,7 +56,7 @@ class ExploreShowAdapter(context: Context, val callBack: CallBack) :
                 llKind.gone()
             } else {
                 llKind.visible()
-                llKind.setLabels(kinds)
+                llKind.setLabels(kinds) {}
             }
             ivCover.load(
                 item.coverUrl,

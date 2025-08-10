@@ -13,8 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:displayHomeAsUp="false"
-        app:title="Set variable"
-        app:titleTextAppearance="@style/ToolbarTitle" />
+        app:title="Set variable" />
 
     <LinearLayout
         android:layout_width="match_parent"

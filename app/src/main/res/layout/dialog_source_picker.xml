@@ -14,7 +14,7 @@
         app:attachToActivity="false"
         app:contentLayout="@layout/view_search"
         app:fitStatusBar="false"
-        app:titleTextAppearance="@style/ToolbarTitle"
+
         tools:ignore="RtlHardcoded,RtlSymmetry" />
 
     <FrameLayout

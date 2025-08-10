@@ -10,6 +10,8 @@ import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import io.legato.kazusa.R
 import io.legato.kazusa.base.BaseActivity
+import io.legato.kazusa.constant.AppConst
+import io.legato.kazusa.constant.AppConst.appInfo
 import io.legato.kazusa.constant.AppLog
 import io.legato.kazusa.databinding.ActivityAboutBinding
 import io.legato.kazusa.help.CrashHandler
@@ -49,6 +51,8 @@ class AboutActivity : BaseActivity<ActivityAboutBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setSupportActionBar(binding.topBar)
+
+        binding.tvVersion.text = appInfo.versionName
 
         binding.btnUpdate.setOnClickListener {
             checkUpdate()

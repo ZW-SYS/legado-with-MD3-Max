@@ -10,8 +10,7 @@
         android:id="@+id/tool_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:title="@string/direct_link_upload_config"
-        app:titleTextAppearance="@style/ToolbarTitle" />
+        app:title="@string/direct_link_upload_config" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

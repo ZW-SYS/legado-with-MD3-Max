@@ -13,8 +13,7 @@
         app:displayHomeAsUp="false"
         app:fitStatusBar="false"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="@string/search_scope"
-        app:titleTextAppearance="@style/ToolbarTitle" />
+        app:title="@string/search_scope" />
 
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/rg_scope"

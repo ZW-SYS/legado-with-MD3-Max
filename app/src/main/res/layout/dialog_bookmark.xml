@@ -14,8 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:theme="?attr/actionBarStyle"
-            app:title="@string/bookmark"
-            app:titleTextAppearance="@style/ToolbarTitle" />
+            app:title="@string/bookmark" />
 
         <TextView
             android:id="@+id/tv_chapter_name"

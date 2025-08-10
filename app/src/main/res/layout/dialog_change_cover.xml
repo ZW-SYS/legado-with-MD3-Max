@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:elevation="5dp"
         android:theme="?attr/actionBarStyle"
-        app:titleTextAppearance="@style/ToolbarTitle"
+
         app:displayHomeAsUp="false"
         app:fitStatusBar="false" />
 

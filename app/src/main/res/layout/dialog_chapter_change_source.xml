@@ -14,8 +14,7 @@
         android:theme="?attr/actionBarStyle"
         app:displayHomeAsUp="false"
         app:fitStatusBar="false"
-        app:layout_constraintTop_toTopOf="parent"
-        app:titleTextAppearance="@style/ToolbarTitle" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <io.legato.kazusa.ui.widget.anima.RefreshProgressBar
         android:id="@+id/refresh_progress_bar"
