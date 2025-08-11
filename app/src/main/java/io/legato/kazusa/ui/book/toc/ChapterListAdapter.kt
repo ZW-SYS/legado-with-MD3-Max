@@ -1,11 +1,11 @@
 package io.legato.kazusa.ui.book.toc
 
+//import io.legado.app.lib.theme.accentColor
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
-import com.google.android.material.color.MaterialColors
 import io.legato.kazusa.R
 import io.legato.kazusa.base.adapter.DiffRecyclerAdapter
 import io.legato.kazusa.base.adapter.ItemViewHolder
@@ -16,9 +16,9 @@ import io.legato.kazusa.help.book.ContentProcessor
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.coroutine.Coroutine
 import io.legato.kazusa.lib.theme.ThemeUtils
-//import io.legado.app.lib.theme.accentColor
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.longToastOnUi
+import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.visible
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ensureActive
@@ -129,16 +129,16 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
                     || cacheFileNames.contains(item.getFileName())
             if (payloads.isEmpty()) {
                 if (isDur) {
-                    tvChapterName.setTextColor(MaterialColors.getColor(tvChapterName, com.google.android.material.R.attr.colorSecondary))
+                    tvChapterName.setTextColor(context.themeColor(androidx.appcompat.R.attr.colorPrimary))
+                    tvChapterItem.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSurfaceContainer))
                 } else {
-                    tvChapterName.setTextColor(MaterialColors.getColor(tvChapterName, com.google.android.material.R.attr.colorOnSurface))
+                    tvChapterName.setTextColor(context.themeColor(com.google.android.material.R.attr.colorOnSurface))
                 }
                 tvChapterName.text = getDisplayTitle(item)
                 if (item.isVolume) {
-                    tvChapterItem.setBackgroundColor(MaterialColors.getColor(tvChapterItem, com.google.android.material.R.attr.colorSurfaceVariant))
+                    tvChapterItem.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSecondaryContainer))
                 } else {
-                    //普通章节 保持不变
-                    tvChapterItem.background =
+                    tvChapterItem.foreground =
                         ThemeUtils.resolveDrawable(context, android.R.attr.selectableItemBackground)
                 }
 

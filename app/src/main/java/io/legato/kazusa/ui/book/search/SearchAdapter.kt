@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.core.view.isVisible
-import androidx.core.view.marginEnd
 import androidx.recyclerview.widget.DiffUtil
 import io.legato.kazusa.R
 import io.legato.kazusa.base.adapter.DiffRecyclerAdapter
@@ -12,7 +11,6 @@ import io.legato.kazusa.base.adapter.ItemViewHolder
 import io.legato.kazusa.data.entities.SearchBook
 import io.legato.kazusa.databinding.ItemSearchBinding
 import io.legato.kazusa.help.config.AppConfig
-import io.legato.kazusa.utils.dpToPx
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.visible
 
@@ -87,7 +85,7 @@ class SearchAdapter(context: Context, val callBack: CallBack) :
             tvAuthor.text = context.getString(R.string.author_show, searchBook.author)
             ivInBookshelf.isVisible =
                 callBack.isInBookshelf(searchBook.name, searchBook.author)
-            bvOriginCount.setBadgeCount(searchBook.origins.size)
+            bvOriginCount.text = searchBook.origins.size.toString()
             upLasted(binding, searchBook.latestChapterTitle)
             tvIntroduce.text = searchBook.trimIntro(context)
             upKind(binding, searchBook.getKindList())
@@ -105,7 +103,7 @@ class SearchAdapter(context: Context, val callBack: CallBack) :
         binding.run {
             bundle.keySet().forEach {
                 when (it) {
-                    "origins" -> bvOriginCount.setBadgeCount(searchBook.origins.size)
+                    "origins" -> bvOriginCount.text = searchBook.origins.size.toString()
                     "last" -> upLasted(binding, searchBook.latestChapterTitle)
                     "intro" -> tvIntroduce.text = searchBook.trimIntro(context)
                     "kind" -> upKind(binding, searchBook.getKindList())

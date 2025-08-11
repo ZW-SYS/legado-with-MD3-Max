@@ -51,6 +51,7 @@
                 android:textStyle="bold"
                 android:textSize="10sp"
                 tools:ignore="SmallSp" />
+
         </com.google.android.material.card.MaterialCardView>
 
     </com.google.android.material.card.MaterialCardView>
@@ -66,29 +67,49 @@
         android:orientation="vertical">
 
         <!-- 标题行 -->
-        <RelativeLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <!-- 书名 -->
             <TextView
                 android:id="@+id/tv_name"
-                android:layout_width="match_parent"
+                style="@style/ChapterNameText"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_toStartOf="@id/bv_originCount"
+                android:layout_marginEnd="4dp"
                 android:singleLine="true"
                 android:text="@string/app_name"
-                style="@style/ChapterNameText" />
+                app:layout_constraintEnd_toStartOf="@id/cd_count"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- 来源计数 -->
-            <io.legato.kazusa.ui.widget.text.BadgeView
-                android:id="@+id/bv_originCount"
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cd_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"/>
+                android:layout_marginVertical="4dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainer"
+                app:cardCornerRadius="4dp"
+                app:layout_constraintBottom_toBottomOf="@id/tv_name"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tv_name"
+                app:strokeWidth="0dp">
 
-        </RelativeLayout>
+                <TextView
+                    android:id="@+id/bv_originCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="4dp"
+                    android:paddingVertical="2dp"
+                    android:text="@string/text"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    tools:ignore="SmallSp" />
+            </com.google.android.material.card.MaterialCardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- 作者 -->
         <TextView
