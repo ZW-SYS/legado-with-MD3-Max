@@ -5,8 +5,6 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.SharedPreferences
-import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
 import android.os.Build
@@ -17,7 +15,6 @@ import com.jeremyliao.liveeventbus.logger.DefaultLogger
 import com.script.rhino.ReadOnlyJavaObject
 import com.script.rhino.RhinoScriptEngine
 import com.script.rhino.RhinoWrapFactory
-import io.legato.kazusa.base.AppContextWrapper
 import io.legato.kazusa.constant.AppConst.channelIdDownload
 import io.legato.kazusa.constant.AppConst.channelIdReadAloud
 import io.legato.kazusa.constant.AppConst.channelIdWeb
@@ -40,7 +37,6 @@ import io.legato.kazusa.help.LifecycleHelp
 import io.legato.kazusa.help.RuleBigDataHelp
 import io.legato.kazusa.help.book.BookHelp
 import io.legato.kazusa.help.config.AppConfig
-import io.legato.kazusa.help.config.ThemeConfig.applyDayNight
 import io.legato.kazusa.help.config.ThemeConfig.applyDayNightInit
 import io.legato.kazusa.help.coroutine.Coroutine
 import io.legato.kazusa.help.http.Cronet
@@ -51,6 +47,7 @@ import io.legato.kazusa.help.source.SourceHelp
 import io.legato.kazusa.help.storage.Backup
 import io.legato.kazusa.model.BookCover
 import io.legato.kazusa.utils.ChineseUtils
+import io.legato.kazusa.utils.FirebaseManager
 import io.legato.kazusa.utils.LogUtils
 import io.legato.kazusa.utils.defaultSharedPreferences
 import io.legato.kazusa.utils.getPrefBoolean
@@ -70,6 +67,7 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         DynamicColors.applyToActivitiesIfAvailable(this)
+        FirebaseManager.initFromPreferences(this)
         CrashHandler(this)
         if (isDebuggable) {
             ThreadUtils.setThreadAssertsDisabledForTesting(true)

@@ -668,6 +668,11 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
         }
     }
 
+    var firebaseEnabled: Boolean
+        get() = appCtx.getPrefBoolean(PreferKey.firebaseEnabled, false)
+        set(value) {
+            appCtx.putPrefBoolean(PreferKey.firebaseEnabled, value)
+        }
 
     //跳转到漫画界面不使用富文本模式
     val showMangaUi: Boolean

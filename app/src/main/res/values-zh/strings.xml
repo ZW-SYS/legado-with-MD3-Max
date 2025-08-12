@@ -1236,5 +1236,6 @@
     <string name="descending_order">降序</string>
     <string name="checking_update">检查更新中...</string>
     <string name="search_empty">没有内容哦</string>
+    <string name="firebase_enable_title">匿名统计</string>
 
 </resources>

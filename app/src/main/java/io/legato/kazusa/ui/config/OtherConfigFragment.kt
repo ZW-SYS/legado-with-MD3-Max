@@ -27,6 +27,7 @@ import io.legato.kazusa.receiver.SharedReceiverActivity
 import io.legato.kazusa.service.WebService
 import io.legato.kazusa.ui.file.HandleFileContract
 import io.legato.kazusa.ui.widget.number.NumberPickerDialog
+import io.legato.kazusa.utils.FirebaseManager
 import io.legato.kazusa.utils.LogUtils
 import io.legato.kazusa.utils.getPrefBoolean
 import io.legato.kazusa.utils.postEvent
@@ -218,6 +219,13 @@ class OtherConfigFragment : PreferenceFragment(),
             PreferKey.sourceEditMaxLine -> {
                 upPreferenceSummary(key, AppConfig.sourceEditMaxLine.toString())
             }
+
+            PreferKey.firebaseEnabled -> {
+                sharedPreferences?.let {
+                    FirebaseManager.setEnabled(requireContext(), it.getBoolean(key, true))
+                }
+            }
+
         }
     }
 
