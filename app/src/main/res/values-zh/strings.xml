@@ -1237,5 +1237,6 @@
     <string name="checking_update">检查更新中...</string>
     <string name="search_empty">没有内容哦</string>
     <string name="firebase_enable_title">匿名统计</string>
+    <string name="locate_current">定位至当前</string>
 
 </resources>

@@ -11,48 +11,70 @@
         android:layout_height="0dp"
         android:overScrollMode="never"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/ll_chapter_base_info" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/ll_chapter_base_info"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cd_base"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
+        android:layout_marginHorizontal="16dp"
+        app:cardBackgroundColor="?attr/colorSurfaceContainer"
+        app:cardElevation="8dp"
+        app:strokeWidth="0dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <TextView
-            android:id="@+id/tv_current_chapter_info"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:id="@+id/ll_chapter_base_info"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="?attr/selectableItemBackground"
-            android:ellipsize="middle"
-            android:singleLine="true"
-            android:gravity="center_vertical"
-            android:textSize="12sp" />
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingVertical="8dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="10dp">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_chapter_top"
-            style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            app:icon="@drawable/ic_arrow_drop_up"
-            android:contentDescription="@string/go_to_top"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp" />
+            <TextView
+                android:id="@+id/tv_current_chapter_info"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:singleLine="true"
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_chapter_bottom"
-            style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            app:icon="@drawable/ic_arrow_drop_down"
-            android:contentDescription="@string/go_to_bottom"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_locate"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Outlined"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@string/locate_current"
+                app:icon="@drawable/ic_locate"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconSize="16dp" />
 
-    </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_chapter_top"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@string/go_to_top"
+                app:icon="@drawable/ic_arrow_drop_up"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_chapter_bottom"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@string/go_to_bottom"
+                app:icon="@drawable/ic_arrow_drop_down"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

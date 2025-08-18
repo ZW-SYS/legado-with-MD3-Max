@@ -8,6 +8,7 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import io.legato.kazusa.R
 import io.legato.kazusa.help.LifecycleHelp
+import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.coroutine.Coroutine
 import io.legato.kazusa.lib.permission.Permissions
 import io.legato.kazusa.lib.permission.PermissionsCompat
@@ -37,7 +38,10 @@ abstract class BaseService : LifecycleService() {
     override fun onCreate() {
         super.onCreate()
         LifecycleHelp.onServiceCreate(this)
-        checkPermission()
+        if (!AppConfig.permissionChecked) {
+            AppConfig.permissionChecked = true
+            checkPermission()
+        }
     }
 
     @CallSuper

@@ -133,6 +133,7 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
                     tvChapterItem.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSurfaceContainer))
                 } else {
                     tvChapterName.setTextColor(context.themeColor(com.google.android.material.R.attr.colorOnSurface))
+                    tvChapterItem.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSurface))
                 }
                 tvChapterName.text = getDisplayTitle(item)
                 if (item.isVolume) {
@@ -188,13 +189,20 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
 
     private fun upHasCache(binding: ItemChapterListBinding, isDur: Boolean, cached: Boolean) =
         binding.apply {
-            ivChecked.setImageResource(R.drawable.ic_outline_cloud_24)
-            ivChecked.visible(!cached)
-            if (isDur) {
-                ivChecked.setImageResource(R.drawable.ic_check)
-                ivChecked.visible()
+            when {
+                isDur -> ivChecked.gone()
+                cached -> {
+                    ivChecked.setImageResource(R.drawable.ic_check)
+                    ivChecked.visible()
+                }
+
+                else -> {
+                    ivChecked.setImageResource(R.drawable.ic_outline_cloud_24)
+                    ivChecked.visible()
+                }
             }
         }
+
 
     interface Callback {
         val scope: CoroutineScope

@@ -66,6 +66,18 @@
         app:iconSpaceReserved="false"
         app:layout="@layout/view_preference_category">
 
+        <io.legato.kazusa.lib.prefs.Preference
+            android:defaultValue="true"
+            android:key="notificationsPost"
+            android:summary="@string/notification_permission_rationale"
+            android:title="通知权限" />
+
+        <io.legato.kazusa.lib.prefs.Preference
+            android:defaultValue="true"
+            android:key="ignoreBatteryPermission"
+            android:summary="@string/ignore_battery_permission_rationale"
+            android:title="后台权限" />
+
         <io.legato.kazusa.lib.prefs.SwitchPreference
             android:defaultValue="true"
             android:key="firebaseEnable"

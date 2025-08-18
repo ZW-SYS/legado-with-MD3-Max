@@ -181,6 +181,12 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
             }
         }
 
+    var permissionChecked: Boolean
+        get() = appCtx.getPrefBoolean(PreferKey.permissionChecked, false)
+        set(value) {
+            appCtx.putPrefBoolean(PreferKey.permissionChecked, value)
+        }
+
     val textSelectAble: Boolean
         get() = appCtx.getPrefBoolean(PreferKey.textSelectAble, true)
 

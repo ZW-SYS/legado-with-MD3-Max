@@ -56,12 +56,10 @@ class TocActivity : VMBaseActivity<ActivityChapterListBinding, TocViewModel>(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        tabLayout = binding.titleBar.findViewById(R.id.tab_layout)
-        //tabLayout.isTabIndicatorFullWidth = false
-        //tabLayout.setSelectedTabIndicatorColor(accentColor)
+        setSupportActionBar(binding.topBar)
+        tabLayout = binding.tabLayout
         binding.viewPager.adapter = TabFragmentPageAdapter()
         tabLayout.setupWithViewPager(binding.viewPager)
-        tabLayout.tabGravity = TabLayout.GRAVITY_CENTER
         viewModel.bookData.observe(this) {
             menu?.setGroupVisible(R.id.menu_group_text, it.isLocalTxt)
         }

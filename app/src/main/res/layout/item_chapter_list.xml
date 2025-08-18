@@ -18,7 +18,7 @@
         android:src="@drawable/ic_lock_outline"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="RtlSymmetry" />
 
@@ -26,33 +26,25 @@
         android:id="@+id/tv_chapter_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="15sp"
+        android:textSize="14sp"
         android:textStyle="bold"
         android:maxLines="2"
-        app:layout_constraintBottom_toTopOf="@id/barrier"
-        app:layout_constraintLeft_toRightOf="@+id/iv_locked"
-        app:layout_constraintRight_toLeftOf="@+id/iv_checked"
+        app:layout_constraintEnd_toStartOf="@+id/iv_checked"
+        app:layout_constraintStart_toEndOf="@+id/iv_locked"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrier"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:barrierDirection="top"
-        app:constraint_referenced_ids="tv_word_count,tv_tag" />
 
     <TextView
         android:id="@+id/tv_word_count"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:paddingEnd="18dp"
         android:singleLine="true"
         android:textSize="12sp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/iv_locked"
-        app:layout_constraintTop_toBottomOf="@+id/barrier"
+        app:layout_constraintEnd_toStartOf="@+id/iv_checked"
+        app:layout_constraintStart_toEndOf="@+id/iv_locked"
+        app:layout_constraintTop_toBottomOf="@id/tv_chapter_name"
         tools:ignore="RtlSymmetry" />
 
     <TextView
@@ -63,21 +55,21 @@
         android:singleLine="true"
         android:textSize="12sp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/tv_word_count"
-        app:layout_constraintRight_toLeftOf="@+id/iv_checked"
-        app:layout_constraintTop_toBottomOf="@+id/barrier" />
+        app:layout_constraintEnd_toStartOf="@+id/iv_checked"
+        app:layout_constraintStart_toEndOf="@+id/iv_locked"
+        app:layout_constraintTop_toBottomOf="@id/tv_word_count" />
 
     <ImageView
         android:id="@+id/iv_checked"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:contentDescription="@string/success"
+        app:layout_constraintEnd_toEndOf="parent"
         android:padding="4dp"
         android:src="@drawable/ic_check"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:tint="?attr/colorSecondary"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

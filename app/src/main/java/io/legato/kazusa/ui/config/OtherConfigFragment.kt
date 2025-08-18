@@ -1,11 +1,16 @@
 package io.legato.kazusa.ui.config
 
+//import io.legado.app.lib.theme.primaryColor
 import android.annotation.SuppressLint
 import android.content.ComponentName
+import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.core.view.postDelayed
 import androidx.fragment.app.activityViewModels
 import androidx.preference.ListPreference
@@ -19,8 +24,9 @@ import io.legato.kazusa.help.AppFreezeMonitor
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.config.LocalConfig
 import io.legato.kazusa.lib.dialogs.alert
+import io.legato.kazusa.lib.permission.Permissions
+import io.legato.kazusa.lib.permission.PermissionsCompat
 import io.legato.kazusa.lib.prefs.fragment.PreferenceFragment
-//import io.legado.app.lib.theme.primaryColor
 import io.legato.kazusa.model.CheckSource
 import io.legato.kazusa.model.ImageProvider
 import io.legato.kazusa.receiver.SharedReceiverActivity
@@ -70,6 +76,7 @@ class OtherConfigFragment : PreferenceFragment(),
         upPreferenceSummary(PreferKey.bitmapCacheSize, AppConfig.bitmapCacheSize.toString())
         upPreferenceSummary(PreferKey.imageRetainNum, AppConfig.imageRetainNum.toString())
         upPreferenceSummary(PreferKey.sourceEditMaxLine, AppConfig.sourceEditMaxLine.toString())
+        updatePermissionSummary()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -156,6 +163,9 @@ class OtherConfigFragment : PreferenceFragment(),
             PreferKey.clearWebViewData -> clearWebViewData()
             "localPassword" -> alertLocalPassword()
             PreferKey.shrinkDatabase -> shrinkDatabase()
+
+            PreferKey.notificationsPost -> checkPermission(1)
+            PreferKey.ignoreBatteryPermission -> checkPermission(2)
         }
         return super.onPreferenceTreeClick(preference)
     }
@@ -228,6 +238,30 @@ class OtherConfigFragment : PreferenceFragment(),
 
         }
     }
+    private fun updatePermissionSummary() {
+        val notificationsGranted: Boolean =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                ContextCompat.checkSelfPermission(
+                    requireContext(), android.Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            } else {
+                true
+            }
+        upPreferenceSummary(
+            PreferKey.notificationsPost,
+            if (notificationsGranted) "已获取" else "未获取"
+        )
+
+        val pm = requireContext().getSystemService(Context.POWER_SERVICE) as PowerManager
+        val batteryGranted: Boolean =
+            pm.isIgnoringBatteryOptimizations(requireContext().packageName)
+
+        upPreferenceSummary(
+            PreferKey.ignoreBatteryPermission,
+            if (batteryGranted) "已获取" else "未获取"
+        )
+    }
+
 
     private fun upPreferenceSummary(preferenceKey: String, value: String?) {
         val preference = findPreference<Preference>(preferenceKey) ?: return
@@ -252,6 +286,21 @@ class OtherConfigFragment : PreferenceFragment(),
             } else {
                 preference.summary = value
             }
+        }
+    }
+
+    private fun checkPermission(int: Int) {
+        if (int == 1) {
+            PermissionsCompat.Builder()
+                .addPermissions(Permissions.POST_NOTIFICATIONS)
+                .rationale(R.string.notification_permission_rationale)
+                .request()
+        }
+        if (int == 2 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            PermissionsCompat.Builder()
+                .addPermissions(Permissions.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                .rationale(R.string.ignore_battery_permission_rationale)
+                .request()
         }
     }
 
