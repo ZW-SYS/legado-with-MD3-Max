@@ -60,8 +60,9 @@ class TocActivity : VMBaseActivity<ActivityChapterListBinding, TocViewModel>(),
         tabLayout = binding.tabLayout
         binding.viewPager.adapter = TabFragmentPageAdapter()
         tabLayout.setupWithViewPager(binding.viewPager)
-        viewModel.bookData.observe(this) {
-            menu?.setGroupVisible(R.id.menu_group_text, it.isLocalTxt)
+        viewModel.bookData.observe(this) { book ->
+            menu?.setGroupVisible(R.id.menu_group_text, book.isLocalTxt)
+            supportActionBar?.title = book.name
         }
         intent.getStringExtra("bookUrl")?.let {
             viewModel.initBook(it)

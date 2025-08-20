@@ -19,6 +19,7 @@ import io.legato.kazusa.ui.widget.recycler.VerticalDivider
 import io.legato.kazusa.utils.applyNavigationBarPadding
 import io.legato.kazusa.utils.showDialogFragment
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
+import io.legato.kazusa.utils.visible
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.catch
@@ -51,24 +52,27 @@ class BookmarkFragment : VMBaseFragment<TocViewModel>(R.layout.fragment_bookmark
         binding.recyclerView.addItemDecoration(VerticalDivider(requireContext()))
         binding.recyclerView.adapter = adapter
         binding.recyclerView.applyNavigationBarPadding()
+
+        binding.tvEmptyMsg.visible(false)
     }
 
     override fun upBookmark(searchKey: String?) {
         val book = viewModel.bookData.value ?: return
         lifecycleScope.launch {
-            when {
+            val flow = when {
                 searchKey.isNullOrBlank() -> appDb.bookmarkDao.flowByBook(book.name, book.author)
                 else -> appDb.bookmarkDao.flowSearch(book.name, book.author, searchKey)
-            }.catch {
+            }
+
+            flow.catch {
                 AppLog.put("目录界面获取书签数据失败\n${it.localizedMessage}", it)
-            }.flowOn(IO).collect {
-                adapter.setItems(it)
+            }.flowOn(IO).collect { list ->
+                adapter.setItems(list)
+                binding.tvEmptyMsg.visible(list.isEmpty())
                 var scrollPos = 0
                 withContext(Dispatchers.Default) {
                     adapter.getItems().forEachIndexed { index, bookmark ->
-                        if (bookmark.chapterIndex >= durChapterIndex) {
-                            return@withContext
-                        }
+                        if (bookmark.chapterIndex >= durChapterIndex) return@withContext
                         scrollPos = index
                     }
                 }

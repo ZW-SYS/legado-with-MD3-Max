@@ -32,12 +32,12 @@ class BookmarkAdapter(context: Context, val callback: Callback) :
     override fun registerListener(holder: ItemViewHolder, binding: ItemBookmarkBinding) {
         binding.root.setOnClickListener {
             getItem(holder.layoutPosition)?.let { bookmark ->
-                callback.onClick(bookmark)
+                callback.onLongClick(bookmark, holder.layoutPosition)
             }
         }
         binding.root.onLongClick {
             getItem(holder.layoutPosition)?.let { bookmark ->
-                callback.onLongClick(bookmark, holder.layoutPosition)
+                callback.onClick(bookmark)
             }
         }
 

@@ -1,7 +1,5 @@
 package io.legato.kazusa.ui.book.toc
 
-//import io.legado.app.lib.theme.bottomBackground
-//import io.legado.app.lib.theme.getPrimaryTextColor
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.content.Intent
@@ -36,7 +34,6 @@ import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -79,7 +76,7 @@ class ChapterListFragment : VMBaseFragment<TocViewModel>(R.layout.fragment_chapt
 
                 toastOnUi("开始下载: ${adapter.getItem(position)?.title}")
                 CacheBook.start(requireContext(), book, chapter.index, chapter.index)
-                VibrationUtils.vibrate(context!!, 100)
+                VibrationUtils.vibratePattern(requireContext(), longArrayOf(0, 50, 30, 50), -1)
                 adapter.notifyItemChanged(position)
             }
 
@@ -191,16 +188,11 @@ class ChapterListFragment : VMBaseFragment<TocViewModel>(R.layout.fragment_chapt
     override fun observeLiveBus() {
         observeEvent<Pair<Book, BookChapter>>(EventBus.SAVE_CONTENT) { (book, chapter) ->
             viewModel.bookData.value?.bookUrl?.let { bookUrl ->
-                if (book.bookUrl == bookUrl) {
+                if (book.bookUrl == viewModel.bookData.value?.bookUrl) {
                     adapter.cacheFileNames.add(chapter.getFileName())
-                    if (viewModel.searchKey.isNullOrEmpty()) {
-                        adapter.notifyItemChanged(chapter.index, true)
-                    } else {
-                        adapter.getItems().forEachIndexed { index, bookChapter ->
-                            if (bookChapter.index == chapter.index) {
-                                adapter.notifyItemChanged(index, true)
-                            }
-                        }
+                    val index = adapter.getItems().indexOfFirst { it.index == chapter.index }
+                    if (index >= 0) {
+                        adapter.notifyItemChanged(index, true)
                     }
                 }
             }
@@ -225,15 +217,9 @@ class ChapterListFragment : VMBaseFragment<TocViewModel>(R.layout.fragment_chapt
 
     override fun onListChanged() {
         lifecycleScope.launch {
-            var scrollPos = 0
-            withContext(Default) {
-                adapter.getItems().forEachIndexed { index, bookChapter ->
-                    if (bookChapter.index >= durChapterIndex) {
-                        return@withContext
-                    }
-                    scrollPos = index
-                }
-            }
+            val scrollPos = adapter.getItems()
+                .indexOfLast { it.index < durChapterIndex }
+                .coerceAtLeast(0)
             mLayoutManager.scrollToPositionWithOffset(scrollPos, 0)
             adapter.upDisplayTitles(scrollPos)
         }

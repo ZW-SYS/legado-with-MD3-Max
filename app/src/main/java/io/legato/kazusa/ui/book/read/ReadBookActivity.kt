@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
 import android.view.Gravity
+import android.view.HapticFeedbackConstants
 import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.Menu
@@ -788,21 +789,25 @@ class ReadBookActivity : BaseReadBookActivity(),
     /**
      * 更新文字选择开始位置
      */
-    override fun upSelectedStart(x: Float, y: Float, top: Float) = binding.run {
+    override fun upSelectedStart(x: Float, y: Float, top: Float): Unit = binding.run {
         cursorLeft.x = x - cursorLeft.width
         cursorLeft.y = y
         cursorLeft.visible(true)
         textMenuPosition.x = x
         textMenuPosition.y = top
+
+        root.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
     }
 
     /**
      * 更新文字选择结束位置
      */
-    override fun upSelectedEnd(x: Float, y: Float) = binding.run {
+    override fun upSelectedEnd(x: Float, y: Float): Unit = binding.run {
         cursorRight.x = x
         cursorRight.y = y
         cursorRight.visible(true)
+
+        root.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
     }
 
     /**

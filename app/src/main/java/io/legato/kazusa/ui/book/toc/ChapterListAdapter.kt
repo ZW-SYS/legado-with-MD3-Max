@@ -14,15 +14,17 @@ import io.legato.kazusa.data.entities.BookChapter
 import io.legato.kazusa.databinding.ItemChapterListBinding
 import io.legato.kazusa.help.book.ContentProcessor
 import io.legato.kazusa.help.config.AppConfig
-import io.legato.kazusa.help.coroutine.Coroutine
 import io.legato.kazusa.lib.theme.ThemeUtils
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.longToastOnUi
 import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.visible
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 
 class ChapterListAdapter(context: Context, val callback: Callback) :
@@ -30,6 +32,7 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
 
     val cacheFileNames = hashSetOf<String>()
     private val displayTitleMap = ConcurrentHashMap<String, String>()
+
     private val handler = Handler(Looper.getMainLooper())
 
     override val diffItemCallback: DiffUtil.ItemCallback<BookChapter>
@@ -58,7 +61,7 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
 
         }
 
-    private var upDisplayTileJob: Coroutine<*>? = null
+    private var upDisplayTileJob: Job? = null
 
     override fun onCurrentListChanged() {
         super.onCurrentListChanged()
@@ -72,41 +75,30 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
 
     fun upDisplayTitles(startIndex: Int) {
         upDisplayTileJob?.cancel()
-        upDisplayTileJob = Coroutine.async(callback.scope) {
-            val book = callback.book ?: return@async
+        upDisplayTileJob = callback.scope.launch(Dispatchers.Default) {
+            val book = callback.book ?: return@launch
             val replaceRules = ContentProcessor.get(book.name, book.origin).getTitleReplaceRules()
             val useReplace = AppConfig.tocUiUseReplace && book.getUseReplaceRule()
             val items = getItems()
-            launch {
-                for (i in startIndex until items.size) {
-                    val item = items[i]
-                    if (displayTitleMap[item.title] == null) {
-                        ensureActive()
-                        val displayTitle = item.getDisplayTitle(replaceRules, useReplace)
-                        ensureActive()
-                        displayTitleMap[item.title] = displayTitle
-                        handler.post {
-                            notifyItemChanged(i, true)
-                        }
-                    }
-                }
-            }
-            launch {
-                for (i in startIndex downTo 0) {
-                    val item = items[i]
-                    if (displayTitleMap[item.title] == null) {
-                        ensureActive()
-                        val displayTitle = item.getDisplayTitle(replaceRules, useReplace)
-                        ensureActive()
-                        displayTitleMap[item.title] = displayTitle
-                        handler.post {
-                            notifyItemChanged(i, true)
-                        }
+
+            val indices = (startIndex until items.size) + (startIndex downTo 0)
+
+            for (i in indices) {
+                val item = items[i]
+                val key = item.url
+                if (displayTitleMap[key] == null) {
+                    ensureActive()
+                    val displayTitle = item.getDisplayTitle(replaceRules, useReplace)
+                    displayTitleMap[key] = displayTitle
+                    ensureActive()
+                    withContext(Dispatchers.Main) {
+                        notifyItemChanged(i, true)
                     }
                 }
             }
         }
     }
+
 
     private fun getDisplayTitle(chapter: BookChapter): String {
         return displayTitleMap[chapter.title] ?: chapter.title
@@ -128,17 +120,22 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
                     || item.isVolume
                     || cacheFileNames.contains(item.getFileName())
             if (payloads.isEmpty()) {
-                if (isDur) {
-                    tvChapterName.setTextColor(context.themeColor(androidx.appcompat.R.attr.colorPrimary))
-                    tvChapterItem.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSurfaceContainer))
-                } else {
-                    tvChapterName.setTextColor(context.themeColor(com.google.android.material.R.attr.colorOnSurface))
-                    tvChapterItem.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSurface))
-                }
-                tvChapterName.text = getDisplayTitle(item)
+
                 if (item.isVolume) {
-                    tvChapterItem.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSecondaryContainer))
+                    ivVolume.visible()
+                    tvChapterName.text = getDisplayTitle(item)
+                    tvChapterName.textSize = 12f
+                    tvChapterName.setTextColor(context.themeColor(com.google.android.material.R.attr.colorTertiary))
                 } else {
+                    ivVolume.gone()
+                    if (isDur) {
+                        tvChapterName.setTextColor(context.themeColor(androidx.appcompat.R.attr.colorPrimary))
+                        tvChapterItem.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSurfaceContainer))
+                    } else {
+                        tvChapterName.setTextColor(context.themeColor(com.google.android.material.R.attr.colorOnSurface))
+                        tvChapterItem.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSurface))
+                    }
+                    tvChapterName.text = getDisplayTitle(item)
                     tvChapterItem.foreground =
                         ThemeUtils.resolveDrawable(context, android.R.attr.selectableItemBackground)
                 }
@@ -165,10 +162,10 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
                     ivLocked.gone()
                 }
 
-                upHasCache(binding, isDur, cached)
+                upHasCache(binding, cached)
             } else {
                 tvChapterName.text = getDisplayTitle(item)
-                upHasCache(binding, isDur, cached)
+                upHasCache(binding, cached)
             }
         }
     }
@@ -187,12 +184,11 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
         }
     }
 
-    private fun upHasCache(binding: ItemChapterListBinding, isDur: Boolean, cached: Boolean) =
+    private fun upHasCache(binding: ItemChapterListBinding, cached: Boolean) =
         binding.apply {
             when {
-                isDur -> ivChecked.gone()
                 cached -> {
-                    ivChecked.setImageResource(R.drawable.ic_check)
+                    ivChecked.setImageResource(R.drawable.ic_download_done)
                     ivChecked.visible()
                 }
 

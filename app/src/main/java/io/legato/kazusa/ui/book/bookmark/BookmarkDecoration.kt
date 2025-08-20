@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
+import android.graphics.Typeface
 import android.text.TextPaint
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -28,10 +29,11 @@ class BookmarkDecoration(
     }
 
     private val textPaint = TextPaint().apply {
-        textSize = 16f.spToPx()
+        textSize = 14f.spToPx()
         color =
             MaterialColors.getColor(context, androidx.appcompat.R.attr.colorPrimary, Color.BLACK)
         isAntiAlias = true
+        typeface = Typeface.DEFAULT_BOLD
     }
 
     private val textRect = Rect()
