@@ -3,6 +3,7 @@
 
     <string-array name="icons">
         <item>ic_launcher</item>
+        <item>launcher0</item>
         <item>launcher1</item>
         <item>launcher2</item>
         <item>launcher3</item>

@@ -2,6 +2,7 @@ package io.legato.kazusa.ui.book.changesource
 
 //import io.legado.app.lib.theme.getPrimaryTextColor
 //import io.legado.app.lib.theme.primaryColor
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -41,6 +42,7 @@ import io.legato.kazusa.utils.observeEvent
 import io.legato.kazusa.utils.startActivity
 import io.legato.kazusa.utils.transaction
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
+import io.legato.kazusa.utils.visible
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.conflate
@@ -205,9 +207,11 @@ class ChangeBookSourceDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_b
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun initLiveData() {
         viewModel.searchStateData.observe(viewLifecycleOwner) {
             binding.refreshProgressBar.isVisible = it
+
             if (it) {
                 startStopMenuItem?.let { item ->
                     item.setIcon(R.drawable.ic_stop_black_24dp)
@@ -226,7 +230,7 @@ class ChangeBookSourceDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_b
                 viewModel.searchDataFlow.conflate().collect {
                     adapter.setItems(it)
 
-                    binding.loadingIndicator.isVisible = it.isEmpty()
+                    binding.tvEmptyMsg.isVisible = it.isEmpty()
                     binding.recyclerView.isVisible = it.isNotEmpty()
 
                     delay(1000)
@@ -239,15 +243,16 @@ class ChangeBookSourceDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_b
                 viewModel.changeSourceProgress
                     .drop(1)
                     .collect { (count, name) ->
-                        binding.tvDur.text =
-                            getString(
-                                R.string.change_source_progress,
-                                adapter.itemCount,
-                                count,
-                                viewModel.totalSourceCount,
-                                name
-                            )
-                        delay(500)
+                        val total = viewModel.totalSourceCount
+                        val progress = if (total > 0) (count * 100 / total) else 0
+
+                        binding.refreshProgressBar.isIndeterminate = false
+                        binding.refreshProgressBar.progress = progress
+                        binding.llInfo.visible()
+
+                        binding.tvProgress.text = "$count / $total"
+                        binding.tvResult.text =
+                            getString(R.string.change_source_progress, adapter.itemCount)
                     }
             }
         }

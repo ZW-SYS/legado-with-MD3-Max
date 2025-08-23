@@ -24,7 +24,7 @@
             android:id="@+id/bottom_sheet_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="漫画设置"
+            android:text="自动阅读"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -35,30 +35,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingHorizontal="16dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="8dp"
-            android:text="阅读模式"
-            android:textStyle="bold" />
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chipGroupScrollMode"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:singleLine="false"
-            app:chipSpacingVertical="0dp"
-            app:selectionRequired="true"
-            app:singleSelection="true" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="8dp"
-            android:text="自动阅读"
-            android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -89,60 +65,5 @@
         </LinearLayout>
 
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/ll_webtoon"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="8dp"
-            android:text="条漫"
-            android:textStyle="bold" />
-
-        <io.legato.kazusa.ui.widget.DetailSeekBar
-            android:id="@+id/scv_Padding"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:max="30"
-            app:title="侧边留白" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingHorizontal="12dp">
-
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/checkboxDisableClickScroll"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/disable_manga_click_scroll" />
-
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/checkboxDisableMangaScale"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/disable_manga_scale" />
-
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/checkboxHideMangaTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/hide_manga_title" />
-
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/checkboxVolumeKeyPage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/volume_key_page" />
-    </LinearLayout>
-
 
 </LinearLayout>

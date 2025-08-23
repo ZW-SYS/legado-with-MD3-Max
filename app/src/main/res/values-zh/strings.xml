@@ -97,7 +97,7 @@
     <string name="offline_cache_s">缓存选择的章节到本地</string>
     <string name="change_origin">换源</string>
     <string name="about_description">
-        \u3000\u3000这是一款使用 Kotlin 全新开发的开源的阅读软件，欢迎您的加入。
+        全新设计的阅读 3.0
     </string>
     <string name="app_share_description">
         阅读 3.0 下载地址：\nhttps://github.com/gedoor/legado/releases
@@ -1144,7 +1144,7 @@
     <string name="export_book_notification_content">正在导出 (%1$s) ,还有 %2$d 本待导出</string>
     <string name="export_md">导出(MD)</string>
     <string name="change_source_delay">换源间隔</string>
-    <string name="change_source_progress">结果 %1$d, 当前进度 %2$d / %3$d: %4$s</string>
+    <string name="change_source_progress">结果 %1$d</string>
     <string name="open_book_info_by_click_title">点击书名打开详情</string>
     <string name="export_wait">等待导出</string>
     <string name="sync_book_progress_success">进度同步成功</string>

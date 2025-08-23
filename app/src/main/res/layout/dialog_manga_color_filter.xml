@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingHorizontal="16dp"
-    android:paddingVertical="8dp">
+    android:paddingBottom="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,14 +17,12 @@
             android:gravity="center"
             android:orientation="vertical"
             android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp">
+            android:paddingBottom="8dp">
 
-            <View
-                android:layout_width="36dp"
-                android:layout_height="4dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/bg_bottom_sheet_handle" />
+            <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal" />
 
             <TextView
                 android:id="@+id/bottom_sheet_title"
@@ -57,6 +55,7 @@
                 android:id="@+id/chip_autoBrightness"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:checkable="true"
                 android:text="跟随系统" />
         </LinearLayout>
 
@@ -71,6 +70,7 @@
                 android:id="@+id/cp_epaper"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:checkable="true"
                 android:layout_marginEnd="8dp"
                 android:text="@string/manga_epaper" />
 
@@ -78,8 +78,8 @@
                 android:id="@+id/cp_enableGray"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:checkable="true"
                 android:text="灰度" />
-
 
             <View
                 android:layout_width="0dp"

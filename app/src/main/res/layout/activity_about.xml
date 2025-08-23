@@ -45,20 +45,15 @@
             android:orientation="vertical"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <com.google.android.material.card.MaterialCardView
+            <ImageView
                 android:id="@+id/cd_about"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_width="160dp"
+                android:layout_height="120dp"
+                android:scaleType="centerCrop"
                 app:layout_constraintStart_toStartOf="parent"
+                android:src="@drawable/ic_launcher_foreground"
                 app:layout_constraintTop_toTopOf="parent"
-                app:strokeWidth="0dp">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@mipmap/ic_launcher" />
-            </com.google.android.material.card.MaterialCardView>
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <TextView
                 android:id="@+id/tv_name"
@@ -69,18 +64,19 @@
                 android:layout_marginEnd="16dp"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                app:layout_constraintStart_toEndOf="@id/cd_about"
-                app:layout_constraintTop_toTopOf="@id/cd_about" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cd_about" />
 
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cd_ver"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="8dp"
                 app:cardBackgroundColor="?attr/colorTertiaryContainer"
-                app:layout_constraintBottom_toBottomOf="@id/tv_name"
-                app:layout_constraintStart_toEndOf="@id/tv_name"
-                app:layout_constraintTop_toTopOf="@id/tv_name"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_name"
                 app:strokeWidth="0dp">
 
                 <TextView
@@ -92,29 +88,31 @@
                     android:text="@string/text"
                     android:textColor="?attr/colorTertiary"
                     android:textSize="10sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:ignore="SmallSp" />
             </com.google.android.material.card.MaterialCardView>
 
             <TextView
-                android:layout_width="0dp"
+                android:id="@+id/tv_detail"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginTop="8dp"
                 android:text="@string/about_description"
                 android:textSize="14sp"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/cd_about"
-                app:layout_constraintTop_toBottomOf="@id/tv_name" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cd_ver" />
 
             <LinearLayout
                 android:id="@+id/ll_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginVertical="8dp"
+                android:layout_marginTop="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/cd_about">
+                app:layout_constraintTop_toBottomOf="@id/tv_detail">
 
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="8dp"
@@ -157,6 +155,7 @@
                 android:id="@+id/ll_contributors"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"

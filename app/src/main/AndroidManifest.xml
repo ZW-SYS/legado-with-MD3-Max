@@ -32,6 +32,18 @@
         android:supportsRtl="true"
         android:theme="@style/Base.AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning,UnusedAttribute">
+        <!-- 图标0 -->
+        <activity-alias
+            android:name=".Launcher0"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/launcher0"
+            android:targetActivity=".ui.main.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
         <!-- 图标1 -->
         <activity-alias
             android:name=".Launcher1"

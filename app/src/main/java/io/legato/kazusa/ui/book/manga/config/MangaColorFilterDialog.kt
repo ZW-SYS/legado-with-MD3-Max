@@ -28,7 +28,6 @@ class MangaColorFilterDialog : BaseBottomSheetDialogFragment(R.layout.dialog_man
     override fun onStart() {
         super.onStart()
         dialog?.window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
-//        setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
     }
 
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {

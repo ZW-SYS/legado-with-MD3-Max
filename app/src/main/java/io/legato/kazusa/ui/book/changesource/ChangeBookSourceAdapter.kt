@@ -18,6 +18,7 @@ import io.legato.kazusa.lib.dialogs.alert
 import io.legato.kazusa.utils.getCompatColor
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.invisible
+import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.visible
 import splitties.init.appCtx
 import splitties.views.onLongClick
@@ -62,8 +63,10 @@ class ChangeBookSourceAdapter(
                 tvRespondTime.text = context.getString(R.string.respondTime, item.respondTime)
                 if (callBack.oldBookUrl == item.bookUrl) {
                     ivChecked.visible()
+                    root.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSurfaceContainerHighest))
                 } else {
                     ivChecked.invisible()
+                    root.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSurfaceContainerLow))
                 }
             } else {
                 for (i in payloads.indices) {
@@ -74,8 +77,10 @@ class ChangeBookSourceAdapter(
                             "latest" -> tvLast.text = item.getDisplayLastChapterTitle()
                             "upCurSource" -> if (callBack.oldBookUrl == item.bookUrl) {
                                 ivChecked.visible()
+                                root.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSurfaceContainer))
                             } else {
                                 ivChecked.invisible()
+                                root.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSurfaceContainerLow))
                             }
                         }
                     }

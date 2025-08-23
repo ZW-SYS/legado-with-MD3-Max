@@ -549,6 +549,8 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
 
     override fun showFooterConfig() {
         showDialogFragment(MangaFooterSettingDialog().apply {
+            initialScrollMode = viewModel.getEffectiveScrollMode()
+            initialWebtoonSidePadding = viewModel.getEffectiveWebtoonSidePadding()
             callback = this@ReadMangaActivity
         })
     }
@@ -565,8 +567,6 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
 
     override fun showScrollModeDialog() {
         showDialogFragment(MangaScrollModeDialog().apply {
-            initialScrollMode = viewModel.getEffectiveScrollMode()
-            initialWebtoonSidePadding = viewModel.getEffectiveWebtoonSidePadding()
             initialAutoPageEnabled = enableScroll
             callback = this@ReadMangaActivity
         })
@@ -574,7 +574,7 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
 
     //漫画模式
     override fun onScrollModeChanged(mode: Int) {
-        //AppConfig.mangaScrollMode = mode
+        onAutoPageToggle(false)
         viewModel.updateReadConfig {
             mangaScrollMode = mode
         }

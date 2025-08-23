@@ -3,8 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:paddingHorizontal="16dp"
-    android:paddingVertical="8dp">
+    android:paddingBottom="8dp">
 
     <LinearLayout
         android:id="@+id/root_view"
@@ -18,14 +17,12 @@
             android:gravity="center"
             android:orientation="vertical"
             android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp">
+            android:paddingBottom="8dp">
 
-            <View
-                android:layout_width="36dp"
-                android:layout_height="4dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/bg_bottom_sheet_handle" />
+            <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal" />
 
             <TextView
                 android:id="@+id/bottom_sheet_title"
@@ -37,9 +34,52 @@
 
         </LinearLayout>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:text="阅读模式"
+            android:textStyle="bold" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupScrollMode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:singleLine="false"
+            app:chipSpacingVertical="0dp"
+            app:selectionRequired="true"
+            app:singleSelection="true" />
+
+        <LinearLayout
+            android:id="@+id/ll_webtoon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="8dp"
+                android:text="条漫"
+                android:textStyle="bold" />
+
+            <io.legato.kazusa.ui.widget.DetailSeekBar
+                android:id="@+id/scv_Padding"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:max="30"
+                app:title="侧边留白" />
+
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -95,6 +135,7 @@
             android:layout_height="wrap_content"
             android:layout_marginVertical="8dp"
             app:cardBackgroundColor="?attr/colorSurfaceVariant"
+            android:layout_marginHorizontal="16dp"
             app:cardCornerRadius="8dp"
             app:strokeWidth="0dp">
 
@@ -107,7 +148,8 @@
 
         <com.google.android.material.chip.ChipGroup
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/cb_chapter_name"
@@ -134,7 +176,8 @@
 
         <com.google.android.material.chip.ChipGroup
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/cb_chapter_label"
@@ -165,7 +208,43 @@
                 android:text="2.1%" />
         </com.google.android.material.chip.ChipGroup>
 
-        <com.google.android.material.button.MaterialButton
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="12dp">
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/checkboxDisableClickScroll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/disable_manga_click_scroll" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/checkboxDisableMangaScale"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/disable_manga_scale" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/checkboxHideMangaTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/hide_manga_title" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/checkboxVolumeKeyPage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/volume_key_page" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButtonGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp">
+
+            <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_color_filter"
             style="@style/Widget.Material3Expressive.Button.TonalButton"
             app:icon="@drawable/ic_filter"
@@ -173,14 +252,15 @@
             android:layout_height="wrap_content"
             android:text="@string/manga_color_filter" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_click_set"
-            style="@style/Widget.Material3Expressive.Button.TonalButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/click_regional_config"
-            app:icon="@drawable/ic_filter" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_click_set"
+                style="@style/Widget.Material3Expressive.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/click_regional_config"
+                app:icon="@drawable/ic_filter" />
 
+        </com.google.android.material.button.MaterialButtonGroup>
 
     </LinearLayout>
 

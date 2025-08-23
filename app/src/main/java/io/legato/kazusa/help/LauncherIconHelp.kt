@@ -2,9 +2,7 @@ package io.legato.kazusa.help
 
 import android.content.ComponentName
 import android.content.pm.PackageManager
-import android.os.Build
 import io.legato.kazusa.R
-import io.legato.kazusa.ui.welcome.*
 import io.legato.kazusa.utils.toastOnUi
 import splitties.init.appCtx
 
@@ -15,6 +13,7 @@ import splitties.init.appCtx
 object LauncherIconHelp {
     private val packageManager: PackageManager = appCtx.packageManager
     private val componentNames = arrayListOf(
+        ComponentName(appCtx.packageName, "${appCtx.packageName}.Launcher0"),
         ComponentName(appCtx.packageName, "${appCtx.packageName}.Launcher1"),
         ComponentName(appCtx.packageName, "${appCtx.packageName}.Launcher2"),
         ComponentName(appCtx.packageName, "${appCtx.packageName}.Launcher3"),
@@ -31,10 +30,6 @@ object LauncherIconHelp {
 
     fun changeIcon(icon: String?) {
         if (icon.isNullOrEmpty()) return
-        if (Build.VERSION.SDK_INT < 26) {
-            appCtx.toastOnUi(R.string.change_icon_error)
-            return
-        }
 
         try {
             // 首先禁用主Activity的启动器intent
