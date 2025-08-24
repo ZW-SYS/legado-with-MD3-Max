@@ -1,21 +1,19 @@
 package io.legato.kazusa.ui.book.changecover
 
+//import io.legado.app.lib.theme.primaryColor
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle.State.STARTED
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import io.legato.kazusa.R
-import io.legato.kazusa.base.BaseDialogFragment
+import io.legato.kazusa.base.BaseBottomSheetDialogFragment
 import io.legato.kazusa.databinding.DialogChangeCoverBinding
-//import io.legado.app.lib.theme.primaryColor
-import io.legato.kazusa.utils.applyTint
-import io.legato.kazusa.utils.setLayout
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.conflate
@@ -24,7 +22,7 @@ import kotlinx.coroutines.launch
 /**
  * 换封面
  */
-class ChangeCoverDialog() : BaseDialogFragment(R.layout.dialog_change_cover),
+class ChangeCoverDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_change_cover),
     Toolbar.OnMenuItemClickListener,
     CoverAdapter.CallBack {
 
@@ -42,11 +40,6 @@ class ChangeCoverDialog() : BaseDialogFragment(R.layout.dialog_change_cover),
 
     private val startStopMenuItem: MenuItem?
         get() = binding.toolBar.menu.findItem(R.id.menu_start_stop)
-
-    override fun onStart() {
-        super.onStart()
-        setLayout(1f, ViewGroup.LayoutParams.MATCH_PARENT)
-    }
 
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
         //binding.toolBar.setBackgroundColor(primaryColor)
@@ -82,7 +75,7 @@ class ChangeCoverDialog() : BaseDialogFragment(R.layout.dialog_change_cover),
     override fun observeLiveBus() {
         super.observeLiveBus()
         viewModel.searchStateData.observe(viewLifecycleOwner) {
-            binding.refreshProgressBar.isAutoLoading = it
+            binding.refreshProgressBar.isVisible = it
             if (it) {
                 startStopMenuItem?.let { item ->
                     item.setIcon(R.drawable.ic_stop_black_24dp)

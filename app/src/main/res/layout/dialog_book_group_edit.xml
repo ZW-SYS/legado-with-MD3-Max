@@ -31,7 +31,7 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -46,61 +46,61 @@
             android:layout_marginTop="4dp"
             android:contentDescription="@string/img_cover"
             android:scaleType="centerCrop"
-            android:src="?attr/colorSurfaceVariant"
+            android:src="@drawable/image_cover_default"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:ignore="ImageContrastCheck" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_group_name"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:hint="@string/group_name">
+                android:layout_marginStart="8dp"
+                android:hint="@string/group_name"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/iv_cover"
+                app:layout_constraintTop_toTopOf="@id/iv_cover">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tie_group_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:maxLines="2"
-                    tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
+                    android:ellipsize="end"
+                    android:maxLines="1" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <LinearLayout
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_sort_menu"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:hint="@string/sort"
+            app:layout_constraintBottom_toBottomOf="@id/iv_cover"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_cover">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/actv_sort_menu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/sort" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_sort_menu"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:text="@string/sort_default"
-                    app:chipIcon="@drawable/ic_arrow_drop_down"
-                    app:chipIconVisible="true" />
-
-            </LinearLayout>
+                android:cursorVisible="false"
+                android:ellipsize="end"
+                android:focusable="false"
+                android:inputType="none"
+                android:singleLine="true" />
+        </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/cb_enable_refresh"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/allow_drop_down_refresh"
-                android:checked="true" />
+                android:checked="true"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/iv_cover" />
 
-        </LinearLayout>
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
     <LinearLayout
@@ -109,42 +109,48 @@
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_delete"
+        <com.google.android.material.button.MaterialButtonGroup
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/Widget.Material3Expressive.Button.IconButton.Outlined"
-            android:layout_marginEnd="4dp"
-            app:icon="@drawable/ic_clear_all"
-            tools:ignore="RtlHardcoded" />
+            android:layout_height="wrap_content">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_reset"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:icon="@drawable/ic_restore"
-            style="@style/Widget.Material3Expressive.Button.IconButton.Outlined" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_delete"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Outlined"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_clear_all" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_reset"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Outlined"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_restore" />
+        </com.google.android.material.button.MaterialButtonGroup>
 
         <Space
             android:layout_width="0dp"
             android:layout_height="1dp"
             android:layout_weight="1" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_cancel"
+        <com.google.android.material.button.MaterialButtonGroup
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/Widget.Material3Expressive.Button.TonalButton"
-            android:layout_marginEnd="8dp"
-            android:text="@string/cancel" />
+            android:layout_height="wrap_content">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_ok"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/Widget.Material3Expressive.Button"
-            android:text="@string/ok"
-            tools:ignore="RtlHardcoded" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_cancel"
+                style="@style/Widget.Material3Expressive.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/cancel" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_ok"
+                style="@style/Widget.Material3Expressive.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ok" />
+        </com.google.android.material.button.MaterialButtonGroup>
 
     </LinearLayout>
 </LinearLayout>

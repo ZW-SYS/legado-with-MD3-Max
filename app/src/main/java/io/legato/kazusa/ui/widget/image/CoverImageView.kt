@@ -24,7 +24,9 @@ import io.legato.kazusa.help.glide.ImageLoader
 import io.legato.kazusa.help.glide.OkHttpModelLoader
 //import io.legado.app.lib.theme.accentColor
 import io.legato.kazusa.model.BookCover
+import io.legato.kazusa.utils.spToPx
 import io.legato.kazusa.utils.textHeight
+import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.toStringArray
 
 /**
@@ -117,48 +119,62 @@ class CoverImageView @JvmOverloads constructor(
     }
 
     private fun drawNameAuthor(canvas: Canvas) {
-        if (!BookCover.drawBookName) return
-        var startX = width * 0.2f
-        var startY = viewHeight * 0.2f
-        name?.toStringArray()?.let { name ->
-            namePaint.textSize = viewWidth / 6
-            namePaint.strokeWidth = namePaint.textSize / 5
-            name.forEachIndexed { index, char ->
-                namePaint.color = Color.WHITE
-                namePaint.style = Paint.Style.STROKE
-                canvas.drawText(char, startX, startY, namePaint)
-                //namePaint.color = context.accentColor
-                namePaint.style = Paint.Style.FILL
-                canvas.drawText(char, startX, startY, namePaint)
-                startY += namePaint.textHeight
-                if (startY > viewHeight * 0.8) {
-                    startX += namePaint.textSize
-                    namePaint.textSize = viewWidth / 10
-                    startY = (viewHeight - (name.size - index - 1) * namePaint.textHeight) / 2
+        if (BookCover.drawBookName) {
+            var startX = width * 0.2f
+            var startY = viewHeight * 0.2f
+
+            name?.toStringArray()?.let { nameChars ->
+                val textSize = viewWidth / 8
+                namePaint.textSize = textSize
+                namePaint.strokeWidth = textSize / 8
+
+                nameChars.forEach { char ->
+                    namePaint.color = Color.WHITE
+                    namePaint.style = Paint.Style.STROKE
+                    canvas.drawText(char, startX, startY, namePaint)
+
+                    namePaint.color = context.themeColor(androidx.appcompat.R.attr.colorPrimary)
+                    namePaint.style = Paint.Style.FILL
+                    canvas.drawText(char, startX, startY, namePaint)
+
+                    startY += namePaint.textHeight
+
+                    if (startY > viewHeight * 0.8f) {
+                        startX += textSize + 4.spToPx()
+                        startY = viewHeight * 0.2f
+                    }
                 }
             }
         }
-        if (!BookCover.drawBookAuthor) return
-        author?.toStringArray()?.let { author ->
-            authorPaint.textSize = viewWidth / 10
-            authorPaint.strokeWidth = authorPaint.textSize / 5
-            startX = width * 0.8f
-            startY = viewHeight * 0.95f - author.size * authorPaint.textHeight
-            startY = maxOf(startY, viewHeight * 0.3f)
-            author.forEach {
-                authorPaint.color = Color.WHITE
-                authorPaint.style = Paint.Style.STROKE
-                canvas.drawText(it, startX, startY, authorPaint)
-                //authorPaint.color = context.accentColor
-                authorPaint.style = Paint.Style.FILL
-                canvas.drawText(it, startX, startY, authorPaint)
-                startY += authorPaint.textHeight
-                if (startY > viewHeight * 0.95) {
-                    return@let
+
+        if (BookCover.drawBookAuthor) {
+            author?.toStringArray()?.let { authorChars ->
+                val textSize = viewWidth / 10
+                authorPaint.textSize = textSize
+                authorPaint.strokeWidth = textSize / 5
+
+                var startX = width * 0.8f
+                var startY = viewHeight * 0.8f
+
+                authorChars.forEach { char ->
+
+                    authorPaint.color = Color.WHITE
+                    authorPaint.style = Paint.Style.STROKE
+                    canvas.drawText(char, startX, startY, authorPaint)
+
+                    authorPaint.color =
+                        context.themeColor(com.google.android.material.R.attr.colorSecondary)
+                    authorPaint.style = Paint.Style.FILL
+                    canvas.drawText(char, startX, startY, authorPaint)
+
+                    startY += authorPaint.textHeight
+
+                    if (startY > viewHeight * 0.95f) return@let
                 }
             }
         }
     }
+
 
     fun setHeight(height: Int) {
         val width = height * 5 / 7

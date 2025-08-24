@@ -15,10 +15,12 @@
         app:displayHomeAsUp="false"
         app:fitStatusBar="false" />
 
-    <io.legato.kazusa.ui.widget.anima.RefreshProgressBar
+    <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/refresh_progress_bar"
         android:layout_width="match_parent"
-        android:layout_height="2dp" />
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"

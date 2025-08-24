@@ -103,6 +103,12 @@
             android:text="还没有源！" />
     </LinearLayout>
 
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </androidx.core.widget.NestedScrollView>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
@@ -112,11 +118,11 @@
     <LinearLayout
         android:id="@+id/ll_bottom_bar"
         android:layout_width="match_parent"
-        android:layout_height="36dp"
+        android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp">
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp">
 
         <TextView
             android:id="@+id/tv_dur"
@@ -125,32 +131,39 @@
             android:layout_weight="1"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:text="@string/text"
+            android:textStyle="bold"
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:singleLine="true"
             android:textSize="12sp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/iv_top"
-            android:layout_width="36dp"
-            android:layout_height="match_parent"
-            style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
-            android:contentDescription="@string/go_to_top"
-            app:icon="@drawable/ic_arrow_drop_up"
-            app:iconGravity="textStart"
-            android:tooltipText="@string/go_to_top"
-            tools:ignore="UnusedAttribute" />
+        <com.google.android.material.button.MaterialButtonGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/iv_bottom"
-            android:layout_width="36dp"
-            android:layout_height="match_parent"
-            style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
-            android:contentDescription="@string/go_to_bottom"
-            app:icon="@drawable/ic_arrow_drop_down"
-            app:iconGravity="textStart"
-            android:tooltipText="@string/go_to_bottom"
-            tools:ignore="UnusedAttribute" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iv_top"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@string/go_to_top"
+                android:tooltipText="@string/go_to_top"
+                app:icon="@drawable/ic_arrow_drop_up"
+                app:iconGravity="textStart"
+                tools:ignore="UnusedAttribute" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iv_bottom"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@string/go_to_bottom"
+                android:tooltipText="@string/go_to_bottom"
+                app:icon="@drawable/ic_arrow_drop_down"
+                app:iconGravity="textStart"
+                tools:ignore="UnusedAttribute" />
+        </com.google.android.material.button.MaterialButtonGroup>
+
     </LinearLayout>
 
 </LinearLayout>

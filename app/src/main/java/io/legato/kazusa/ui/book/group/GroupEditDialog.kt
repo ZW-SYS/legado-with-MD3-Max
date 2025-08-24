@@ -1,9 +1,8 @@
 package io.legato.kazusa.ui.book.group
 
-//import io.legado.app.lib.theme.primaryColor
 import android.os.Bundle
 import android.view.View
-import androidx.appcompat.widget.PopupMenu
+import android.widget.ArrayAdapter
 import androidx.fragment.app.viewModels
 import io.legato.kazusa.R
 import io.legato.kazusa.base.BaseBottomSheetDialogFragment
@@ -69,6 +68,13 @@ class GroupEditDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_book_gro
         @Suppress("DEPRECATION")
         bookGroup = arguments?.getParcelable("group")
 
+        val sortAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_list_item_1,
+            sortOptions
+        )
+        binding.actvSortMenu.setAdapter(sortAdapter)
+
         bookGroup?.let { group ->
             binding.btnDelete.isEnabled = (group.groupId > 0 || group.groupId == Long.MIN_VALUE)
             binding.tieGroupName.setText(group.groupName)
@@ -82,30 +88,20 @@ class GroupEditDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_book_gro
             } else {
                 0
             }
-            binding.chipSortMenu.text = sortOptions[selectedSortIndex]
+            binding.actvSortMenu.setText(sortOptions[selectedSortIndex], false)
+
         } ?: run {
             binding.btnDelete.gone()
             binding.ivCover.load()
             selectedSortIndex = 0
-            binding.chipSortMenu.text = sortOptions[selectedSortIndex]
+            binding.actvSortMenu.setText(sortOptions[selectedSortIndex], false)
         }
 
+        binding.actvSortMenu.setOnItemClickListener { _, _, position, _ ->
+            selectedSortIndex = position
+        }
 
         binding.run {
-            chipSortMenu.setOnClickListener { chip ->
-                PopupMenu(requireContext(), chip).apply {
-                    sortOptions.forEachIndexed { index, title ->
-                        menu.add(0, index, index, title)
-                    }
-                    setOnMenuItemClickListener { item ->
-                        selectedSortIndex = item.itemId
-                        chipSortMenu.text = sortOptions[selectedSortIndex]
-                        true
-                    }
-                    show()
-                }
-            }
-
             ivCover.onClick {
                 selectImage.launch()
             }
@@ -149,8 +145,8 @@ class GroupEditDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_book_gro
                         }
                     }
                 }
-
             }
+
             btnDelete.onClick {
                 deleteGroup {
                     bookGroup?.let {
@@ -162,6 +158,7 @@ class GroupEditDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_book_gro
             }
         }
     }
+
 
     private fun deleteGroup(ok: () -> Unit) {
         alert(R.string.delete, R.string.sure_del) {

@@ -584,23 +584,23 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
     }
 
     //点击滑动
-    override fun onClickScrollDisabledChanged(enabled: Boolean) {
-        AppConfig.disableClickScroll = enabled
-        setDisableClickScroll(enabled)
+    override fun onClickScrollDisabledChanged(disabled: Boolean) {
+        AppConfig.disableClickScroll = disabled
+        setDisableClickScroll(disabled)
     }
 
     //双击缩放
-    override fun onMangaScaleDisabledChanged(enabled: Boolean) {
-        AppConfig.disableMangaScale = enabled
-        setDisableMangaScale(enabled)
+    override fun onMangaScaleDisabledChanged(disabled: Boolean) {
+        AppConfig.disableMangaScale = disabled
+        setDisableMangaScale(disabled)
     }
 
     //侧边留白
-    override fun upSidePadding(paddingDp: Int) {
+    override fun upSidePadding(padding: Int) {
         viewModel.updateReadConfig {
-            webtoonSidePaddingDp = paddingDp
+            webtoonSidePaddingDp = padding
         }
-        updateWebtoonSidePadding(paddingDp)
+        updateWebtoonSidePadding(padding)
     }
 
     //墨水屏

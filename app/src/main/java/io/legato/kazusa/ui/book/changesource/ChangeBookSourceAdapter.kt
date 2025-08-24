@@ -5,8 +5,6 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.graphics.drawable.DrawableCompat
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import io.legato.kazusa.R
 import io.legato.kazusa.base.adapter.DiffRecyclerAdapter
@@ -15,12 +13,10 @@ import io.legato.kazusa.data.entities.SearchBook
 import io.legato.kazusa.databinding.ItemChangeSourceBinding
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.lib.dialogs.alert
-import io.legato.kazusa.utils.getCompatColor
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.invisible
 import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.visible
-import splitties.init.appCtx
 import splitties.views.onLongClick
 
 
@@ -88,38 +84,11 @@ class ChangeBookSourceAdapter(
             }
             val score = callBack.getBookScore(item)
             if (score > 0) {
-                binding.ivBad.gone()
-                binding.ivGood.visible()
-                DrawableCompat.setTint(
-                    binding.ivGood.drawable,
-                    appCtx.getCompatColor(R.color.md_red_A200)
-                )
-                DrawableCompat.setTint(
-                    binding.ivBad.drawable,
-                    appCtx.getCompatColor(R.color.md_blue_100)
-                )
-            } else if (score < 0) {
-                binding.ivGood.gone()
-                binding.ivBad.visible()
-                DrawableCompat.setTint(
-                    binding.ivGood.drawable,
-                    appCtx.getCompatColor(R.color.md_red_100)
-                )
-                DrawableCompat.setTint(
-                    binding.ivBad.drawable,
-                    appCtx.getCompatColor(R.color.md_blue_A200)
-                )
+                // 已置顶
+                binding.ivGood.setImageResource(R.drawable.ic_praise_filled)
             } else {
-                binding.ivGood.visible()
-                binding.ivBad.visible()
-                DrawableCompat.setTint(
-                    binding.ivGood.drawable,
-                    appCtx.getCompatColor(R.color.md_red_100)
-                )
-                DrawableCompat.setTint(
-                    binding.ivBad.drawable,
-                    appCtx.getCompatColor(R.color.md_blue_100)
-                )
+                // 未置顶
+                binding.ivGood.setImageResource(R.drawable.ic_praise)
             }
 
             if (AppConfig.changeSourceLoadWordCount && !item.chapterWordCountText.isNullOrBlank()) {
@@ -138,45 +107,16 @@ class ChangeBookSourceAdapter(
 
     override fun registerListener(holder: ItemViewHolder, binding: ItemChangeSourceBinding) {
         binding.ivGood.setOnClickListener {
-            if (binding.ivBad.isVisible) {
-                DrawableCompat.setTint(
-                    binding.ivGood.drawable,
-                    appCtx.getCompatColor(R.color.md_red_A200)
-                )
-                binding.ivBad.gone()
-                getItem(holder.layoutPosition)?.let {
-                    callBack.setBookScore(it, 1)
-                }
+            val item = getItem(holder.layoutPosition) ?: return@setOnClickListener
+            val score = callBack.getBookScore(item)
+            if (score > 0) {
+                // 已置顶 -> 取消置顶
+                binding.ivGood.setImageResource(R.drawable.ic_praise)
+                callBack.setBookScore(item, 0)
             } else {
-                DrawableCompat.setTint(
-                    binding.ivGood.drawable,
-                    appCtx.getCompatColor(R.color.md_red_100)
-                )
-                binding.ivBad.visible()
-                getItem(holder.layoutPosition)?.let {
-                    callBack.setBookScore(it, 0)
-                }
-            }
-        }
-        binding.ivBad.setOnClickListener {
-            if (binding.ivGood.isVisible) {
-                DrawableCompat.setTint(
-                    binding.ivBad.drawable,
-                    appCtx.getCompatColor(R.color.md_blue_A200)
-                )
-                binding.ivGood.gone()
-                getItem(holder.layoutPosition)?.let {
-                    callBack.setBookScore(it, -1)
-                }
-            } else {
-                DrawableCompat.setTint(
-                    binding.ivBad.drawable,
-                    appCtx.getCompatColor(R.color.md_blue_100)
-                )
-                binding.ivGood.visible()
-                getItem(holder.layoutPosition)?.let {
-                    callBack.setBookScore(it, 0)
-                }
+                // 未置顶 -> 设置置顶
+                binding.ivGood.setImageResource(R.drawable.ic_praise_filled)
+                callBack.setBookScore(item, 1)
             }
         }
         holder.itemView.setOnClickListener {
