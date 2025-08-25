@@ -2,6 +2,7 @@ package io.legato.kazusa.ui.book.read.config
 
 import android.os.Bundle
 import android.view.View
+import com.google.android.material.chip.Chip
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import io.legato.kazusa.R
 import io.legato.kazusa.base.BaseBottomSheetDialogFragment
@@ -51,10 +52,43 @@ class TipConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_tip_config
         binding.dsbTitleTop.progress = ReadBookConfig.titleTopSpacing
         binding.dsbTitleBottom.progress = ReadBookConfig.titleBottomSpacing
 
-        binding.tvHeaderShow.text =
-            ReadTipConfig.getHeaderModes(requireContext())[ReadTipConfig.headerMode]
-        binding.tvFooterShow.text =
-            ReadTipConfig.getFooterModes(requireContext())[ReadTipConfig.footerMode]
+        val headerModes = ReadTipConfig.getHeaderModes(requireContext())
+        binding.chipHeaderMode.removeAllViews()
+
+        headerModes.forEach { (key, value) ->
+            val chip = Chip(requireContext()).apply {
+                id = View.generateViewId()
+                text = value
+                isCheckable = true
+                isClickable = true
+                tag = key
+            }
+
+            binding.chipHeaderMode.addView(chip)
+
+            if (key == ReadTipConfig.headerMode) {
+                chip.isChecked = true
+            }
+        }
+
+        val footerModes = ReadTipConfig.getFooterModes(requireContext())
+        binding.chipFooterMode.removeAllViews()
+
+        footerModes.forEach { (key, value) ->
+            val chip = Chip(requireContext()).apply {
+                id = View.generateViewId()
+                text = value
+                isCheckable = true
+                isClickable = true
+                tag = key
+            }
+
+            binding.chipFooterMode.addView(chip)
+
+            if (key == ReadTipConfig.footerMode) {
+                chip.isChecked = true
+            }
+        }
 
         ReadTipConfig.run {
             tipNames.let { tipNames ->
@@ -114,19 +148,19 @@ class TipConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_tip_config
             ReadBookConfig.titleBottomSpacing = it
             postEvent(EventBus.UP_CONFIG, arrayListOf(8, 5))
         }
-        llHeaderShow.setOnClickListener {
-            val headerModes = ReadTipConfig.getHeaderModes(requireContext())
-            context?.selector(items = headerModes.values.toList()) { _, i ->
-                ReadTipConfig.headerMode = headerModes.keys.toList()[i]
-                tvHeaderShow.text = headerModes[ReadTipConfig.headerMode]
+        chipHeaderMode.setOnCheckedStateChangeListener { group, checkedIds ->
+            if (checkedIds.isNotEmpty()) {
+                val selectedChip = group.findViewById<Chip>(checkedIds[0])
+                val mode = selectedChip.tag as Int
+                ReadTipConfig.headerMode = mode
                 postEvent(EventBus.UP_CONFIG, arrayListOf(2))
             }
         }
-        llFooterShow.setOnClickListener {
-            val footerModes = ReadTipConfig.getFooterModes(requireContext())
-            context?.selector(items = footerModes.values.toList()) { _, i ->
-                ReadTipConfig.footerMode = footerModes.keys.toList()[i]
-                tvFooterShow.text = footerModes[ReadTipConfig.footerMode]
+        chipFooterMode.setOnCheckedStateChangeListener { group, checkedIds ->
+            if (checkedIds.isNotEmpty()) {
+                val selectedChip = group.findViewById<Chip>(checkedIds[0])
+                val mode = selectedChip.tag as Int
+                ReadTipConfig.footerMode = mode
                 postEvent(EventBus.UP_CONFIG, arrayListOf(2))
             }
         }

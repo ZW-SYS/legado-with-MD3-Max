@@ -65,6 +65,10 @@ class ReadStyleDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_book_
         rvStyle.adapter = styleAdapter
         styleAdapter.addFooterView {
             ItemReadStyleBinding.inflate(layoutInflater, it, false).apply {
+                tvStyle.text = ""
+                cdStyle.cardElevation = 2f.dpToPx()
+                cdStyle.radius = 32f.dpToPx()
+                cdStyle.strokeWidth = 0
                 ivStyle.setImageResource(R.drawable.ic_add)
                 root.setOnClickListener {
                     ReadBookConfig.configList.add(ReadBookConfig.Config())

@@ -53,26 +53,29 @@
                 android:id="@+id/rb_title_mode1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:checkable="true"
                 android:text="@string/title_left" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/rb_title_mode2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:checkable="true"
                 android:text="@string/title_center" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/rb_title_mode3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:checkable="true"
                 android:text="@string/title_hide" />
 
 
         </com.google.android.material.chip.ChipGroup>
 
-        <io.legato.kazusa.ui.widget.SimpleCounterView
+        <io.legato.kazusa.ui.widget.DetailSeekBar
             android:id="@+id/dsb_title_size"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:max="10"
             app:title="@string/title_font_size" />
@@ -81,6 +84,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
+
             <io.legato.kazusa.ui.widget.SimpleCounterView
                 android:id="@+id/dsb_title_top"
                 android:layout_width="wrap_content"
@@ -118,20 +122,16 @@
             android:layout_height="wrap_content"
             android:paddingVertical="4dp"
             android:gravity="center_vertical"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             tools:ignore="RtlHardcoded,RtlSymmetry">
 
-            <TextView
-                android:layout_width="0dp"
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_header_mode"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/show_hide" />
-
-            <TextView
-                android:id="@+id/tv_header_show"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="@string/show_hide" />
+                android:gravity="center_vertical"
+                app:selectionRequired="true"
+                app:singleSelection="true" />
 
         </LinearLayout>
 
@@ -218,20 +218,15 @@
             android:layout_height="wrap_content"
             android:paddingVertical="4dp"
             android:gravity="center_vertical"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             tools:ignore="RtlHardcoded,RtlSymmetry">
 
-            <TextView
-                android:layout_width="0dp"
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_footer_mode"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/show_hide" />
-
-            <TextView
-                android:id="@+id/tv_footer_show"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="@string/show_hide" />
+                app:selectionRequired="true"
+                app:singleSelection="true" />
 
         </LinearLayout>
 
