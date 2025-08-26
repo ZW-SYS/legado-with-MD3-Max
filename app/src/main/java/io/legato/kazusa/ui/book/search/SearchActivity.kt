@@ -1,5 +1,6 @@
 package io.legato.kazusa.ui.book.search
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -198,7 +199,6 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
                 }
             )
         }
-
 
         searchBar.setOnMenuItemClickListener { item ->
             onCompatOptionsItemSelected(item)
@@ -429,6 +429,7 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
      */
     private fun startSearch() {
         binding.refreshProgressBar.visible()
+        binding.cdProgress.gone()
         //binding.refreshProgressBar.isAutoLoading = true
         binding.fbStartStop.setImageResource(R.drawable.ic_stop_black_24dp)
         binding.fbStartStop.visible()
@@ -438,7 +439,8 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
      * 搜索结束
      */
     private fun searchFinally() {
-        binding.refreshProgressBar.gone()
+        binding.refreshProgressBar.invisible()
+        binding.cdProgress.gone()
         if (!isManualStopSearch && viewModel.hasMore) {
             binding.fbStartStop.setImageResource(R.drawable.ic_play_24dp)
         } else {
@@ -446,9 +448,15 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
         }
     }
 
+    @SuppressLint("SetTextI18n")
     override fun observeLiveBus() {
         viewModel.upAdapterLiveData.observe(this) {
             adapter.notifyItemRangeChanged(0, adapter.itemCount, bundleOf(it to null))
+        }
+        viewModel.searchProgressLiveData.observe(this) { (processed, total) ->
+            val progress = (processed * 100 / total).coerceAtMost(100)
+            binding.refreshProgressBar.setProgress(progress, true)
+            binding.tvProgress.text = "$processed / $total"
         }
         viewModel.searchFinishLiveData.observe(this) { isEmpty ->
             if (!isEmpty || viewModel.searchScope.isAll()) return@observe

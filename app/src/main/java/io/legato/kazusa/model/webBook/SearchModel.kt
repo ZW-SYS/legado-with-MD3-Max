@@ -74,6 +74,8 @@ class SearchModel(private val scope: CoroutineScope, private val callBack: CallB
     private fun startSearch() {
         val precision = appCtx.getPrefBoolean(PreferKey.precisionSearch)
         var hasMore = false
+        val totalParts = bookSourceParts.size
+        var processedParts = 0
         searchJob = scope.launch(searchPool!!) {
             flow {
                 for (bs in bookSourceParts) {
@@ -100,7 +102,8 @@ class SearchModel(private val scope: CoroutineScope, private val callBack: CallB
                 appDb.searchBookDao.insert(*items.toTypedArray())
                 mergeItems(items, precision)
                 currentCoroutineContext().ensureActive()
-                callBack.onSearchSuccess(searchBooks)
+                processedParts++
+                callBack.onSearchSuccess(searchBooks, processedParts, totalParts)
             }.onCompletion {
                 if (it == null) callBack.onSearchFinish(searchBooks.isEmpty(), hasMore)
             }.catch {
@@ -191,7 +194,7 @@ class SearchModel(private val scope: CoroutineScope, private val callBack: CallB
     interface CallBack {
         fun getSearchScope(): SearchScope
         fun onSearchStart()
-        fun onSearchSuccess(searchBooks: List<SearchBook>)
+        fun onSearchSuccess(searchBooks: List<SearchBook>, processedSources: Int, totalSources: Int)
         fun onSearchFinish(isEmpty: Boolean, hasMore: Boolean)
         fun onSearchCancel(exception: Throwable? = null)
     }
