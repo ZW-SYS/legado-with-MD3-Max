@@ -17,6 +17,8 @@ class WelcomeActivity : BaseActivity<ActivityWelcomeBinding>() {
 
     override val binding by viewBinding(ActivityWelcomeBinding::inflate)
 
+    private val webDavFragment: WebDavFragment
+        get() = pages[1] as WebDavFragment
     private val pages = listOf(
         PrivacyFragment(),
         WebDavFragment(),
@@ -69,6 +71,13 @@ class WelcomeActivity : BaseActivity<ActivityWelcomeBinding>() {
         // 初始化按钮文字
         binding.btnNext.text = "阅读并同意"
 
+        (webDavFragment).listener = object : WebDavFragment.WebDavActions {
+            override fun onSaveWebDavConfig() {
+                webDavFragment.saveWebDavConfig()
+            }
+        }
+
+
         binding.btnNext.setOnClickListener {
             val current = binding.viewPager.currentItem
             when (current) {
@@ -82,7 +91,10 @@ class WelcomeActivity : BaseActivity<ActivityWelcomeBinding>() {
                     finishSetup()
                 }
 
-                else -> binding.viewPager.currentItem = current + 1
+                else -> {
+                    webDavFragment.listener?.onSaveWebDavConfig()
+                    binding.viewPager.currentItem = current + 1
+                }
             }
         }
     }

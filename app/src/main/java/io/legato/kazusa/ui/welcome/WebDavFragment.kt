@@ -43,6 +43,12 @@ class WebDavFragment : BaseFragment(R.layout.fragment_webdav_auth) {
     private var restoreJob: Job? = null
     private val waitDialog by lazy { WaitDialog(requireContext()) }
 
+    interface WebDavActions {
+        fun onSaveWebDavConfig()
+    }
+
+    var listener: WebDavActions? = null
+
     private val restoreDoc = registerForActivityResult(HandleFileContract()) {
         it.uri?.let { uri ->
             waitDialog.setText("恢复中…")
