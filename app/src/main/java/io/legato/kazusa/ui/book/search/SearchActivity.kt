@@ -429,7 +429,7 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
      */
     private fun startSearch() {
         binding.refreshProgressBar.visible()
-        binding.cdProgress.gone()
+        binding.cdProgress.visible()
         //binding.refreshProgressBar.isAutoLoading = true
         binding.fbStartStop.setImageResource(R.drawable.ic_stop_black_24dp)
         binding.fbStartStop.visible()
