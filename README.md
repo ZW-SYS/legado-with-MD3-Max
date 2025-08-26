@@ -1,3 +1,5 @@
+
+
 >注意，此版本为Material Design 3风格重构版本，仍在快速更新。
 >
 >
@@ -20,7 +22,9 @@
 日后会增加基于现在主题系统的自定义功能。
 
 应用截图：
-![retouch_2025070603074170](https://github.com/user-attachments/assets/e1fda51d-f6ca-43fc-ab4a-786816b07acb)
+![retouch_2025082704461389](https://github.com/user-attachments/assets/89e114f7-ecad-4c06-9732-9cdd92bb35d2)
+![retouch_2025082704453202](https://github.com/user-attachments/assets/589cc19a-7c01-4044-8938-048c2a0eff0c)
+
 
 # Function-主要功能
 [English](English.md)
