@@ -104,6 +104,8 @@
         style="@style/Widget.Material3.LinearProgressIndicator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:waveAmplitude="8dp"
+        app:wavelength="80dp"
         android:layout_marginTop="2dp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/iv_download" />

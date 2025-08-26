@@ -2,9 +2,6 @@ package io.legato.kazusa.lib.prefs
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.preference.PreferenceViewHolder
 import com.google.android.material.button.MaterialButtonToggleGroup
 import io.legato.kazusa.R
@@ -13,7 +10,7 @@ import io.legato.kazusa.help.config.ThemeConfig
 
 class ThemeModePreference(context: Context, attrs: AttributeSet) : Preference(context, attrs) {
 
-    private var currentValue: String? = null
+    private var currentValue: String = "0"
 
     init {
         layoutResource = R.layout.view_pref
@@ -23,16 +20,20 @@ class ThemeModePreference(context: Context, attrs: AttributeSet) : Preference(co
     override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)
 
-        val toggleGroup = holder.itemView.findViewById<View>(R.id.theme_toggle_group)
-        if (toggleGroup == null) {
-            val rootView = holder.itemView as ViewGroup
-            val inflater = LayoutInflater.from(context)
-            val themeToggleView = inflater.inflate(R.layout.view_theme_mode, rootView, false)
-            rootView.addView(themeToggleView)
+        val toggleGroup =
+            holder.itemView.findViewById<MaterialButtonToggleGroup>(R.id.theme_toggle_group)
+                ?: return
 
-            setupToggleGroup(themeToggleView.findViewById(R.id.theme_toggle_group))
+        // 根据 currentValue 设置选中
+        when (currentValue) {
+            "0" -> toggleGroup.check(R.id.btn_system)
+            "1" -> toggleGroup.check(R.id.btn_light)
+            "2" -> toggleGroup.check(R.id.btn_dark)
         }
+
+        setupToggleGroup(toggleGroup)
     }
+
 
     private fun setupToggleGroup(toggleGroup: MaterialButtonToggleGroup) {
 
@@ -63,10 +64,6 @@ class ThemeModePreference(context: Context, attrs: AttributeSet) : Preference(co
 
     override fun onSetInitialValue(defaultValue: Any?) {
         currentValue = getPersistedString(defaultValue as? String ?: "0")
-    }
-
-    override fun shouldDisableDependents(): Boolean {
-        return currentValue == null || super.shouldDisableDependents()
     }
 
 }

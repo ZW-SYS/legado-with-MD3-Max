@@ -1,17 +1,17 @@
 [versions]
 
 datastorePreferences = "1.1.7"
-kotlin = "2.1.21"
+kotlin = "2.2.10"
 ksp = "2.1.21-2.0.1"
-agp = "8.12.0"
+agp = "8.12.1"
 appcompat = "1.7.1"
 colorpicker = "1.1.0"
-commonsText = "1.13.1"
+commonsText = "1.14.0"
 constraintlayout = "2.2.1"
-core = "1.16.0"
-firebaseBom = "34.0.0"
+core = "1.17.0"
+firebaseBom = "34.1.0"
 flexbox = "3.0.0"
-fragment = "1.8.8"
+fragment = "1.8.9"
 
 #不要更新版本
 hutool = "5.8.22"
@@ -28,7 +28,7 @@ jsoupxpath = "2.5.3"
 coroutines = "1.10.2"
 liveeventbus = "1.8.14"
 markwon = "4.6.2"
-material = "1.14.0-alpha03"
+material = "1.14.0-alpha04"
 media = "1.7.0"
 media3 = "1.7.1"
 nanoHttpd = "2.3.1"
@@ -52,7 +52,7 @@ viewpager2 = "1.0.0"
 webkit = "1.14.0"
 collection = "1.5.0"
 
-zxingLite = "3.2.0"
+zxingLite = "3.3.0"
 
 
 [libraries]

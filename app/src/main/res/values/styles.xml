@@ -32,6 +32,11 @@
         <item name="android:layout" tools:ignore="PrivateResource">@layout/m3_alert_dialog</item>
     </style>
 
+    <style name="Widget.MyApp.Chip.Assist" parent="Widget.Material3.Chip.Assist">
+        <item name="chipBackgroundColor">@color/chip_background_selector</item>
+        <item name="chipStrokeColor">@color/chip_stroke_selector</item>
+    </style>
+
     <style name="TextActionMenuAnimation">
         <item name="android:windowEnterAnimation">@anim/popup_enter</item>
         <item name="android:windowExitAnimation">@anim/popup_exit</item>

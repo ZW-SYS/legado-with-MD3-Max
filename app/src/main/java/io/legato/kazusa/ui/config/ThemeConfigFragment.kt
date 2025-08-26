@@ -1,14 +1,12 @@
 package io.legato.kazusa.ui.config
 
+//import io.legado.app.lib.theme.primaryColor
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.SeekBar
-import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import io.legato.kazusa.R
@@ -23,10 +21,8 @@ import io.legato.kazusa.help.config.ThemeConfig
 import io.legato.kazusa.lib.dialogs.alert
 import io.legato.kazusa.lib.dialogs.selector
 import io.legato.kazusa.lib.prefs.ColorPreference
-import io.legato.kazusa.lib.prefs.NameListPreference
 import io.legato.kazusa.lib.prefs.ThemeCardPreference
 import io.legato.kazusa.lib.prefs.ThemeModePreference
-//import io.legado.app.lib.theme.primaryColor
 import io.legato.kazusa.ui.widget.number.NumberPickerDialog
 import io.legato.kazusa.ui.widget.seekbar.SeekBarChangeListener
 import io.legato.kazusa.utils.ColorUtils
@@ -72,9 +68,6 @@ class ThemeConfigFragment : PreferenceFragmentCompat(),
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.pref_config_theme)
-        if (Build.VERSION.SDK_INT < 26) {
-            preferenceScreen.removePreferenceRecursively(PreferKey.launcherIcon)
-        }
 
         upPreferenceSummary(PreferKey.bgImage, getPrefString(PreferKey.bgImage))
         upPreferenceSummary(PreferKey.bgImageN, getPrefString(PreferKey.bgImageN))

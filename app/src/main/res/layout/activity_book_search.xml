@@ -33,6 +33,8 @@
                 android:id="@+id/refresh_progress_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:waveAmplitude="8dp"
+                app:wavelength="80dp"
                 android:indeterminate="true"
                 android:visibility="gone">
 

@@ -230,14 +230,14 @@ class ReadStyleDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_book_
                     llStyle.gravity = Gravity.TOP
                     cdStyle.cardElevation = 1f.dpToPx()
                     cdStyle.radius = 16f.dpToPx()
-                    cdStyle.strokeWidth = 2
-                    cdStyle.strokeColor = item.curTextColor()
+                    cdStyle.strokeWidth = 1.dpToPx()
+                    //cdStyle.strokeColor = item.curTextColor()
                     //tvStyle.setTextBold(true)
                 } else {
                     cdStyle.cardElevation = 2f.dpToPx()
                     cdStyle.radius = 32f.dpToPx()
                     cdStyle.strokeWidth = 0
-                    cdStyle.strokeColor = item.curTextColor()
+                    //cdStyle.strokeColor = item.curTextColor()
                     //tvStyle.setTextBold(false)
                 }
             }

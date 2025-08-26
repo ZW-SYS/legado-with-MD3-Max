@@ -149,6 +149,12 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
             }
         }
 
+    var isFirstLaunch: Boolean
+        get() = appCtx.getPrefBoolean(PreferKey.isFirstLaunch, true)
+        set(value) {
+            appCtx.putPrefBoolean(PreferKey.isFirstLaunch, value)
+        }
+
     var showUnread: Boolean
         get() = appCtx.getPrefBoolean(PreferKey.showUnread, true)
         set(value) {

@@ -24,7 +24,7 @@ class ThemeCardPreference(context: Context, attrs: AttributeSet) : Preference(co
     private var entries: Array<CharSequence> = context.resources.getTextArray(R.array.themes_item)
     private var entryValues: Array<CharSequence> = context.resources.getTextArray(R.array.themes_value).takeIf { it.isNotEmpty() }
         ?: arrayOf("0")
-    private var currentValue: String? = null
+    private var currentValue = "0"
 
     init {
         layoutResource = R.layout.preference_theme_card

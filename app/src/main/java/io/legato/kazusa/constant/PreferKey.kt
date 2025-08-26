@@ -204,7 +204,7 @@ object PreferKey {
     const val mangaClickActionBL = "mangaClickActionBottomLeft"
     const val mangaClickActionBC = "mangaClickActionBottomCenter"
     const val mangaClickActionBR = "mangaClickActionBottomRight"
-
+    const val isFirstLaunch = "isFirstLaunch"
     const val permissionChecked = "permissionChecked"
     const val notificationsPost = "notificationsPost"
     const val ignoreBatteryPermission = "ignoreBatteryPermission"

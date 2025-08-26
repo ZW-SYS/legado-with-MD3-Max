@@ -50,66 +50,70 @@
             app:layout_constraintTop_toBottomOf="@id/tv_name_title"
             tools:text="文字" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/iv_edit"
-            style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+        <com.google.android.material.button.MaterialButtonGroup
+            android:id="@+id/mbg_1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:contentDescription="@string/edit"
-            app:iconGravity="textStart"
-            app:icon="@drawable/ic_edit"
             app:layout_constraintBottom_toBottomOf="@id/tv_name"
-            app:layout_constraintEnd_toStartOf="@id/iv_delete"
-            app:layout_constraintTop_toTopOf="@id/tv_name" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/iv_delete"
-            style="@style/Widget.Material3Expressive.Button.IconButton.Outlined"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/delete"
-            app:icon="@drawable/ic_clear_all"
-            app:layout_constraintBottom_toBottomOf="@id/iv_edit"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/iv_edit"
-            tools:ignore="UnusedAttribute" />
+            app:layout_constraintTop_toTopOf="@id/tv_name">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/tv_restore"
-            android:layout_width="wrap_content"
-            style="@style/Widget.Material3Expressive.Button.OutlinedButton"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="@string/restore"
-            app:icon="@drawable/ic_restore"
-            app:layout_constraintEnd_toStartOf="@id/iv_import"
-            app:layout_constraintTop_toBottomOf="@id/iv_edit" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iv_edit"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/edit"
+                app:icon="@drawable/ic_edit"
+                app:iconGravity="textStart" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/iv_import"
-            style="@style/Widget.Material3Expressive.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:contentDescription="@string/import_str"
-            android:text="@string/import_str"
-            app:icon="@drawable/ic_import"
-            app:layout_constraintBottom_toBottomOf="@id/tv_restore"
-            app:layout_constraintEnd_toStartOf="@id/iv_export"
-            app:layout_constraintTop_toTopOf="@id/tv_restore" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iv_delete"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Outlined"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/delete"
+                app:icon="@drawable/ic_clear_all"
+                tools:ignore="UnusedAttribute" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/iv_export"
-            style="@style/Widget.Material3Expressive.Button.OutlinedButton"
+        </com.google.android.material.button.MaterialButtonGroup>
+
+
+        <com.google.android.material.button.MaterialButtonGroup
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/import_str"
-            android:text="@string/export_str"
-            app:icon="@drawable/ic_export"
-            app:layout_constraintBottom_toBottomOf="@id/iv_import"
+            android:layout_marginEnd="2dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/iv_import" />
+            app:layout_constraintTop_toBottomOf="@id/mbg_1">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/tv_restore"
+                style="@style/Widget.Material3Expressive.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/restore"
+                app:icon="@drawable/ic_restore" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iv_import"
+                style="@style/Widget.Material3Expressive.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/import_str"
+                android:text="@string/import_str"
+                app:icon="@drawable/ic_import" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iv_export"
+                style="@style/Widget.Material3Expressive.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/import_str"
+                android:text="@string/export_str"
+                app:icon="@drawable/ic_export" />
+
+        </com.google.android.material.button.MaterialButtonGroup>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -129,7 +133,7 @@
         android:text="@string/text_underline"
         tools:ignore="TouchTargetSizeCheck" />
 
-    <LinearLayout
+    <com.google.android.material.button.MaterialButtonGroup
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
@@ -141,7 +145,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/Widget.Material3Expressive.Button.TonalButton"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="8dp"
             android:layout_weight="1"
             app:icon="@drawable/ic_palette"
             android:text="@string/text_color"
@@ -159,7 +163,7 @@
             android:text="@string/bg_color"
             app:cornerRadius="12dp" />
 
-    </LinearLayout>
+    </com.google.android.material.button.MaterialButtonGroup>
 
     <TextView
         android:id="@+id/tv_bg_alpha"
@@ -189,7 +193,7 @@
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:paddingVertical="8dp"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/item_bg_image" />

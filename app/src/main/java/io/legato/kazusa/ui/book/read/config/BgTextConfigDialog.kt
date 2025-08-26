@@ -1,22 +1,21 @@
 package io.legato.kazusa.ui.book.read.config
 
+//import io.legado.app.lib.theme.bottomBackground
+//import io.legado.app.lib.theme.getPrimaryTextColor
+//import io.legado.app.lib.theme.getSecondaryTextColor
 import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Bundle
-import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
 import androidx.appcompat.widget.TooltipCompat
 import androidx.documentfile.provider.DocumentFile
 import com.google.android.material.slider.Slider
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import io.legato.kazusa.R
 import io.legato.kazusa.base.BaseBottomSheetDialogFragment
-import io.legato.kazusa.base.BaseDialogFragment
 import io.legato.kazusa.constant.AppLog
 import io.legato.kazusa.constant.EventBus
 import io.legato.kazusa.databinding.DialogEditTextBinding
@@ -29,9 +28,6 @@ import io.legato.kazusa.help.http.okHttpClient
 import io.legato.kazusa.lib.dialogs.SelectItem
 import io.legato.kazusa.lib.dialogs.alert
 import io.legato.kazusa.lib.dialogs.selector
-//import io.legado.app.lib.theme.bottomBackground
-//import io.legado.app.lib.theme.getPrimaryTextColor
-//import io.legado.app.lib.theme.getSecondaryTextColor
 import io.legato.kazusa.ui.book.read.ReadBookActivity
 import io.legato.kazusa.ui.file.HandleFileContract
 import io.legato.kazusa.utils.FileUtils
@@ -116,22 +112,6 @@ class BgTextConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_bg
     }
 
     private fun initView() = binding.run {
-//        val bg = requireContext().bottomBackground
-//        val isLight = ColorUtils.isColorLight(bg)
-//        primaryTextColor = requireContext().getPrimaryTextColor(isLight)
-//        secondaryTextColor = requireContext().getSecondaryTextColor(isLight)
-//        rootView.setBackgroundColor(bg)
-//        tvNameTitle.setTextColor(primaryTextColor)
-//        tvName.setTextColor(secondaryTextColor)
-//        ivEdit.setColorFilter(secondaryTextColor, PorterDuff.Mode.SRC_IN)
-//        tvRestore.setTextColor(primaryTextColor)
-//        swDarkStatusIcon.setTextColor(primaryTextColor)
-//        swUnderline.setTextColor(primaryTextColor)
-//        ivImport.setColorFilter(primaryTextColor, PorterDuff.Mode.SRC_IN)
-//        ivExport.setColorFilter(primaryTextColor, PorterDuff.Mode.SRC_IN)
-//        ivDelete.setColorFilter(primaryTextColor, PorterDuff.Mode.SRC_IN)
-//        tvBgAlpha.setTextColor(primaryTextColor)
-//        tvBgImage.setTextColor(primaryTextColor)
         recyclerView.adapter = adapter
         adapter.addHeaderView {
             ItemBgImageBinding.inflate(layoutInflater, it, false).apply {

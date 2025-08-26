@@ -272,45 +272,37 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/rb_anim0"
-                        style="@style/Widget.Material3.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:checkable="true"
                         android:text="@string/page_anim_cover" />
 
-                    <!-- 滑动动画 Chip -->
                     <com.google.android.material.chip.Chip
                         android:id="@+id/rb_anim1"
-                        style="@style/Widget.Material3.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="4dp"
+                        android:checkable="true"
                         android:text="@string/page_anim_slide" />
 
-                    <!-- 仿真翻页 Chip -->
                     <com.google.android.material.chip.Chip
                         android:id="@+id/rb_simulation_anim"
-                        style="@style/Widget.Material3.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="4dp"
+                        android:checkable="true"
                         android:text="@string/page_anim_simulation" />
 
-                    <!-- 滚动动画 Chip -->
                     <com.google.android.material.chip.Chip
                         android:id="@+id/rb_scroll_anim"
-                        style="@style/Widget.Material3.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="4dp"
+                        android:checkable="true"
                         android:text="@string/page_anim_scroll" />
 
-                    <!-- 无动画 Chip -->
                     <com.google.android.material.chip.Chip
                         android:id="@+id/rb_no_anim"
-                        style="@style/Widget.Material3.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="4dp"
+                        android:checkable="true"
                         android:text="@string/page_anim_none" />
 
                 </com.google.android.material.chip.ChipGroup>
