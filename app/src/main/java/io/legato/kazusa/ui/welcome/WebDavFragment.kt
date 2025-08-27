@@ -26,7 +26,9 @@ import io.legato.kazusa.lib.dialogs.alert
 import io.legato.kazusa.lib.dialogs.selector
 import io.legato.kazusa.ui.file.HandleFileContract
 import io.legato.kazusa.ui.widget.dialog.WaitDialog
+import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.toastOnUi
+import io.legato.kazusa.utils.visible
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
@@ -42,12 +44,6 @@ class WebDavFragment : BaseFragment(R.layout.fragment_webdav_auth) {
     private val binding get() = _binding!!
     private var restoreJob: Job? = null
     private val waitDialog by lazy { WaitDialog(requireContext()) }
-
-    interface WebDavActions {
-        fun onSaveWebDavConfig()
-    }
-
-    var listener: WebDavActions? = null
 
     private val restoreDoc = registerForActivityResult(HandleFileContract()) {
         it.uri?.let { uri ->
@@ -102,28 +98,44 @@ class WebDavFragment : BaseFragment(R.layout.fragment_webdav_auth) {
         }
 
         binding.btnCheck.setOnClickListener {
-            saveWebDavConfig()
-
+            val config = WebDavConfig(
+                url = binding.editUrl.text.toString(),
+                account = binding.editAccount.text.toString(),
+                password = binding.editPassword.text.toString()
+            )
+            saveWebDavConfig(config)
             lifecycleScope.launch {
                 testWebDav()
             }
         }
 
         binding.btnRestore.setOnClickListener {
-            restore()
+            val config = WebDavConfig(
+                url = binding.editUrl.text.toString(),
+                account = binding.editAccount.text.toString(),
+                password = binding.editPassword.text.toString()
+            )
+            lifecycleScope.launch {
+                try {
+                    binding.progressRestore.visible()
+                    binding.btnRestore.text = ""
+                    saveWebDavConfig(config)
+                    AppWebDav.upConfig()
+                    restore()
+                } finally {
+                    binding.progressRestore.gone()
+                    binding.btnRestore.text = "获取备份"
+                }
+            }
         }
 
     }
 
-    fun saveWebDavConfig(onSaved: (() -> Unit)? = null) {
-        val url = binding.editUrl.text.toString()
-        val account = binding.editAccount.text.toString()
-        val password = binding.editPassword.text.toString()
-
+    fun saveWebDavConfig(config: WebDavConfig, onSaved: (() -> Unit)? = null) {
         PreferenceManager.getDefaultSharedPreferences(requireContext()).edit {
-            putString(PreferKey.webDavUrl, url)
-            putString(PreferKey.webDavAccount, account)
-            putString(PreferKey.webDavPassword, password)
+            putString(PreferKey.webDavUrl, config.url)
+            putString(PreferKey.webDavAccount, config.account)
+            putString(PreferKey.webDavPassword, config.password)
         }
 
         onSaved?.invoke()
@@ -205,6 +217,14 @@ class WebDavFragment : BaseFragment(R.layout.fragment_webdav_auth) {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        waitDialog.dismiss() // 确保释放
         _binding = null
     }
+
 }
+
+data class WebDavConfig(
+    val url: String,
+    val account: String,
+    val password: String
+)

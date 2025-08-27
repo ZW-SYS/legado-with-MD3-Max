@@ -135,7 +135,9 @@
         </activity>
         <activity
             android:name=".ui.welcome.WelcomeActivity"
-            android:exported="false" />
+            android:enableOnBackInvokedCallback="true"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
         <!-- 阅读界面 -->
         <activity
             android:name=".ui.book.read.ReadBookActivity"

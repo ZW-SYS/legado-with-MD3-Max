@@ -56,20 +56,41 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnRestore"
-            style="@style/Widget.Material3Expressive.Button.OutlinedButton"
-            android:layout_width="0dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_weight="2"
-            android:text="获取备份" />
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRestore"
+                style="@style/Widget.Material3Expressive.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="获取备份"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.loadingindicator.LoadingIndicator
+                android:id="@+id/progressRestore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCheck"
             style="@style/Widget.Material3Expressive.Button.TonalButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:text="@string/action_save" />
 

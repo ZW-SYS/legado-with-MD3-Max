@@ -2,6 +2,7 @@ package io.legato.kazusa.help.storage
 
 import android.content.Context
 import android.net.Uri
+import androidx.core.content.edit
 import androidx.documentfile.provider.DocumentFile
 import io.legato.kazusa.BuildConfig
 import io.legato.kazusa.R
@@ -231,36 +232,36 @@ object Restore {
         }
         //AppWebDav.downBgs()
         appCtx.getSharedPreferences(path, "config")?.all?.let { map ->
-            val edit = appCtx.defaultSharedPreferences.edit()
+            appCtx.defaultSharedPreferences.edit {
 
-            map.forEach { (key, value) ->
-                if (BackupConfig.keyIsNotIgnore(key)) {
-                    when (key) {
-                        PreferKey.webDavPassword -> {
-                            kotlin.runCatching {
-                                aes.decryptStr(value.toString())
-                            }.getOrNull()?.let {
-                                edit.putString(key, it)
-                            } ?: let {
-                                if (appCtx.getPrefString(PreferKey.webDavPassword)
-                                        .isNullOrBlank()
-                                ) {
-                                    edit.putString(key, value.toString())
+                map.forEach { (key, value) ->
+                    if (BackupConfig.keyIsNotIgnore(key)) {
+                        when (key) {
+                            PreferKey.webDavPassword -> {
+                                kotlin.runCatching {
+                                    aes.decryptStr(value.toString())
+                                }.getOrNull()?.let {
+                                    putString(key, it)
+                                } ?: let {
+                                    if (appCtx.getPrefString(PreferKey.webDavPassword)
+                                            .isNullOrBlank()
+                                    ) {
+                                        putString(key, value.toString())
+                                    }
                                 }
                             }
-                        }
 
-                        else -> when (value) {
-                            is Int -> edit.putInt(key, value)
-                            is Boolean -> edit.putBoolean(key, value)
-                            is Long -> edit.putLong(key, value)
-                            is Float -> edit.putFloat(key, value)
-                            is String -> edit.putString(key, value)
+                            else -> when (value) {
+                                is Int -> putInt(key, value)
+                                is Boolean -> putBoolean(key, value)
+                                is Long -> putLong(key, value)
+                                is Float -> putFloat(key, value)
+                                is String -> putString(key, value)
+                            }
                         }
                     }
                 }
             }
-            edit.apply()
         }
         ReadBookConfig.apply {
             comicStyleSelect = appCtx.getPrefInt(PreferKey.comicStyleSelect)
