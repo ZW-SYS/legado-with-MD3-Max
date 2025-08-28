@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.graphics.Canvas
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
@@ -27,7 +28,7 @@ import io.legato.kazusa.model.CacheBook
 import io.legato.kazusa.ui.widget.recycler.UpLinearLayoutManager
 import io.legato.kazusa.ui.widget.recycler.VerticalDivider
 import io.legato.kazusa.utils.VibrationUtils
-import io.legato.kazusa.utils.applyNavigationBarMargin
+import io.legato.kazusa.utils.applyNavigationBarPadding
 import io.legato.kazusa.utils.dpToPx
 import io.legato.kazusa.utils.observeEvent
 import io.legato.kazusa.utils.themeColor
@@ -147,11 +148,24 @@ class ChapterListFragment : VMBaseFragment<TocViewModel>(R.layout.fragment_chapt
 
         binding.recyclerView.layoutManager = mLayoutManager
         binding.recyclerView.addItemDecoration(VerticalDivider(requireContext()))
+        binding.recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(
+                outRect: Rect,
+                view: View,
+                parent: RecyclerView,
+                state: RecyclerView.State
+            ) {
+                if (parent.getChildAdapterPosition(view) == state.itemCount - 1) {
+                    outRect.bottom = 80.dpToPx()
+                }
+            }
+        })
+
         binding.recyclerView.adapter = adapter
     }
 
     private fun initView() = binding.run {
-        cdBase.applyNavigationBarMargin()
+        llBase.applyNavigationBarPadding()
         btnChapterTop.setOnClickListener {
             mLayoutManager.scrollToPositionWithOffset(0, 0)
         }
