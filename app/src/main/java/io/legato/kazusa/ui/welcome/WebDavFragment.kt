@@ -75,7 +75,7 @@ class WebDavFragment : BaseFragment(R.layout.fragment_webdav_auth) {
         val urls = listOf(
             "https://dav.jianguoyun.com/dav/",
             "https://webdav.aliyundrive.com/",
-            "https://dav.example.com/"
+            "https://soya.infini-cloud.net/dav/"
         )
 
         val adapter = ArrayAdapter(
