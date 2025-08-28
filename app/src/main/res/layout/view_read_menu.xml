@@ -180,7 +180,7 @@
                         tools:ignore="TouchTargetSizeCheck"/>
                 </LinearLayout>
 
-                <LinearLayout
+                <com.google.android.material.button.MaterialButtonGroup
                     android:id="@+id/bottom_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -188,99 +188,11 @@
                     android:paddingVertical="8dp"
                     android:paddingHorizontal="16dp"
                     android:background="?attr/colorSurfaceContainer"
+                    android:gravity="center"
                     android:orientation="horizontal">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/fabSearch"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.Material3Expressive.Button.IconButton"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        app:iconTint="?attr/colorPrimary"
-                        android:contentDescription="@string/search_content"
-                        android:tooltipText="@string/search_content"
-                        app:icon="@drawable/ic_search"
-                        app:iconGravity="textStart"/>
 
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:importantForAccessibility="no" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/iv_read_aloud"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.Material3Expressive.Button.IconButton"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        app:iconTint="?attr/colorPrimary"
-                        android:contentDescription="@string/read_aloud"
-                        android:maxHeight="24dp"
-                        app:icon="@drawable/ic_read_aloud"
-                        app:iconGravity="textStart"
-                        tools:ignore="NestedWeights" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:importantForAccessibility="no" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/iv_catalog"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.Material3Expressive.Button.IconButton"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        app:iconTint="?attr/colorPrimary"
-                        android:contentDescription="@string/chapter_list"
-                        android:tooltipText="@string/chapter_list"
-                        android:maxHeight="24dp"
-                        app:icon="@drawable/ic_toc"
-                        app:iconGravity="textStart"
-                        tools:ignore="NestedWeights" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:importantForAccessibility="no" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/fabAutoPage"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.Material3Expressive.Button.IconButton"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        app:iconTint="?attr/colorPrimary"
-                        android:contentDescription="@string/auto_next_page"
-                        android:tooltipText="@string/auto_next_page"
-                        app:icon="@drawable/ic_auto_page"
-                        app:iconGravity="textStart"
-                        tools:ignore="UnusedAttribute" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:importantForAccessibility="no" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/iv_setting"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.Material3Expressive.Button.IconButton"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        app:iconTint="?attr/colorPrimary"
-                        android:contentDescription="@string/setting"
-                        android:tooltipText="@string/setting"
-                        android:maxHeight="24dp"
-                        app:icon="@drawable/ic_settings"
-                        app:iconGravity="textStart"
-                        tools:ignore="NestedWeights" />
-
-                </LinearLayout>
+                </com.google.android.material.button.MaterialButtonGroup>
             </LinearLayout>
     </LinearLayout>
 

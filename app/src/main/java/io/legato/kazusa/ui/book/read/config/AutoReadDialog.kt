@@ -24,20 +24,6 @@ class AutoReadDialog : BaseBottomSheetDialogFragment(R.layout.dialog_auto_read) 
     private val binding by viewBinding(DialogAutoReadBinding::bind)
     private val callBack: CallBack? get() = activity as? CallBack
 
-    override fun onStart() {
-        super.onStart()
-//        dialog?.window?.run {
-//            clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
-//            setBackgroundDrawableResource(R.color.background)
-//            decorView.setPadding(0, 0, 0, 0)
-//            val attr = attributes
-//            attr.dimAmount = 0.0f
-//            attr.gravity = Gravity.BOTTOM
-//            attributes = attr
-//            setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-//        }
-    }
-
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
         (activity as ReadBookActivity).bottomDialog--
@@ -49,20 +35,6 @@ class AutoReadDialog : BaseBottomSheetDialogFragment(R.layout.dialog_auto_read) 
             dismiss()
             return
         }
-        //val bg = requireContext().bottomBackground
-        //val isLight = ColorUtils.isColorLight(bg)
-        //val textColor = requireContext().getPrimaryTextColor(isLight)
-        //root.setBackgroundColor(bg)
-//        tvReadSpeedTitle.setTextColor(textColor)
-//        tvReadSpeed.setTextColor(textColor)
-//        ivCatalog.setColorFilter(textColor, PorterDuff.Mode.SRC_IN)
-//        tvCatalog.setTextColor(textColor)
-//        ivMainMenu.setColorFilter(textColor, PorterDuff.Mode.SRC_IN)
-//        tvMainMenu.setTextColor(textColor)
-//        ivAutoPageStop.setColorFilter(textColor, PorterDuff.Mode.SRC_IN)
-//        tvAutoPageStop.setTextColor(textColor)
-//        ivSetting.setColorFilter(textColor, PorterDuff.Mode.SRC_IN)
-//        tvSetting.setTextColor(textColor)
         initOnChange()
         initData()
         initEvent()

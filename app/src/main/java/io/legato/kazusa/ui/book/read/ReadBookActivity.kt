@@ -80,6 +80,7 @@ import io.legato.kazusa.ui.book.read.config.ReadAloudDialog
 import io.legato.kazusa.ui.book.read.config.ReadStyleDialog
 import io.legato.kazusa.ui.book.read.config.TipConfigDialog.Companion.TIP_COLOR
 import io.legato.kazusa.ui.book.read.config.TipConfigDialog.Companion.TIP_DIVIDER_COLOR
+import io.legato.kazusa.ui.book.read.config.ToolButtonConfigDialog
 import io.legato.kazusa.ui.book.read.page.ContentTextView
 import io.legato.kazusa.ui.book.read.page.ReadView
 import io.legato.kazusa.ui.book.read.page.entities.PageDirection
@@ -151,6 +152,7 @@ class ReadBookActivity : BaseReadBookActivity(),
     ChangeChapterSourceDialog.CallBack,
     ReadBook.CallBack,
     AutoReadDialog.CallBack,
+    ToolButtonConfigDialog.CallBack,
     TxtTocRuleDialog.CallBack,
     ColorPickerDialogListener,
     LayoutProgressListener {
@@ -531,6 +533,11 @@ class ReadBookActivity : BaseReadBookActivity(),
                 it.setReSegment(!it.getReSegment())
                 item.isChecked = it.getReSegment()
                 ReadBook.loadContent(false)
+            }
+
+            R.id.menu_tool_button -> {
+                binding.readMenu.runMenuOut()
+                showDialogFragment(ToolButtonConfigDialog())
             }
 
 //            R.id.menu_enable_review -> {
@@ -1483,6 +1490,10 @@ class ReadBookActivity : BaseReadBookActivity(),
 
     override fun onMenuHide() {
         binding.readView.autoPager.resume()
+    }
+
+    override fun refresh() {
+        recreate()
     }
 
     override fun onLayoutPageCompleted(index: Int, page: TextPage) {

@@ -2,6 +2,8 @@ package io.legato.kazusa.ui.book.read
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.ColorStateList
+import android.content.res.Configuration
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -13,6 +15,8 @@ import android.widget.SeekBar
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.button.MaterialButtonGroup
 import com.google.android.material.slider.Slider
 import io.legato.kazusa.R
 import io.legato.kazusa.constant.PreferKey
@@ -41,7 +45,6 @@ import io.legato.kazusa.utils.startActivity
 import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.visible
 import splitties.views.onClick
-import splitties.views.onLongClick
 
 /**
  * 阅读界面菜单
@@ -189,6 +192,10 @@ class ReadMenu @JvmOverloads constructor(
 ////            tvChapterName.setTextColor(textColor)
 ////            tvChapterUrl.setTextColor(textColor)
 //        }
+
+        val allButtons = getUserButtons()
+        renderButtons(binding.bottomView, allButtons)
+
         val brightnessBackground = GradientDrawable()
         brightnessBackground.cornerRadius = 5F.dpToPx()
        //brightnessBackground.setColor(ColorUtils.adjustAlpha(bgColor, 0.5f))
@@ -231,7 +238,12 @@ class ReadMenu @JvmOverloads constructor(
         /**
          * 确保视图不被导航栏遮挡
          */
-        binding.bottomView.applyNavigationBarPadding()
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            binding.bottomMenu.applyNavigationBarPadding()
+        } else {
+            binding.bottomView.applyNavigationBarPadding()
+        }
+
     }
 
     fun reset() {
@@ -459,20 +471,6 @@ class ReadMenu @JvmOverloads constructor(
             }
         })
 
-        //搜索
-        fabSearch.setOnClickListener {
-            runMenuOut {
-                callBack.openSearchActivity(null)
-            }
-        }
-
-        //自动翻页
-        fabAutoPage.setOnClickListener {
-            runMenuOut {
-                callBack.autoPage()
-            }
-        }
-
         //替换
         //fabReplaceRule.setOnClickListener { callBack.openReplaceRule() }
 
@@ -488,32 +486,130 @@ class ReadMenu @JvmOverloads constructor(
         //下一章
         tvNext.setOnClickListener { ReadBook.moveToNextChapter(true) }
 
-        //目录
-        ivCatalog.setOnClickListener {
-            runMenuOut {
-                callBack.openChapterList()
+
+    }
+
+    fun renderButtons(group: MaterialButtonGroup, buttons: List<ToolButton>) {
+        group.removeAllViews()
+
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            buttons.forEach { btn ->
+                val button = MaterialButton(
+                    group.context,
+                    null,
+                    com.google.android.material.R.attr.materialIconButtonFilledTonalStyle
+                ).apply {
+                    id = btn.id.hashCode()
+                    setIconResource(btn.iconRes)
+                    contentDescription = btn.description
+                    tooltipText = btn.description
+
+                    setOnClickListener { btn.onClick() }
+                    btn.onLongClick?.let { longAction ->
+                        setOnLongClickListener {
+                            longAction()
+                            true
+                        }
+                    }
+                }
+                group.addView(button)
+            }
+        } else {
+            buttons.forEach { btn ->
+                val button = MaterialButton(
+                    group.context,
+                    null,
+                    com.google.android.material.R.attr.materialIconButtonOutlinedStyle
+                ).apply {
+                    id = btn.id.hashCode()
+                    setIconResource(btn.iconRes)
+                    contentDescription = btn.description
+                    tooltipText = btn.description
+                    strokeWidth = 0
+                    val primaryColor = context.themeColor(androidx.appcompat.R.attr.colorPrimary)
+                    iconTint = ColorStateList.valueOf(primaryColor)
+
+                    setOnClickListener { btn.onClick() }
+                    btn.onLongClick?.let { longAction ->
+                        setOnLongClickListener {
+                            longAction()
+                            true
+                        }
+                    }
+                }
+                group.addView(button)
+            }
+        }
+    }
+
+    private fun getAllButtons(): List<ToolButton> {
+        return listOf(
+            ToolButton(
+                id = "search",
+                iconRes = R.drawable.ic_search,
+                description = context.getString(R.string.search_content),
+                onClick = { callBack.openSearchActivity(null) }
+            ),
+            ToolButton(
+                id = "auto_page",
+                iconRes = R.drawable.ic_auto_page,
+                description = context.getString(R.string.auto_next_page),
+                onClick = { callBack.autoPage() }
+            ),
+            ToolButton(
+                id = "catalog",
+                iconRes = R.drawable.ic_toc,
+                description = context.getString(R.string.chapter_list),
+                onClick = { callBack.openChapterList() }
+            ),
+            ToolButton(
+                id = "read_aloud",
+                iconRes = R.drawable.ic_read_aloud,
+                description = context.getString(R.string.read_aloud),
+                onClick = { callBack.onClickReadAloud() },
+                onLongClick = { callBack.showReadAloudDialog() }
+            ),
+            ToolButton(
+                id = "setting",
+                iconRes = R.drawable.ic_settings,
+                description = context.getString(R.string.setting),
+                onClick = { callBack.showReadStyle() }
+            ),
+            ToolButton(
+                id = "addBookmark",
+                iconRes = R.drawable.ic_bookmark,
+                description = context.getString(R.string.bookmark),
+                onClick = { callBack.addBookmark() }
+            )
+        )
+    }
+
+    private fun getUserButtons(): List<ToolButton> {
+        val prefs by lazy {
+            context.getSharedPreferences("tool_button_config", Context.MODE_PRIVATE)
+        }
+        val allButtons = getAllButtons().associateBy { it.id }
+
+        val str = prefs.getString("tool_buttons", null)
+        val savedList = str?.split(";")?.mapNotNull {
+            val parts = it.split(",")
+            if (parts.size == 2) parts[0] to parts[1].toBoolean() else null
+        } ?: emptyList()
+
+        val result = mutableListOf<ToolButton>()
+
+        savedList.forEach { (id, enabled) ->
+            if (enabled) allButtons[id]?.let { result.add(it) }
+        }
+
+        getAllButtons().forEach { btn ->
+            if (savedList.none { it.first == btn.id }) {
+                result.add(btn)
             }
         }
 
-        //朗读
-        ivReadAloud.setOnClickListener {
-            runMenuOut {
-                callBack.onClickReadAloud()
-            }
-        }
 
-        ivReadAloud.onLongClick {
-            runMenuOut {
-                callBack.showReadAloudDialog()
-            }
-        }
-
-        //设置
-        ivSetting.setOnClickListener {
-            runMenuOut {
-                callBack.showReadStyle()
-            }
-        }
+        return result
     }
 
     private fun initAnimation() {
@@ -522,8 +618,16 @@ class ReadMenu @JvmOverloads constructor(
     }
 
     fun upBookView() {
-        binding.titleBar.title = " "
-        binding.tvBookName.text = ReadBook.book?.name
+        val bookName = ReadBook.book?.name ?: ""
+
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            binding.titleBar.title = bookName
+            binding.tvBookName.gone()
+        } else {
+            binding.titleBar.title = " "
+            binding.tvBookName.text = bookName
+        }
+
         ReadBook.curTextChapter?.let {
             binding.tvChapterName.text = it.title
             if (!ReadBook.isLocalBook) {
@@ -598,15 +702,17 @@ class ReadMenu @JvmOverloads constructor(
     }
 
     fun setAutoPage(autoPage: Boolean) = binding.run {
-        if (autoPage) {
-            fabAutoPage.setIconResource(R.drawable.ic_auto_page_stop)
-            fabAutoPage.contentDescription = context.getString(R.string.auto_next_page_stop)
-        } else {
-            fabAutoPage.setIconResource(R.drawable.ic_auto_page)
-            fabAutoPage.contentDescription = context.getString(R.string.auto_next_page)
+        fabAutoPage?.let { fab ->
+            if (autoPage) {
+                fab.setIconResource(R.drawable.ic_auto_page_stop)
+                fab.contentDescription = context.getString(R.string.auto_next_page_stop)
+            } else {
+                fab.setIconResource(R.drawable.ic_auto_page)
+                fab.contentDescription = context.getString(R.string.auto_next_page)
+            }
         }
-        //fabAutoPage.setColorFilter(textColor)
     }
+
 
     private fun upBrightnessVwPos() {
         if (AppConfig.brightnessVwPos) {
@@ -630,6 +736,7 @@ class ReadMenu @JvmOverloads constructor(
         fun openSourceEditActivity()
         fun openBookInfoActivity()
         fun showReadStyle()
+        fun addBookmark()
         fun showReadAloudDialog()
         fun upSystemUiVisibility()
         fun onClickReadAloud()
@@ -642,4 +749,11 @@ class ReadMenu @JvmOverloads constructor(
         fun onMenuHide()
     }
 
+    data class ToolButton(
+        val id: String,             // 唯一标识
+        val iconRes: Int,           // 图标资源
+        val description: String,    // contentDescription / tooltipText
+        val onClick: () -> Unit,    // 点击事件
+        val onLongClick: (() -> Unit)? = null // 可选长按
+    )
 }

@@ -31,14 +31,6 @@ import io.legato.kazusa.utils.showDialogFragment
 class ReadAloudConfigDialog : BasePrefDialogFragment() {
     private val readAloudPreferTag = "readAloudPreferTag"
 
-    override fun onStart() {
-        super.onStart()
-        dialog?.window?.run {
-            //setBackgroundDrawableResource(R.color.transparent)
-            //setLayout(0.9f, ViewGroup.LayoutParams.WRAP_CONTENT)
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

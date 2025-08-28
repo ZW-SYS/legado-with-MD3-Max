@@ -45,6 +45,11 @@
     </group>
 
     <item
+        android:id="@+id/menu_tool_button"
+        android:title="配置底部按钮"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/menu_add_bookmark"
         android:title="@string/bookmark_add"
         app:showAsAction="never" />
