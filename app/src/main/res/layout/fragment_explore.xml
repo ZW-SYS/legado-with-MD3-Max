@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:visibility="gone"
             android:layout_marginHorizontal="16dp"
-            android:hint="@string/search_rss_source" />
+            android:hint="@string/screen_find" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

@@ -91,7 +91,7 @@ class ExploreAdapter(context: Context, val callBack: CallBack) :
                 flexbox.addView(cardView)
 
                 textView.text = kind.title
-                //kind.style().apply(textView)
+                kind.style().apply(cardView)
 
                 if (kind.url.isNullOrBlank()) {
                     cardView.setOnClickListener(null)
