@@ -41,12 +41,12 @@ import io.legato.kazusa.utils.externalCache
 import io.legato.kazusa.utils.fromJsonObject
 import io.legato.kazusa.utils.isAbsUrl
 import io.legato.kazusa.utils.isMainThread
-import io.legato.kazusa.utils.longToastOnUi
+import io.legato.kazusa.utils.longToastForJs
 import io.legato.kazusa.utils.mapAsync
 import io.legato.kazusa.utils.stackTraceStr
 import io.legato.kazusa.utils.startActivity
 import io.legato.kazusa.utils.toStringArray
-import io.legato.kazusa.utils.toastOnUi
+import io.legato.kazusa.utils.toastForJs
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flowOn
@@ -937,7 +937,7 @@ interface JsExtensions : JsEncodeUtils {
      */
     fun toast(msg: Any?) {
         rhinoContext.ensureActive()
-        appCtx.toastOnUi("${getSource()?.getTag()}: ${msg.toString()}")
+        appCtx.toastForJs("${getSource()?.getTag()}: ${msg.toString()}")
     }
 
     /**
@@ -945,7 +945,7 @@ interface JsExtensions : JsEncodeUtils {
      */
     fun longToast(msg: Any?) {
         rhinoContext.ensureActive()
-        appCtx.longToastOnUi("${getSource()?.getTag()}: ${msg.toString()}")
+        appCtx.longToastForJs("${getSource()?.getTag()}: ${msg.toString()}")
     }
 
     /**

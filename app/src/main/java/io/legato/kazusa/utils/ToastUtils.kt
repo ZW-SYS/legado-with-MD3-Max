@@ -6,8 +6,11 @@ import android.content.Context
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import io.legato.kazusa.BuildConfig
+import io.legato.kazusa.databinding.ViewToastBinding
 import io.legato.kazusa.help.config.AppConfig
+import splitties.systemservices.layoutInflater
 
+private var toastForJs: Toast? = null
 private var toast: Toast? = null
 private var toastLegacy: Toast? = null
 
@@ -60,6 +63,43 @@ fun Context.longToastOnUiLegacy(message: CharSequence) {
         }
     }
 }
+
+/**
+ * JS 专用弹窗，短时间显示
+ */
+
+fun Context.toastForJs(message: CharSequence?, duration: Int = Toast.LENGTH_SHORT) {
+    runOnUI {
+        kotlin.runCatching {
+            toastForJs?.cancel()
+            toastForJs = Toast(this)
+            ViewToastBinding.inflate(layoutInflater).run {
+                toastForJs?.view = root
+                tvText.text = message
+            }
+            toastForJs?.duration = duration
+            toastForJs?.show()
+        }
+    }
+}
+
+fun Context.toastForJs(message: Int, duration: Int = Toast.LENGTH_SHORT) {
+    toastForJs(getString(message), duration)
+}
+
+fun Context.longToastForJs(message: CharSequence?) {
+    toastForJs(message, Toast.LENGTH_LONG)
+}
+
+fun Context.longToastForJs(message: Int) {
+    toastForJs(message, Toast.LENGTH_LONG)
+}
+
+// Fragment 调用代理
+fun Fragment.toastForJs(message: CharSequence?) = requireContext().toastForJs(message)
+fun Fragment.toastForJs(message: Int) = requireContext().toastForJs(message)
+fun Fragment.longToastForJs(message: CharSequence?) = requireContext().longToastForJs(message)
+fun Fragment.longToastForJs(message: Int) = requireContext().longToastForJs(message)
 
 fun Fragment.toastOnUi(message: Int) = requireActivity().toastOnUi(message)
 

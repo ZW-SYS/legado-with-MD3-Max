@@ -25,11 +25,13 @@
             android:id="@+id/flexbox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:clipToPadding="false"
-            android:paddingVertical="8dp"
+            android:layout_marginTop="8dp"
+            android:overScrollMode="never"
+            app:dividerDrawable="@drawable/shape_space_divider"
             app:flexDirection="row"
-            app:flexWrap="wrap" />
+            app:flexWrap="wrap"
+            app:showDivider="middle" />
 
     </androidx.core.widget.NestedScrollView>
 
