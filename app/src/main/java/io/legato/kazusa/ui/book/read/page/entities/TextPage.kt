@@ -291,10 +291,10 @@ data class TextPage(
      * @return
      */
     fun containPos(chapterPos: Int): Boolean {
-        val line = lines.first()
+        val line = lines.firstOrNull() ?: return false // lines 为空时直接返回 false
         val startPos = line.chapterPosition
         val endPos = startPos + charSize
-        return chapterPos in startPos..<endPos
+        return chapterPos in startPos until endPos
     }
 
     fun draw(view: ContentTextView, canvas: Canvas, relativeOffset: Float) {
@@ -364,10 +364,15 @@ data class TextPage(
     }
 
     fun upRenderHeight() {
+        if (lines.isEmpty()) {
+            renderHeight = 0
+            return
+        }
         renderHeight = ceil(lines.last().lineBottom).toInt()
-        if (leftLineSize > 0 && leftLineSize != lines.size) {
+        if (leftLineSize > 0 && leftLineSize <= lines.size) {
             val leftHeight = ceil(lines[leftLineSize - 1].lineBottom).toInt()
             renderHeight = max(renderHeight, leftHeight)
         }
     }
+
 }
