@@ -2,6 +2,7 @@ package io.legato.kazusa.ui.main.bookshelf.books.styleFold
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import androidx.core.os.bundleOf
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
@@ -138,8 +139,8 @@ abstract class BaseBooksAdapter<VH : RecyclerView.ViewHolder>(
 
 
     interface CallBack {
-        fun onItemClick(item: Any)
-        fun onItemLongClick(item: Any)
+        fun onItemClick(item: Any, sharedView: View)
+        fun onItemLongClick(item: Any, sharedView: View)
         fun isUpdate(bookUrl: String): Boolean
         fun getItems(): List<Any>
     }

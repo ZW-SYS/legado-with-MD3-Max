@@ -1,6 +1,7 @@
 package io.legato.kazusa.ui.main.bookshelf.books.styleDefalut
 
 import android.content.Context
+import android.view.View
 import androidx.core.os.bundleOf
 import androidx.recyclerview.widget.DiffUtil
 import androidx.viewbinding.ViewBinding
@@ -86,8 +87,8 @@ abstract class BaseBooksAdapter<VB : ViewBinding>(context: Context) :
     }
 
     interface CallBack {
-        fun open(book: Book)
-        fun openBookInfo(book: Book)
+        fun open(book: Book, sharedView: View)
+        fun openBookInfo(book: Book, sharedView: View)
         fun isUpdate(bookUrl: String): Boolean
     }
 }

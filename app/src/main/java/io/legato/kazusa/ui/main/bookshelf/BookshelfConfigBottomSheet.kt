@@ -56,7 +56,7 @@ class BookshelfConfigBottomSheet : BaseBottomSheetDialogFragment(R.layout.dialog
                     text = label
                     isCheckable = true
                     isClickable = true
-                    id = View.generateViewId()
+                    id = index
                 }
                 chipGroupSort.addView(chip)
                 if (index == AppConfig.bookshelfSort) {
@@ -113,8 +113,8 @@ class BookshelfConfigBottomSheet : BaseBottomSheetDialogFragment(R.layout.dialog
                     postEvent(EventBus.BOOKSHELF_REFRESH, "")
                 }
 
-                if (bookshelfSort != chipGroupSort.indexOfChild(chipGroupSort.findViewById(chipGroupSort.checkedChipId))) {
-                    AppConfig.bookshelfSort = chipGroupSort.indexOfChild(chipGroupSort.findViewById(chipGroupSort.checkedChipId))
+                if (bookshelfSort != chipGroupSort.checkedChipId) {
+                    AppConfig.bookshelfSort = chipGroupSort.checkedChipId
                     (requireParentFragment() as? BaseBookshelfFragment)?.upSort()
                 }
 

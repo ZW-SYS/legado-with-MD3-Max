@@ -2,6 +2,7 @@ package io.legato.kazusa.ui.book.info
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.RenderEffect
 import android.graphics.Shader
 import android.net.Uri
@@ -15,6 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.transition.platform.MaterialContainerTransform
 import io.legato.kazusa.R
 import io.legato.kazusa.base.VMBaseActivity
 import io.legato.kazusa.constant.BookType
@@ -151,14 +153,23 @@ class BookInfoActivity :
 
     @SuppressLint("PrivateResource")
     override fun onCreate(savedInstanceState: Bundle?) {
+        window.sharedElementEnterTransition = MaterialContainerTransform().apply {
+            addTarget(binding.ivCover)
+            duration = 500
+            scrimColor = Color.TRANSPARENT
+            fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
+        }
+        window.sharedElementReturnTransition = MaterialContainerTransform().apply {
+            addTarget(binding.ivCover)
+            duration = 500
+            scrimColor = Color.TRANSPARENT
+            fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
+        }
+        window.sharedElementsUseOverlay = false
         super.onCreate(savedInstanceState)
-
+        binding.ivCover.transitionName = intent.getStringExtra("transitionName")
         setSupportActionBar(binding.topBar)
         binding.llRead?.applyNavigationBarMargin()
-//        binding.refreshLayout?.setColorSchemeColors(accentColor)
-//        binding.llInfo.setBackgroundColor(backgroundColor)
-//        binding.flAction.setBackgroundColor(bottomBackground)
-        //binding.flAction.applyNavigationBarPadding()
         binding.btnShelf.text = getString(R.string.remove_from_bookshelf)
         binding.tvToc.text = getString(R.string.toc_s, getString(R.string.loading))
 

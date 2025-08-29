@@ -1,16 +1,15 @@
 package io.legato.kazusa.ui.main.explore
 
+//import io.legado.app.lib.theme.primaryColor
+//import io.legado.app.lib.theme.primaryTextColor
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.SubMenu
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
-import androidx.core.view.updatePadding
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -29,8 +28,6 @@ import io.legato.kazusa.data.entities.BookSourcePart
 import io.legato.kazusa.databinding.FragmentExploreBinding
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.lib.dialogs.alert
-//import io.legado.app.lib.theme.primaryColor
-//import io.legado.app.lib.theme.primaryTextColor
 import io.legato.kazusa.ui.book.explore.ExploreShowActivity
 import io.legato.kazusa.ui.book.search.SearchActivity
 import io.legato.kazusa.ui.book.search.SearchScope
@@ -103,10 +100,8 @@ class ExploreFragment() : VMBaseFragment<ExploreViewModel>(R.layout.fragment_exp
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 val query = searchView.text.toString()
                 upExploreData(query)
-                searchBar.hint = if (query.isEmpty()) {
+                searchBar.hint = query.ifEmpty {
                     getString(R.string.screen_find)
-                } else {
-                    query
                 }
                 searchView.hide()
                 return@setOnEditorActionListener true

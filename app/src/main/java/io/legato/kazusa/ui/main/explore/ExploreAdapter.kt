@@ -65,12 +65,6 @@ class ExploreAdapter(context: Context, val callBack: CallBack) :
                     item.exploreKinds()
                 }.onSuccess { kindList ->
                     upKindList(flexbox, item.bookSourceUrl, kindList)
-                }.onFinally {
-
-                    if (scrollTo >= 0) {
-                        callBack.scrollTo(scrollTo)
-                        scrollTo = -1
-                    }
                 }
             } else {
                 ivStatus.icon = ContextCompat.getDrawable(context, R.drawable.ic_arrow_right)

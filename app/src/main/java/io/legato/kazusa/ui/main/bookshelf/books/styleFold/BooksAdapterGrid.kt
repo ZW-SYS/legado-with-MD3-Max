@@ -92,10 +92,10 @@ class BooksAdapterGrid(context: Context, callBack: CallBack) :
 
         fun registerListener(item: Any) {
             binding.cvContent.setOnClickListener {
-                callBack.onItemClick(item)
+                callBack.onItemClick(item, binding.ivCover)
             }
             binding.cvContent.onLongClick {
-                callBack.onItemLongClick(item)
+                callBack.onItemLongClick(item, binding.ivCover)
             }
         }
 
@@ -149,10 +149,10 @@ class BooksAdapterGrid(context: Context, callBack: CallBack) :
 
         fun registerListener(item: Any) {
             binding.cvContent.setOnClickListener {
-                callBack.onItemClick(item)
+                callBack.onItemClick(item, binding.ivCover)
             }
             binding.cvContent.onLongClick {
-                callBack.onItemLongClick(item)
+                callBack.onItemLongClick(item, binding.ivCover)
             }
         }
 

@@ -23,6 +23,7 @@ class BooksAdapterGrid(context: Context, private val callBack: CallBack) :
         item: Book,
         payloads: MutableList<Any>
     ) = binding.run {
+        binding.ivCover.transitionName = "book_${item.bookUrl}"
         if (payloads.isEmpty()) {
             tvName.text = item.name
             ivCover.load(item.getDisplayCover(), item.name, item.author, false, item.origin)
@@ -62,15 +63,16 @@ class BooksAdapterGrid(context: Context, private val callBack: CallBack) :
     }
 
     override fun registerListener(holder: ItemViewHolder, binding: ItemBookshelfGridBinding) {
+
         binding.cvContent.setOnClickListener {
             getItem(holder.layoutPosition)?.let {
-                callBack.open(it)
+                callBack.open(it, binding.ivCover)
             }
         }
 
         binding.cvContent.setOnLongClickListener {
             getItem(holder.layoutPosition)?.let {
-                callBack.openBookInfo(it)
+                callBack.openBookInfo(it, binding.ivCover)
             }
             true
         }

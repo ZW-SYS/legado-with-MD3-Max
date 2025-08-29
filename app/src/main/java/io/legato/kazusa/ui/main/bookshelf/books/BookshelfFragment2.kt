@@ -1,9 +1,11 @@
 package io.legato.kazusa.ui.main.bookshelf.books
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.SearchView
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.isGone
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -19,9 +21,14 @@ import io.legato.kazusa.data.appDb
 import io.legato.kazusa.data.entities.Book
 import io.legato.kazusa.data.entities.BookGroup
 import io.legato.kazusa.databinding.FragmentBookshelf2Binding
+import io.legato.kazusa.help.book.isAudio
+import io.legato.kazusa.help.book.isImage
 import io.legato.kazusa.help.config.AppConfig
+import io.legato.kazusa.ui.book.audio.AudioPlayActivity
 import io.legato.kazusa.ui.book.group.GroupEditDialog
 import io.legato.kazusa.ui.book.info.BookInfoActivity
+import io.legato.kazusa.ui.book.manga.ReadMangaActivity
+import io.legato.kazusa.ui.book.read.ReadBookActivity
 import io.legato.kazusa.ui.book.search.SearchActivity
 import io.legato.kazusa.ui.main.bookshelf.BaseBookshelfFragment
 import io.legato.kazusa.ui.main.bookshelf.books.styleFold.BaseBooksAdapter
@@ -32,8 +39,6 @@ import io.legato.kazusa.utils.cnCompare
 import io.legato.kazusa.utils.flowWithLifecycleAndDatabaseChangeFirst
 import io.legato.kazusa.utils.observeEvent
 import io.legato.kazusa.utils.showDialogFragment
-import io.legato.kazusa.utils.startActivity
-import io.legato.kazusa.utils.startActivityForBook
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -249,9 +254,31 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
         }
     }
 
-    override fun onItemClick(item: Any) {
+    override fun onItemClick(item: Any, sharedView: View) {
         when (item) {
-            is Book -> startActivityForBook(item)
+            is Book -> {
+                val transitionName = "book_${item.bookUrl}"
+                sharedView.transitionName = transitionName
+
+                val cls = when {
+                    item.isAudio -> AudioPlayActivity::class.java
+                    item.isImage && AppConfig.showMangaUi -> ReadMangaActivity::class.java
+                    else -> ReadBookActivity::class.java
+                }
+
+                val intent = Intent(requireContext(), cls).apply {
+                    putExtra("bookUrl", item.bookUrl)
+                    putExtra("transitionName", transitionName)
+                }
+
+                val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    requireActivity(),
+                    sharedView,
+                    transitionName
+                )
+
+                startActivity(intent, options.toBundle())
+            }
 
             is BookGroup -> {
                 groupId = item.groupId
@@ -260,11 +287,24 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
         }
     }
 
-    override fun onItemLongClick(item: Any) {
+    override fun onItemLongClick(item: Any, sharedView: View) {
         when (item) {
-            is Book -> startActivity<BookInfoActivity> {
-                putExtra("name", item.name)
-                putExtra("author", item.author)
+            is Book -> {
+                val intent = Intent(requireContext(), BookInfoActivity::class.java).apply {
+                    putExtra("name", item.name)
+                    putExtra("author", item.author)
+                    putExtra("transitionName", "book_${item.bookUrl}") // 给共享元素唯一标识
+                }
+
+                sharedView.transitionName = "book_${item.bookUrl}"
+
+                val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    requireActivity(),
+                    sharedView,
+                    sharedView.transitionName
+                )
+
+                startActivity(intent, options.toBundle())
             }
 
             is BookGroup -> showDialogFragment(GroupEditDialog(item))

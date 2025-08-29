@@ -2,6 +2,7 @@ package io.legato.kazusa.ui.book.manga
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
@@ -21,6 +22,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader
 import com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
 import com.bumptech.glide.util.FixedPreloadSizeProvider
+import com.google.android.material.transition.platform.MaterialContainerTransform
 import io.legato.kazusa.BuildConfig
 import io.legato.kazusa.R
 import io.legato.kazusa.base.VMBaseActivity
@@ -158,9 +160,21 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        window.sharedElementEnterTransition = MaterialContainerTransform().apply {
+            addTarget(binding.root)
+            duration = 500
+            scrimColor = Color.TRANSPARENT
+            fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
+        }
+        window.sharedElementReturnTransition = MaterialContainerTransform().apply {
+            addTarget(binding.root)
+            duration = 500
+            scrimColor = Color.TRANSPARENT
+            fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
+        }
         upLayoutInDisplayCutoutMode()
         super.onCreate(savedInstanceState)
-
+        binding.root.transitionName = intent.getStringExtra("transitionName")
         ReadManga.register(this)
         upSystemUiVisibility(false)
         initRecyclerView()

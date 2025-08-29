@@ -4,6 +4,7 @@ package io.legato.kazusa.ui.book.read
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
@@ -22,6 +23,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.get
 import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.transition.platform.MaterialContainerTransform
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import io.legato.kazusa.BuildConfig
 import io.legato.kazusa.R
@@ -259,7 +261,20 @@ class ReadBookActivity : BaseReadBookActivity(),
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
+        window.sharedElementEnterTransition = MaterialContainerTransform().apply {
+            addTarget(binding.rootView)
+            duration = 500
+            scrimColor = Color.TRANSPARENT
+            fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
+        }
+        window.sharedElementReturnTransition = MaterialContainerTransform().apply {
+            addTarget(binding.rootView)
+            duration = 500
+            scrimColor = Color.TRANSPARENT
+            fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
+        }
         super.onCreate(savedInstanceState)
+        binding.rootView.transitionName = intent.getStringExtra("transitionName")
         //binding.cursorLeft.setColorFilter(accentColor)
         //binding.cursorRight.setColorFilter(accentColor)
         binding.cursorLeft.setOnTouchListener(this)

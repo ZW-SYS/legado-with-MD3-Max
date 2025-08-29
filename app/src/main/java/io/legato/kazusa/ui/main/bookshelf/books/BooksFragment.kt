@@ -1,9 +1,13 @@
 package io.legato.kazusa.ui.main.bookshelf.books
 
+//import io.legado.app.lib.theme.accentColor
+//import io.legado.app.lib.theme.primaryColor
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewConfiguration
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.isGone
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -22,10 +26,13 @@ import io.legato.kazusa.data.appDb
 import io.legato.kazusa.data.entities.Book
 import io.legato.kazusa.data.entities.BookGroup
 import io.legato.kazusa.databinding.FragmentBooksBinding
+import io.legato.kazusa.help.book.isAudio
+import io.legato.kazusa.help.book.isImage
 import io.legato.kazusa.help.config.AppConfig
-//import io.legado.app.lib.theme.accentColor
-//import io.legado.app.lib.theme.primaryColor
+import io.legato.kazusa.ui.book.audio.AudioPlayActivity
 import io.legato.kazusa.ui.book.info.BookInfoActivity
+import io.legato.kazusa.ui.book.manga.ReadMangaActivity
+import io.legato.kazusa.ui.book.read.ReadBookActivity
 import io.legato.kazusa.ui.main.MainViewModel
 import io.legato.kazusa.ui.main.bookshelf.books.styleDefalut.BaseBooksAdapter
 import io.legato.kazusa.ui.main.bookshelf.books.styleDefalut.BooksAdapterGrid
@@ -34,8 +41,6 @@ import io.legato.kazusa.utils.bookshelfLayout
 import io.legato.kazusa.utils.cnCompare
 import io.legato.kazusa.utils.flowWithLifecycleAndDatabaseChangeFirst
 import io.legato.kazusa.utils.observeEvent
-import io.legato.kazusa.utils.startActivity
-import io.legato.kazusa.utils.startActivityForBook
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -150,11 +155,8 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
     }
 
     fun upBookSort() {
-//        binding.root.post {
-//            arguments?.putInt("bookSort", sort)
-//            bookSort = sort
-            upRecyclerData()
-//        }
+        bookSort = AppConfig.bookshelfSort
+        upRecyclerData()
     }
 
     fun setEnableRefresh(enable: Boolean) {
@@ -255,16 +257,48 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
         binding.rvBookshelf.adapter = null
     }
 
-    override fun open(book: Book) {
-        startActivityForBook(book)
+    override fun open(book: Book, sharedView: View) {
+        val transitionName = "book_${book.bookUrl}"
+        sharedView.transitionName = transitionName
+
+        val cls = when {
+            book.isAudio -> AudioPlayActivity::class.java
+            book.isImage && AppConfig.showMangaUi -> ReadMangaActivity::class.java
+            else -> ReadBookActivity::class.java
+        }
+
+        val intent = Intent(requireContext(), cls).apply {
+            putExtra("bookUrl", book.bookUrl)
+            putExtra("transitionName", transitionName)
+        }
+
+        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+            requireActivity(),
+            sharedView,
+            transitionName
+        )
+
+        startActivity(intent, options.toBundle())
     }
 
-    override fun openBookInfo(book: Book) {
-        startActivity<BookInfoActivity> {
+    override fun openBookInfo(book: Book, sharedView: View) {
+        val intent = Intent(requireContext(), BookInfoActivity::class.java).apply {
             putExtra("name", book.name)
             putExtra("author", book.author)
+            putExtra("transitionName", "book_${book.bookUrl}") // 给共享元素唯一标识
         }
+
+        sharedView.transitionName = "book_${book.bookUrl}"
+
+        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+            requireActivity(),
+            sharedView,
+            sharedView.transitionName
+        )
+
+        startActivity(intent, options.toBundle())
     }
+
 
     override fun isUpdate(bookUrl: String): Boolean {
         return activityViewModel.isUpdate(bookUrl)

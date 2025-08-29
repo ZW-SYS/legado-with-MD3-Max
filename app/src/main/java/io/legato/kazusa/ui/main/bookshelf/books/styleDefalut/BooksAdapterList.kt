@@ -31,6 +31,7 @@ class BooksAdapterList(
         item: Book,
         payloads: MutableList<Any>
     ) = binding.run {
+        binding.ivCover.transitionName = "book_${item.bookUrl}"
         if (payloads.isEmpty()) {
             tvName.text = item.name
             tvAuthor.text = item.author
@@ -97,13 +98,13 @@ class BooksAdapterList(
         holder.itemView.apply {
             binding.cvContent.setOnClickListener {
                 getItem(holder.layoutPosition)?.let {
-                    callBack.open(it)
+                    callBack.open(it, binding.ivCover)
                 }
             }
 
             binding.cvContent.onLongClick {
                 getItem(holder.layoutPosition)?.let {
-                    callBack.openBookInfo(it)
+                    callBack.openBookInfo(it, binding.ivCover)
                 }
             }
         }

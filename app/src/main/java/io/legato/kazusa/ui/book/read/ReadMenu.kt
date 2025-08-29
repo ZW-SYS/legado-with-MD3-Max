@@ -598,14 +598,18 @@ class ReadMenu @JvmOverloads constructor(
 
         val result = mutableListOf<ToolButton>()
 
-        savedList.forEach { (id, enabled) ->
-            if (enabled) allButtons[id]?.let { result.add(it) }
-        }
-
-        getAllButtons().forEach { btn ->
-            if (savedList.none { it.first == btn.id }) {
-                result.add(btn)
+        if (savedList.isNotEmpty()) {
+            savedList.forEach { (id, enabled) ->
+                if (enabled) allButtons[id]?.let { result.add(it) }
             }
+
+            getAllButtons().forEach { btn ->
+                if (savedList.none { it.first == btn.id }) {
+                    result.add(btn)
+                }
+            }
+        } else {
+            result.addAll(getAllButtons().take(5))
         }
 
 
