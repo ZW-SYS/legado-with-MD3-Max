@@ -10,6 +10,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.WindowManager
 import android.view.animation.LinearInterpolator
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.doOnLayout
@@ -162,14 +163,14 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
     override fun onCreate(savedInstanceState: Bundle?) {
         window.sharedElementEnterTransition = MaterialContainerTransform().apply {
             addTarget(binding.root)
-            duration = 500
+            duration = 700
             scrimColor = Color.TRANSPARENT
             fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
         }
         window.sharedElementReturnTransition = MaterialContainerTransform().apply {
             addTarget(binding.root)
-            duration = 500
-            scrimColor = Color.TRANSPARENT
+            duration = 700
+            scrimColor = Color.BLACK
             fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
         }
         upLayoutInDisplayCutoutMode()
@@ -196,6 +197,10 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
         mMangaFooterConfig =
             GSON.fromJsonObject<MangaFooterConfig>(AppConfig.mangaFooterConfig).getOrNull()
                 ?: MangaFooterConfig()
+
+        onBackPressedDispatcher.addCallback(this) {
+            finish()
+        }
     }
 
     override fun observeLiveBus() {

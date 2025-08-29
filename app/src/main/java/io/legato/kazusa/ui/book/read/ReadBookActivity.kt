@@ -263,13 +263,13 @@ class ReadBookActivity : BaseReadBookActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         window.sharedElementEnterTransition = MaterialContainerTransform().apply {
             addTarget(binding.rootView)
-            duration = 500
+            duration = 700
             scrimColor = Color.TRANSPARENT
             fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
         }
         window.sharedElementReturnTransition = MaterialContainerTransform().apply {
             addTarget(binding.rootView)
-            duration = 500
+            duration = 700
             scrimColor = Color.TRANSPARENT
             fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
         }
