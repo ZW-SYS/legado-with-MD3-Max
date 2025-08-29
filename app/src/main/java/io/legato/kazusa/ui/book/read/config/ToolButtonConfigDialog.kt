@@ -133,7 +133,9 @@ class ToolButtonConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_too
         val str = prefs.getString("tool_buttons", null)
 
         return if (str.isNullOrBlank()) {
-            getAllButtonIds().map { ConfigEntry(it, true) }
+            getAllButtonIds().mapIndexed { index, id ->
+                ConfigEntry(id, index < 5)
+            }
         } else {
             val saved = str.split(";").mapNotNull {
                 val parts = it.split(",")
