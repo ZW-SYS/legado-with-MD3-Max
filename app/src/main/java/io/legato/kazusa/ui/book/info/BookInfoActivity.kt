@@ -15,6 +15,7 @@ import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import io.legato.kazusa.R
@@ -153,21 +154,19 @@ class BookInfoActivity :
 
     @SuppressLint("PrivateResource")
     override fun onCreate(savedInstanceState: Bundle?) {
-        window.sharedElementEnterTransition = MaterialContainerTransform().apply {
+        postponeEnterTransition()
+        val transform = MaterialContainerTransform().apply {
             addTarget(binding.ivCover)
-            duration = 500
             scrimColor = Color.TRANSPARENT
-            fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
         }
-        window.sharedElementReturnTransition = MaterialContainerTransform().apply {
-            addTarget(binding.ivCover)
-            duration = 500
-            scrimColor = Color.TRANSPARENT
-            fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
-        }
+        window.sharedElementEnterTransition = transform
+        window.sharedElementReturnTransition = transform
         window.sharedElementsUseOverlay = false
         super.onCreate(savedInstanceState)
         binding.ivCover.transitionName = intent.getStringExtra("transitionName")
+        binding.ivCover.doOnPreDraw {
+            startPostponedEnterTransition()
+        }
         setSupportActionBar(binding.topBar)
         binding.llRead?.applyNavigationBarMargin()
         binding.btnShelf.text = getString(R.string.remove_from_bookshelf)

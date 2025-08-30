@@ -228,9 +228,9 @@ data class TextChapter(
         if (pageSize == 0) {
             return -1
         }
-        val bIndex = pages.fastBinarySearchBy(charIndex, 0, pageSize) {
+        val bIndex = pages.takeIf { it.isNotEmpty() }?.fastBinarySearchBy(charIndex, 0, pageSize) {
             it.chapterPosition
-        }
+        } ?: 0
         val index = abs(bIndex + 1) - 1
         // 判断是否已经排版到 charIndex ，没有则返回 -1
         if (!isCompleted && index == pageSize - 1) {

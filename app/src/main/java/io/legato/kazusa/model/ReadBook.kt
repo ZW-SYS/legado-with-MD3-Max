@@ -492,7 +492,7 @@ object ReadBook : CoroutineScope by MainScope() {
      */
     val durPageIndex: Int
         get() {
-            return curTextChapter?.getPageIndexByCharIndex(durChapterPos) ?: durChapterPos
+            return curTextChapter?.getPageIndexByCharIndex(durChapterPos) ?: 0
         }
 
     /**

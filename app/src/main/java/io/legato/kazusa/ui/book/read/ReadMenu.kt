@@ -243,7 +243,6 @@ class ReadMenu @JvmOverloads constructor(
         } else {
             binding.bottomView.applyNavigationBarPadding()
         }
-
     }
 
     fun reset() {

@@ -7,7 +7,6 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.os.Looper
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.InputDevice
@@ -20,10 +19,12 @@ import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.doOnPreDraw
 import androidx.core.view.get
 import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.transition.platform.MaterialContainerTransform
+import com.google.android.material.transition.platform.MaterialSharedAxis
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import io.legato.kazusa.BuildConfig
 import io.legato.kazusa.R
@@ -130,6 +131,7 @@ import io.legato.kazusa.utils.sysScreenOffTime
 import io.legato.kazusa.utils.throttle
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.visible
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
@@ -261,63 +263,68 @@ class ReadBookActivity : BaseReadBookActivity(),
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
-        window.sharedElementEnterTransition = MaterialContainerTransform().apply {
+        postponeEnterTransition()
+        val transform = MaterialContainerTransform().apply {
             addTarget(binding.rootView)
-            duration = 700
             scrimColor = Color.TRANSPARENT
-            fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
+            duration = 500
         }
-        window.sharedElementReturnTransition = MaterialContainerTransform().apply {
-            addTarget(binding.rootView)
-            duration = 700
-            scrimColor = Color.TRANSPARENT
-            fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
-        }
+        window.sharedElementEnterTransition = transform
+        window.sharedElementReturnTransition =
+            MaterialSharedAxis(MaterialSharedAxis.X, true).apply { duration = 300 }
         super.onCreate(savedInstanceState)
+
         binding.rootView.transitionName = intent.getStringExtra("transitionName")
-        //binding.cursorLeft.setColorFilter(accentColor)
-        //binding.cursorRight.setColorFilter(accentColor)
         binding.cursorLeft.setOnTouchListener(this)
         binding.cursorRight.setOnTouchListener(this)
-        //window.setBackgroundDrawable(null)
-        upScreenTimeOut()
-        ReadBook.register(this)
+
+        binding.rootView.doOnPreDraw { startPostponedEnterTransition() }
+
+        lifecycleScope.launch(Dispatchers.Default) {
+            viewModel.initReadBookConfig(intent)
+            viewModel.initData(intent)
+
+            withContext(Main) {
+                binding.readView.initAfterTransition()
+                justInitData = true
+            }
+        }
+
         onBackPressedDispatcher.addCallback(this) {
-            if (isShowingSearchResult) {
-                exitSearchMenu()
-                restoreLastBookProcess()
-                return@addCallback
+            when {
+                isShowingSearchResult -> {
+                    exitSearchMenu()
+                    restoreLastBookProcess()
+                }
+
+                ReadBook.lastBookProgress != null && confirmRestoreProcess != false -> {
+                    restoreLastBookProcess()
+                }
+
+                BaseReadAloudService.isPlay() -> {
+                    ReadAloud.pause(this@ReadBookActivity)
+                    toastOnUi(R.string.read_aloud_pause)
+                }
+
+                isAutoPage -> {
+                    autoPageStop()
+                }
+
+                getPrefBoolean("disableReturnKey") && !menuLayoutIsVisible -> {
+
+                }
+
+                else -> finish()
             }
-            //拦截返回供恢复阅读进度
-            if (ReadBook.lastBookProgress != null && confirmRestoreProcess != false) {
-                restoreLastBookProcess()
-                return@addCallback
-            }
-            if (BaseReadAloudService.isPlay()) {
-                ReadAloud.pause(this@ReadBookActivity)
-                toastOnUi(R.string.read_aloud_pause)
-                return@addCallback
-            }
-            if (isAutoPage) {
-                autoPageStop()
-                return@addCallback
-            }
-            if (getPrefBoolean("disableReturnKey") && !menuLayoutIsVisible) {
-                return@addCallback
-            }
-            finish()
         }
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        viewModel.initReadBookConfig(intent)
-        Looper.myQueue().addIdleHandler {
-            viewModel.initData(intent)
-            false
-        }
-        justInitData = true
+        upScreenTimeOut()
+        ReadBook.register(this)
     }
+
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -1095,7 +1102,9 @@ class ReadBookActivity : BaseReadBookActivity(),
             "page" -> ReadBook.durPageIndex
             else /* chapter */ -> ReadBook.durChapterIndex
         }
-        binding.readMenu.setSeekPage(progress)
+        if (progress >= 0) {
+            binding.readMenu.setSeekPage(progress)
+        }
     }
 
     /**

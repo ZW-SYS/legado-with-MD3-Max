@@ -11,6 +11,7 @@ import android.view.WindowInsets
 import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnDetach
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import io.legato.kazusa.R
@@ -84,14 +85,15 @@ abstract class BaseReadBookActivity :
         setOrientation()
         upLayoutInDisplayCutoutMode()
         super.onCreate(savedInstanceState)
-        binding.navigationBar.setOnApplyWindowInsetsListenerCompat { view, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.updateLayoutParams {
-                height = insets.bottom
+        binding.navigationBar.doOnDetach {
+            binding.navigationBar.setOnApplyWindowInsetsListenerCompat { view, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                view.updateLayoutParams {
+                    height = insets.bottom
+                }
+                windowInsets
             }
-            windowInsets
         }
-
         viewModel.permissionDenialLiveData.observe(this) {
             selectBookFolderResult.launch {
                 mode = HandleFileContract.DIR_SYS

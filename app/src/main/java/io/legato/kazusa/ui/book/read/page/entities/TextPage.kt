@@ -49,7 +49,8 @@ data class TextPage(
     val lines: List<TextLine> get() = textLines
     val lineSize: Int get() = textLines.size
     val charSize: Int get() = text.length.coerceAtLeast(1)
-    val chapterPosition: Int get() = textLines.first().chapterPosition
+    val chapterPosition: Int
+        get() = textLines.firstOrNull()?.chapterPosition ?: 0
     val searchResult = hashSetOf<TextColumn>()
     var isMsgPage: Boolean = false
     var canvasRecorder = CanvasRecorderFactory.create(true)
