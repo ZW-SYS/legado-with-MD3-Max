@@ -2,7 +2,6 @@ package io.legato.kazusa.ui.book.read
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
@@ -170,35 +169,15 @@ class ReadMenu @JvmOverloads constructor(
     }
 
     private fun initView() = binding.run {
-//        if (AppConfig.isNightTheme) {
-//            fabNightTheme.setIconResource(R.drawable.ic_daytime)
-//        } else {
-//            fabNightTheme.setIconResource(R.drawable.ic_brightness)
-//        }
         initAnimation()
-//        if (immersiveMenu) {
-////            val lightTextColor = ColorUtils.withAlpha(ColorUtils.lightenColor(textColor), 0.75f)
-////            titleBar.setTextColor(textColor)
-////            titleBar.setBackgroundColor(bgColor)
-////            titleBar.setColorFilter(textColor)
-////            tvChapterName.setTextColor(lightTextColor)
-////            tvChapterUrl.setTextColor(lightTextColor)
-//        } else if (reset) {
-////            val bgColor = context.primaryColor
-////            val textColor = context.primaryTextColor
-////            titleBar.setTextColor(textColor)
-////            titleBar.setBackgroundColor(bgColor)
-////            titleBar.setColorFilter(textColor)
-////            tvChapterName.setTextColor(textColor)
-////            tvChapterUrl.setTextColor(textColor)
-//        }
 
-        val allButtons = getUserButtons()
-        renderButtons(binding.bottomView, allButtons)
+        binding.bottomView.post {
+            val allButtons = getUserButtons()
+            renderButtons(binding.bottomView, allButtons)
+        }
 
         val brightnessBackground = GradientDrawable()
         brightnessBackground.cornerRadius = 5F.dpToPx()
-       //brightnessBackground.setColor(ColorUtils.adjustAlpha(bgColor, 0.5f))
         llBrightness.background = brightnessBackground
         if (AppConfig.isEInkMode) {
             titleBar.setBackgroundResource(R.drawable.bg_eink_border_bottom)
@@ -206,25 +185,7 @@ class ReadMenu @JvmOverloads constructor(
         } else {
             //llBottomBg.setBackgroundColor(bgColor)
         }
-//        fabSearch.backgroundTintList = bottomBackgroundList
-//        fabSearch.setColorFilter(textColor)
-//        fabAutoPage.backgroundTintList = bottomBackgroundList
-//        fabAutoPage.setColorFilter(textColor)
-//        fabReplaceRule.backgroundTintList = bottomBackgroundList
-//        fabReplaceRule.setColorFilter(textColor)
-//        fabNightTheme.backgroundTintList = bottomBackgroundList
-//        fabNightTheme.setColorFilter(textColor)
-        //tvPre.setTextColor(textColor)
-        //tvNext.setTextColor(textColor)
-//        ivCatalog.setColorFilter(textColor, PorterDuff.Mode.SRC_IN)
-//        tvCatalog.setTextColor(textColor)
-//        ivReadAloud.setColorFilter(textColor, PorterDuff.Mode.SRC_IN)
-//        tvReadAloud.setTextColor(textColor)
-//        ivFont.setColorFilter(textColor, PorterDuff.Mode.SRC_IN)
-//        tvFont.setTextColor(textColor)
-//        ivSetting.setColorFilter(textColor, PorterDuff.Mode.SRC_IN)
-//        tvSetting.setTextColor(textColor)
-//        vwBrightnessPosAdjust.setColorFilter(textColor, PorterDuff.Mode.SRC_IN)
+
         llBrightness.setOnClickListener(null)
         seekBrightness.post {
             seekBrightness.progress = AppConfig.readBrightness
@@ -488,56 +449,36 @@ class ReadMenu @JvmOverloads constructor(
 
     }
 
+    private val buttonMap = mutableMapOf<String, MaterialButton>()
+
     fun renderButtons(group: MaterialButtonGroup, buttons: List<ToolButton>) {
         group.removeAllViews()
+        buttonMap.clear()
 
-        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            buttons.forEach { btn ->
-                val button = MaterialButton(
-                    group.context,
-                    null,
+        buttons.forEach { btn ->
+            val style =
+                if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
                     com.google.android.material.R.attr.materialIconButtonFilledTonalStyle
-                ).apply {
-                    id = btn.id.hashCode()
-                    setIconResource(btn.iconRes)
-                    contentDescription = btn.description
-                    tooltipText = btn.description
-
-                    setOnClickListener { btn.onClick() }
-                    btn.onLongClick?.let { longAction ->
-                        setOnLongClickListener {
-                            longAction()
-                            true
-                        }
-                    }
-                }
-                group.addView(button)
-            }
-        } else {
-            buttons.forEach { btn ->
-                val button = MaterialButton(
-                    group.context,
-                    null,
+                else
                     com.google.android.material.R.attr.materialIconButtonOutlinedStyle
-                ).apply {
-                    id = btn.id.hashCode()
-                    setIconResource(btn.iconRes)
-                    contentDescription = btn.description
-                    tooltipText = btn.description
-                    strokeWidth = 0
-                    val primaryColor = context.themeColor(androidx.appcompat.R.attr.colorPrimary)
-                    iconTint = ColorStateList.valueOf(primaryColor)
 
-                    setOnClickListener { btn.onClick() }
-                    btn.onLongClick?.let { longAction ->
-                        setOnLongClickListener {
-                            longAction()
-                            true
-                        }
+            val button = MaterialButton(group.context, null, style).apply {
+                id = btn.id.hashCode()
+                setIconResource(btn.iconRes)
+                contentDescription = btn.description
+                tooltipText = btn.description
+                strokeWidth = 0
+                setOnClickListener { btn.onClick() }
+                btn.onLongClick?.let { longAction ->
+                    setOnLongClickListener {
+                        longAction()
+                        true
                     }
                 }
-                group.addView(button)
             }
+
+            group.addView(button)
+            buttonMap[btn.id] = button
         }
     }
 
@@ -553,7 +494,7 @@ class ReadMenu @JvmOverloads constructor(
                 id = "auto_page",
                 iconRes = R.drawable.ic_auto_page,
                 description = context.getString(R.string.auto_next_page),
-                onClick = { callBack.autoPage() }
+                onClick = { runMenuOut { callBack.autoPage() } }
             ),
             ToolButton(
                 id = "catalog",
@@ -565,7 +506,7 @@ class ReadMenu @JvmOverloads constructor(
                 id = "read_aloud",
                 iconRes = R.drawable.ic_read_aloud,
                 description = context.getString(R.string.read_aloud),
-                onClick = { callBack.onClickReadAloud() },
+                onClick = { runMenuOut { callBack.onClickReadAloud() } },
                 onLongClick = { callBack.showReadAloudDialog() }
             ),
             ToolButton(
@@ -613,6 +554,17 @@ class ReadMenu @JvmOverloads constructor(
 
 
         return result
+    }
+
+    fun setAutoPage(autoPage: Boolean) {
+        buttonMap["auto_page"]?.apply {
+            val icon = if (autoPage) R.drawable.ic_auto_page_stop else R.drawable.ic_auto_page
+            val desc =
+                context.getString(if (autoPage) R.string.auto_next_page_stop else R.string.auto_next_page)
+            setIconResource(icon)
+            contentDescription = desc
+            tooltipText = desc
+        }
     }
 
     private fun initAnimation() {
@@ -704,19 +656,6 @@ class ReadMenu @JvmOverloads constructor(
         binding.seekReadPage.value = seek.toFloat() + 1
     }
 
-    fun setAutoPage(autoPage: Boolean) = binding.run {
-        fabAutoPage?.let { fab ->
-            if (autoPage) {
-                fab.setIconResource(R.drawable.ic_auto_page_stop)
-                fab.contentDescription = context.getString(R.string.auto_next_page_stop)
-            } else {
-                fab.setIconResource(R.drawable.ic_auto_page)
-                fab.contentDescription = context.getString(R.string.auto_next_page)
-            }
-        }
-    }
-
-
     private fun upBrightnessVwPos() {
         if (AppConfig.brightnessVwPos) {
             binding.root.modifyBegin()
@@ -757,6 +696,7 @@ class ReadMenu @JvmOverloads constructor(
         val iconRes: Int,           // 图标资源
         val description: String,    // contentDescription / tooltipText
         val onClick: () -> Unit,    // 点击事件
-        val onLongClick: (() -> Unit)? = null // 可选长按
+        val onLongClick: (() -> Unit)? = null, // 可选长按
+        var state: Boolean = false // 动态
     )
 }
