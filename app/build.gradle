@@ -191,9 +191,6 @@ dependencies {
     implementation(libs.bundles.coroutines)
 
 
-    //图像处理库Toolkit
-    implementation(libs.renderscript.intrinsics.replacement.toolkit)
-
     //androidX
     implementation(libs.core.ktx)
     implementation(libs.appcompat.appcompat)
