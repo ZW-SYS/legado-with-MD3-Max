@@ -11,6 +11,12 @@
       "@/*": ["./src/*"],
       "@api": ["./src/api"],
       "@utils/*": ["./src/utils/*"]
-    }
+    },
+    "target": "ES2021",
+    "lib": [
+      "ES2021",
+      "DOM",
+      "DOM.Iterable"
+    ]
   }
 }
