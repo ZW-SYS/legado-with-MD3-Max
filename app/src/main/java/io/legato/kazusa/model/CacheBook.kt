@@ -11,6 +11,7 @@ import io.legato.kazusa.data.entities.BookSource
 import io.legato.kazusa.exception.ConcurrentException
 import io.legato.kazusa.help.book.BookHelp
 import io.legato.kazusa.help.book.isLocal
+import io.legato.kazusa.help.coroutine.CompositeCoroutine
 import io.legato.kazusa.help.coroutine.Coroutine
 import io.legato.kazusa.model.webBook.WebBook
 import io.legato.kazusa.service.CacheBookService
@@ -96,15 +97,11 @@ object CacheBook {
         }
     }
 
-    fun clear() {
-        successDownloadSet.clear()
-        errorDownloadMap.clear()
-    }
-
     fun close() {
         cacheBookMap.forEach { it.value.stop() }
         cacheBookMap.clear()
-        clear()
+        successDownloadSet.clear()
+        errorDownloadMap.clear()
     }
 
     val downloadSummary: String
@@ -146,6 +143,7 @@ object CacheBook {
 
         private val waitDownloadSet = linkedSetOf<Int>()
         private val onDownloadSet = linkedSetOf<Int>()
+        private val tasks = CompositeCoroutine()
         private var isStopped = false
         private var waitingRetry = false
 
@@ -158,7 +156,7 @@ object CacheBook {
 
         @Synchronized
         fun isRun(): Boolean {
-            return waitDownloadSet.size > 0 || onDownloadSet.size > 0
+            return waitDownloadSet.isNotEmpty() || onDownloadSet.isNotEmpty()
         }
 
         @Synchronized
@@ -169,6 +167,7 @@ object CacheBook {
         @Synchronized
         fun stop() {
             waitDownloadSet.clear()
+            tasks.clear()
             isStopped = true
             postEvent(EventBus.UP_DOWNLOAD, book.bookUrl)
         }
@@ -309,6 +308,8 @@ object CacheBook {
                 onCancel(chapterIndex)
             }.onFinally {
                 onFinally()
+            }.apply {
+                tasks.add(this)
             }.start()
         }
 

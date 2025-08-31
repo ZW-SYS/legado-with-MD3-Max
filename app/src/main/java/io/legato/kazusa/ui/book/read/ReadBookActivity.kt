@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
-import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
@@ -19,6 +18,7 @@ import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.net.toUri
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.get
 import androidx.core.view.size
@@ -906,10 +906,11 @@ class ReadBookActivity : BaseReadBookActivity(),
                 ReadBook.bookSource?.bookSourceUrl?.let {
                     scopes.add(it)
                 }
+                val text = selectedText.lineSequence().map { it.trim() }.joinToString("\n")
                 replaceActivity.launch(
                     ReplaceEditActivity.startIntent(
                         this,
-                        pattern = selectedText,
+                        pattern = text,
                         scope = scopes.joinToString(";")
                     )
                 )
@@ -1421,7 +1422,7 @@ class ReadBookActivity : BaseReadBookActivity(),
                             value = src
                         }
                     } else {
-                        viewModel.saveImage(src, Uri.parse(path))
+                        viewModel.saveImage(src, path.toUri())
                     }
                 }
 

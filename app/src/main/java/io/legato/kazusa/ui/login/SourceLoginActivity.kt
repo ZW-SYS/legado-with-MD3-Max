@@ -17,9 +17,11 @@ class SourceLoginActivity : VMBaseActivity<ActivitySourceLoginBinding, SourceLog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.initData(intent) { source ->
+        viewModel.initData(intent, success = { source ->
             initView(source)
-        }
+        }, error = {
+            finish()
+        })
     }
 
     private fun initView(source: BaseSource) {

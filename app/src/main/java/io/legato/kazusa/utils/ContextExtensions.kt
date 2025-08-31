@@ -35,6 +35,7 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.edit
+import androidx.core.net.toUri
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.preference.PreferenceManager
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
@@ -44,6 +45,7 @@ import io.legato.kazusa.data.entities.Book
 import io.legato.kazusa.help.IntentHelp
 import io.legato.kazusa.help.book.isAudio
 import io.legato.kazusa.help.book.isImage
+import io.legato.kazusa.help.book.isLocal
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.ui.book.audio.AudioPlayActivity
 import io.legato.kazusa.ui.book.manga.ReadMangaActivity
@@ -68,7 +70,7 @@ fun Context.startActivityForBook(
 ) {
     val cls = when {
         book.isAudio -> AudioPlayActivity::class.java
-        book.isImage && AppConfig.showMangaUi -> ReadMangaActivity::class.java
+        !book.isLocal && book.isImage && AppConfig.showMangaUi -> ReadMangaActivity::class.java
         else -> ReadBookActivity::class.java
     }
     val intent = Intent(this, cls)
@@ -323,7 +325,7 @@ fun Context.getClipText(): String? {
 fun Context.sendMail(mail: String) {
     try {
         val intent = Intent(Intent.ACTION_SENDTO)
-        intent.data = Uri.parse("mailto:$mail")
+        intent.data = "mailto:$mail".toUri()
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
     } catch (e: Exception) {

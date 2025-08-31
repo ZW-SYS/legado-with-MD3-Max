@@ -126,6 +126,20 @@
         app:layout_constraintBottom_toBottomOf="parent">
 
         <io.legato.kazusa.ui.widget.image.ImageButton
+            android:id="@+id/iv_play_mode"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:layout_marginStart="16dp"
+            android:background="@drawable/selector_circle_btn_bg"
+            android:contentDescription="@string/play_mode"
+            android:padding="5dp"
+            android:src="@drawable/ic_play_mode_list_end_stop"
+            app:layout_constraintBottom_toTopOf="@+id/tv_sub_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:tint="@color/md_white_1000"
+            tools:ignore="ImageContrastCheck" />
+
+        <io.legato.kazusa.ui.widget.image.ImageButton
             android:id="@+id/iv_timer"
             android:layout_width="46dp"
             android:layout_height="46dp"

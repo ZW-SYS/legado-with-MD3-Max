@@ -39,7 +39,6 @@ import io.legato.kazusa.help.http.postForm
 import io.legato.kazusa.help.http.postJson
 import io.legato.kazusa.help.http.postMultipart
 import io.legato.kazusa.help.source.getShareScope
-import io.legato.kazusa.model.Debug
 import io.legato.kazusa.utils.EncoderUtils
 import io.legato.kazusa.utils.GSON
 import io.legato.kazusa.utils.GSONStrict
@@ -225,32 +224,32 @@ class AnalyzeUrl(
             if (urlOption == null) {
                 urlOption = GSON.fromJsonObject<UrlOption>(urlOptionStr).getOrNull()
                 if (urlOption != null) {
-                    Debug.log("≡链接参数 JSON 格式不规范，请改为规范格式")
+                    log("链接参数 JSON 格式不规范，请改为规范格式")
                 }
             }
             urlOption?.let { option ->
-                    option.getMethod()?.let {
-                        if (it.equals("POST", true)) method = RequestMethod.POST
-                    }
-                    option.getHeaderMap()?.forEach { entry ->
-                        headerMap[entry.key.toString()] = entry.value.toString()
-                    }
-                    option.getBody()?.let {
-                        body = it
-                    }
-                    type = option.getType()
-                    charset = option.getCharset()
-                    retry = option.getRetry()
-                    useWebView = option.useWebView()
-                    webJs = option.getWebJs()
-                    option.getJs()?.let { jsStr ->
-                        evalJS(jsStr, url)?.toString()?.let {
-                            url = it
-                        }
+                option.getMethod()?.let {
+                    if (it.equals("POST", true)) method = RequestMethod.POST
+                }
+                option.getHeaderMap()?.forEach { entry ->
+                    headerMap[entry.key.toString()] = entry.value.toString()
+                }
+                option.getBody()?.let {
+                    body = it
+                }
+                type = option.getType()
+                charset = option.getCharset()
+                retry = option.getRetry()
+                useWebView = option.useWebView()
+                webJs = option.getWebJs()
+                option.getJs()?.let { jsStr ->
+                    evalJS(jsStr, url)?.toString()?.let {
+                        url = it
                     }
                     serverID = option.getServerID()
                     webViewDelayTime = max(0, option.getWebViewDelayTime() ?: 0)
                 }
+            }
         }
         urlNoQuery = url
         when (method) {
@@ -458,7 +457,7 @@ class AnalyzeUrl(
                         else -> get(urlNoQuery, encodedQuery)
                     }
                 }.let {
-                    val isXml = it.raw.body?.contentType()?.toString()
+                    val isXml = it.raw.body.contentType()?.toString()
                         ?.matches(AppPattern.xmlContentTypeRegex) == true
                     if (isXml && it.body?.trim()?.startsWith("<?xml", true) == false) {
                         StrResponse(it.raw, "<?xml version=\"1.0\"?>" + it.body)
@@ -553,7 +552,7 @@ class AnalyzeUrl(
         getByteArrayIfDataUri()?.let {
             return it
         }
-        return getResponseAwait().body!!.bytes()
+        return getResponseAwait().body.bytes()
     }
 
     fun getByteArray(): ByteArray {
@@ -569,7 +568,7 @@ class AnalyzeUrl(
         getByteArrayIfDataUri()?.let {
             return ByteArrayInputStream(it)
         }
-        return getResponseAwait().body!!.byteStream()
+        return getResponseAwait().body.byteStream()
     }
 
     fun getInputStream(): InputStream {

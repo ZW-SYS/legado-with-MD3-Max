@@ -7,6 +7,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
+import android.os.Build
 import com.github.liuyueyi.quick.transfer.constants.TransType
 import com.google.android.material.color.DynamicColors
 import com.jeremyliao.liveeventbus.LiveEventBus
@@ -141,6 +142,9 @@ class App : Application() {
      * @return
      */
     private fun installGmsTlsProvider(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return
+        }
         try {
             val gmsPackageName = "com.google.android.gms"
             val appInfo = packageManager.getApplicationInfo(gmsPackageName, 0)

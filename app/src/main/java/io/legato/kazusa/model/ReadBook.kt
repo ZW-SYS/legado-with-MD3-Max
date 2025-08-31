@@ -63,20 +63,8 @@ object ReadBook : CoroutineScope by MainScope() {
     var isLocalBook = true
     var chapterChanged = false
     var prevTextChapter: TextChapter? = null
-        set(value) {
-            field?.cancelLayout()
-            field = value
-        }
     var curTextChapter: TextChapter? = null
-        set(value) {
-            field?.cancelLayout()
-            field = value
-        }
     var nextTextChapter: TextChapter? = null
-        set(value) {
-            field?.cancelLayout()
-            field = value
-        }
     var bookSource: BookSource? = null
     var msg: String? = null
     private val loadingChapters = arrayListOf<Int>()
@@ -222,6 +210,9 @@ object ReadBook : CoroutineScope by MainScope() {
     }
 
     fun clearTextChapter() {
+        prevTextChapter?.cancelLayout()
+        curTextChapter?.cancelLayout()
+        nextTextChapter?.cancelLayout()
         prevTextChapter = null
         curTextChapter = null
         nextTextChapter = null
@@ -333,6 +324,7 @@ object ReadBook : CoroutineScope by MainScope() {
         if (durChapterIndex < simulatedChapterSize - 1) {
             durChapterPos = 0
             durChapterIndex++
+            prevTextChapter?.cancelLayout()
             prevTextChapter = curTextChapter
             curTextChapter = nextTextChapter
             nextTextChapter = null
@@ -363,6 +355,7 @@ object ReadBook : CoroutineScope by MainScope() {
         if (durChapterIndex < simulatedChapterSize - 1) {
             durChapterPos = 0
             durChapterIndex++
+            prevTextChapter?.cancelLayout()
             prevTextChapter = curTextChapter
             curTextChapter = nextTextChapter
             nextTextChapter = null
@@ -394,6 +387,7 @@ object ReadBook : CoroutineScope by MainScope() {
         if (durChapterIndex > 0) {
             durChapterPos = if (toLast) prevTextChapter?.lastReadLength ?: Int.MAX_VALUE else 0
             durChapterIndex--
+            nextTextChapter?.cancelLayout()
             nextTextChapter = curTextChapter
             curTextChapter = prevTextChapter
             prevTextChapter = null
@@ -703,6 +697,7 @@ object ReadBook : CoroutineScope by MainScope() {
             )
             when (val offset = chapter.index - durChapterIndex) {
                 0 -> {
+                    curTextChapter?.cancelLayout()
                     curTextChapter = textChapter
                     callBack?.upMenuView()
                     var available = false
@@ -727,12 +722,14 @@ object ReadBook : CoroutineScope by MainScope() {
                 }
 
                 -1 -> {
+                    prevTextChapter?.cancelLayout()
                     prevTextChapter = textChapter
                     textChapter.layoutChannel.receiveAsFlow().collect()
                     if (upContent) callBack?.upContent(offset, resetPageOffset)
                 }
 
                 1 -> {
+                    nextTextChapter?.cancelLayout()
                     nextTextChapter = textChapter
                     for (page in textChapter.layoutChannel) {
                         if (page.index > 1) {
@@ -776,6 +773,7 @@ object ReadBook : CoroutineScope by MainScope() {
             )
             when (val offset = chapter.index - durChapterIndex) {
                 0 -> {
+                    curTextChapter?.cancelLayout()
                     curTextChapter = textChapter
                     callBack?.upMenuView()
                     var available = false
@@ -800,12 +798,14 @@ object ReadBook : CoroutineScope by MainScope() {
                 }
 
                 -1 -> {
+                    prevTextChapter?.cancelLayout()
                     prevTextChapter = textChapter
                     textChapter.layoutChannel.receiveAsFlow().collect()
                     if (upContent) callBack?.upContent(offset, resetPageOffset)
                 }
 
                 1 -> {
+                    nextTextChapter?.cancelLayout()
                     nextTextChapter = textChapter
                     for (page in textChapter.layoutChannel) {
                         if (page.index > 1) {
@@ -858,21 +858,25 @@ object ReadBook : CoroutineScope by MainScope() {
 
     fun saveRead(pageChanged: Boolean = false) {
         executor.execute {
-            val book = book ?: return@execute
-            book.lastCheckCount = 0
-            book.durChapterTime = System.currentTimeMillis()
-            val chapterChanged = book.durChapterIndex != durChapterIndex
-            book.durChapterIndex = durChapterIndex
-            book.durChapterPos = durChapterPos
-            if (!pageChanged || chapterChanged) {
-                appDb.bookChapterDao.getChapter(book.bookUrl, durChapterIndex)?.let {
-                    book.durChapterTitle = it.getDisplayTitle(
-                        ContentProcessor.get(book.name, book.origin).getTitleReplaceRules(),
-                        book.getUseReplaceRule()
-                    )
+            kotlin.runCatching {
+                val book = book ?: return@execute
+                book.lastCheckCount = 0
+                book.durChapterTime = System.currentTimeMillis()
+                val chapterChanged = book.durChapterIndex != durChapterIndex
+                book.durChapterIndex = durChapterIndex
+                book.durChapterPos = durChapterPos
+                if (!pageChanged || chapterChanged) {
+                    appDb.bookChapterDao.getChapter(book.bookUrl, durChapterIndex)?.let {
+                        book.durChapterTitle = it.getDisplayTitle(
+                            ContentProcessor.get(book.name, book.origin).getTitleReplaceRules(),
+                            book.getUseReplaceRule()
+                        )
+                    }
                 }
+                appDb.bookDao.update(book)
+            }.onFailure {
+                AppLog.put("保存书籍阅读进度信息出错\n$it", it)
             }
-            appDb.bookDao.update(book)
         }
     }
 

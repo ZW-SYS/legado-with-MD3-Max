@@ -18,6 +18,7 @@ import io.legato.kazusa.utils.toRequestBody
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -92,6 +93,7 @@ open class WebDav(
                 .replace("+", "%20")
                 .replace("%3A", ":")
                 .replace("%2F", "/")
+            raw.toHttpUrl().toString()
         }.getOrNull()
     }
     private val webDavClient by lazy {
@@ -112,7 +114,14 @@ open class WebDav(
             build()
         }
     }
-    val host: String? get() = url.host
+    private val host: String?
+        get() = url.host?.let {
+            if (it.startsWith("[")) {
+                it.substring(1, it.lastIndex)
+            } else {
+                it
+            }
+        }
 
     /**
      * 获取当前url文件信息
@@ -165,7 +174,7 @@ open class WebDav(
             method("PROPFIND", requestBody)
         }.apply {
             checkResult(this)
-        }.body?.text()
+        }.body.text()
     }
 
     /**
@@ -397,8 +406,8 @@ open class WebDav(
             url(url)
         }.apply {
             checkResult(this)
-        }.body?.byteStream()
-        return byteStream ?: throw WebDavException("WebDav下载出错\nNull Exception")
+        }.body.byteStream()
+        return byteStream
     }
 
     /**
@@ -425,7 +434,7 @@ open class WebDav(
      */
     private fun checkResult(response: Response) {
         if (!response.isSuccessful) {
-            val body = response.body?.string()
+            val body = response.body.string()
             if (response.code == 401) {
                 val headers = response.headers("WWW-Authenticate")
                 val supportBasicAuth = headers.any {
@@ -436,7 +445,7 @@ open class WebDav(
                 }
             }
 
-            if (response.message.isNotBlank() || body.isNullOrBlank()) {
+            if (response.message.isNotBlank() || body.isBlank()) {
                 throw WebDavException("${url}\n${response.code}:${response.message}")
             }
             val document = Jsoup.parse(body)

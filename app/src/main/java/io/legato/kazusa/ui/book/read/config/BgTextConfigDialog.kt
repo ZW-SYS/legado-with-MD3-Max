@@ -1,16 +1,14 @@
 package io.legato.kazusa.ui.book.read.config
 
-//import io.legado.app.lib.theme.bottomBackground
-//import io.legado.app.lib.theme.getPrimaryTextColor
-//import io.legado.app.lib.theme.getSecondaryTextColor
 import android.annotation.SuppressLint
 import android.content.DialogInterface
-import android.graphics.Color
 import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.TooltipCompat
+import androidx.core.graphics.toColorInt
+import androidx.core.view.isGone
 import androidx.documentfile.provider.DocumentFile
 import com.google.android.material.slider.Slider
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
@@ -22,12 +20,14 @@ import io.legato.kazusa.databinding.DialogEditTextBinding
 import io.legato.kazusa.databinding.DialogReadBgTextBinding
 import io.legato.kazusa.databinding.ItemBgImageBinding
 import io.legato.kazusa.help.DefaultData
+import io.legato.kazusa.help.book.isImage
 import io.legato.kazusa.help.config.ReadBookConfig
 import io.legato.kazusa.help.http.newCallResponseBody
 import io.legato.kazusa.help.http.okHttpClient
 import io.legato.kazusa.lib.dialogs.SelectItem
 import io.legato.kazusa.lib.dialogs.alert
 import io.legato.kazusa.lib.dialogs.selector
+import io.legato.kazusa.model.ReadBook
 import io.legato.kazusa.ui.book.read.ReadBookActivity
 import io.legato.kazusa.ui.file.HandleFileContract
 import io.legato.kazusa.utils.FileUtils
@@ -119,6 +119,7 @@ class BgTextConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_bg
                 tvName.text = getString(R.string.select_image)
                 ivBg.setImageResource(R.drawable.ic_image)
                 ivBg.setColorFilter(primaryTextColor, PorterDuff.Mode.SRC_IN)
+                swUnderline.isGone = ReadBook.book?.isImage == true
                 root.setOnClickListener {
                     selectBgImage.launch()
                 }
@@ -184,8 +185,8 @@ class BgTextConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_bg
         }
         binding.tvBgColor.setOnClickListener {
             val bgColor =
-                if (curBgType() == 0) Color.parseColor(curBgStr())
-                else Color.parseColor("#015A86")
+                if (curBgType() == 0) curBgStr().toColorInt()
+                else "#015A86".toColorInt()
             ColorPickerDialog.newBuilder()
                 .setColor(bgColor)
                 .setShowAlphaSlider(false)
@@ -355,7 +356,7 @@ class BgTextConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_bg
 
     private fun importConfig(byteArray: ByteArray) {
         execute {
-            ReadBookConfig.import(byteArray).getOrThrow()
+            ReadBookConfig.import(byteArray)
         }.onSuccess {
             ReadBookConfig.durConfig = it
             postEvent(EventBus.UP_CONFIG, arrayListOf(1, 2, 5))

@@ -1,6 +1,5 @@
 package io.legato.kazusa.lib.mobi.utils
 
-import okhttp3.internal.and
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 

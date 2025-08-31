@@ -12,7 +12,7 @@
 		<item>@string/screen_portrait</item>
 		<item>@string/screen_landscape</item>
 		<item>@string/screen_sensor</item>
-		<item>Đảo ngược màn hình dọc</item>
+        <item>@string/screen_portrait_reversed</item>
 	</string-array>
     <string-array name="group_style">
         <item>Nhãn</item>

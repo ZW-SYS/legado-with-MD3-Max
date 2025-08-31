@@ -130,6 +130,10 @@ class MoreConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_more_conf
                     ReadBook.callBack?.upPageAnim(true)
                     ReadBook.loadContent(false)
                 }
+
+                PreferKey.paddingDisplayCutouts -> {
+                    postEvent(EventBus.UP_CONFIG, arrayListOf(2))
+                }
             }
         }
 

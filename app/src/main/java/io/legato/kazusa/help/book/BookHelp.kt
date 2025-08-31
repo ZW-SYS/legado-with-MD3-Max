@@ -3,6 +3,7 @@ package io.legato.kazusa.help.book
 import android.graphics.BitmapFactory
 import android.os.ParcelFileDescriptor
 import androidx.documentfile.provider.DocumentFile
+import com.script.rhino.runScriptWithContext
 import io.legato.kazusa.constant.AppLog
 import io.legato.kazusa.constant.AppPattern
 import io.legato.kazusa.constant.EventBus
@@ -28,7 +29,6 @@ import io.legato.kazusa.utils.getFile
 import io.legato.kazusa.utils.isContentScheme
 import io.legato.kazusa.utils.onEachParallel
 import io.legato.kazusa.utils.postEvent
-import com.script.rhino.runScriptWithContext
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
@@ -157,7 +157,7 @@ object BookHelp {
         }
     }
 
-    suspend fun saveContent(
+    fun saveContent(
         bookSource: BookSource,
         book: Book,
         bookChapter: BookChapter,
@@ -404,7 +404,11 @@ object BookHelp {
             bookChapter.getFileName()
         )
         if (file.exists()) {
-            return file.readText()
+            val string = file.readText()
+            if (string.isEmpty()) {
+                return null
+            }
+            return string
         }
         if (book.isLocal) {
             val string = LocalBook.getContent(book, bookChapter)

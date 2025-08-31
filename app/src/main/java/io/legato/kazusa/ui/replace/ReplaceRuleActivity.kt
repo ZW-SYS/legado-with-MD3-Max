@@ -1,7 +1,6 @@
 package io.legato.kazusa.ui.replace
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -25,8 +24,6 @@ import io.legato.kazusa.help.DirectLinkUpload
 import io.legato.kazusa.help.book.ContentProcessor
 import io.legato.kazusa.help.coroutine.Coroutine
 import io.legato.kazusa.lib.dialogs.alert
-//import io.legado.app.lib.theme.primaryColor
-//import io.legado.app.lib.theme.primaryTextColor
 import io.legato.kazusa.ui.association.ImportReplaceRuleDialog
 import io.legato.kazusa.ui.file.HandleFileContract
 import io.legato.kazusa.ui.qrcode.QrCodeResult
@@ -72,7 +69,7 @@ class ReplaceRuleActivity : VMBaseActivity<ActivityReplaceRuleBinding, ReplaceRu
     private val searchView: SearchView by lazy {
         binding.titleBar.findViewById(R.id.search_view)
     }
-    private var groups = hashSetOf<String>()
+    private var groups = arrayListOf<String>()
     private var groupMenu: SubMenu? = null
     private var replaceRuleFlowJob: Job? = null
     private var dataInit = false
@@ -224,7 +221,7 @@ class ReplaceRuleActivity : VMBaseActivity<ActivityReplaceRuleBinding, ReplaceRu
                 AppLog.put("替换规则管理界面更新数据出错", it)
             }.flowOn(IO).conflate().collect {
                 if (dataInit) {
-                    setResult(Activity.RESULT_OK)
+                    setResult(RESULT_OK)
                 }
                 adapter.setItems(it, adapter.diffItemCallBack)
                 dataInit = true

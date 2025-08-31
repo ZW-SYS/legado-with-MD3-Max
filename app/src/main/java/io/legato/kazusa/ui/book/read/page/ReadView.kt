@@ -17,6 +17,7 @@ import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.config.ReadBookConfig
 import io.legato.kazusa.model.ReadAloud
 import io.legato.kazusa.model.ReadBook
+import io.legato.kazusa.service.BaseReadAloudService
 import io.legato.kazusa.ui.book.read.ContentEditDialog
 import io.legato.kazusa.ui.book.read.page.api.DataSource
 import io.legato.kazusa.ui.book.read.page.delegate.CoverPageDelegate
@@ -456,6 +457,13 @@ class ReadView(context: Context, attrs: AttributeSet) :
                 { progress -> callBack.sureNewProgress(progress) },
                 { context.longToastOnUi(context.getString(R.string.upload_book_success)) },
                 { context.longToastOnUi(context.getString(R.string.sync_book_progress_success)) })
+            13 -> {
+                if (BaseReadAloudService.isPlay()) {
+                    ReadAloud.pause(context)
+                } else {
+                    ReadAloud.resume(context)
+                }
+            }
         }
     }
 

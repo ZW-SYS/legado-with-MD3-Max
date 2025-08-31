@@ -2,6 +2,7 @@ package io.legato.kazusa.model.localBook
 
 import android.net.Uri
 import android.util.Base64
+import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import com.script.ScriptBindings
 import com.script.rhino.RhinoScriptEngine
@@ -103,7 +104,7 @@ object LocalBook {
 
     fun getLastModified(book: Book): Result<Long> {
         return kotlin.runCatching {
-            val uri = Uri.parse(book.bookUrl)
+            val uri = book.bookUrl.toUri()
             if (uri.isContentScheme()) {
                 return@runCatching DocumentFile.fromSingleUri(appCtx, uri)!!.lastModified()
             }
@@ -144,6 +145,9 @@ object LocalBook {
         val list = ArrayList(LinkedHashSet(chapters))
         list.forEachIndexed { index, bookChapter ->
             bookChapter.index = index
+            if (bookChapter.title.isEmpty()) {
+                bookChapter.title = "无标题章节"
+            }
         }
         val replaceRules = ContentProcessor.get(book).getTitleReplaceRules()
         book.durChapterTitle = list.getOrElse(book.durChapterIndex) { list.last() }
@@ -190,6 +194,9 @@ object LocalBook {
                 content = content.replace("&lt;img", "&lt; img", true)
                 return StringEscapeUtils.unescapeHtml4(content)
             }
+        }
+        if (content.isNullOrEmpty()) {
+            return null
         }
         return content
     }
@@ -374,7 +381,7 @@ object LocalBook {
             }
             if (deleteOriginal) {
                 if (book.bookUrl.isContentScheme()) {
-                    val uri = Uri.parse(book.bookUrl)
+                    val uri = book.bookUrl.toUri()
                     DocumentFile.fromSingleUri(appCtx, uri)?.delete()
                 } else {
                     FileUtils.delete(book.bookUrl)
@@ -419,7 +426,7 @@ object LocalBook {
         inputStream.use {
             val defaultBookTreeUri = AppConfig.defaultBookTreeUri
             if (defaultBookTreeUri.isNullOrBlank()) throw NoBooksDirException()
-            val treeUri = Uri.parse(defaultBookTreeUri)
+            val treeUri = defaultBookTreeUri.toUri()
             return if (treeUri.isContentScheme()) {
                 val treeDoc = DocumentFile.fromTreeUri(appCtx, treeUri)
                 var doc = treeDoc!!.findFile(fileName)

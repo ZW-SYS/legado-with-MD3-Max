@@ -739,7 +739,7 @@ class BookInfoActivity :
             else -> readBookResult.launch(
                 Intent(
                     this,
-                    if (book.isImage && AppConfig.showMangaUi) ReadMangaActivity::class.java
+                    if (!book.isLocal && book.isImage && AppConfig.showMangaUi) ReadMangaActivity::class.java
                     else ReadBookActivity::class.java
                 )
                     .putExtra("bookUrl", book.bookUrl)

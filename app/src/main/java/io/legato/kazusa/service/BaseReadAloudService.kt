@@ -27,6 +27,7 @@ import io.legato.kazusa.R
 import io.legato.kazusa.base.BaseService
 import io.legato.kazusa.constant.AppConst
 import io.legato.kazusa.constant.AppLog
+import io.legato.kazusa.constant.AppPattern
 import io.legato.kazusa.constant.EventBus
 import io.legato.kazusa.constant.IntentAction
 import io.legato.kazusa.constant.NotificationId
@@ -45,9 +46,7 @@ import io.legato.kazusa.ui.book.read.ReadBookActivity
 import io.legato.kazusa.ui.book.read.page.entities.TextChapter
 import io.legato.kazusa.utils.LogUtils
 import io.legato.kazusa.utils.activityPendingIntent
-import io.legato.kazusa.utils.broadcastPendingIntent
 import io.legato.kazusa.utils.getPrefBoolean
-import io.legato.kazusa.utils.isVivoDevice
 import io.legato.kazusa.utils.observeEvent
 import io.legato.kazusa.utils.observeSharedPreferences
 import io.legato.kazusa.utils.postEvent
@@ -326,9 +325,11 @@ abstract class BaseReadAloudService : BaseService(),
     private fun prevP() {
         if (nowSpeak > 0) {
             playStop()
-            nowSpeak--
-            readAloudNumber -= contentList[nowSpeak].length + 1 + paragraphStartPos
-            paragraphStartPos = 0
+            do {
+                nowSpeak--
+                readAloudNumber -= contentList[nowSpeak].length + 1 + paragraphStartPos
+                paragraphStartPos = 0
+            } while (contentList[nowSpeak].matches(AppPattern.notReadAloudRegex))
             textChapter?.let {
                 if (readAloudByPage) {
                     val paragraphs = it.getParagraphs(true)
@@ -358,7 +359,9 @@ abstract class BaseReadAloudService : BaseService(),
                     val paragraphs = it.getParagraphs(true)
                     if (!paragraphs[nowSpeak].isParagraphEnd) readAloudNumber--
                 }
-                if (readAloudNumber >= it.getReadLength(pageIndex + 1)) {
+                if (pageIndex + 1 < it.pageSize
+                    && readAloudNumber >= it.getReadLength(pageIndex + 1)
+                ) {
                     pageIndex++
                     ReadBook.moveToNextPage()
                 }
@@ -443,6 +446,14 @@ abstract class BaseReadAloudService : BaseService(),
             PlaybackStateCompat.Builder()
                 .setActions(MediaHelp.MEDIA_SESSION_ACTIONS)
                 .setState(state, nowSpeak.toLong(), 1f)
+                // 为系统媒体控件添加定时按钮
+                .addCustomAction(
+                    PlaybackStateCompat.CustomAction.Builder(
+                        "ACTION_ADD_TIMER",
+                        getString(R.string.set_timer),
+                        R.drawable.ic_time_add_24dp
+                    ).build()
+                )
                 .build()
         )
     }
@@ -450,17 +461,60 @@ abstract class BaseReadAloudService : BaseService(),
     /**
      * 初始化MediaSession, 注册多媒体按钮
      */
+    /**
+     * 初始化MediaSession, 注册多媒体按钮
+     */
     @SuppressLint("UnspecifiedImmutableFlag")
     private fun initMediaSession() {
-        mediaSessionCompat.setCallback(object : MediaSessionCompat.Callback() {
-            override fun onMediaButtonEvent(mediaButtonEvent: Intent): Boolean {
-                return MediaButtonReceiver.handleIntent(this@BaseReadAloudService, mediaButtonEvent)
-            }
-        })
-        mediaSessionCompat.setMediaButtonReceiver(
-            broadcastPendingIntent<MediaButtonReceiver>(Intent.ACTION_MEDIA_BUTTON)
-        )
-        mediaSessionCompat.isActive = true
+        if (getPrefBoolean("systemMediaControlCompatibilityChange")) {
+            mediaSessionCompat.setCallback(object : MediaSessionCompat.Callback() {
+                override fun onPlay() {
+                    resumeReadAloud()
+                }
+
+                override fun onPause() {
+                    pauseReadAloud()
+                }
+
+                override fun onSkipToNext() {
+                    if (getPrefBoolean("mediaButtonPerNext", false)) {
+                        nextChapter()
+                    } else {
+                        nextP()
+                    }
+                }
+
+                override fun onSkipToPrevious() {
+                    if (getPrefBoolean("mediaButtonPerNext", false)) {
+                        prevChapter()
+                    } else {
+                        prevP()
+                    }
+                }
+
+                override fun onStop() {
+                    stopSelf()
+                }
+
+                override fun onCustomAction(action: String, extras: Bundle?) {
+                    if (action == "ACTION_ADD_TIMER") addTimer()
+                }
+
+                override fun onMediaButtonEvent(mediaButtonEvent: Intent): Boolean {
+                    return MediaButtonReceiver.handleIntent(
+                        this@BaseReadAloudService, mediaButtonEvent
+                    )
+                }
+            })
+        } else {
+            mediaSessionCompat.setCallback(object : MediaSessionCompat.Callback() {
+                override fun onMediaButtonEvent(mediaButtonEvent: Intent): Boolean {
+                    return MediaButtonReceiver.handleIntent(
+                        this@BaseReadAloudService, mediaButtonEvent
+                    )
+                }
+            })
+        }
     }
 
     /**
@@ -523,7 +577,7 @@ abstract class BaseReadAloudService : BaseService(),
     private fun choiceMediaStyle(): androidx.media.app.NotificationCompat.MediaStyle {
         val mediaStyle = androidx.media.app.NotificationCompat.MediaStyle()
             .setShowActionsInCompactView(1, 2, 4)
-        if (isVivoDevice) {
+        if (getPrefBoolean("systemMediaControlCompatibilityChange")) {
             //fix #4090 android 14 can not show play control in lock screen
             mediaStyle.setMediaSession(mediaSessionCompat.sessionToken)
         }

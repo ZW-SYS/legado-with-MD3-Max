@@ -13,7 +13,6 @@ import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.crypto.SymmetricCryptoAndroid
 import io.legato.kazusa.help.http.CookieStore
 import io.legato.kazusa.help.source.getShareScope
-import io.legato.kazusa.model.Debug
 import io.legato.kazusa.utils.GSON
 import io.legato.kazusa.utils.GSONStrict
 import io.legato.kazusa.utils.fromJsonArray
@@ -116,7 +115,7 @@ interface BaseSource : JsExtensions {
                 GSONStrict.fromJsonObject<Map<String, String>>(json).getOrNull()?.let { map ->
                     putAll(map)
                 } ?: GSON.fromJsonObject<Map<String, String>>(json).getOrNull()?.let { map ->
-                    Debug.log("≡请求头规则 JSON 格式不规范，请改为规范格式")
+                    log("请求头规则 JSON 格式不规范，请改为规范格式")
                     putAll(map)
                 }
             } catch (e: Exception) {

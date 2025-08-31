@@ -20,8 +20,6 @@ import io.legato.kazusa.databinding.ActivityRssSourceBinding
 import io.legato.kazusa.databinding.DialogEditTextBinding
 import io.legato.kazusa.help.DirectLinkUpload
 import io.legato.kazusa.lib.dialogs.alert
-//import io.legado.app.lib.theme.primaryColor
-//import io.legado.app.lib.theme.primaryTextColor
 import io.legato.kazusa.ui.association.ImportRssSourceDialog
 import io.legato.kazusa.ui.file.HandleFileContract
 import io.legato.kazusa.ui.qrcode.QrCodeResult
@@ -70,7 +68,7 @@ class RssSourceActivity : VMBaseActivity<ActivityRssSourceBinding, RssSourceView
         binding.titleBar.findViewById(R.id.search_view)
     }
     private var sourceFlowJob: Job? = null
-    private var groups = hashSetOf<String>()
+    private var groups = arrayListOf<String>()
     private var groupMenu: SubMenu? = null
     private val qrCodeResult = registerForActivityResult(QrCodeResult()) {
         it ?: return@registerForActivityResult

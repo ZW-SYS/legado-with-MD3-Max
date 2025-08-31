@@ -17,6 +17,7 @@ import io.legato.kazusa.R
 import io.legato.kazusa.data.entities.Book
 import io.legato.kazusa.help.book.isAudio
 import io.legato.kazusa.help.book.isImage
+import io.legato.kazusa.help.book.isLocal
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.ui.book.audio.AudioPlayActivity
 import io.legato.kazusa.ui.book.manga.ReadMangaActivity
@@ -93,7 +94,7 @@ fun Fragment.startActivityForBook(
 ) {
     val cls = when {
         book.isAudio -> AudioPlayActivity::class.java
-        book.isImage && AppConfig.showMangaUi -> ReadMangaActivity::class.java
+        !book.isLocal && book.isImage && AppConfig.showMangaUi -> ReadMangaActivity::class.java
         else -> ReadBookActivity::class.java
     }
     val intent = Intent(requireActivity(), cls)

@@ -2,19 +2,18 @@ package io.legato.kazusa.help.config
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.util.DisplayMetrics
 import androidx.annotation.Keep
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.graphics.toColorInt
 import io.legato.kazusa.R
+import io.legato.kazusa.constant.AppLog
 import io.legato.kazusa.constant.EventBus
 import io.legato.kazusa.constant.PreferKey
 import io.legato.kazusa.constant.Theme
 import io.legato.kazusa.help.DefaultData
-import io.legato.kazusa.lib.theme.ThemeStore
 import io.legato.kazusa.model.BookCover
 import io.legato.kazusa.utils.BitmapUtils
-import io.legato.kazusa.utils.ColorUtils
 import io.legato.kazusa.utils.FileUtils
 import io.legato.kazusa.utils.GSON
 import io.legato.kazusa.utils.fromJsonArray
@@ -29,7 +28,6 @@ import io.legato.kazusa.utils.putPrefInt
 import io.legato.kazusa.utils.stackBlur
 import splitties.init.appCtx
 import java.io.File
-import androidx.core.graphics.toColorInt
 
 @Keep
 object ThemeConfig {
@@ -117,13 +115,18 @@ object ThemeConfig {
     fun addConfig(json: String): Boolean {
         GSON.fromJsonObject<Config>(json.trim { it < ' ' }).getOrNull()
             ?.let {
-                addConfig(it)
-                return true
+                if (validateConfig(it)) {
+                    addConfig(it)
+                    return true
+                }
             }
         return false
     }
 
     fun addConfig(newConfig: Config) {
+        if (!validateConfig(newConfig)) {
+            return
+        }
         configList.forEachIndexed { index, config ->
             if (newConfig.themeName == config.themeName) {
                 configList[index] = newConfig
@@ -132,6 +135,18 @@ object ThemeConfig {
         }
         configList.add(newConfig)
         save()
+    }
+
+    private fun validateConfig(config: Config): Boolean {
+        try {
+            config.primaryColor.toColorInt()
+            config.accentColor.toColorInt()
+            config.backgroundColor.toColorInt()
+            config.bottomBackground.toColorInt()
+            return true
+        } catch (_: Exception) {
+            return false
+        }
     }
 
     private fun getConfigs(): List<Config>? {
@@ -148,23 +163,27 @@ object ThemeConfig {
     }
 
     fun applyConfig(context: Context, config: Config) {
-        val primary = config.primaryColor.toColorInt()
-        val accent = config.accentColor.toColorInt()
-        val background = config.backgroundColor.toColorInt()
-        val bBackground = config.bottomBackground.toColorInt()
-        if (config.isNightTheme) {
-            context.putPrefInt(PreferKey.cNPrimary, primary)
-            context.putPrefInt(PreferKey.cNAccent, accent)
-            context.putPrefInt(PreferKey.cNBackground, background)
-            context.putPrefInt(PreferKey.cNBBackground, bBackground)
-        } else {
-            context.putPrefInt(PreferKey.cPrimary, primary)
-            context.putPrefInt(PreferKey.cAccent, accent)
-            context.putPrefInt(PreferKey.cBackground, background)
-            context.putPrefInt(PreferKey.cBBackground, bBackground)
+        try {
+            val primary = config.primaryColor.toColorInt()
+            val accent = config.accentColor.toColorInt()
+            val background = config.backgroundColor.toColorInt()
+            val bBackground = config.bottomBackground.toColorInt()
+            if (config.isNightTheme) {
+                context.putPrefInt(PreferKey.cNPrimary, primary)
+                context.putPrefInt(PreferKey.cNAccent, accent)
+                context.putPrefInt(PreferKey.cNBackground, background)
+                context.putPrefInt(PreferKey.cNBBackground, bBackground)
+            } else {
+                context.putPrefInt(PreferKey.cPrimary, primary)
+                context.putPrefInt(PreferKey.cAccent, accent)
+                context.putPrefInt(PreferKey.cBackground, background)
+                context.putPrefInt(PreferKey.cBBackground, bBackground)
+            }
+            AppConfig.isNightTheme = config.isNightTheme
+            applyDayNight(context)
+        } catch (e: Exception) {
+            AppLog.put("设置主题出错\n$e", e, true)
         }
-        AppConfig.isNightTheme = config.isNightTheme
-        applyDayNight(context)
     }
 
     fun saveDayTheme(context: Context, name: String) {

@@ -16,11 +16,11 @@ import io.legato.kazusa.lib.mobi.entities.Ptagx
 import io.legato.kazusa.lib.mobi.entities.TOC
 import io.legato.kazusa.lib.mobi.entities.TagxHeader
 import io.legato.kazusa.lib.mobi.entities.TagxTag
+import io.legato.kazusa.lib.mobi.utils.and
 import io.legato.kazusa.lib.mobi.utils.readString
 import io.legato.kazusa.lib.mobi.utils.readUInt16Array
 import io.legato.kazusa.lib.mobi.utils.readUInt32
 import io.legato.kazusa.lib.mobi.utils.readUInt8
-import okhttp3.internal.and
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.nio.ByteBuffer

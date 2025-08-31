@@ -135,7 +135,6 @@ object BookCover {
     /**
      * 加载漫画图片
      */
-    @SuppressLint("CheckResult")
     fun loadManga(
         context: Context,
         path: String?,
@@ -155,8 +154,9 @@ object BookCover {
             .skipMemoryCache(true).let {
                 if (transformation != null) {
                     it.transform(transformation)
+                } else {
+                    it
                 }
-                it
             }
             .transition(DrawableTransitionOptions.withCrossFade())
     }

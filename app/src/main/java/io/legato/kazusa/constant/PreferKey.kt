@@ -170,14 +170,12 @@ object PreferKey {
     const val showMangaUi = "showMangaUi"
     const val disableMangaScale = "disableMangaScale"
     const val firebaseEnabled = "firebaseEnabled"
-
     const val cPrimary = "colorPrimary"
     const val cAccent = "colorAccent"
     const val cBackground = "colorBackground"
     const val cBBackground = "colorBottomBackground"
     const val bgImage = "backgroundImage"
     const val bgImageBlurring = "backgroundImageBlurring"
-
     const val cNPrimary = "colorPrimaryNight"
     const val cNAccent = "colorAccentNight"
     const val cNBackground = "colorBackgroundNight"
@@ -187,7 +185,6 @@ object PreferKey {
     const val showReadTitleAddition = "showReadTitleAddition"
     const val readBarStyleFollowPage = "readBarStyleFollowPage"
     const val contentSelectSpeakMod = "contentReadAloudMod"
-
     const val themePref = "themePref"
     const val bookshelfSortOrder = "bookshelfSortOrder"
     const val showBottomView = "showBottomView"
@@ -208,5 +205,5 @@ object PreferKey {
     const val permissionChecked = "permissionChecked"
     const val notificationsPost = "notificationsPost"
     const val ignoreBatteryPermission = "ignoreBatteryPermission"
-
+    const val paddingDisplayCutouts = "paddingDisplayCutouts"
 }

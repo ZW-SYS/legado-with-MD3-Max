@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import io.legato.kazusa.constant.BookType
 import io.legato.kazusa.data.entities.Book
@@ -149,6 +150,12 @@ interface BookDao {
 
     @Delete
     fun delete(vararg book: Book)
+
+    @Transaction
+    fun replace(oldBook: Book, newBook: Book) {
+        delete(oldBook)
+        insert(newBook)
+    }
 
     @Query("update books set durChapterPos = :pos where bookUrl = :bookUrl")
     fun upProgress(bookUrl: String, pos: Int)
