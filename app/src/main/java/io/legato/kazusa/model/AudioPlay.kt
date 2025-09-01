@@ -34,7 +34,7 @@ object AudioPlay : CoroutineScope by MainScope() {
 
     enum class PlayMode(val iconRes: Int) {
         LIST_END_STOP(R.drawable.ic_play_mode_list_end_stop),
-        RANDOM(R.drawable.ic_play_mode_random),
+        RANDOM(R.drawable.ic_exchange),
         LIST_LOOP(R.drawable.ic_play_mode_list_loop);
 
         fun next(): PlayMode {
