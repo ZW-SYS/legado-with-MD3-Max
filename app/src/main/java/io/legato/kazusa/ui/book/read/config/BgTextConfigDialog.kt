@@ -2,7 +2,6 @@ package io.legato.kazusa.ui.book.read.config
 
 import android.annotation.SuppressLint
 import android.content.DialogInterface
-import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -115,10 +114,8 @@ class BgTextConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_bg
         recyclerView.adapter = adapter
         adapter.addHeaderView {
             ItemBgImageBinding.inflate(layoutInflater, it, false).apply {
-                tvName.setTextColor(secondaryTextColor)
                 tvName.text = getString(R.string.select_image)
-                ivBg.setImageResource(R.drawable.ic_image)
-                ivBg.setColorFilter(primaryTextColor, PorterDuff.Mode.SRC_IN)
+                ivBg.setImageResource(R.drawable.ic_add)
                 swUnderline.isGone = ReadBook.book?.isImage == true
                 root.setOnClickListener {
                     selectBgImage.launch()

@@ -25,14 +25,13 @@ class BgAdapter(context: Context, val textColor: Int) :
         payloads: MutableList<Any>
     ) {
         binding.run {
+            tvName.text = item.substringBeforeLast(".")
             ImageLoader.load(
                 context,
                 context.assets.open("bg${File.separator}$item").readBytes()
             )
                 .centerCrop()
                 .into(ivBg)
-            tvName.setTextColor(textColor)
-            tvName.text = item.substringBeforeLast(".")
         }
     }
 
