@@ -33,8 +33,11 @@ import io.legato.kazusa.ui.book.search.SearchActivity
 import io.legato.kazusa.ui.main.bookshelf.BaseBookshelfFragment
 import io.legato.kazusa.ui.main.bookshelf.books.styleFold.BaseBooksAdapter
 import io.legato.kazusa.ui.main.bookshelf.books.styleFold.BooksAdapterGrid
+import io.legato.kazusa.ui.main.bookshelf.books.styleFold.BooksAdapterGridCompact
+import io.legato.kazusa.ui.main.bookshelf.books.styleFold.BooksAdapterGridCover
 import io.legato.kazusa.ui.main.bookshelf.books.styleFold.BooksAdapterList
-import io.legato.kazusa.utils.bookshelfLayout
+import io.legato.kazusa.utils.bookshelfLayoutGrid
+import io.legato.kazusa.utils.bookshelfLayoutMode
 import io.legato.kazusa.utils.cnCompare
 import io.legato.kazusa.utils.flowWithLifecycleAndDatabaseChangeFirst
 import io.legato.kazusa.utils.observeEvent
@@ -64,13 +67,27 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
 
     private val binding by viewBinding(FragmentBookshelf2Binding::bind)
 
-    private val bookshelfLayout by lazy { requireContext().bookshelfLayout }
+    private val bookshelfLayoutMode by lazy { requireContext().bookshelfLayoutMode }
+
+    private val bookshelfLayoutGrid by lazy { requireContext().bookshelfLayoutGrid }
 
     private val booksAdapter: BaseBooksAdapter<*> by lazy {
-        if (bookshelfLayout == 0) {
-            BooksAdapterList(requireContext(), this)
-        } else {
-            BooksAdapterGrid(requireContext(), this)
+        when (bookshelfLayoutMode) {
+            0 -> {
+                BooksAdapterList(requireContext(), this)
+            }
+
+            1 -> {
+                BooksAdapterGrid(requireContext(), this)
+            }
+
+            2 -> {
+                BooksAdapterGridCompact(requireContext(), this)
+            }
+
+            else -> {
+                BooksAdapterGridCover(requireContext(), this)
+            }
         }
     }
 
@@ -94,10 +111,10 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
             binding.refreshLayout.isRefreshing = false
             activityViewModel.upToc(books)
         }
-        if (bookshelfLayout == 0) {
+        if (bookshelfLayoutMode == 0) {
             binding.rvBookshelf.layoutManager = LinearLayoutManager(context)
         } else {
-            binding.rvBookshelf.layoutManager = GridLayoutManager(context, bookshelfLayout)
+            binding.rvBookshelf.layoutManager = GridLayoutManager(context, bookshelfLayoutGrid)
         }
         binding.rvBookshelf.itemAnimator = null
         binding.rvBookshelf.adapter = booksAdapter

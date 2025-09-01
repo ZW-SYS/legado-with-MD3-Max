@@ -80,55 +80,59 @@
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chip_group_style"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="end"
                 android:checkableBehavior="single"
                 android:paddingBottom="8dp"
                 app:selectionRequired="true"
                 app:singleSelection="true" />
 
-            <LinearLayout
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingTop="8dp">
+                android:layout_gravity="center_vertical"
+                android:text="@string/sortview"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
-                <TextView
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:checkableBehavior="single"
+                app:selectionRequired="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_list"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:text="@string/sortview"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:checkable="true"
+                    android:text="@string/list" />
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chip_group_layout"
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_grid"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:selectionRequired="true"
-                    app:singleSelection="true">
+                    android:checkable="true"
+                    android:text="@string/grid" />
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chip_list"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checkable="true"
-                        android:text="@string/list" />
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_grid_compact"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="紧凑网格" />
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chip_grid"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checkable="true"
-                        android:text="@string/grid" />
-                </com.google.android.material.chip.ChipGroup>
-            </LinearLayout>
-
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_grid_cover"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="封面网格" />
+            </com.google.android.material.chip.ChipGroup>
 
             <TextView
                 android:id="@+id/slider_text"

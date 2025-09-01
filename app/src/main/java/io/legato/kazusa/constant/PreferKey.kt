@@ -37,8 +37,8 @@ object PreferKey {
     const val enableReview = "enableReview"
     const val showRss = "showRss"
     const val bookshelfLayout = "bookshelfLayout"
-    const val bookshelfLayoutPortrait = "bookshelfLayoutPortrait"
-    const val bookshelfLayoutLandscape = "bookshelf_layout_landscape"
+    const val bookshelfLayoutModePortrait = "bookshelfLayoutPortrait"
+    const val bookshelfLayoutModeLandscape = "bookshelf_layout_landscape"
     const val bookshelfSort = "bookshelfSort"
     const val bookExportFileName = "bookExportFileName"
     const val bookImportFileName = "bookImportFileName"
@@ -206,4 +206,10 @@ object PreferKey {
     const val notificationsPost = "notificationsPost"
     const val ignoreBatteryPermission = "ignoreBatteryPermission"
     const val paddingDisplayCutouts = "paddingDisplayCutouts"
+
+    const val delayBookLoadEnable = "delayBookLoadEnable"
+
+    const val bookshelfLayoutGridLandscape = "bookshelfLayoutGridLandscape"
+
+    const val bookshelfLayoutGridPortrait = "bookshelfLayoutGridPortrait"
 }

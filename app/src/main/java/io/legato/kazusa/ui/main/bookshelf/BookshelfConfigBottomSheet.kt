@@ -13,6 +13,7 @@ import io.legato.kazusa.constant.EventBus
 import io.legato.kazusa.databinding.DialogBookshelfConfigBinding
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.ui.main.MainViewModel
+import io.legato.kazusa.utils.bookshelfLayoutGrid
 import io.legato.kazusa.utils.postEvent
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 
@@ -26,13 +27,18 @@ class BookshelfConfigBottomSheet : BaseBottomSheetDialogFragment(R.layout.dialog
         val orientation = requireContext().resources.configuration.orientation
 
         val bookshelfLayout = if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            AppConfig.bookshelfLayoutLandscape
+            AppConfig.bookshelfLayoutModeLandscape
         } else {
-            AppConfig.bookshelfLayoutPortrait
+            AppConfig.bookshelfLayoutModePortrait
         }
 
-        val isGrid = bookshelfLayout > 0
-        val columnCount = bookshelfLayout.takeIf { it > 0 } ?: 1
+        val isList = bookshelfLayout == 0
+        val isGrid = bookshelfLayout == 1
+        val isGridCompact = bookshelfLayout == 2
+        val isGridCover = bookshelfLayout == 3
+
+        val columnCount = requireContext().bookshelfLayoutGrid.takeIf { it > 0 } ?: 1
+
 
         val bookshelfSort = AppConfig.bookshelfSort
 
@@ -69,10 +75,12 @@ class BookshelfConfigBottomSheet : BaseBottomSheetDialogFragment(R.layout.dialog
             swShowWaitUpBooks.isChecked = AppConfig.showWaitUpCount
             swShowBookshelfFastScroller.isChecked = AppConfig.showBookshelfFastScroller
 
-            chipList.isChecked = !isGrid
+            chipList.isChecked = isList
             chipGrid.isChecked = isGrid
-            sliderText.isVisible = isGrid
-            sliderGridCount.isVisible = isGrid
+            chipGridCompact.isChecked = isGridCompact
+            chipGridCover.isChecked = isGridCover
+            sliderText.isVisible = isGrid || isGridCompact || isGridCover
+            sliderGridCount.isVisible = isGrid || isGridCompact || isGridCover
             sliderGridCount.value = columnCount.toFloat()
 
             when (AppConfig.bookshelfSortOrder) {
@@ -80,10 +88,13 @@ class BookshelfConfigBottomSheet : BaseBottomSheetDialogFragment(R.layout.dialog
                 1 -> binding.chipGroupOrder.check(binding.chipDesc.id)
             }
 
-            chipGroupLayout.setOnCheckedStateChangeListener { group, checkedIds ->
-                sliderText.isVisible = checkedIds.firstOrNull() == R.id.chip_grid
+            chipGroupLayout.setOnCheckedStateChangeListener { _, checkedIds ->
+                val checkedId = checkedIds.firstOrNull()
+                val showSlider =
+                    checkedId == R.id.chip_grid || checkedId == R.id.chip_grid_compact || checkedId == R.id.chip_grid_cover
+                sliderText.isVisible = showSlider
                 TransitionManager.beginDelayedTransition(root)
-                sliderGridCount.isVisible = checkedIds.firstOrNull() == R.id.chip_grid
+                sliderGridCount.isVisible = showSlider
             }
 
             btnOk.setOnClickListener {
@@ -91,7 +102,9 @@ class BookshelfConfigBottomSheet : BaseBottomSheetDialogFragment(R.layout.dialog
                 var recreate = false
 
                 if (AppConfig.bookGroupStyle != chipGroupStyle.checkedChipId) {
-                    AppConfig.bookGroupStyle = chipGroupStyle.indexOfChild(chipGroupStyle.findViewById(chipGroupStyle.checkedChipId))
+                    AppConfig.bookGroupStyle = chipGroupStyle.indexOfChild(
+                        chipGroupStyle.findViewById(chipGroupStyle.checkedChipId)
+                    )
                     notifyMain = true
                 }
 
@@ -107,7 +120,6 @@ class BookshelfConfigBottomSheet : BaseBottomSheetDialogFragment(R.layout.dialog
                     AppConfig.showWaitUpCount = swShowWaitUpBooks.isChecked
                     activityViewModel.postUpBooksLiveData(true)
                 }
-
                 if (AppConfig.showBookshelfFastScroller != swShowBookshelfFastScroller.isChecked) {
                     AppConfig.showBookshelfFastScroller = swShowBookshelfFastScroller.isChecked
                     postEvent(EventBus.BOOKSHELF_REFRESH, "")
@@ -118,25 +130,29 @@ class BookshelfConfigBottomSheet : BaseBottomSheetDialogFragment(R.layout.dialog
                     (requireParentFragment() as? BaseBookshelfFragment)?.upSort()
                 }
 
-                val isNowGrid = chipGrid.isChecked
                 val selectedColumn = sliderGridCount.value.toInt()
-                val newLayout = if (isNowGrid) selectedColumn else 0
+                val newLayout = when {
+                    chipList.isChecked -> 0
+                    chipGrid.isChecked -> 1
+                    chipGridCompact.isChecked -> 2
+                    chipGridCover.isChecked -> 3
+                    else -> 0
+                }
 
-                if (bookshelfLayout != newLayout) {
+                val oldColumn = requireContext().bookshelfLayoutGrid
+                if (bookshelfLayout != newLayout || oldColumn != selectedColumn) {
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        AppConfig.bookshelfLayoutLandscape = newLayout
-                        if (newLayout == 0) {
-                            activityViewModel.booksGridRecycledViewPool.clear()
-                        } else {
-                            activityViewModel.booksListRecycledViewPool.clear()
-                        }
+                        AppConfig.bookshelfLayoutModeLandscape = newLayout
+                        AppConfig.bookshelfLayoutGridLandscape = selectedColumn
                     } else {
-                        AppConfig.bookshelfLayoutPortrait = newLayout
-                        if (newLayout == 0) {
-                            activityViewModel.booksGridRecycledViewPool.clear()
-                        } else {
-                            activityViewModel.booksListRecycledViewPool.clear()
-                        }
+                        AppConfig.bookshelfLayoutModePortrait = newLayout
+                        AppConfig.bookshelfLayoutGridPortrait = selectedColumn
+                    }
+
+                    if (newLayout == 0) {
+                        activityViewModel.booksGridRecycledViewPool.clear()
+                    } else {
+                        activityViewModel.booksListRecycledViewPool.clear()
                     }
                     recreate = true
                 }
@@ -146,7 +162,6 @@ class BookshelfConfigBottomSheet : BaseBottomSheetDialogFragment(R.layout.dialog
                     binding.chipDesc.id -> 1
                     else -> 1
                 }
-
                 if (AppConfig.bookshelfSortOrder != newOrder) {
                     AppConfig.bookshelfSortOrder = newOrder
                     (requireParentFragment() as? BaseBookshelfFragment)?.upSort()

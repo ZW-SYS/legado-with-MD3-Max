@@ -36,8 +36,11 @@ import io.legato.kazusa.ui.book.read.ReadBookActivity
 import io.legato.kazusa.ui.main.MainViewModel
 import io.legato.kazusa.ui.main.bookshelf.books.styleDefalut.BaseBooksAdapter
 import io.legato.kazusa.ui.main.bookshelf.books.styleDefalut.BooksAdapterGrid
+import io.legato.kazusa.ui.main.bookshelf.books.styleDefalut.BooksAdapterGridCompact
+import io.legato.kazusa.ui.main.bookshelf.books.styleDefalut.BooksAdapterGridCover
 import io.legato.kazusa.ui.main.bookshelf.books.styleDefalut.BooksAdapterList
-import io.legato.kazusa.utils.bookshelfLayout
+import io.legato.kazusa.utils.bookshelfLayoutGrid
+import io.legato.kazusa.utils.bookshelfLayoutMode
 import io.legato.kazusa.utils.cnCompare
 import io.legato.kazusa.utils.flowWithLifecycleAndDatabaseChangeFirst
 import io.legato.kazusa.utils.observeEvent
@@ -71,14 +74,27 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
     private val binding by viewBinding(FragmentBooksBinding::bind)
     private val activityViewModel by activityViewModels<MainViewModel>()
 
-    private val bookshelfLayout by lazy { requireContext().bookshelfLayout }
+    private val bookshelfLayoutMode by lazy { requireContext().bookshelfLayoutMode }
 
+    private val bookshelfLayoutGrid by lazy { requireContext().bookshelfLayoutGrid }
 
     private val booksAdapter: BaseBooksAdapter<*> by lazy {
-        if (bookshelfLayout == 0) {
-            BooksAdapterList(requireContext(), this, this, viewLifecycleOwner.lifecycle)
-        } else {
-            BooksAdapterGrid(requireContext(), this)
+        when (bookshelfLayoutMode) {
+            0 -> {
+                BooksAdapterList(requireContext(), this, this, viewLifecycleOwner.lifecycle)
+            }
+
+            1 -> {
+                BooksAdapterGrid(requireContext(), this)
+            }
+
+            2 -> {
+                BooksAdapterGridCompact(requireContext(), this)
+            }
+
+            else -> {
+                BooksAdapterGridCover(requireContext(), this)
+            }
         }
     }
     private var booksFlowJob: Job? = null
@@ -111,14 +127,11 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
             binding.refreshLayout.isRefreshing = false
             activityViewModel.upToc(booksAdapter.getItems())
         }
-        if (bookshelfLayout == 0) {
+        if (bookshelfLayoutMode == 0) {
             binding.rvBookshelf.layoutManager = LinearLayoutManager(context)
-        } else {
-            binding.rvBookshelf.layoutManager = GridLayoutManager(context, bookshelfLayout)
-        }
-        if (bookshelfLayout == 0) {
             binding.rvBookshelf.setRecycledViewPool(activityViewModel.booksListRecycledViewPool)
         } else {
+            binding.rvBookshelf.layoutManager = GridLayoutManager(context, bookshelfLayoutGrid)
             binding.rvBookshelf.setRecycledViewPool(activityViewModel.booksGridRecycledViewPool)
         }
         booksAdapter.stateRestorationPolicy = StateRestorationPolicy.PREVENT_WHEN_EMPTY
@@ -219,7 +232,7 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
 
     private fun startLastUpdateTimeJob() {
         upLastUpdateTimeJob?.cancel()
-        if (!AppConfig.showLastUpdateTime || bookshelfLayout != 0) {
+        if (!AppConfig.showLastUpdateTime || bookshelfLayoutMode != 0) {
             return
         }
         upLastUpdateTimeJob = lifecycleScope.launch {
