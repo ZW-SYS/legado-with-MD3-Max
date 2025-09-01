@@ -700,10 +700,10 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
         }
     }
 
-    var firebaseEnabled: Boolean
-        get() = appCtx.getPrefBoolean(PreferKey.firebaseEnabled, false)
+    var firebaseEnable: Boolean
+        get() = appCtx.getPrefBoolean(PreferKey.firebaseEnable, false)
         set(value) {
-            appCtx.putPrefBoolean(PreferKey.firebaseEnabled, value)
+            appCtx.putPrefBoolean(PreferKey.firebaseEnable, value)
         }
 
     //跳转到漫画界面不使用富文本模式

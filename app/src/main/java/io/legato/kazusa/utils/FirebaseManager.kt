@@ -1,25 +1,23 @@
 package io.legato.kazusa.utils
 
 import android.content.Context
-import androidx.core.content.edit
-import androidx.preference.PreferenceManager
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.FirebaseAnalytics
+import io.legato.kazusa.help.config.AppConfig
 
 object FirebaseManager {
 
-    private const val PREF_KEY = "firebaseEnabled"
-    private var isEnabled = false
+    var isEnabled: Boolean
+        get() = AppConfig.firebaseEnable
+        private set(value) {
+            AppConfig.firebaseEnable = value
+        }
 
-    fun initFromPreferences(context: Context) {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        val enabled = prefs.getBoolean(PREF_KEY, true)
-        applyState(context, enabled)
+    fun init(context: Context) {
+        applyState(context, isEnabled)
     }
 
     fun setEnabled(context: Context, enabled: Boolean) {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        prefs.edit { putBoolean(PREF_KEY, enabled) }
         applyState(context, enabled)
     }
 
@@ -36,10 +34,9 @@ object FirebaseManager {
                     FirebaseApp.getInstance().delete()
                 }
             } catch (_: Exception) {
+                // 忽略异常
             }
         }
         isEnabled = enabled
     }
-
-    fun isFirebaseEnabled(): Boolean = isEnabled
 }

@@ -230,7 +230,7 @@ class OtherConfigFragment : PreferenceFragment(),
                 upPreferenceSummary(key, AppConfig.sourceEditMaxLine.toString())
             }
 
-            PreferKey.firebaseEnabled -> {
+            PreferKey.firebaseEnable -> {
                 sharedPreferences?.let {
                     FirebaseManager.setEnabled(requireContext(), it.getBoolean(key, true))
                 }

@@ -67,7 +67,7 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         DynamicColors.applyToActivitiesIfAvailable(this)
-        FirebaseManager.initFromPreferences(this)
+        FirebaseManager.init(this)
         CrashHandler(this)
         if (isDebuggable) {
             ThreadUtils.setThreadAssertsDisabledForTesting(true)
