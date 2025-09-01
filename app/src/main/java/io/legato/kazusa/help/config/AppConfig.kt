@@ -211,18 +211,29 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
             appCtx.putPrefInt(PreferKey.bookGroupStyle, value)
         }
 
-    var bookshelfLayoutPortrait: Int
-        get() = appCtx.getPrefInt(PreferKey.bookshelfLayoutPortrait, 3)
+    var bookshelfLayoutModePortrait: Int
+        get() = appCtx.getPrefInt(PreferKey.bookshelfLayoutModePortrait, 1)
         set(value) {
-            appCtx.putPrefInt(PreferKey.bookshelfLayoutPortrait, value)
+            appCtx.putPrefInt(PreferKey.bookshelfLayoutModePortrait, value)
         }
 
-    var bookshelfLayoutLandscape: Int
-        get() = appCtx.getPrefInt(PreferKey.bookshelfLayoutLandscape, 5)
+    var bookshelfLayoutModeLandscape: Int
+        get() = appCtx.getPrefInt(PreferKey.bookshelfLayoutModeLandscape, 1)
         set(value) {
-            appCtx.putPrefInt(PreferKey.bookshelfLayoutLandscape, value)
+            appCtx.putPrefInt(PreferKey.bookshelfLayoutModeLandscape, value)
         }
 
+    var bookshelfLayoutGridPortrait: Int
+        get() = appCtx.getPrefInt(PreferKey.bookshelfLayoutGridPortrait, 3)
+        set(value) {
+            appCtx.putPrefInt(PreferKey.bookshelfLayoutGridPortrait, value)
+        }
+
+    var bookshelfLayoutGridLandscape: Int
+        get() = appCtx.getPrefInt(PreferKey.bookshelfLayoutGridLandscape, 7)
+        set(value) {
+            appCtx.putPrefInt(PreferKey.bookshelfLayoutGridLandscape, value)
+        }
 
     var saveTabPosition: Int
         get() = appCtx.getPrefInt(PreferKey.saveTabPosition, 0)
@@ -572,6 +583,12 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
 
     val paddingDisplayCutouts
         get() = appCtx.getPrefBoolean(PreferKey.paddingDisplayCutouts, false)
+
+    val delayBookLoadEnable
+        get() = appCtx.getPrefBoolean(PreferKey.delayBookLoadEnable, true)
+
+    val sharedElementEnterTransitionEnable
+        get() = appCtx.getPrefBoolean(PreferKey.sharedElementEnterTransitionEnable, true)
 
     var searchScope: String
         get() = appCtx.getPrefString("searchScope") ?: ""

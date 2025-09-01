@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
+import android.transition.Transition
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.InputDevice
@@ -19,6 +20,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.net.toUri
+import androidx.core.view.doOnLayout
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.get
 import androidx.core.view.size
@@ -263,59 +265,98 @@ class ReadBookActivity : BaseReadBookActivity(),
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
-        postponeEnterTransition()
-        val transform = MaterialContainerTransform().apply {
-            addTarget(binding.rootView)
-            scrimColor = Color.TRANSPARENT
-            duration = 500
+
+        if (AppConfig.sharedElementEnterTransitionEnable) {
+            postponeEnterTransition()
+            val transform = MaterialContainerTransform().apply {
+                addTarget(binding.rootView)
+                scrimColor = Color.TRANSPARENT
+                duration = 500
+            }
+            window.sharedElementEnterTransition = transform
+
+            window.sharedElementReturnTransition =
+                MaterialSharedAxis(MaterialSharedAxis.X, true).apply {
+                    duration = 300
+                }
+
+            if (AppConfig.delayBookLoadEnable) {
+                window.sharedElementEnterTransition?.addListener(object :
+                    Transition.TransitionListener {
+                    override fun onTransitionStart(transition: Transition) {}
+                    override fun onTransitionEnd(transition: Transition) {
+                        binding.readView.doOnLayout {
+                            viewModel.initReadBookConfig(intent)
+                            viewModel.initData(intent)
+                            binding.readView.initAfterTransition()
+                            justInitData = true
+                        }
+                        transition.removeListener(this)
+                    }
+
+                    override fun onTransitionCancel(transition: Transition) {
+                        viewModel.initReadBookConfig(intent)
+                        viewModel.initData(intent)
+                        binding.readView.initAfterTransition()
+                        justInitData = true
+                        transition.removeListener(this)
+                    }
+
+                    override fun onTransitionPause(transition: Transition) {}
+                    override fun onTransitionResume(transition: Transition) {}
+                })
+            }
         }
-        window.sharedElementEnterTransition = transform
-        window.sharedElementReturnTransition =
-            MaterialSharedAxis(MaterialSharedAxis.X, true).apply { duration = 300 }
+
         super.onCreate(savedInstanceState)
 
-        binding.rootView.transitionName = intent.getStringExtra("transitionName")
+        if (!AppConfig.delayBookLoadEnable || !AppConfig.sharedElementEnterTransitionEnable) {
+            lifecycleScope.launch(Dispatchers.Default) {
+                viewModel.initReadBookConfig(intent)
+                viewModel.initData(intent)
+
+                withContext(Main) {
+                    binding.readView.initAfterTransition()
+                    justInitData = true
+                }
+            }
+        }
+
+
+        if (AppConfig.sharedElementEnterTransitionEnable)
+            binding.rootView.transitionName = intent.getStringExtra("transitionName")
+
         binding.cursorLeft.setOnTouchListener(this)
         binding.cursorRight.setOnTouchListener(this)
 
-        binding.rootView.doOnPreDraw { startPostponedEnterTransition() }
-
-        lifecycleScope.launch(Dispatchers.Default) {
-            viewModel.initReadBookConfig(intent)
-            viewModel.initData(intent)
-
-            withContext(Main) {
-                binding.readView.initAfterTransition()
-                justInitData = true
-            }
+        binding.rootView.doOnPreDraw {
+            startPostponedEnterTransition()
         }
 
         onBackPressedDispatcher.addCallback(this) {
-            when {
-                isShowingSearchResult -> {
-                    exitSearchMenu()
-                    restoreLastBookProcess()
-                }
-
-                ReadBook.lastBookProgress != null && confirmRestoreProcess != false -> {
-                    restoreLastBookProcess()
-                }
-
-                BaseReadAloudService.isPlay() -> {
-                    ReadAloud.pause(this@ReadBookActivity)
-                    toastOnUi(R.string.read_aloud_pause)
-                }
-
-                isAutoPage -> {
-                    autoPageStop()
-                }
-
-                getPrefBoolean("disableReturnKey") && !menuLayoutIsVisible -> {
-
-                }
-
-                else -> finish()
+            if (isShowingSearchResult) {
+                exitSearchMenu()
+                restoreLastBookProcess()
+                return@addCallback
             }
+            //拦截返回供恢复阅读进度
+            if (ReadBook.lastBookProgress != null && confirmRestoreProcess != false) {
+                restoreLastBookProcess()
+                return@addCallback
+            }
+            if (BaseReadAloudService.isPlay()) {
+                ReadAloud.pause(this@ReadBookActivity)
+                toastOnUi(R.string.read_aloud_pause)
+                return@addCallback
+            }
+            if (isAutoPage) {
+                autoPageStop()
+                return@addCallback
+            }
+            if (getPrefBoolean("disableReturnKey") && !menuLayoutIsVisible) {
+                return@addCallback
+            }
+            finish()
         }
     }
 
@@ -324,8 +365,6 @@ class ReadBookActivity : BaseReadBookActivity(),
         upScreenTimeOut()
         ReadBook.register(this)
     }
-
-
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         viewModel.initData(intent)

@@ -94,6 +94,18 @@
             android:summary="@string/firebase_enable_summary"
             android:title="@string/firebase_enable_title" />
 
+        <io.legato.kazusa.lib.prefs.SwitchPreference
+            android:defaultValue="true"
+            android:key="sharedElementEnterTransitionEnable"
+            android:summary="从书架进入阅读界面时，优化动画效果。"
+            android:title="使用共享元素动画" />
+
+        <io.legato.kazusa.lib.prefs.SwitchPreference
+            android:defaultValue="true"
+            android:key="delayBookLoadEnable"
+            android:summary="减少进入阅读界面时的卡顿，但加载书籍时间会延长。"
+            android:title="延缓书籍加载" />
+
         <io.legato.kazusa.lib.prefs.Preference
             android:key="localPassword"
             android:summary="@string/set_local_password_summary"
