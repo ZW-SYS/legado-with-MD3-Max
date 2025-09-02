@@ -808,5 +808,11 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
             appCtx.putPrefBoolean(PreferKey.mangaVolumeKeyPage, value)
         }
 
+    var tabletInterface
+        get() = appCtx.getPrefString(PreferKey.tabletInterface, "auto")
+        set(value) {
+            appCtx.putPrefString(PreferKey.tabletInterface, value)
+        }
+
 }
 

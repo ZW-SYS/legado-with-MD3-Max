@@ -209,8 +209,8 @@ object PreferKey {
 
     const val delayBookLoadEnable = "delayBookLoadEnable"
     const val sharedElementEnterTransitionEnable = "sharedElementEnterTransitionEnable"
-
     const val bookshelfLayoutGridLandscape = "bookshelfLayoutGridLandscape"
-
     const val bookshelfLayoutGridPortrait = "bookshelfLayoutGridPortrait"
+
+    const val tabletInterface = "tabletInterface"
 }

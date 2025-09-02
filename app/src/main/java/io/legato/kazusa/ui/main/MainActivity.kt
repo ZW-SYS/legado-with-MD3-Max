@@ -5,12 +5,16 @@ package io.legato.kazusa.ui.main
 import android.content.res.Configuration
 import android.os.Bundle
 import android.text.format.DateUtils
+import android.view.Gravity
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.ImageView
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.core.view.get
+import androidx.core.view.isVisible
 import androidx.core.view.postDelayed
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -18,6 +22,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.navigation.NavigationBarView
 import io.legato.kazusa.BuildConfig
 import io.legato.kazusa.R
@@ -35,6 +40,7 @@ import io.legato.kazusa.help.storage.Backup
 import io.legato.kazusa.lib.dialogs.alert
 import io.legato.kazusa.service.BaseReadAloudService
 import io.legato.kazusa.ui.about.CrashLogsDialog
+import io.legato.kazusa.ui.book.search.SearchActivity
 import io.legato.kazusa.ui.main.bookshelf.BaseBookshelfFragment
 import io.legato.kazusa.ui.main.bookshelf.books.BookshelfFragment1
 import io.legato.kazusa.ui.main.bookshelf.books.BookshelfFragment2
@@ -44,9 +50,9 @@ import io.legato.kazusa.ui.main.my.MyFragment
 import io.legato.kazusa.ui.main.rss.RssFragment
 import io.legato.kazusa.ui.welcome.WelcomeActivity
 import io.legato.kazusa.ui.widget.dialog.TextDialog
+import io.legato.kazusa.utils.dpToPx
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.hideSoftInput
-import io.legato.kazusa.utils.isCreated
 import io.legato.kazusa.utils.observeEvent
 import io.legato.kazusa.utils.setNavigationBarColorAuto
 import io.legato.kazusa.utils.shouldHideSoftInput
@@ -107,6 +113,10 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
             return
         }
 
+        if (savedInstanceState != null) {
+            pagePosition = savedInstanceState.getInt("currentPagePosition", 0)
+        }
+
         onBackPressedDispatcher.addCallback(this) {
             if (pagePosition != 0) {
                 binding.viewPagerMain.currentItem = 0
@@ -133,6 +143,7 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
         upBottomMenu()
         initView()
         upHomePage()
+        bindNavigationListener()
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
@@ -212,12 +223,6 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
         viewPagerMain.offscreenPageLimit = 3
         viewPagerMain.adapter = adapter
         viewPagerMain.addOnPageChangeListener(PageChangeCallback())
-        getNavigationBarView().apply {
-            setOnItemSelectedListener { onNavigationItemSelected(it) }
-            setOnItemReselectedListener { onNavigationItemReselected(it) }
-        }
-
-
         window.setNavigationBarColorAuto(themeColor(com.google.android.material.R.attr.colorSurfaceContainer))
     }
 
@@ -287,6 +292,7 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        outState.putInt("currentPagePosition", pagePosition)
         if (AppConfig.autoRefreshBook) {
             outState.putBoolean("isAutoRefreshedBook", true)
         }
@@ -333,18 +339,33 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
     }
 
     private fun getNavigationBarView(): NavigationBarView {
-        return findViewById(
-            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
-                R.id.bottom_navigation_view
-            else
-                R.id.navigation_rail_view
-        )
+        val tabletInterface = AppConfig.tabletInterface
+        val orientation = resources.configuration.orientation
+        val smallestWidthDp = resources.configuration.smallestScreenWidthDp
+
+        val useRail = when (tabletInterface) {
+            "always" -> true
+            "landscape" -> orientation == Configuration.ORIENTATION_LANDSCAPE
+            "off" -> false
+            "auto" -> smallestWidthDp >= 600
+            else -> false
+        }
+
+        // 控制显隐
+        binding.navigationRailView.isVisible = useRail
+        binding.bottomNavigationView.isVisible = !useRail
+
+        return if (useRail) binding.navigationRailView else binding.bottomNavigationView
     }
 
+
     private fun upBottomMenu() {
-        val menu = getNavigationBarView().menu
+        val navView = getNavigationBarView()
+        val menu = navView.menu
+
         menu.findItem(R.id.menu_discovery).isVisible = AppConfig.showDiscovery
         menu.findItem(R.id.menu_rss).isVisible = AppConfig.showRSS
+
         var index = 0
         if (AppConfig.showDiscovery) {
             index++
@@ -357,9 +378,65 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
         index++
         realPositions[index] = idMy
         bottomMenuCount = index + 1
+
         adapter.notifyDataSetChanged()
-        if (AppConfig.showBottomView) getNavigationBarView().visible()
-        else binding.bottomNavigationView?.gone()
+
+        if (AppConfig.showBottomView) {
+            navView.visible()
+        } else {
+            binding.bottomNavigationView.gone()
+            binding.navigationRailView.gone()
+        }
+
+        val efab =
+            binding.navigationRailView.headerView?.findViewById<ExtendedFloatingActionButton>(R.id.nav_fab)
+        efab?.let { it.isExtended = false }
+
+        val lp =
+            binding.navigationRailView.headerView?.let { it.layoutParams as FrameLayout.LayoutParams }
+        lp!!.gravity = Gravity.START
+
+        binding.navigationRailView.headerView?.setPadding(
+            12.dpToPx(),
+            12.dpToPx(),
+            12.dpToPx(),
+            12.dpToPx()
+        )
+
+        binding.navigationRailView.headerView?.findViewById<ExtendedFloatingActionButton>(R.id.nav_fab)
+            ?.setOnClickListener {
+                startActivity<SearchActivity>()
+            }
+        binding.navigationRailView.headerView?.findViewById<ImageView>(R.id.nav_botton)
+            ?.setOnClickListener {
+                efab?.let { it1 ->
+                    if (it1.isExtended) {
+                        efab.isExtended = false
+                        binding.navigationRailView.collapse()
+                    } else {
+                        efab.isExtended = true
+                        binding.navigationRailView.expand()
+                    }
+                }
+            }
+    }
+
+    private fun bindNavigationListener() {
+        val navView = getNavigationBarView()
+        navView.setOnItemSelectedListener { onNavigationItemSelected(it) }
+        navView.setOnItemReselectedListener { onNavigationItemReselected(it) }
+        binding.viewPagerMain.post {
+            binding.viewPagerMain.setCurrentItem(pagePosition, false)
+            getNavigationBarView().menu[pagePosition].isChecked = true
+        }
+    }
+
+    private fun updateNavigationRailFab(position: Int) {
+        binding.navigationRailView.headerView?.gone()
+        val fragmentId = getFragmentId(position)
+        if (fragmentId == idBookshelf1 || fragmentId == idBookshelf2 || fragmentId == idBookshelf3) {
+            binding.navigationRailView.headerView?.visible()
+        }
     }
 
     private fun upHomePage() {
@@ -397,7 +474,9 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
 
         override fun onPageSelected(position: Int) {
             pagePosition = position
-            getNavigationBarView().menu[realPositions[position]].isChecked = true
+            val navView = getNavigationBarView()
+            navView.menu[realPositions[position]].isChecked = true
+            updateNavigationRailFab(position)
         }
 
     }
@@ -443,11 +522,7 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
         }
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
-            var fragment = super.instantiateItem(container, position) as Fragment
-            if (fragment.isCreated && getItemPosition(fragment) == POSITION_NONE) {
-                destroyItem(container, position, fragment)
-                fragment = super.instantiateItem(container, position) as Fragment
-            }
+            val fragment = super.instantiateItem(container, position) as Fragment
             fragmentMap[getId(position)] = fragment
             return fragment
         }

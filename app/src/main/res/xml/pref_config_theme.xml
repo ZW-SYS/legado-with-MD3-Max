@@ -40,6 +40,13 @@
             app:iconSpaceReserved="false"
             app:icons="@array/icons" />
 
+        <io.legato.kazusa.lib.prefs.NameListPreference
+            android:defaultValue="auto"
+            android:key="tabletInterface"
+            android:title="@string/tabletInterface"
+            app:entries="@array/tabletInterface"
+            app:entryValues="@array/tabletInterface_value" />
+
         <io.legato.kazusa.lib.prefs.Preference
             android:key="welcomeStyle"
             android:title="@string/welcome_style"

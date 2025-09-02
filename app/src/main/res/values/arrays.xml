@@ -152,6 +152,13 @@
 		<item>English</item>
 	</string-array>
 
+	<string-array name="tabletInterface">
+		<item>Auto</item>
+		<item>Always</item>
+		<item>In_Landscape_Mode</item>
+		<item>Off</item>
+	</string-array>
+
 	<string-array name="rule_type">
 		<item>BookSource</item>
 		<item>RssSource</item>

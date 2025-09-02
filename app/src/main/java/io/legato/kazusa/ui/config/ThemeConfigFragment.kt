@@ -158,6 +158,10 @@ class ThemeConfigFragment : PreferenceFragmentCompat(),
             PreferKey.bgImageN -> {
                 upPreferenceSummary(key, getPrefString(key))
             }
+
+            PreferKey.tabletInterface -> {
+                recreateActivities()
+            }
         }
 
     }

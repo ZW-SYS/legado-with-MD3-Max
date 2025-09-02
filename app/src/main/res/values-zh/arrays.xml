@@ -124,5 +124,11 @@
         <item>@string/bookshelf_px_5</item>
     </string-array>
 
+    <string-array name="tabletInterface">
+        <item>自动</item>
+        <item>总是</item>
+        <item>横屏时</item>
+        <item>关闭</item>
+    </string-array>
 
 </resources>
