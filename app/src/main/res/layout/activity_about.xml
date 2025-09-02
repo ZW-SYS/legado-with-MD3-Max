@@ -104,30 +104,20 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/cd_ver" />
 
-            <LinearLayout
+            <com.google.android.material.button.MaterialButtonGroup
                 android:id="@+id/ll_btn"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_detail">
-
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="8dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginVertical="8dp"
-                    android:layout_marginEnd="10dp"
-                    app:cardBackgroundColor="?attr/colorTertiary"
-                    app:strokeWidth="0dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_web"
                     style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginEnd="4dp"
                     app:icon="@drawable/ic_web_outline" />
 
                 <com.google.android.material.button.MaterialButton
@@ -137,19 +127,13 @@
                     android:layout_height="match_parent"
                     app:icon="@drawable/ic_github" />
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_update"
-                    style="@style/Widget.Material3Expressive.Button.TonalButton"
+                    style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/check_update"
                     app:icon="@drawable/ic_import" />
-            </LinearLayout>
+            </com.google.android.material.button.MaterialButtonGroup>
 
             <LinearLayout
                 android:id="@+id/ll_contributors"
