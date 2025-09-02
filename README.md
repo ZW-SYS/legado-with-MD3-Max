@@ -11,8 +11,6 @@
 
 与[官方版本](https://github.com/gedoor/legado)的区别：
 
-
-
 重新设计界面，使用Material Design 3主题。
 
 适配横屏，增加横屏书架列数等功能。
@@ -22,8 +20,8 @@
 日后会增加基于现在主题系统的自定义功能。
 
 应用截图：
-![retouch_2025082704461389](https://github.com/user-attachments/assets/89e114f7-ecad-4c06-9732-9cdd92bb35d2)
-![retouch_2025082704453202](https://github.com/user-attachments/assets/589cc19a-7c01-4044-8938-048c2a0eff0c)
+![retouch_2025090304371780](https://github.com/user-attachments/assets/679c7a0e-088a-42fe-856b-cccb6f1d1880)
+
 
 
 # Function-主要功能
