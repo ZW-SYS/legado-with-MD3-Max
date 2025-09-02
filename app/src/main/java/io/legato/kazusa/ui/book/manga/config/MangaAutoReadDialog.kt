@@ -4,13 +4,13 @@ import android.os.Bundle
 import android.view.View
 import io.legato.kazusa.R
 import io.legato.kazusa.base.BaseBottomSheetDialogFragment
-import io.legato.kazusa.databinding.DialogMangaScrollModeBinding
+import io.legato.kazusa.databinding.DialogMangaAutoReadBinding
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 
-class MangaScrollModeDialog : BaseBottomSheetDialogFragment(R.layout.dialog_manga_scroll_mode) {
+class MangaAutoReadDialog : BaseBottomSheetDialogFragment(R.layout.dialog_manga_auto_read) {
 
-    private val binding by viewBinding(DialogMangaScrollModeBinding::bind)
+    private val binding by viewBinding(DialogMangaAutoReadBinding::bind)
 
     var initialAutoPageEnabled: Boolean = false
 

@@ -4,12 +4,15 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import androidx.core.view.isVisible
+import androidx.transition.TransitionManager
 import com.google.android.material.chip.Chip
 import io.legato.kazusa.R
 import io.legato.kazusa.base.BaseBottomSheetDialogFragment
 import io.legato.kazusa.constant.EventBus
 import io.legato.kazusa.databinding.DialogMangaFooterSettingBinding
 import io.legato.kazusa.help.config.AppConfig
+import io.legato.kazusa.ui.book.manga.entities.MangaFooterConfig
 import io.legato.kazusa.ui.widget.ReaderInfoBarView
 import io.legato.kazusa.utils.GSON
 import io.legato.kazusa.utils.fromJsonObject
@@ -46,9 +49,16 @@ class MangaFooterSettingDialog :
 
                 setOnClickListener {
                     callback?.onScrollModeChanged(mode)
+                    TransitionManager.beginDelayedTransition(binding.rootView)
+                    binding.llWebtoon.isVisible = mode == MangaScrollMode.WEBTOON ||
+                            mode == MangaScrollMode.WEBTOON_WITH_GAP
                 }
             })
         }
+
+        binding.llWebtoon.isVisible = initialScrollMode == MangaScrollMode.WEBTOON ||
+                initialScrollMode == MangaScrollMode.WEBTOON_WITH_GAP
+
 
         binding.scvPadding.apply {
             valueFormat = { "$it %" }
@@ -200,7 +210,6 @@ class MangaFooterSettingDialog :
     }
 
     private fun updateChapterText() {
-
         if (config.hideFooter) {
             binding.tvChapter.visibility = View.INVISIBLE
             return

@@ -8,7 +8,9 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.widget.FrameLayout
+import androidx.recyclerview.widget.RecyclerView
 import io.legato.kazusa.help.config.AppConfig
+import io.legato.kazusa.utils.findCenterViewPosition
 
 class WebtoonFrame : FrameLayout {
 
@@ -19,6 +21,9 @@ class WebtoonFrame : FrameLayout {
         attrs,
         defStyle
     )
+
+    /** 长按回调，返回手指坐标 */
+    var longPressListener: ((centerPosition: Int) -> Unit)? = null
 
     private val scaleDetector = ScaleGestureDetector(context, ScaleListener())
     private val flingDetector = GestureDetector(context, FlingListener())
@@ -37,8 +42,21 @@ class WebtoonFrame : FrameLayout {
         get() = getChildAt(0) as? WebtoonRecyclerView
 
     var disabledClickScroll = false
-
     var actionHandler: ClickActionHandler? = null
+
+    private val gestureDetector =
+        GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onLongPress(e: MotionEvent) {
+                recycler?.let {
+                    val centerPos = it.findCenterViewPosition()
+                    if (centerPos != RecyclerView.NO_POSITION) {
+                        longPressListener?.invoke(centerPos)
+                    }
+                }
+            }
+
+            override fun onDown(e: MotionEvent): Boolean = true
+        })
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -63,7 +81,6 @@ class WebtoonFrame : FrameLayout {
 
             performClickAction(action)
         }
-
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -84,8 +101,9 @@ class WebtoonFrame : FrameLayout {
         }
     }
 
-
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        gestureDetector.onTouchEvent(ev)  // 捕获长按
+
         if (!disableMangaScale) {
             scaleDetector.onTouchEvent(ev)
             flingDetector.onTouchEvent(ev)
@@ -99,7 +117,7 @@ class WebtoonFrame : FrameLayout {
 
             ev.setLocation(
                 ev.x.coerceIn(recyclerRect.left.toFloat(), recyclerRect.right.toFloat()),
-                ev.y.coerceIn(recyclerRect.top.toFloat(), recyclerRect.bottom.toFloat()),
+                ev.y.coerceIn(recyclerRect.top.toFloat(), recyclerRect.bottom.toFloat())
             )
         }
         return super.dispatchTouchEvent(ev)
@@ -134,15 +152,13 @@ class WebtoonFrame : FrameLayout {
     }
 
     inner class FlingListener : GestureDetector.SimpleOnGestureListener() {
-        override fun onDown(e: MotionEvent): Boolean {
-            return true
-        }
+        override fun onDown(e: MotionEvent): Boolean = true
 
         override fun onFling(
             e1: MotionEvent?,
             e2: MotionEvent,
             velocityX: Float,
-            velocityY: Float,
+            velocityY: Float
         ): Boolean {
             return recycler?.zoomFling(velocityX.toInt(), velocityY.toInt()) ?: false
         }
@@ -155,5 +171,4 @@ class WebtoonFrame : FrameLayout {
         fun nextChapter()
         fun prevChapter()
     }
-
 }

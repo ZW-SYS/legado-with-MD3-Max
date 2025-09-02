@@ -2,6 +2,9 @@ package io.legato.kazusa.ui.book.manga
 
 import android.app.Application
 import android.content.Intent
+import android.graphics.Bitmap
+import androidx.lifecycle.viewModelScope
+import com.bumptech.glide.Glide
 import io.legato.kazusa.R
 import io.legato.kazusa.base.BaseViewModel
 import io.legato.kazusa.constant.AppLog
@@ -24,9 +27,11 @@ import io.legato.kazusa.help.coroutine.Coroutine
 import io.legato.kazusa.model.ReadManga
 import io.legato.kazusa.model.localBook.LocalBook
 import io.legato.kazusa.model.webBook.WebBook
+import io.legato.kazusa.utils.ImageSaveUtils
 import io.legato.kazusa.utils.mapParallelSafe
 import io.legato.kazusa.utils.postEvent
 import io.legato.kazusa.utils.toastOnUi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
@@ -35,7 +40,10 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import splitties.init.appCtx
+import java.io.ByteArrayOutputStream
 
 class ReadMangaViewModel(application: Application) : BaseViewModel(application) {
 
@@ -281,6 +289,39 @@ class ReadMangaViewModel(application: Application) : BaseViewModel(application) 
 
     fun getEffectiveWebtoonSidePadding(): Int {
         return ReadManga.book?.readConfig?.webtoonSidePaddingDp ?: AppConfig.webtoonSidePaddingDp
+    }
+
+    fun saveImageToGallery(url: String, folderName: String = "Legado") {
+        viewModelScope.launch {
+            try {
+                val byteArray = withContext(Dispatchers.IO) {
+                    // 用 Glide 下载 Bitmap 转换成 ByteArray
+                    val bitmap = Glide.with(getApplication<Application>().applicationContext)
+                        .asBitmap()
+                        .load(url)
+                        .submit()
+                        .get()
+                    val baos = ByteArrayOutputStream()
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+                    baos.toByteArray()
+                }
+
+                val context = getApplication<Application>().applicationContext
+                val success = ImageSaveUtils.saveImageToGallery(
+                    context,
+                    byteArray,
+                    folderName = folderName
+                )
+
+                if (success) {
+                    context.toastOnUi("图片已保存到相册")
+                } else {
+                    context.toastOnUi("保存失败")
+                }
+            } catch (e: Exception) {
+                context.toastOnUi("保存出错: ${e.localizedMessage}")
+            }
+        }
     }
 
 

@@ -39,19 +39,21 @@ import io.legato.kazusa.help.book.isImage
 import io.legato.kazusa.help.book.removeType
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.storage.Backup
+import io.legato.kazusa.lib.dialogs.SelectItem
 import io.legato.kazusa.lib.dialogs.alert
+import io.legato.kazusa.lib.dialogs.selector
 import io.legato.kazusa.model.ReadManga
 import io.legato.kazusa.receiver.NetworkChangedListener
 import io.legato.kazusa.ui.book.changesource.ChangeBookSourceDialog
 import io.legato.kazusa.ui.book.info.BookInfoActivity
+import io.legato.kazusa.ui.book.manga.config.MangaAutoReadDialog
 import io.legato.kazusa.ui.book.manga.config.MangaClickActionConfigDialog
 import io.legato.kazusa.ui.book.manga.config.MangaColorFilterConfig
 import io.legato.kazusa.ui.book.manga.config.MangaColorFilterDialog
-import io.legato.kazusa.ui.book.manga.config.MangaFooterConfig
 import io.legato.kazusa.ui.book.manga.config.MangaFooterSettingDialog
 import io.legato.kazusa.ui.book.manga.config.MangaScrollMode
-import io.legato.kazusa.ui.book.manga.config.MangaScrollModeDialog
 import io.legato.kazusa.ui.book.manga.entities.BaseMangaPage
+import io.legato.kazusa.ui.book.manga.entities.MangaFooterConfig
 import io.legato.kazusa.ui.book.manga.entities.MangaPage
 import io.legato.kazusa.ui.book.manga.recyclerview.MangaAdapter
 import io.legato.kazusa.ui.book.manga.recyclerview.MangaLayoutManager
@@ -85,7 +87,7 @@ import kotlin.math.ceil
 class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewModel>(),
     ReadManga.Callback, ChangeBookSourceDialog.CallBack, MangaMenu.CallBack,
     MangaColorFilterDialog.Callback, ScrollTimer.ScrollCallback, MangaFooterSettingDialog.Callback,
-    MangaScrollModeDialog.Callback {
+    MangaAutoReadDialog.Callback {
 
     private val mLayoutManager by lazy {
         MangaLayoutManager(this)
@@ -161,21 +163,16 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        window.sharedElementEnterTransition = MaterialContainerTransform().apply {
-            addTarget(binding.root)
-            duration = 700
+        val transform = MaterialContainerTransform().apply {
+            addTarget(binding.rootView)
             scrimColor = Color.TRANSPARENT
-            fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
+            duration = 500
         }
-        window.sharedElementReturnTransition = MaterialContainerTransform().apply {
-            addTarget(binding.root)
-            duration = 700
-            scrimColor = Color.BLACK
-            fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
-        }
+        window.sharedElementEnterTransition = transform
+        window.sharedElementReturnTransition = transform
         upLayoutInDisplayCutoutMode()
         super.onCreate(savedInstanceState)
-        binding.root.transitionName = intent.getStringExtra("transitionName")
+        binding.rootView.transitionName = intent.getStringExtra("transitionName")
         ReadManga.register(this)
         upSystemUiVisibility(false)
         initRecyclerView()
@@ -278,6 +275,26 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
                 ReadManga.moveToPrevChapter()
             }
         }
+
+        binding.webtoonFrame.longPressListener = {
+            val centerPos = binding.recyclerView.findCenterViewPosition()
+            val currentItem = mAdapter.getItem(centerPos)
+            val page = currentItem as? MangaPage
+            page?.let { item ->
+                selector(
+                    arrayListOf(
+                        SelectItem("保存", "save"),
+                        SelectItem("分享", "share")
+                    )
+                ) { _, option, _ ->
+                    when (option.value) {
+                        "save" -> viewModel.saveImageToGallery(item.mImageUrl)
+                        // "share" -> shareImage(item.mImageUrl)
+                    }
+                }
+            }
+        }
+
 
     }
 
@@ -585,7 +602,7 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
     }
 
     override fun showScrollModeDialog() {
-        showDialogFragment(MangaScrollModeDialog().apply {
+        showDialogFragment(MangaAutoReadDialog().apply {
             initialAutoPageEnabled = enableScroll
             callback = this@ReadMangaActivity
         })
@@ -638,9 +655,9 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
     }
 
     //自动翻页
-    override fun onAutoPageToggle(enabled: Boolean) {
-        enableScroll = enabled
-        setAutoReadEnabled(enabled)
+    override fun onAutoPageToggle(enable: Boolean) {
+        enableScroll = enable
+        setAutoReadEnabled(enable)
     }
 
     //自动翻页速度
@@ -648,7 +665,7 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
         setAutoReadEnabled(false)
         AppConfig.mangaAutoPageSpeed = speed
         mScrollTimer.setSpeed(speed)
-        setAutoReadEnabled(true)
+        setAutoReadEnabled(enableScroll)
 //        if (enableAutoScrollPage) {
 //            mScrollTimer.isEnabledPage = true
 //        }
@@ -708,23 +725,6 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
         }
     }
 
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        val keyCode = event.keyCode
-        val action = event.action
-        val isDown = action == 0
-
-        if (keyCode == KeyEvent.KEYCODE_MENU) {
-            if (isDown && !binding.mangaMenu.canShowMenu) {
-                binding.mangaMenu.runMenuIn()
-                return true
-            }
-            if (!isDown && !binding.mangaMenu.canShowMenu) {
-                binding.mangaMenu.canShowMenu = true
-                return true
-            }
-        }
-        return super.dispatchKeyEvent(event)
-    }
 
     /**
      * 调整漫画类型

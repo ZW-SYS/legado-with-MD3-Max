@@ -1,4 +1,4 @@
-package io.legato.kazusa.ui.book.manga.config
+package io.legato.kazusa.ui.book.manga.entities
 
 import androidx.annotation.Keep
 import io.legato.kazusa.ui.widget.ReaderInfoBarView
@@ -11,7 +11,7 @@ data class MangaFooterConfig(
     var hidePageNumber: Boolean = false,
     var hideProgressRatioLabel: Boolean = false,
     var hideProgressRatio: Boolean = false,
-    var footerOrientation: Int = ReaderInfoBarView.ALIGN_LEFT,//默认靠左
+    var footerOrientation: Int = ReaderInfoBarView.Companion.ALIGN_LEFT,//默认靠左
     var hideFooter: Boolean = false,
     var hideChapterName:Boolean=false,
 )
