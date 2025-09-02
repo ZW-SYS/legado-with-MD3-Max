@@ -2,14 +2,12 @@ package io.legato.kazusa.ui.rss.read
 
 import android.app.Application
 import android.content.Intent
-import android.net.Uri
 import android.util.Base64
 import android.webkit.URLUtil
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.script.rhino.runScriptWithContext
 import io.legato.kazusa.base.BaseViewModel
-import io.legato.kazusa.constant.AppConst
 import io.legato.kazusa.data.appDb
 import io.legato.kazusa.data.entities.RssArticle
 import io.legato.kazusa.data.entities.RssSource
@@ -20,11 +18,10 @@ import io.legato.kazusa.help.http.newCallResponseBody
 import io.legato.kazusa.help.http.okHttpClient
 import io.legato.kazusa.model.analyzeRule.AnalyzeUrl
 import io.legato.kazusa.model.rss.Rss
+import io.legato.kazusa.utils.ImageSaveUtils
 import io.legato.kazusa.utils.toastOnUi
-import io.legato.kazusa.utils.writeBytes
 import kotlinx.coroutines.Dispatchers.IO
 import splitties.init.appCtx
-import java.util.Date
 import kotlin.coroutines.coroutineContext
 
 
@@ -170,18 +167,24 @@ class ReadRssViewModel(application: Application) : BaseViewModel(application) {
         }
     }
 
-    fun saveImage(webPic: String?, uri: Uri) {
+    fun saveImage(webPic: String?) {
         webPic ?: return
         execute {
-            val fileName = "${AppConst.fileNameFormat.format(Date(System.currentTimeMillis()))}.jpg"
             val byteArray = webData2bitmap(webPic) ?: throw NoStackTraceException("NULL")
-            uri.writeBytes(context, fileName, byteArray)
+
+            val success = ImageSaveUtils.saveImageToGallery(
+                context,
+                byteArray,
+                folderName = "Legado" // 可以自定义相册子目录
+            )
+            if (!success) throw NoStackTraceException("保存到相册失败")
         }.onError {
-            context.toastOnUi("保存图片失败:${it.localizedMessage}")
+            context.toastOnUi("保存图片失败: ${it.localizedMessage}")
         }.onSuccess {
-            context.toastOnUi("保存成功")
+            context.toastOnUi("已保存到相册")
         }
     }
+
 
     private suspend fun webData2bitmap(data: String): ByteArray? {
         return if (URLUtil.isValidUrl(data)) {

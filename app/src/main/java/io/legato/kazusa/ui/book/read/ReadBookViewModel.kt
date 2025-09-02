@@ -2,8 +2,6 @@ package io.legato.kazusa.ui.book.read
 
 import android.app.Application
 import android.content.Intent
-import android.net.Uri
-import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.MutableLiveData
 import io.legato.kazusa.R
 import io.legato.kazusa.base.BaseViewModel
@@ -32,9 +30,7 @@ import io.legato.kazusa.model.webBook.WebBook
 import io.legato.kazusa.service.BaseReadAloudService
 import io.legato.kazusa.ui.book.read.page.entities.TextChapter
 import io.legato.kazusa.ui.book.searchContent.SearchResult
-import io.legato.kazusa.utils.DocumentUtils
-import io.legato.kazusa.utils.FileUtils
-import io.legato.kazusa.utils.isContentScheme
+import io.legato.kazusa.utils.ImageSaveUtils
 import io.legato.kazusa.utils.mapParallelSafe
 import io.legato.kazusa.utils.postEvent
 import io.legato.kazusa.utils.toStringArray
@@ -48,10 +44,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.take
-import java.io.File
-import java.io.FileInputStream
 import java.io.FileNotFoundException
-import java.io.FileOutputStream
 import kotlin.coroutines.coroutineContext
 
 /**
@@ -504,30 +497,23 @@ class ReadBookViewModel(application: Application) : BaseViewModel(application) {
     /**
      * 保存图片
      */
-    fun saveImage(src: String?, uri: Uri) {
+    fun saveImage(src: String?) {
         src ?: return
         val book = ReadBook.book ?: return
+
         execute {
             val image = BookHelp.getImage(book, src)
-            FileInputStream(image).use { input ->
-                if (uri.isContentScheme()) {
-                    DocumentFile.fromTreeUri(context, uri)?.let { doc ->
-                        val imageDoc = DocumentUtils.createFileIfNotExist(doc, image.name)!!
-                        context.contentResolver.openOutputStream(imageDoc.uri)!!.use { output ->
-                            input.copyTo(output)
-                        }
-                    }
-                } else {
-                    val dir = File(uri.path ?: uri.toString())
-                    val file = FileUtils.createFileIfNotExist(dir, image.name)
-                    FileOutputStream(file).use { output ->
-                        input.copyTo(output)
-                    }
-                }
-            }
+            val byteArray = image.readBytes()
+            val success = ImageSaveUtils.saveImageToGallery(
+                context,
+                byteArray,
+                folderName = "Legado"
+            )
+            if (!success) throw NoStackTraceException("保存到相册失败")
         }.onError {
-            AppLog.put("保存图片出错\n${it.localizedMessage}", it)
-            context.toastOnUi("保存图片出错\n${it.localizedMessage}")
+            context.toastOnUi("保存图片失败: ${it.localizedMessage}")
+        }.onSuccess {
+            context.toastOnUi("已保存到相册")
         }
     }
 

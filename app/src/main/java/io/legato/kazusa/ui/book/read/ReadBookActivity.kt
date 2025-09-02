@@ -19,9 +19,6 @@ import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.net.toUri
-import androidx.core.view.doOnLayout
-import androidx.core.view.doOnPreDraw
 import androidx.core.view.get
 import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
@@ -30,7 +27,6 @@ import com.google.android.material.transition.platform.MaterialSharedAxis
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import io.legato.kazusa.BuildConfig
 import io.legato.kazusa.R
-import io.legato.kazusa.constant.AppConst
 import io.legato.kazusa.constant.AppLog
 import io.legato.kazusa.constant.BookType
 import io.legato.kazusa.constant.EventBus
@@ -99,13 +95,11 @@ import io.legato.kazusa.ui.book.toc.TocActivityResult
 import io.legato.kazusa.ui.book.toc.rule.TxtTocRuleDialog
 import io.legato.kazusa.ui.browser.WebViewActivity
 import io.legato.kazusa.ui.dict.DictDialog
-import io.legato.kazusa.ui.file.HandleFileContract
 import io.legato.kazusa.ui.login.SourceLoginActivity
 import io.legato.kazusa.ui.replace.ReplaceRuleActivity
 import io.legato.kazusa.ui.replace.edit.ReplaceEditActivity
 import io.legato.kazusa.ui.widget.PopupAction
 import io.legato.kazusa.ui.widget.dialog.PhotoDialog
-import io.legato.kazusa.utils.ACache
 import io.legato.kazusa.utils.Debounce
 import io.legato.kazusa.utils.LogUtils
 import io.legato.kazusa.utils.NetworkUtils
@@ -120,7 +114,6 @@ import io.legato.kazusa.utils.iconItemOnLongClick
 import io.legato.kazusa.utils.invisible
 import io.legato.kazusa.utils.isAbsUrl
 import io.legato.kazusa.utils.isTrue
-import io.legato.kazusa.utils.launch
 import io.legato.kazusa.utils.navigationBarGravity
 import io.legato.kazusa.utils.observeEvent
 import io.legato.kazusa.utils.observeEventSticky
@@ -212,12 +205,6 @@ class ReadBookActivity : BaseReadBookActivity(),
                 ReadBook.loadOrUpContent()
             }
         }
-    private val selectImageDir = registerForActivityResult(HandleFileContract()) {
-        it.uri?.let { uri ->
-            ACache.get().put(AppConst.imagePathKey, uri.toString())
-            viewModel.saveImage(it.value, uri)
-        }
-    }
     private var menu: Menu? = null
     private var backupJob: Job? = null
     private var tts: TTS? = null
@@ -267,7 +254,7 @@ class ReadBookActivity : BaseReadBookActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
 
         if (AppConfig.sharedElementEnterTransitionEnable) {
-            postponeEnterTransition()
+
             val transform = MaterialContainerTransform().apply {
                 addTarget(binding.rootView)
                 scrimColor = Color.TRANSPARENT
@@ -275,30 +262,33 @@ class ReadBookActivity : BaseReadBookActivity(),
             }
             window.sharedElementEnterTransition = transform
 
-            window.sharedElementReturnTransition =
-                MaterialSharedAxis(MaterialSharedAxis.X, true).apply {
-                    duration = 300
-                }
-
             if (AppConfig.delayBookLoadEnable) {
                 window.sharedElementEnterTransition?.addListener(object :
                     Transition.TransitionListener {
                     override fun onTransitionStart(transition: Transition) {}
                     override fun onTransitionEnd(transition: Transition) {
-                        binding.readView.doOnLayout {
+                        lifecycleScope.launch(Dispatchers.Default) {
                             viewModel.initReadBookConfig(intent)
                             viewModel.initData(intent)
-                            binding.readView.initAfterTransition()
-                            justInitData = true
+
+                            withContext(Main) {
+                                binding.readView.initAfterTransition()
+                                justInitData = true
+                            }
                         }
                         transition.removeListener(this)
                     }
 
                     override fun onTransitionCancel(transition: Transition) {
-                        viewModel.initReadBookConfig(intent)
-                        viewModel.initData(intent)
-                        binding.readView.initAfterTransition()
-                        justInitData = true
+                        lifecycleScope.launch(Dispatchers.Default) {
+                            viewModel.initReadBookConfig(intent)
+                            viewModel.initData(intent)
+
+                            withContext(Main) {
+                                binding.readView.initAfterTransition()
+                                justInitData = true
+                            }
+                        }
                         transition.removeListener(this)
                     }
 
@@ -307,31 +297,20 @@ class ReadBookActivity : BaseReadBookActivity(),
                 })
             }
         }
-
-        super.onCreate(savedInstanceState)
-
-        if (!AppConfig.delayBookLoadEnable || !AppConfig.sharedElementEnterTransitionEnable) {
-            lifecycleScope.launch(Dispatchers.Default) {
-                viewModel.initReadBookConfig(intent)
-                viewModel.initData(intent)
-
-                withContext(Main) {
-                    binding.readView.initAfterTransition()
-                    justInitData = true
-                }
+        window.sharedElementReturnTransition =
+            MaterialSharedAxis(MaterialSharedAxis.X, true).apply {
+                duration = 300
             }
-        }
-
+        super.onCreate(savedInstanceState)
 
         if (AppConfig.sharedElementEnterTransitionEnable)
             binding.rootView.transitionName = intent.getStringExtra("transitionName")
 
+        upScreenTimeOut()
+        ReadBook.register(this)
+
         binding.cursorLeft.setOnTouchListener(this)
         binding.cursorRight.setOnTouchListener(this)
-
-        binding.rootView.doOnPreDraw {
-            startPostponedEnterTransition()
-        }
 
         onBackPressedDispatcher.addCallback(this) {
             if (isShowingSearchResult) {
@@ -362,9 +341,19 @@ class ReadBookActivity : BaseReadBookActivity(),
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        upScreenTimeOut()
-        ReadBook.register(this)
+        if (!AppConfig.delayBookLoadEnable || !AppConfig.sharedElementEnterTransitionEnable) {
+            lifecycleScope.launch(Dispatchers.Default) {
+                viewModel.initReadBookConfig(intent)
+                viewModel.initData(intent)
+
+                withContext(Main) {
+                    binding.readView.initAfterTransition()
+                    justInitData = true
+                }
+            }
+        }
     }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         viewModel.initData(intent)
@@ -1445,9 +1434,8 @@ class ReadBookActivity : BaseReadBookActivity(),
             listOf(
                 SelectItem(getString(R.string.show), "show"),
                 SelectItem(getString(R.string.refresh), "refresh"),
-                SelectItem(getString(R.string.action_save), "save"),
+                SelectItem("保存到相册", "save"),
                 SelectItem(getString(R.string.menu), "menu"),
-                SelectItem(getString(R.string.select_folder), "selectFolder")
             )
         )
         popupAction.onActionClick = {
@@ -1455,18 +1443,9 @@ class ReadBookActivity : BaseReadBookActivity(),
                 "show" -> showDialogFragment(PhotoDialog(src))
                 "refresh" -> viewModel.refreshImage(src)
                 "save" -> {
-                    val path = ACache.get().getAsString(AppConst.imagePathKey)
-                    if (path.isNullOrEmpty()) {
-                        selectImageDir.launch {
-                            value = src
-                        }
-                    } else {
-                        viewModel.saveImage(src, path.toUri())
-                    }
+                    viewModel.saveImage(src)
                 }
-
                 "menu" -> showActionMenu()
-                "selectFolder" -> selectImageDir.launch()
             }
             popupAction.dismiss()
         }

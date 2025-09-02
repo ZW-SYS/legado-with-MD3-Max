@@ -30,7 +30,6 @@ import com.script.rhino.runScriptWithContext
 import io.legato.kazusa.R
 import io.legato.kazusa.base.VMBaseActivity
 import io.legato.kazusa.constant.AppConst
-import io.legato.kazusa.constant.AppConst.imagePathKey
 import io.legato.kazusa.constant.AppLog
 import io.legato.kazusa.data.entities.RssSource
 import io.legato.kazusa.databinding.ActivityRssReadBinding
@@ -40,10 +39,8 @@ import io.legato.kazusa.lib.dialogs.SelectItem
 import io.legato.kazusa.lib.dialogs.selector
 import io.legato.kazusa.model.Download
 import io.legato.kazusa.ui.association.OnLineImportActivity
-import io.legato.kazusa.ui.file.HandleFileContract
 import io.legato.kazusa.ui.login.SourceLoginActivity
 import io.legato.kazusa.ui.rss.favorites.RssFavoritesDialog
-import io.legato.kazusa.utils.ACache
 import io.legato.kazusa.utils.NetworkUtils
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.invisible
@@ -83,12 +80,6 @@ class ReadRssActivity : VMBaseActivity<ActivityRssReadBinding, ReadRssViewModel>
     private var ttsMenuItem: MenuItem? = null
     private var isFullScreen = false
     private var customWebViewCallback: WebChromeClient.CustomViewCallback? = null
-    private val selectImageDir = registerForActivityResult(HandleFileContract()) {
-        it.uri?.let { uri ->
-            ACache.get().put(imagePathKey, uri.toString())
-            viewModel.saveImage(it.value, uri)
-        }
-    }
     private val rssJsExtensions by lazy { RssJsExtensions(this) }
 
     fun getSource(): RssSource? {
@@ -257,12 +248,10 @@ class ReadRssActivity : VMBaseActivity<ActivityRssReadBinding, ReadRssViewModel>
                     selector(
                         arrayListOf(
                             SelectItem(getString(R.string.action_save), "save"),
-                            SelectItem(getString(R.string.select_folder), "selectFolder")
                         )
                     ) { _, charSequence, _ ->
                         when (charSequence.value) {
                             "save" -> saveImage(webPic)
-                            "selectFolder" -> selectSaveFolder(null)
                         }
                     }
                     return@setOnLongClickListener true
@@ -281,24 +270,7 @@ class ReadRssActivity : VMBaseActivity<ActivityRssReadBinding, ReadRssViewModel>
     }
 
     private fun saveImage(webPic: String) {
-        val path = ACache.get().getAsString(imagePathKey)
-        if (path.isNullOrEmpty()) {
-            selectSaveFolder(webPic)
-        } else {
-            viewModel.saveImage(webPic, path.toUri())
-        }
-    }
-
-    private fun selectSaveFolder(webPic: String?) {
-        val default = arrayListOf<SelectItem<Int>>()
-        val path = ACache.get().getAsString(imagePathKey)
-        if (!path.isNullOrEmpty()) {
-            default.add(SelectItem(path, -1))
-        }
-        selectImageDir.launch {
-            otherActions = default
-            value = webPic
-        }
+        viewModel.saveImage(webPic)
     }
 
     @SuppressLint("SetJavaScriptEnabled")

@@ -2,13 +2,11 @@ package io.legato.kazusa.ui.browser
 
 import android.app.Application
 import android.content.Intent
-import android.net.Uri
 import android.util.Base64
 import android.webkit.URLUtil
 import android.webkit.WebView
-import androidx.documentfile.provider.DocumentFile
 import io.legato.kazusa.base.BaseViewModel
-import io.legato.kazusa.constant.AppConst
+import io.legato.kazusa.constant.AppConst.imagePathKey
 import io.legato.kazusa.constant.SourceType
 import io.legato.kazusa.data.appDb
 import io.legato.kazusa.exception.NoStackTraceException
@@ -17,15 +15,11 @@ import io.legato.kazusa.help.http.okHttpClient
 import io.legato.kazusa.help.source.SourceHelp
 import io.legato.kazusa.help.source.SourceVerificationHelp
 import io.legato.kazusa.model.analyzeRule.AnalyzeUrl
-import io.legato.kazusa.utils.DocumentUtils
-import io.legato.kazusa.utils.FileUtils
-import io.legato.kazusa.utils.isContentScheme
+import io.legato.kazusa.utils.ACache
+import io.legato.kazusa.utils.ImageSaveUtils
 import io.legato.kazusa.utils.printOnDebug
 import io.legato.kazusa.utils.toastOnUi
-import io.legato.kazusa.utils.writeBytes
 import org.apache.commons.text.StringEscapeUtils
-import java.io.File
-import java.util.Date
 
 class WebViewModel(application: Application) : BaseViewModel(application) {
     var intent: Intent? = null
@@ -66,26 +60,23 @@ class WebViewModel(application: Application) : BaseViewModel(application) {
         }
     }
 
-    fun saveImage(webPic: String?, path: String) {
+    fun saveImage(webPic: String?) {
         webPic ?: return
         execute {
-            val fileName = "${AppConst.fileNameFormat.format(Date(System.currentTimeMillis()))}.jpg"
-            webData2bitmap(webPic)?.let { biteArray ->
-                if (path.isContentScheme()) {
-                    val uri = Uri.parse(path)
-                    DocumentFile.fromTreeUri(context, uri)?.let { doc ->
-                        DocumentUtils.createFileIfNotExist(doc, fileName)
-                            ?.writeBytes(context, biteArray)
-                    }
-                } else {
-                    val file = FileUtils.createFileIfNotExist(File(path), fileName)
-                    file.writeBytes(biteArray)
-                }
-            } ?: throw Throwable("NULL")
+            val byteArray = webData2bitmap(webPic) ?: throw Throwable("NULL")
+
+            val success = ImageSaveUtils.saveImageToGallery(
+                context,
+                byteArray,
+                folderName = "Legado"
+            )
+
+            if (!success) throw Throwable("保存到相册失败")
         }.onError {
-            context.toastOnUi("保存图片失败:${it.localizedMessage}")
+            ACache.get().remove(imagePathKey)
+            context.toastOnUi("保存图片失败: ${it.localizedMessage}")
         }.onSuccess {
-            context.toastOnUi("保存成功")
+            context.toastOnUi("已保存到相册")
         }
     }
 

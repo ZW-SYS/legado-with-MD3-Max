@@ -28,11 +28,10 @@ import io.legato.kazusa.help.http.CookieStore
 import io.legato.kazusa.help.source.SourceVerificationHelp
 import io.legato.kazusa.lib.dialogs.SelectItem
 import io.legato.kazusa.lib.dialogs.alert
+import io.legato.kazusa.lib.dialogs.selector
 //import io.legado.app.lib.theme.accentColor
 import io.legato.kazusa.model.Download
 import io.legato.kazusa.ui.association.OnLineImportActivity
-import io.legato.kazusa.ui.file.HandleFileContract
-import io.legato.kazusa.utils.ACache
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.invisible
 import io.legato.kazusa.utils.keepScreenOn
@@ -51,17 +50,10 @@ class WebViewActivity : VMBaseActivity<ActivityWebViewBinding, WebViewModel>() {
 
     override val binding by viewBinding(ActivityWebViewBinding::inflate)
     override val viewModel by viewModels<WebViewModel>()
-    private val imagePathKey = "imagePath"
     private var customWebViewCallback: WebChromeClient.CustomViewCallback? = null
     private var webPic: String? = null
     private var isCloudflareChallenge = false
     private var isFullScreen = false
-    private val saveImage = registerForActivityResult(HandleFileContract()) {
-        it.uri?.let { uri ->
-            ACache.get().put(imagePathKey, uri.toString())
-            viewModel.saveImage(webPic, uri.toString())
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -183,9 +175,17 @@ class WebViewActivity : VMBaseActivity<ActivityWebViewBinding, WebViewModel>() {
             if (hitTestResult.type == WebView.HitTestResult.IMAGE_TYPE ||
                 hitTestResult.type == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE
             ) {
-                hitTestResult.extra?.let {
-                    saveImage(it)
-                    return@setOnLongClickListener true
+                hitTestResult.extra?.let { webPic ->
+                    selector(
+                        arrayListOf(
+                            SelectItem(getString(R.string.action_save), "save"),
+                        )
+                    ) { _, charSequence, _ ->
+                        when (charSequence.value) {
+                            "save" -> saveImage(webPic)
+                        }
+                    }
+                    return@setOnLongClickListener false
                 }
             }
             return@setOnLongClickListener false
@@ -201,23 +201,7 @@ class WebViewActivity : VMBaseActivity<ActivityWebViewBinding, WebViewModel>() {
 
     private fun saveImage(webPic: String) {
         this.webPic = webPic
-        val path = ACache.get().getAsString(imagePathKey)
-        if (path.isNullOrEmpty()) {
-            selectSaveFolder()
-        } else {
-            viewModel.saveImage(webPic, path)
-        }
-    }
-
-    private fun selectSaveFolder() {
-        val default = arrayListOf<SelectItem<Int>>()
-        val path = ACache.get().getAsString(imagePathKey)
-        if (!path.isNullOrEmpty()) {
-            default.add(SelectItem(path, -1))
-        }
-        saveImage.launch {
-            otherActions = default
-        }
+        viewModel.saveImage(webPic)
     }
 
     override fun finish() {
