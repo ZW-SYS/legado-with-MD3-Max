@@ -23,38 +23,38 @@ object AppUpdateGitHub : AppUpdate.AppUpdateInterface {
             "beta_releaseA_version" -> AppVariant.BETA_RELEASEA
             else -> AppConst.appInfo.appVariant
         }
-
     private suspend fun getLatestRelease(): List<AppReleaseInfo> {
-        val lastReleaseUrl = if (checkVariant.isBeta()) {
-            "https://api.github.com/repos/HapeLee/legado-with-MD3/releases/tags/beta"
-        } else {
-            "https://api.github.com/repos/HapeLee/legado-with-MD3/releases/latest"
-        }
-        val res = okHttpClient.newCallResponse {
-            url(lastReleaseUrl)
-        }
+        val url = "https://api.github.com/repos/HapeLee/legado-with-MD3/releases"
+        val res = okHttpClient.newCallResponse { url(url) }
+
         if (!res.isSuccessful) {
             throw NoStackTraceException("获取新版本出错(${res.code})")
         }
-        val body = res.body?.text()
-        if (body.isNullOrBlank()) {
-            throw NoStackTraceException("获取新版本出错")
+
+        val body = res.body.text()
+        if (body.isBlank()) {
+            throw NoStackTraceException("获取新版本出错：返回为空")
         }
-        return GSON.fromJsonObject<GithubRelease>(body)
-            .getOrElse {
-                throw NoStackTraceException("获取新版本出错 " + it.localizedMessage)
-            }
-            .gitReleaseToAppReleaseInfo()
+        val allReleases = GSON.fromJsonObject<List<GithubRelease>>(body)
+            .getOrElse { throw NoStackTraceException("解析版本信息出错：${it.localizedMessage}") }
+
+        val releases = allReleases
+            .flatMap { it.gitReleaseToAppReleaseInfo() }
+            .filter { it.appVariant == checkVariant }
             .sortedByDescending { it.createdAt }
+
+        return releases
     }
 
+    /**
+     * 检查更新
+     */
     override fun check(scope: CoroutineScope): Coroutine<AppUpdate.UpdateInfo> {
         return Coroutine.async(scope) {
             val currentVersion = AppConst.appInfo.versionName
             val releases = getLatestRelease()
-                .filter { it.appVariant == checkVariant }
 
-
+            // 找出比当前版本高的最新 release
             val latest = releases
                 .firstOrNull { it.versionName > currentVersion }
 
