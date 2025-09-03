@@ -17,6 +17,7 @@ import io.legato.kazusa.databinding.ItemReadStyleBinding
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.config.ReadBookConfig
 import io.legato.kazusa.help.config.ThemeConfig
+import io.legato.kazusa.lib.dialogs.alert
 import io.legato.kazusa.lib.dialogs.selector
 import io.legato.kazusa.model.ReadBook
 import io.legato.kazusa.ui.book.read.ReadBookActivity
@@ -56,11 +57,7 @@ class ReadStyleDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_book_
         dsbTextSize.valueFormat = {
             (it + 5).toString()
         }
-        dsbTextLetterSpacing.valueFormat = {
-            ((it - 50) / 100f).toString()
-        }
-        dsbLineSize.valueFormat = { ((it - 10) / 10f).toString() }
-        dsbParagraphSpacing.valueFormat = { (it / 10f).toString() }
+
         styleAdapter = StyleAdapter()
         rvStyle.adapter = styleAdapter
         styleAdapter.addFooterView {
@@ -76,6 +73,8 @@ class ReadStyleDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_book_
                 }
             }
         }
+
+
     }
 
     private fun initData() {
@@ -85,10 +84,18 @@ class ReadStyleDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_book_
     }
 
     private fun initViewEvent() = binding.run {
-        chineseConverter.onChanged {
-            ChineseUtils.unLoad(*TransType.entries.toTypedArray())
-            postEvent(EventBus.UP_CONFIG, arrayListOf(5))
+        btnChineseConverter.setOnClickListener {
+            alert(titleResource = R.string.chinese_converter) {
+                items(resources.getStringArray(R.array.chinese_mode).toList()) { _, i ->
+                    AppConfig.chineseConverterType = i
+
+                    // 不需要更新文字，也不需要切换图标
+                    ChineseUtils.unLoad(*TransType.entries.toTypedArray())
+                    postEvent(EventBus.UP_CONFIG, arrayListOf(5))
+                }
+            }
         }
+
         textFontWeightConverter.onChanged {
             postEvent(EventBus.UP_CONFIG, arrayListOf(8, 9, 6))
         }
@@ -149,17 +156,9 @@ class ReadStyleDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_book_
             ReadBookConfig.textSize = it + 5
             postEvent(EventBus.UP_CONFIG, arrayListOf(8, 5))
         }
-        dsbTextLetterSpacing.onChanged = {
-            ReadBookConfig.letterSpacing = (it - 50) / 100f
-            postEvent(EventBus.UP_CONFIG, arrayListOf(8, 5))
-        }
-        dsbLineSize.onChanged = {
-            ReadBookConfig.lineSpacingExtra = it
-            postEvent(EventBus.UP_CONFIG, arrayListOf(8, 5))
-        }
-        dsbParagraphSpacing.onChanged = {
-            ReadBookConfig.paragraphSpacing = it
-            postEvent(EventBus.UP_CONFIG, arrayListOf(8, 5))
+
+        btnSpacing.setOnClickListener {
+            callBack?.showSpacingDialog()
         }
     }
 
@@ -193,9 +192,6 @@ class ReadStyleDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_book_
         }
         ReadBookConfig.let {
             dsbTextSize.progress = it.textSize - 5
-            dsbTextLetterSpacing.progress = (it.letterSpacing * 100).toInt() + 50
-            dsbLineSize.progress = it.lineSpacingExtra
-            dsbParagraphSpacing.progress = it.paragraphSpacing
         }
     }
 

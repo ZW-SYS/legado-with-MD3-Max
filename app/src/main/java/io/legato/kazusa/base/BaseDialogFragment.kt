@@ -1,5 +1,6 @@
 package io.legato.kazusa.base
 
+import android.app.Dialog
 import android.content.DialogInterface
 import android.content.DialogInterface.OnDismissListener
 import android.os.Bundle
@@ -8,11 +9,11 @@ import androidx.annotation.LayoutRes
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.legato.kazusa.R
 import io.legato.kazusa.constant.AppLog
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.coroutine.Coroutine
-import io.legato.kazusa.lib.theme.ThemeStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
@@ -24,6 +25,17 @@ abstract class BaseDialogFragment(
 ) : DialogFragment(layoutID) {
 
     private var onDismissListener: OnDismissListener? = null
+
+    private lateinit var dialogView: View
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        dialogView = onCreateView(layoutInflater, null, savedInstanceState)!!
+        return MaterialAlertDialogBuilder(requireContext(), theme)
+            .setView(dialogView)
+            .create()
+    }
+
+    override fun getView(): View? = dialogView
 
     fun setOnDismissListener(onDismissListener: OnDismissListener?) {
         this.onDismissListener = onDismissListener

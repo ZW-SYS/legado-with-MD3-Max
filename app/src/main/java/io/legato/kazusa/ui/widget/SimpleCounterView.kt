@@ -8,10 +8,13 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.appcompat.widget.TooltipCompat
 import io.legato.kazusa.R
 import io.legato.kazusa.databinding.ViewSimpleCounterBinding
 import io.legato.kazusa.lib.dialogs.alert
+import io.legato.kazusa.utils.gone
+import io.legato.kazusa.utils.visible
 
 @SuppressLint("ViewConstructor", "ClickableViewAccessibility")
 class SimpleCounterView @JvmOverloads constructor(
@@ -20,7 +23,7 @@ class SimpleCounterView @JvmOverloads constructor(
 ) : FrameLayout(context, attrs) {
 
     private val binding = ViewSimpleCounterBinding.inflate(LayoutInflater.from(context), this)
-
+    private var _orientation: Int = 1
     private var _progress = 0
     private var _max = 100
     private var _min = 0
@@ -36,6 +39,7 @@ class SimpleCounterView @JvmOverloads constructor(
     private val longPressDelay = 400L
     private val repeatInterval = 320L
 
+    private val tvTit: TextView
 
     var progress: Int
         get() = _progress
@@ -68,10 +72,24 @@ class SimpleCounterView @JvmOverloads constructor(
         _min = typedArray.getInt(R.styleable.DetailSeekBar_min, 0)
         _progress = _progress.coerceIn(_min, _max)
 
+        val ta = context.obtainStyledAttributes(attrs, R.styleable.SimpleCounterView)
+        _orientation = ta.getInt(R.styleable.SimpleCounterView_orientation, 1)
+        ta.recycle()
+
+        if (_orientation == 1) {
+            tvTit = binding.tvSeekTitleVertical
+            binding.tvSeekTitle.gone()
+            binding.tvSeekTitleVertical.visible()
+        } else {
+            tvTit = binding.tvSeekTitle
+            binding.tvSeekTitle.visible()
+            binding.tvSeekTitleVertical.gone()
+        }
+
         typedArray.recycle()
 
-        binding.tvSeekTitle.text = title
-        TooltipCompat.setTooltipText(binding.tvSeekTitle, title)
+        tvTit.text = title
+        TooltipCompat.setTooltipText(tvTit, title)
 
         binding.ivSeekPlus.setOnClickListener {
             if (_progress < _max) {
@@ -134,7 +152,7 @@ class SimpleCounterView @JvmOverloads constructor(
                     min = _min
                     progress = _progress
                     valueFormat = this@SimpleCounterView.valueFormat
-                    setTitle(binding.tvSeekTitle.text)
+                    setTitle(tvTit.text)
                     onChanged = {
                         _progress = it
                         updateValue()
@@ -198,7 +216,7 @@ class SimpleCounterView @JvmOverloads constructor(
 
     override fun setEnabled(enabled: Boolean) {
         super.setEnabled(enabled)
-        binding.tvSeekTitle.isEnabled = enabled
+        tvTit.isEnabled = enabled
         binding.ivSeekPlus.isEnabled = enabled
         binding.ivSeekReduce.isEnabled = enabled
         binding.tvSeekValue.isEnabled = enabled
