@@ -452,7 +452,7 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
         binding.refreshProgressBar.gone()
         binding.cdProgress.gone()
         if (!isManualStopSearch && viewModel.hasMore) {
-            binding.fbStartStop.setImageResource(R.drawable.ic_play_24dp)
+            binding.fbStartStop.setImageResource(R.drawable.ic_play)
         } else {
             binding.fbStartStop.invisible()
         }

@@ -624,13 +624,13 @@ abstract class BaseReadAloudService : BaseService(),
         )
         if (pause) {
             builder.addAction(
-                R.drawable.ic_play_24dp,
+                R.drawable.ic_play,
                 getString(R.string.resume),
                 aloudServicePendingIntent(IntentAction.resume)
             )
         } else {
             builder.addAction(
-                R.drawable.ic_pause_24dp,
+                R.drawable.ic_pause,
                 getString(R.string.pause),
                 aloudServicePendingIntent(IntentAction.pause)
             )

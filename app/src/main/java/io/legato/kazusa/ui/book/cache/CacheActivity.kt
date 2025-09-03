@@ -300,7 +300,7 @@ class CacheActivity : VMBaseActivity<ActivityCacheBookBinding, CacheViewModel>()
         observeEvent<String>(EventBus.UP_DOWNLOAD) {
             if (!CacheBook.isRun) {
                 menu?.findItem(R.id.menu_download)?.let { item ->
-                    item.setIcon(R.drawable.ic_play_24dp)
+                    item.setIcon(R.drawable.ic_play)
                     item.setTitle(R.string.download_start)
                 }
                 menu?.applyTint(this)

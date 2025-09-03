@@ -1,5 +1,7 @@
 package io.legato.kazusa.ui.book.read.config
 
+//import io.legado.app.lib.theme.bottomBackground
+//import io.legado.app.lib.theme.getPrimaryTextColor
 import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.os.Bundle
@@ -12,14 +14,15 @@ import io.legato.kazusa.constant.EventBus
 import io.legato.kazusa.databinding.DialogReadAloudBinding
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.lib.dialogs.selector
-//import io.legado.app.lib.theme.bottomBackground
-//import io.legado.app.lib.theme.getPrimaryTextColor
 import io.legato.kazusa.model.ReadAloud
 import io.legato.kazusa.model.ReadBook
 import io.legato.kazusa.service.BaseReadAloudService
 import io.legato.kazusa.ui.book.read.ReadBookActivity
-import io.legato.kazusa.utils.*
+import io.legato.kazusa.utils.getPrefBoolean
+import io.legato.kazusa.utils.observeEvent
+import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
+import io.legato.kazusa.utils.visible
 
 
 class ReadAloudDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_aloud) {
@@ -193,10 +196,12 @@ class ReadAloudDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_aloud
 
     private fun upPlayState() {
         if (!BaseReadAloudService.pause) {
-            binding.ivPlayPause.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_pause_24dp)
+            binding.ivPlayPause.icon =
+                ContextCompat.getDrawable(requireContext(), R.drawable.ic_pause)
             binding.ivPlayPause.contentDescription = getString(R.string.pause)
         } else {
-            binding.ivPlayPause.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_play_24dp)
+            binding.ivPlayPause.icon =
+                ContextCompat.getDrawable(requireContext(), R.drawable.ic_play)
             binding.ivPlayPause.contentDescription = getString(R.string.audio_play)
         }
 

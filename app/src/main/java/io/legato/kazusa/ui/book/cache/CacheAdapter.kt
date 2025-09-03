@@ -141,10 +141,10 @@ class CacheAdapter(context: Context, private val callBack: CallBack) :
                 if (!it.isStop()) {
                     button.icon = ContextCompat.getDrawable(context, R.drawable.ic_stop_black_24dp)
                 } else {
-                    button.icon = ContextCompat.getDrawable(context, R.drawable.ic_play_24dp)
+                    button.icon = ContextCompat.getDrawable(context, R.drawable.ic_play)
                 }
             } ?: run {
-                button.icon = ContextCompat.getDrawable(context, R.drawable.ic_play_24dp)
+                button.icon = ContextCompat.getDrawable(context, R.drawable.ic_play)
             }
         }
     }

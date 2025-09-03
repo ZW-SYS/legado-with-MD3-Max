@@ -500,7 +500,7 @@ class ReadMenu @JvmOverloads constructor(
                 id = "catalog",
                 iconRes = R.drawable.ic_toc,
                 description = context.getString(R.string.chapter_list),
-                onClick = { callBack.openChapterList() }
+                onClick = { runMenuOut { callBack.openChapterList() } }
             ),
             ToolButton(
                 id = "read_aloud",
@@ -513,13 +513,13 @@ class ReadMenu @JvmOverloads constructor(
                 id = "setting",
                 iconRes = R.drawable.ic_settings,
                 description = context.getString(R.string.setting),
-                onClick = { callBack.showReadStyle() }
+                onClick = { runMenuOut { callBack.showReadStyle() } }
             ),
             ToolButton(
                 id = "addBookmark",
                 iconRes = R.drawable.ic_bookmark,
                 description = context.getString(R.string.bookmark),
-                onClick = { callBack.addBookmark() }
+                onClick = { runMenuOut { callBack.addBookmark() } }
             )
         )
     }
