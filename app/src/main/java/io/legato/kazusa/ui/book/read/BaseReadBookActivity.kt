@@ -34,7 +34,6 @@ import io.legato.kazusa.ui.book.read.config.BgTextConfigDialog
 import io.legato.kazusa.ui.book.read.config.ClickActionConfigDialog
 import io.legato.kazusa.ui.book.read.config.PaddingConfigDialog
 import io.legato.kazusa.ui.book.read.config.PageKeyDialog
-import io.legato.kazusa.ui.book.read.config.ReadSpacingDialog
 import io.legato.kazusa.ui.file.HandleFileContract
 import io.legato.kazusa.utils.ColorUtils
 import io.legato.kazusa.utils.FileDoc
@@ -123,10 +122,6 @@ abstract class BaseReadBookActivity :
 
     open fun onMenuHide() {
 
-    }
-
-    fun showSpacingDialog() {
-        showDialogFragment<ReadSpacingDialog>()
     }
 
     fun showPaddingConfig() {

@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:paddingBottom="16dp"
+            android:paddingBottom="8dp"
             android:paddingHorizontal="16dp">
 
             <com.google.android.material.bottomsheet.BottomSheetDragHandleView
@@ -48,8 +48,10 @@
                     android:layout_height="36dp"
                     android:layout_width="wrap_content"
                     android:layout_marginStart="8dp"
+                    android:textColor="?attr/colorTertiary"
                     app:iconSize="16dp"
                     app:icon="@drawable/ic_brightness"
+                    app:backgroundTint="?attr/colorTertiaryContainer"
                     app:iconGravity="textStart"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@id/bottom_sheet_title"
@@ -71,151 +73,86 @@
                 android:orientation="horizontal"
                 android:layout_marginHorizontal="12dp" >
 
-                <io.legato.kazusa.ui.book.read.config.TextFontWeightConverter
-                    android:id="@+id/text_font_weight_converter"
-                    style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:text="@string/font_weight_text"
-                    android:layout_weight="2"
-                    app:icon="@drawable/font_bold"
-                    app:iconGravity="textTop"
-                    android:textSize="10sp"
-                    tool:ignore="SmallSp" />
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"/>
-
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/tv_text_font"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
-                    android:layout_weight="2"
-                    android:text="@string/text_font"
-                    app:icon="@drawable/font_style"
-                    app:iconGravity="textTop"
-                    android:textSize="10sp"
+                    style="@style/Widget.Material3Expressive.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:text="字体与间距"
+                    app:icon="@drawable/ic_cfg_txt"
                     tool:ignore="SmallSp" />
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/tv_text_indent"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
-                    android:layout_weight="2"
-                    android:text="@string/text_indent"
-                    app:icon="@drawable/ic_segment"
-                    app:iconGravity="textTop"
-                    android:textSize="10sp"
-                    tool:ignore="SmallSp" />
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/tv_padding"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+                    style="@style/Widget.Material3Expressive.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
                     android:layout_weight="2"
+                    android:layout_height="wrap_content"
                     android:text="@string/padding"
                     app:icon="@drawable/ic_padding"
-                    app:iconGravity="textTop"
-                    android:textSize="10sp"
                     tool:ignore="SmallSp" />
-
-            </com.google.android.material.button.MaterialButtonGroup>
-
-            <com.google.android.material.button.MaterialButtonGroup
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:layout_marginHorizontal="16dp">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/tv_tip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_weight="2"
                     style="@style/Widget.Material3Expressive.Button.OutlinedButton"
-                    android:text="@string/information" />
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/tv_more"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    style="@style/Widget.Material3Expressive.Button.OutlinedButton"
-                    android:text="@string/more_setting" />
+                    android:text="@string/information"
+                    app:icon="@drawable/ic_header"
+                    tool:ignore="SmallSp" />
 
             </com.google.android.material.button.MaterialButtonGroup>
 
         </LinearLayout>
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
+            android:layout_marginTop="4dp"
             android:orientation="horizontal"
-            android:layout_marginTop="8dp"
+            android:gravity="bottom"
             android:layout_marginHorizontal="16dp">
 
             <io.legato.kazusa.ui.widget.SimpleCounterView
                 android:id="@+id/dsb_text_size"
-                android:layout_width="wrap_content"
+                android:layout_width="140dp"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="2dp"
-                app:orientation="horizontal"
-                app:isBottomBackground="true"
+                android:layout_marginBottom="2dp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:max="45"
+                app:layout_constraintStart_toStartOf="parent"
+                app:orientation="vertical"
                 app:title="@string/text_size" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnChineseConverter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/Widget.Material3Expressive.Button.IconButton.Outlined"
+                style="@style/Widget.Material3Expressive.Button.OutlinedButton"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                app:iconPadding="0dp"
                 app:icon="@drawable/ic_cn_convert"
                 app:iconGravity="textStart"
-                app:iconSize="16dp" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
+                app:iconSize="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tv_more"
+                app:layout_constraintStart_toEndOf="@id/dsb_text_size" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_spacing"
-                style="@style/Widget.Material3Expressive.Button.TonalButton"
+                android:id="@+id/tv_more"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="间距设置"
+                style="@style/Widget.Material3Expressive.Button.TonalButton"
                 app:icon="@drawable/ic_arrow_right"
-                app:iconGravity="textEnd" />
+                android:text="@string/more_setting"
+                app:iconGravity="end"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
 
         <LinearLayout
@@ -230,7 +167,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="4dp"
                 android:text="@string/page_anim"
                 android:textStyle="bold"
                 android:textSize="12sp" />
@@ -318,7 +254,7 @@
                 android:id="@+id/rv_style"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="2dp"
                 android:layout_marginBottom="16dp"
                 android:clipToPadding="false"
                 android:orientation="horizontal"

@@ -87,7 +87,7 @@
 
             <io.legato.kazusa.ui.widget.SimpleCounterView
                 android:id="@+id/dsb_title_top"
-                android:layout_width="wrap_content"
+                android:layout_width="140dp"
                 android:layout_height="wrap_content"
                 app:max="100"
                 app:title="@string/title_margin_top" />
@@ -99,7 +99,7 @@
 
             <io.legato.kazusa.ui.widget.SimpleCounterView
                 android:id="@+id/dsb_title_bottom"
-                android:layout_width="wrap_content"
+                android:layout_width="140dp"
                 android:layout_height="wrap_content"
                 app:max="100"
                 app:title="@string/title_margin_bottom" />

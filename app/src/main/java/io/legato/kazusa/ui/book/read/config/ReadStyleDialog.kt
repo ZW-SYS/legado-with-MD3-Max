@@ -18,10 +18,8 @@ import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.config.ReadBookConfig
 import io.legato.kazusa.help.config.ThemeConfig
 import io.legato.kazusa.lib.dialogs.alert
-import io.legato.kazusa.lib.dialogs.selector
 import io.legato.kazusa.model.ReadBook
 import io.legato.kazusa.ui.book.read.ReadBookActivity
-import io.legato.kazusa.ui.font.FontSelectDialog
 import io.legato.kazusa.utils.ChineseUtils
 import io.legato.kazusa.utils.dpToPx
 import io.legato.kazusa.utils.postEvent
@@ -96,20 +94,8 @@ class ReadStyleDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_book_
             }
         }
 
-        textFontWeightConverter.onChanged {
-            postEvent(EventBus.UP_CONFIG, arrayListOf(8, 9, 6))
-        }
         tvTextFont.setOnClickListener {
             showDialogFragment<FontSelectDialog>()
-        }
-        tvTextIndent.setOnClickListener {
-            context?.selector(
-                title = getString(R.string.text_indent),
-                items = resources.getStringArray(R.array.indent).toList()
-            ) { _, index ->
-                ReadBookConfig.paragraphIndent = "　".repeat(index)
-                postEvent(EventBus.UP_CONFIG, arrayListOf(8, 5))
-            }
         }
         tvPadding.setOnClickListener {
             dismissAllowingStateLoss()
@@ -156,10 +142,6 @@ class ReadStyleDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_book_
             ReadBookConfig.textSize = it + 5
             postEvent(EventBus.UP_CONFIG, arrayListOf(8, 5))
         }
-
-        btnSpacing.setOnClickListener {
-            callBack?.showSpacingDialog()
-        }
     }
 
     private fun changeBgTextConfig(index: Int) {
@@ -184,7 +166,6 @@ class ReadStyleDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_book_
     }
 
     private fun upView() = binding.run {
-        textFontWeightConverter.upUi(ReadBookConfig.textBold)
         ReadBook.pageAnim().let {
             if (it >= 0 && it < rgPageAnim.childCount) {
                 rgPageAnim.check(rgPageAnim[it].id)
