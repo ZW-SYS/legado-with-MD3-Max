@@ -68,6 +68,9 @@ android {
                 ]
             }
         }
+
+        def buildTime = new Date().format("yyyy-MM-dd HH:mm:ss", TimeZone.getTimeZone("UTC"))
+        buildConfigField "String", "BUILD_TIME", "\"${buildTime}\""
     }
 
     buildFeatures {
