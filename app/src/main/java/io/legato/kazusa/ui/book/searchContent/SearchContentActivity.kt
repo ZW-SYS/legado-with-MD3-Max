@@ -10,6 +10,7 @@ import android.widget.EditText
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.allViews
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import io.legato.kazusa.R
 import io.legato.kazusa.base.VMBaseActivity
@@ -210,7 +211,7 @@ class SearchContentActivity :
         viewModel.searchResultList.clear()
         viewModel.searchResultCounts = 0
         viewModel.lastQuery = query
-        binding.refreshProgressBar.isAutoLoading = true
+        binding.refreshProgressBar.isVisible = true
         binding.fbStop.visible()
         searchJob = lifecycleScope.launch(IO) {
             initJob?.join()
@@ -246,7 +247,7 @@ class SearchContentActivity :
             }
             binding.tvCurrentSearchInfo.post {
                 binding.fbStop.invisible()
-                binding.refreshProgressBar.isAutoLoading = false
+                binding.refreshProgressBar.isVisible = false
             }
         }
     }

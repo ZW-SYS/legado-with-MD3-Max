@@ -16,10 +16,11 @@
         app:fitStatusBar="false"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <io.legato.kazusa.ui.widget.anima.RefreshProgressBar
+    <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/refresh_progress_bar"
         android:layout_width="match_parent"
-        android:layout_height="2dp"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
         app:layout_constraintTop_toBottomOf="@+id/tool_bar" />
 
     <io.legato.kazusa.ui.widget.recycler.scroller.FastScrollRecyclerView
@@ -106,7 +107,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/fl_hide_toc" />
 
-        <io.legato.kazusa.ui.widget.anima.RotateLoading
+        <com.google.android.material.loadingindicator.LoadingIndicator
             android:id="@+id/loading_toc"
             android:layout_width="48dp"
             android:layout_height="48dp"

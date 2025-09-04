@@ -1,5 +1,6 @@
 package io.legato.kazusa.ui.book.read
 
+//import io.legado.app.lib.theme.primaryColor
 import android.app.Application
 import android.content.DialogInterface
 import android.os.Bundle
@@ -20,13 +21,13 @@ import io.legato.kazusa.help.book.ContentProcessor
 import io.legato.kazusa.help.book.isLocal
 import io.legato.kazusa.help.coroutine.Coroutine
 import io.legato.kazusa.lib.dialogs.alert
-//import io.legado.app.lib.theme.primaryColor
 import io.legato.kazusa.model.ReadBook
 import io.legato.kazusa.model.webBook.WebBook
-import io.legato.kazusa.utils.applyTint
+import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.sendToClip
 import io.legato.kazusa.utils.setLayout
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
+import io.legato.kazusa.utils.visible
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

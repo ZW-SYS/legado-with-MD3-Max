@@ -359,7 +359,7 @@ class ReadRssActivity : VMBaseActivity<ActivityRssReadBinding, ReadRssViewModel>
 
         override fun onProgressChanged(view: WebView?, newProgress: Int) {
             super.onProgressChanged(view, newProgress)
-            binding.progressBar.setDurProgress(newProgress)
+            binding.progressBar.setProgress(newProgress)
             binding.progressBar.gone(newProgress == 100)
         }
 

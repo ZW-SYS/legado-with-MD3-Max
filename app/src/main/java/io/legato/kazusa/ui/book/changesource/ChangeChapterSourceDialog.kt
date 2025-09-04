@@ -216,7 +216,7 @@ class ChangeChapterSourceDialog() : BaseDialogFragment(R.layout.dialog_chapter_c
 
     private fun initLiveData() {
         viewModel.searchStateData.observe(viewLifecycleOwner) {
-            binding.refreshProgressBar.isAutoLoading = it
+            binding.refreshProgressBar.isVisible = it
             if (it) {
                 startStopMenuItem?.let { item ->
                     item.setIcon(R.drawable.ic_stop_black_24dp)

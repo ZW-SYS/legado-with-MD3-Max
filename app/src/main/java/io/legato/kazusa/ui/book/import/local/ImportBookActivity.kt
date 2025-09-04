@@ -1,5 +1,6 @@
 package io.legato.kazusa.ui.book.import.local
 
+//import io.legado.app.lib.theme.backgroundColor
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Bundle
@@ -8,6 +9,8 @@ import android.view.MenuItem
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.net.toUri
+import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,7 +22,6 @@ import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.lib.dialogs.alert
 import io.legato.kazusa.lib.permission.Permissions
 import io.legato.kazusa.lib.permission.PermissionsCompat
-//import io.legado.app.lib.theme.backgroundColor
 import io.legato.kazusa.ui.book.import.BaseImportBookActivity
 import io.legato.kazusa.ui.file.HandleFileContract
 import io.legato.kazusa.ui.widget.SelectActionBar
@@ -38,7 +40,6 @@ import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import androidx.core.net.toUri
 
 /**
  * 导入本地书籍界面
@@ -252,12 +253,12 @@ class ImportBookActivity : BaseImportBookActivity<ImportBookViewModel>(),
         viewModel.rootDoc?.let { doc ->
             adapter.clearItems()
             val lastDoc = viewModel.subDocs.lastOrNull() ?: doc
-            binding.refreshProgressBar.isAutoLoading = true
+            binding.refreshProgressBar.isVisible = true
             scanDocJob?.cancel()
             scanDocJob = lifecycleScope.launch(IO) {
                 viewModel.scanDoc(lastDoc)
                 withContext(Main) {
-                    binding.refreshProgressBar.isAutoLoading = false
+                    binding.refreshProgressBar.isVisible = false
                 }
             }
         }

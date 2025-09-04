@@ -19,11 +19,13 @@ import io.legato.kazusa.lib.dialogs.selector
 import io.legato.kazusa.ui.qrcode.QrCodeResult
 import io.legato.kazusa.ui.widget.dialog.TextDialog
 import io.legato.kazusa.utils.applyNavigationBarPadding
+import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.launch
 import io.legato.kazusa.utils.showDialogFragment
 import io.legato.kazusa.utils.showHelp
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
+import io.legato.kazusa.utils.visible
 import kotlinx.coroutines.launch
 import splitties.views.onClick
 import splitties.views.onLongClick

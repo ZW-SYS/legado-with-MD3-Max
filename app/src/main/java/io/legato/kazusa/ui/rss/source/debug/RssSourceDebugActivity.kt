@@ -17,6 +17,7 @@ import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.showDialogFragment
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
+import io.legato.kazusa.utils.visible
 import kotlinx.coroutines.launch
 
 

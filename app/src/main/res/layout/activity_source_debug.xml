@@ -25,7 +25,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title_bar" />
 
-    <io.legato.kazusa.ui.widget.anima.RotateLoading
+    <com.google.android.material.loadingindicator.LoadingIndicator
         android:id="@+id/rotate_loading"
         android:layout_width="36dp"
         android:layout_height="36dp"

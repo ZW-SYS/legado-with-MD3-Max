@@ -9,6 +9,7 @@ import android.view.SubMenu
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.legato.kazusa.R
@@ -59,7 +60,7 @@ class RemoteBookActivity : BaseImportBookActivity<RemoteBookViewModel>(),
             initEvent()
             launch {
                 viewModel.dataFlow.conflate().collect { sortedRemoteBooks ->
-                    binding.refreshProgressBar.isAutoLoading = false
+                    binding.refreshProgressBar.isVisible = false
                     binding.tvEmptyMsg.isGone = sortedRemoteBooks.isNotEmpty()
                     adapter.setItems(sortedRemoteBooks)
                     delay(500)
@@ -151,11 +152,11 @@ class RemoteBookActivity : BaseImportBookActivity<RemoteBookViewModel>(),
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onClickSelectBarMainAction() {
-        binding.refreshProgressBar.isAutoLoading = true
+        binding.refreshProgressBar.isVisible = true
         viewModel.addToBookshelf(adapter.selected) {
             adapter.selected.clear()
             adapter.notifyDataSetChanged()
-            binding.refreshProgressBar.isAutoLoading = false
+            binding.refreshProgressBar.isVisible = false
         }
     }
 
@@ -184,7 +185,7 @@ class RemoteBookActivity : BaseImportBookActivity<RemoteBookViewModel>(),
         viewModel.loadRemoteBookList(
             viewModel.dirList.lastOrNull()?.path
         ) {
-            binding.refreshProgressBar.isAutoLoading = it
+            binding.refreshProgressBar.isVisible = it
         }
     }
 
@@ -247,9 +248,9 @@ class RemoteBookActivity : BaseImportBookActivity<RemoteBookViewModel>(),
     override fun addToBookShelfAgain(remoteBook: RemoteBook) {
         alert(getString(R.string.sure), "是否重新加入书架？") {
             yesButton {
-                binding.refreshProgressBar.isAutoLoading = true
+                binding.refreshProgressBar.isVisible = true
                 viewModel.addToBookshelf(hashSetOf(remoteBook)) {
-                    binding.refreshProgressBar.isAutoLoading = false
+                    binding.refreshProgressBar.isVisible = false
                 }
             }
             noButton()

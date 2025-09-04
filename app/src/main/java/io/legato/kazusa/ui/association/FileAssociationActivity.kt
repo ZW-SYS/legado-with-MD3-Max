@@ -21,6 +21,7 @@ import io.legato.kazusa.utils.buildMainHandler
 import io.legato.kazusa.utils.canRead
 import io.legato.kazusa.utils.checkWrite
 import io.legato.kazusa.utils.getFile
+import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.isContentScheme
 import io.legato.kazusa.utils.readUri
 import io.legato.kazusa.utils.showDialogFragment
@@ -28,6 +29,7 @@ import io.legato.kazusa.utils.startActivity
 import io.legato.kazusa.utils.startActivityForBook
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
+import io.legato.kazusa.utils.visible
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

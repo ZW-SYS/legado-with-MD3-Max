@@ -20,11 +20,11 @@
         app:layout_constraintTop_toBottomOf="@+id/title_bar"
         app:layout_constraintBottom_toBottomOf="parent" />
 
-    <io.legato.kazusa.ui.widget.anima.RefreshProgressBar
+    <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/progress_bar"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        app:max_progress="100"
+        android:layout_height="wrap_content"
+        android:progress="100"
         app:layout_constraintTop_toTopOf="@id/web_view" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
