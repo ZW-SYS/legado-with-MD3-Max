@@ -306,11 +306,10 @@ class AudioPlayService : BaseService(),
      * 调节速度
      */
     @SuppressLint(value = ["ObsoleteSdkInt"])
-    private fun upSpeed(adjust: Float) {
+    private fun upSpeed(speed: Float) {
         kotlin.runCatching {
-
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                playSpeed += adjust
+                playSpeed = speed
                 exoPlayer.setPlaybackSpeed(playSpeed)
                 postEvent(EventBus.AUDIO_SPEED, playSpeed)
             }
@@ -580,13 +579,13 @@ class AudioPlayService : BaseService(),
         builder.setLargeIcon(cover)
         if (pause) {
             builder.addAction(
-                R.drawable.ic_play_24dp,
+                R.drawable.ic_play,
                 getString(R.string.resume),
                 servicePendingIntent<AudioPlayService>(IntentAction.resume)
             )
         } else {
             builder.addAction(
-                R.drawable.ic_pause_24dp,
+                R.drawable.ic_pause,
                 getString(R.string.pause),
                 servicePendingIntent<AudioPlayService>(IntentAction.pause)
             )

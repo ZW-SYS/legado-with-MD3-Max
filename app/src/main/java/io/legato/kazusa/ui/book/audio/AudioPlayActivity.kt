@@ -1,14 +1,19 @@
 package io.legato.kazusa.ui.book.audio
 
 import android.annotation.SuppressLint
+import android.graphics.RenderEffect
+import android.graphics.Shader
 import android.icu.text.SimpleDateFormat
 import android.os.Build
 import android.os.Bundle
-import android.view.Gravity
+import android.view.HapticFeedbackConstants
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import androidx.transition.TransitionManager
 import com.google.android.material.slider.Slider
 import io.legato.kazusa.R
 import io.legato.kazusa.base.VMBaseActivity
@@ -35,14 +40,14 @@ import io.legato.kazusa.ui.book.toc.TocActivityResult
 import io.legato.kazusa.ui.login.SourceLoginActivity
 import io.legato.kazusa.utils.StartActivityContract
 import io.legato.kazusa.utils.applyNavigationBarPadding
-import io.legato.kazusa.utils.dpToPx
-import io.legato.kazusa.utils.invisible
+import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.observeEvent
 import io.legato.kazusa.utils.observeEventSticky
 import io.legato.kazusa.utils.sendToClip
 import io.legato.kazusa.utils.showDialogFragment
 import io.legato.kazusa.utils.startActivity
 import io.legato.kazusa.utils.startActivityForBook
+import io.legato.kazusa.utils.startAnimation
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 import io.legato.kazusa.utils.visible
 import kotlinx.coroutines.Dispatchers.IO
@@ -62,9 +67,9 @@ class AudioPlayActivity :
 
     override val binding by viewBinding(ActivityAudioPlayBinding::inflate)
     override val viewModel by viewModels<AudioPlayViewModel>()
-    private val timerSliderPopup by lazy { TimerSliderPopup(this) }
     private var adjustProgress = false
     private var playMode = AudioPlay.PlayMode.LIST_END_STOP
+    private var playSpeed = 1f
 
     private val progressTimeFormat by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -92,9 +97,10 @@ class AudioPlayActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding.titleBar.setBackgroundResource(R.color.transparent)
+        binding.titleBar.title = ""
         AudioPlay.register(this)
         viewModel.titleData.observe(this) {
-            binding.titleBar.title = it
+            binding.tvTitle.text = it
         }
         viewModel.coverData.observe(this) {
             upCover(it)
@@ -141,6 +147,9 @@ class AudioPlayActivity :
     }
 
     private fun initView() {
+        binding.ivTimer.isEnabled = false
+        binding.ivFastForward.isEnabled = false
+
         binding.ivPlayMode.setOnClickListener {
             AudioPlay.changePlayMode()
         }
@@ -195,35 +204,138 @@ class AudioPlayActivity :
             }
         })
 
+        binding.playerProgress.setLabelFormatter { value ->
+            progressTimeFormat.format(value.toLong())
+        }
+
         binding.ivChapter.setOnClickListener {
             AudioPlay.book?.let {
                 tocActivityResult.launch(it.bookUrl)
             }
         }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            binding.ivFastRewind.invisible()
-            binding.ivFastForward.invisible()
+
+        binding.ivFastForward.setOnClickListener { toggleFastForward() }
+        binding.ivTimer.setOnClickListener { toggleTimer() }
+
+        binding.llSubMenu.applyNavigationBarPadding()
+    }
+
+
+    private fun toggleFastForward() {
+        TransitionManager.beginDelayedTransition(binding.root)
+        if (binding.llSet.isVisible) {
+            if (binding.ivTimer.isChecked) {
+                initSlider(true)
+            } else {
+                binding.llSet.gone()
+            }
+            binding.ivTimer.isChecked = false
+        } else {
+            initSlider(true)
+            binding.llSet.visible()
         }
-        binding.ivFastForward.setOnClickListener {
-            AudioPlay.adjustSpeed(0.1f)
+    }
+
+    private fun toggleTimer() {
+        TransitionManager.beginDelayedTransition(binding.root)
+        if (binding.llSet.isVisible) {
+            if (binding.ivFastForward.isChecked) {
+                initSlider(false)
+            } else {
+                binding.llSet.gone()
+            }
+            binding.ivFastForward.isChecked = false
+        } else {
+            initSlider(false)
+            binding.llSet.visible()
         }
-        binding.ivFastRewind.setOnClickListener {
-            AudioPlay.adjustSpeed(-0.1f)
+    }
+
+    private fun initSlider(isAudioPlay: Boolean) {
+        binding.settingSlider.clearOnChangeListeners()
+        binding.settingSlider.clearOnSliderTouchListeners()
+        binding.btnReset.clearOnCheckedChangeListeners()
+
+        if (isAudioPlay) {
+            binding.settingSlider.isEnabled = AudioPlay.status != Status.STOP
+            binding.btnReset.setOnClickListener {
+                binding.settingSlider.value = 1f
+                AudioPlay.adjustSpeed(1f)
+            }
+            binding.settingSlider.apply {
+                valueFrom = 0.5f
+                valueTo = 5.0f
+                stepSize = 0.1f
+                value = playSpeed
+
+                addOnChangeListener { _, newValue, fromUser ->
+                    if (fromUser) {
+                        AudioPlay.adjustSpeed(newValue)
+                    }
+                }
+
+                addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+                    override fun onStartTrackingTouch(slider: Slider) {
+                        slider.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                    }
+
+                    override fun onStopTrackingTouch(slider: Slider) {}
+                })
+
+                setLabelFormatter { value -> String.format(Locale.ROOT, "%.1fX", value) }
+            }
+        } else {
+            binding.settingSlider.isEnabled = true
+            binding.btnReset.setOnClickListener {
+                binding.settingSlider.value = 0f
+                AudioPlay.setTimer(0)
+            }
+            binding.settingSlider.apply {
+                valueFrom = 0f
+                valueTo = 180f
+                stepSize = 1f
+                value = AudioPlayService.timeMinute.toFloat()
+
+                addOnChangeListener { _, newValue, fromUser ->
+                    if (fromUser) AudioPlay.setTimer(newValue.toInt())
+                }
+
+                addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+                    override fun onStartTrackingTouch(slider: Slider) {
+                        slider.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                    }
+
+                    override fun onStopTrackingTouch(slider: Slider) {}
+                })
+
+                setLabelFormatter { v -> "${v.toInt()}m" }
+            }
         }
-        binding.ivTimer.setOnClickListener {
-            timerSliderPopup.showAsDropDown(it, 0, (-100).dpToPx(), Gravity.TOP)
-        }
-        binding.llPlayMenu.applyNavigationBarPadding()
     }
 
     private fun updatePlayModeIcon() {
-        binding.ivPlayMode.setImageResource(playMode.iconRes)
+        binding.ivPlayMode.setIconResource(playMode.iconRes)
     }
 
     private fun upCover(path: String?) {
         BookCover.load(this, path, sourceOrigin = AudioPlay.bookSource?.bookSourceUrl) {
-            BookCover.loadBlur(this, path, sourceOrigin = AudioPlay.bookSource?.bookSourceUrl)
-                .into(binding.ivBg)
+            if (!AppConfig.isEInkMode) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    BookCover.load(this, path, sourceOrigin = AudioPlay.bookSource?.bookSourceUrl)
+                        .into(binding.ivBg)
+                    val blurEffect =
+                        RenderEffect.createBlurEffect(120f, 120f, Shader.TileMode.CLAMP)
+                    binding.ivBg.setRenderEffect(blurEffect)
+                } else {
+                    // 低版本直接加载模糊图
+                    BookCover.loadBlur(
+                        this,
+                        path,
+                        sourceOrigin = AudioPlay.bookSource?.bookSourceUrl
+                    )
+                        .into(binding.ivBg)
+                }
+            }
         }.into(binding.ivCover)
     }
 
@@ -294,14 +406,30 @@ class AudioPlayActivity :
                 playButton()
             }
         }
-        observeEventSticky<Int>(EventBus.AUDIO_STATE) {
-            AudioPlay.status = it
-            if (it == Status.PLAY) {
-                binding.fabPlayStop.setImageResource(R.drawable.ic_pause_24dp)
+        observeEventSticky<Int>(EventBus.AUDIO_STATE) { state ->
+            AudioPlay.status = state
+
+            val iconDrawable = if (state == Status.PLAY) {
+                binding.ivTimer.isEnabled = true
+                binding.ivFastForward.isEnabled = true
+                AppCompatResources.getDrawable(this, R.drawable.play_anim)
             } else {
-                binding.fabPlayStop.setImageResource(R.drawable.ic_play_24dp)
+                AppCompatResources.getDrawable(this, R.drawable.pause_anim)
             }
+
+            val bgDrawable = if (state == Status.PLAY) {
+                AppCompatResources.getDrawable(this, R.drawable.bg_play_anim)
+            } else {
+                AppCompatResources.getDrawable(this, R.drawable.bg_pause_anim)
+            }
+
+            binding.fabPlayStop.icon = iconDrawable
+            binding.fabPlayStop.background = bgDrawable
+
+            iconDrawable?.startAnimation()
+            bgDrawable?.startAnimation()
         }
+
         observeEventSticky<String>(EventBus.AUDIO_SUB_TITLE) {
             binding.tvSubTitle.text = it
             binding.ivSkipPrevious.isEnabled = AudioPlay.durChapterIndex > 0
@@ -321,7 +449,7 @@ class AudioPlayActivity :
 //
 //        }
         observeEventSticky<Int>(EventBus.AUDIO_SIZE) {
-            binding.playerProgress.valueTo = it.toFloat()
+            binding.playerProgress.valueTo = maxOf(1f, it.toFloat())
             binding.tvAllTime.text = progressTimeFormat.format(it.toLong())
         }
 
@@ -335,12 +463,21 @@ class AudioPlayActivity :
         }
 
         observeEventSticky<Float>(EventBus.AUDIO_SPEED) {
+            TransitionManager.beginDelayedTransition(binding.root)
+            playSpeed = it
             binding.tvSpeed.text = String.format(Locale.ROOT, "%.1fX", it)
-            binding.tvSpeed.visible()
+            if (it != 1f) {
+                binding.cdSpeed.visible()
+            } else
+                binding.cdSpeed.gone()
         }
         observeEventSticky<Int>(EventBus.AUDIO_DS) {
+            TransitionManager.beginDelayedTransition(binding.root)
             binding.tvTimer.text = "${it}m"
-            binding.tvTimer.visible(it > 0)
+            if (it > 0) {
+                binding.cdTimer.visible()
+            } else
+                binding.cdTimer.gone()
         }
     }
 
