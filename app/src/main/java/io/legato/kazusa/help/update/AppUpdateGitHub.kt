@@ -9,6 +9,7 @@ import io.legato.kazusa.help.http.newCallResponse
 import io.legato.kazusa.help.http.okHttpClient
 import io.legato.kazusa.help.http.text
 import io.legato.kazusa.utils.GSON
+import io.legato.kazusa.utils.fromJsonArray
 import io.legato.kazusa.utils.fromJsonObject
 import kotlinx.coroutines.CoroutineScope
 
@@ -20,41 +21,48 @@ object AppUpdateGitHub : AppUpdate.AppUpdateInterface {
         get() = when (AppConfig.updateToVariant) {
             "official_version" -> AppVariant.OFFICIAL
             "beta_release_version" -> AppVariant.BETA_RELEASE
-            "beta_releaseA_version" -> AppVariant.BETA_RELEASEA
             else -> AppConst.appInfo.appVariant
         }
-    private suspend fun getLatestRelease(): List<AppReleaseInfo> {
-        val url = "https://api.github.com/repos/HapeLee/legado-with-MD3/releases"
-        val res = okHttpClient.newCallResponse { url(url) }
 
+    private suspend fun getLatestRelease(): List<AppReleaseInfo> {
+        val lastReleaseUrl = if (checkVariant.isBeta()) {
+            "https://api.github.com/repos/HapeLee/legado-with-MD3/releases"
+        } else {
+            "https://api.github.com/repos/HapeLee/legado-with-MD3/releases/latest"
+        }
+
+        val res = okHttpClient.newCallResponse {
+            url(lastReleaseUrl)
+        }
         if (!res.isSuccessful) {
             throw NoStackTraceException("获取新版本出错(${res.code})")
         }
-
         val body = res.body.text()
         if (body.isBlank()) {
-            throw NoStackTraceException("获取新版本出错：返回为空")
+            throw NoStackTraceException("获取新版本出错")
         }
-        val allReleases = GSON.fromJsonObject<List<GithubRelease>>(body)
-            .getOrElse { throw NoStackTraceException("解析版本信息出错：${it.localizedMessage}") }
-
-        val releases = allReleases
-            .flatMap { it.gitReleaseToAppReleaseInfo() }
-            .filter { it.appVariant == checkVariant }
-            .sortedByDescending { it.createdAt }
-
-        return releases
+        return if (checkVariant.isBeta()) {
+            GSON.fromJsonArray<GithubRelease>(body)
+                .getOrElse { throw NoStackTraceException("获取新版本出错 ${it.localizedMessage}") }
+                .filter { it.isPreRelease }
+                .flatMap { it.gitReleaseToAppReleaseInfo() }
+                .sortedByDescending { it.createdAt }
+        } else {
+            listOf(
+                GSON.fromJsonObject<GithubRelease>(body)
+                    .getOrElse { throw NoStackTraceException("获取新版本出错 ${it.localizedMessage}") }
+                    .gitReleaseToAppReleaseInfo()
+            ).flatten()
+                .sortedByDescending { it.createdAt }
+        }
     }
 
-    /**
-     * 检查更新
-     */
     override fun check(scope: CoroutineScope): Coroutine<AppUpdate.UpdateInfo> {
         return Coroutine.async(scope) {
             val currentVersion = AppConst.appInfo.versionName
             val releases = getLatestRelease()
+                .filter { it.appVariant == checkVariant }
 
-            // 找出比当前版本高的最新 release
             val latest = releases
                 .firstOrNull { it.versionName > currentVersion }
 
