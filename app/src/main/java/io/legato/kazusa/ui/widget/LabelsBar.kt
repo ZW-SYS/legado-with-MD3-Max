@@ -47,9 +47,20 @@ class LabelsBar @JvmOverloads constructor(
                 usedChips.add(it)
             }
         }
-        style(chip) // 在这里应用外部传入的样式
+        style(chip)
         chip.text = label
         addView(chip)
+    }
+
+    fun applyColorScheme(colorPrimaryContainer: Int, colorOnPrimaryContainer: Int) {
+        usedChips.forEach { chip ->
+            chip.chipBackgroundColor = ColorStateList.valueOf(colorPrimaryContainer)
+            chip.setTextColor(colorOnPrimaryContainer)
+        }
+        unUsedChips.forEach { chip ->
+            chip.chipBackgroundColor = ColorStateList.valueOf(colorPrimaryContainer)
+            chip.setTextColor(colorOnPrimaryContainer)
+        }
     }
 
 }

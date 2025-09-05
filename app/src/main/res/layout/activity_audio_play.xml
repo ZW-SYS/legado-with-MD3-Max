@@ -15,15 +15,10 @@
         tools:ignore="ContentDescription,ImageContrastCheck" />
 
     <View
-        android:id="@+id/vw_bg"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <View
         android:id="@+id/vw_bg2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alpha="0.80"
+        android:alpha="0.70"
         android:background="?attr/colorSurfaceContainer" />
 
     <io.legato.kazusa.ui.widget.TitleBar
@@ -193,8 +188,6 @@
         android:orientation="horizontal"
         android:paddingHorizontal="6dp"
         app:layout_constraintBottom_toTopOf="@id/ll_sub_menu">
-
-
 
         <View
             android:layout_width="0dp"

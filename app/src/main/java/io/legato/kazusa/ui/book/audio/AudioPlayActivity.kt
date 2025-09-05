@@ -1,8 +1,15 @@
 package io.legato.kazusa.ui.book.audio
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.RenderEffect
 import android.graphics.Shader
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.TransitionDrawable
 import android.icu.text.SimpleDateFormat
 import android.os.Build
 import android.os.Bundle
@@ -11,10 +18,15 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.graphics.scale
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.transition.TransitionManager
+import com.google.android.material.color.DynamicColors
+import com.google.android.material.color.DynamicColorsOptions
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.slider.Slider
+import com.google.android.material.transition.platform.MaterialContainerTransform
 import io.legato.kazusa.R
 import io.legato.kazusa.base.VMBaseActivity
 import io.legato.kazusa.constant.BookType
@@ -50,7 +62,10 @@ import io.legato.kazusa.utils.startActivityForBook
 import io.legato.kazusa.utils.startAnimation
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 import io.legato.kazusa.utils.visible
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import splitties.views.onLongClick
@@ -70,6 +85,13 @@ class AudioPlayActivity :
     private var adjustProgress = false
     private var playMode = AudioPlay.PlayMode.LIST_END_STOP
     private var playSpeed = 1f
+    private var primaryFinalColor: Int = 0
+    private var surfaceFinalColor: Int = 0
+    private var secondaryFinalColor: Int = 0
+    private var onSurfaceFinalColor: Int = 0
+    private var secondaryContainerFinalColor: Int = 0
+    private var currentJob: Job? = null
+    private var wrappedContext: Context? = null
 
     private val progressTimeFormat by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -95,7 +117,27 @@ class AudioPlayActivity :
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val transform = MaterialContainerTransform().apply {
+            addTarget(binding.root)
+            scrimColor = Color.TRANSPARENT
+        }
+        window.sharedElementEnterTransition = transform
+        window.sharedElementReturnTransition = transform
         super.onCreate(savedInstanceState)
+        binding.root.transitionName = intent.getStringExtra("transitionName")
+        primaryFinalColor =
+            MaterialColors.getColor(this, androidx.appcompat.R.attr.colorPrimary, -1)
+        surfaceFinalColor =
+            MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurface, -1)
+        secondaryFinalColor =
+            MaterialColors.getColor(this, com.google.android.material.R.attr.colorSecondary, -1)
+        onSurfaceFinalColor =
+            MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface, -1)
+        secondaryContainerFinalColor = MaterialColors.getColor(
+            this,
+            com.google.android.material.R.attr.colorSecondaryContainer,
+            -1
+        )
         binding.titleBar.setBackgroundResource(R.color.transparent)
         binding.titleBar.title = ""
         AudioPlay.register(this)
@@ -318,25 +360,29 @@ class AudioPlayActivity :
     }
 
     private fun upCover(path: String?) {
-        BookCover.load(this, path, sourceOrigin = AudioPlay.bookSource?.bookSourceUrl) {
-            if (!AppConfig.isEInkMode) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    BookCover.load(this, path, sourceOrigin = AudioPlay.bookSource?.bookSourceUrl)
-                        .into(binding.ivBg)
-                    val blurEffect =
-                        RenderEffect.createBlurEffect(120f, 120f, Shader.TileMode.CLAMP)
-                    binding.ivBg.setRenderEffect(blurEffect)
-                } else {
-                    // 低版本直接加载模糊图
-                    BookCover.loadBlur(
-                        this,
-                        path,
-                        sourceOrigin = AudioPlay.bookSource?.bookSourceUrl
-                    )
-                        .into(binding.ivBg)
+        BookCover.load(
+            this, path, sourceOrigin = AudioPlay.bookSource?.bookSourceUrl,
+            onLoadFinish = {
+                binding.ivCover.post {
+                    val drawable = binding.ivCover.drawable
+                    if (drawable != null) {
+                        addColorScheme(drawable)
+                    }
                 }
+            }).into(binding.ivCover)
+        if (!AppConfig.isEInkMode) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                BookCover.load(this, path, sourceOrigin = AudioPlay.bookSource?.bookSourceUrl)
+                    .into(binding.ivBg)
+                val blurEffect = RenderEffect.createBlurEffect(120f, 120f, Shader.TileMode.CLAMP)
+                binding.ivBg.setRenderEffect(blurEffect)
+            } else {
+                // 低版本直接加载模糊图
+                BookCover.loadBlur(this, path, sourceOrigin = AudioPlay.bookSource?.bookSourceUrl)
+                    .into(binding.ivBg)
             }
-        }.into(binding.ivCover)
+        }
+        addColorScheme(binding.ivCover.drawable)
     }
 
     private fun playButton() {
@@ -344,6 +390,145 @@ class AudioPlayActivity :
             Status.PLAY -> AudioPlay.pause(this)
             Status.PAUSE -> AudioPlay.resume(this)
             else -> AudioPlay.loadOrUpPlayUrl()
+        }
+    }
+
+    private fun addColorScheme(drawable: Drawable?) {
+        currentJob?.cancel()
+        currentJob = CoroutineScope(Dispatchers.Default).launch {
+            val bitmap = when (drawable) {
+                is BitmapDrawable -> drawable.bitmap
+                is TransitionDrawable -> (drawable.getDrawable(1) as? BitmapDrawable)?.bitmap
+                else -> null
+            } ?: return@launch
+
+            val colorAccuracy = true
+            val targetWidth = if (colorAccuracy) (bitmap.width / 4).coerceAtMost(256) else 16
+            val targetHeight = if (colorAccuracy) (bitmap.height / 4).coerceAtMost(256) else 16
+            val scaledBitmap = bitmap.scale(targetWidth, targetHeight, false)
+
+            val options = DynamicColorsOptions.Builder()
+                .setContentBasedSource(scaledBitmap)
+                .build()
+
+            wrappedContext = DynamicColors.wrapContextIfAvailable(
+                this@AudioPlayActivity,
+                options
+            ).apply {
+                resources.configuration.uiMode =
+                    this@AudioPlayActivity.resources.configuration.uiMode
+            }
+
+            withContext(Dispatchers.Main) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    applyColorScheme()
+                }
+            }
+        }
+    }
+
+    private suspend fun applyColorScheme() {
+        val ctx = wrappedContext ?: this
+
+        val colorPrimary = MaterialColors.getColor(ctx, androidx.appcompat.R.attr.colorPrimary, -1)
+        val colorSecondary =
+            MaterialColors.getColor(ctx, com.google.android.material.R.attr.colorSecondary, -1)
+        val colorOnSurface =
+            MaterialColors.getColor(ctx, com.google.android.material.R.attr.colorOnSurface, -1)
+        val colorSurface =
+            MaterialColors.getColor(ctx, com.google.android.material.R.attr.colorSurface, -1)
+        val colorSurfaceContainer = MaterialColors.getColor(
+            ctx,
+            com.google.android.material.R.attr.colorSurfaceContainer,
+            -1
+        )
+        val colorSecondaryContainer = MaterialColors.getColor(
+            ctx,
+            com.google.android.material.R.attr.colorSecondaryContainer,
+            -1
+        )
+
+        val primaryTransition = ValueAnimator.ofArgb(primaryFinalColor, colorPrimary).apply {
+            duration = 400L
+            addUpdateListener { animation ->
+                val color = animation.animatedValue as Int
+                binding.settingSlider.thumbTintList = ColorStateList.valueOf(color)
+                binding.settingSlider.trackActiveTintList = ColorStateList.valueOf(color)
+                binding.playerProgress.thumbTintList = ColorStateList.valueOf(color)
+                binding.playerProgress.trackActiveTintList = ColorStateList.valueOf(color)
+            }
+        }
+
+        val secondaryContainerTransition =
+            ValueAnimator.ofArgb(secondaryContainerFinalColor, colorSecondaryContainer).apply {
+                duration = 400L
+                addUpdateListener { animation ->
+                    val color = animation.animatedValue as Int
+                    binding.fabPlayStop.backgroundTintList = ColorStateList.valueOf(color)
+                    binding.btnReset.backgroundTintList = ColorStateList.valueOf(color)
+                    binding.settingSlider.trackInactiveTintList = ColorStateList.valueOf(color)
+                    binding.playerProgress.trackInactiveTintList = ColorStateList.valueOf(color)
+                }
+            }
+
+        val surfaceTransition =
+            ValueAnimator.ofArgb(surfaceFinalColor, colorSurfaceContainer).apply {
+                duration = 400L
+                addUpdateListener { animation ->
+                    val color = animation.animatedValue as Int
+                    binding.vwBg2.setBackgroundColor(color)
+                    binding.cdTimer.setBackgroundColor(color)
+                    binding.cdSpeed.setBackgroundColor(color)
+                }
+            }
+
+        val textTransition = ValueAnimator.ofArgb(onSurfaceFinalColor, colorOnSurface).apply {
+            duration = 400L
+            addUpdateListener { animation ->
+                val color = animation.animatedValue as Int
+                binding.tvSpeed.setTextColor(color)
+                binding.tvTimer.setTextColor(color)
+                binding.tvTitle.setTextColor(color)
+                binding.tvDurTime.setTextColor(color)
+                binding.tvAllTime.setTextColor(color)
+                binding.tvSubTitle.setTextColor(color)
+            }
+        }
+
+        withContext(Dispatchers.Main) {
+            surfaceTransition.start()
+            textTransition.start()
+            primaryTransition.start()
+            secondaryContainerTransition.start()
+        }
+
+        surfaceFinalColor = colorSurface
+        secondaryFinalColor = colorSecondary
+        onSurfaceFinalColor = colorOnSurface
+        primaryFinalColor = colorPrimary
+        secondaryContainerFinalColor = colorSecondaryContainer
+
+        binding.progressLoading.setIndicatorColor(colorPrimary)
+
+        val states = arrayOf(
+            intArrayOf(android.R.attr.state_enabled, android.R.attr.state_checked),
+            intArrayOf(android.R.attr.state_enabled, -android.R.attr.state_checked),
+            intArrayOf(-android.R.attr.state_enabled)
+        )
+
+        val colors = intArrayOf(
+            colorSurface,
+            colorOnSurface,
+            colorOnSurface.copy(alpha = 0.3f)
+        )
+
+        val stateList = ColorStateList(states, colors)
+        listOf(
+            binding.ivSkipNext, binding.ivSkipPrevious, binding.ivPlayMode, binding.ivTimer,
+            binding.ivChapter, binding.ivFastForward, binding.btnReset, binding.fabPlayStop
+        ).forEach { btn ->
+            btn.setTextColor(stateList)
+            btn.iconTint = stateList
         }
     }
 
@@ -488,3 +673,9 @@ class AudioPlayActivity :
     }
 
 }
+
+private fun Int.copy(alpha: Float): Int {
+    val alpha = (alpha * 255).toInt()
+    return (this and 0x00FFFFFF) or (alpha shl 24)
+}
+

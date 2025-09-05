@@ -1,10 +1,17 @@
 package io.legato.kazusa.ui.book.info
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.RenderEffect
 import android.graphics.Shader
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.TransitionDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -15,8 +22,12 @@ import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.scale
 import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.color.DynamicColors
+import com.google.android.material.color.DynamicColorsOptions
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import io.legato.kazusa.R
 import io.legato.kazusa.base.VMBaseActivity
@@ -75,7 +86,10 @@ import io.legato.kazusa.utils.startActivity
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 import io.legato.kazusa.utils.visible
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -144,6 +158,13 @@ class BookInfoActivity :
             viewModel.refreshBook(book)
         }
     }
+
+    private var surfaceFinalColor: Int = 0
+    private var secondaryFinalColor: Int = 0
+    private var onSurfaceFinalColor: Int = 0
+    private var secondaryContainerFinalColor: Int = 0
+    private var currentJob: Job? = null
+    private var wrappedContext: Context? = null
     private var chapterChanged = false
     private val waitDialog by lazy { WaitDialog(this) }
     private var editMenuItem: MenuItem? = null
@@ -156,15 +177,26 @@ class BookInfoActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         postponeEnterTransition()
         val transform = MaterialContainerTransform().apply {
-            addTarget(binding.ivCover)
+            addTarget(binding.cdCov)
             scrimColor = Color.TRANSPARENT
         }
         window.sharedElementEnterTransition = transform
         window.sharedElementReturnTransition = transform
         window.sharedElementsUseOverlay = false
         super.onCreate(savedInstanceState)
-        binding.ivCover.transitionName = intent.getStringExtra("transitionName")
-        binding.ivCover.doOnPreDraw {
+        surfaceFinalColor =
+            MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurface, -1)
+        secondaryFinalColor =
+            MaterialColors.getColor(this, com.google.android.material.R.attr.colorSecondary, -1)
+        onSurfaceFinalColor =
+            MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface, -1)
+        secondaryContainerFinalColor = MaterialColors.getColor(
+            this,
+            com.google.android.material.R.attr.colorSecondaryContainer,
+            -1
+        )
+        binding.cdCov.transitionName = intent.getStringExtra("transitionName")
+        binding.cdCov.doOnPreDraw {
             startPostponedEnterTransition()
         }
         setSupportActionBar(binding.topBar)
@@ -342,6 +374,7 @@ class BookInfoActivity :
 
     private fun showBook(book: Book) = binding.run {
         showCover(book)
+        addColorScheme(binding.ivCover.drawable)
         tvName.text = book.name
         tvAuthor.text = getString(R.string.author_show, book.getRealAuthor())
         tvOrigin.text = getString(R.string.origin_show, book.originName)
@@ -377,7 +410,21 @@ class BookInfoActivity :
     }
 
     private fun showCover(book: Book) {
-        binding.ivCover.load(book.getDisplayCover(), book.name, book.author, false, book.origin) {
+        binding.ivCover.load(
+            book.getDisplayCover(),
+            book.name,
+            book.author,
+            false,
+            book.origin,
+            onLoadFinish = {
+                binding.ivCover.post {
+                    val drawable = binding.ivCover.drawable
+                    if (drawable != null) {
+                        addColorScheme(drawable)
+                    }
+                }
+            }
+        )
             if (!AppConfig.isEInkMode) {
                 //高版本使用RenderEffect
                 BookCover.load(this, book.getDisplayCover(), false, book.origin)
@@ -392,7 +439,137 @@ class BookInfoActivity :
                         .into(binding.bgBook)
                 }
             }
+        addColorScheme(binding.ivCover.drawable)
+
+    }
+
+    private fun addColorScheme(drawable: Drawable?) {
+        currentJob?.cancel()
+        currentJob = CoroutineScope(Dispatchers.Default).launch {
+            val bitmap = when (drawable) {
+                is BitmapDrawable -> drawable.bitmap
+                is TransitionDrawable -> (drawable.getDrawable(1) as? BitmapDrawable)?.bitmap
+                else -> null
+            } ?: return@launch
+
+            val colorAccuracy = true
+            val targetWidth = if (colorAccuracy) (bitmap.width / 4).coerceAtMost(256) else 16
+            val targetHeight = if (colorAccuracy) (bitmap.height / 4).coerceAtMost(256) else 16
+            val scaledBitmap = bitmap.scale(targetWidth, targetHeight, false)
+
+            val options = DynamicColorsOptions.Builder()
+                .setContentBasedSource(scaledBitmap)
+                .build()
+
+            wrappedContext = DynamicColors.wrapContextIfAvailable(
+                this@BookInfoActivity,
+                options
+            ).apply {
+                resources.configuration.uiMode =
+                    this@BookInfoActivity.resources.configuration.uiMode
+            }
+
+            withContext(Dispatchers.Main) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    applyColorScheme()
+                }
+            }
         }
+    }
+
+    private suspend fun applyColorScheme() {
+        val ctx = wrappedContext ?: this
+
+        val colorPrimary = MaterialColors.getColor(ctx, androidx.appcompat.R.attr.colorPrimary, -1)
+        val colorSecondary =
+            MaterialColors.getColor(ctx, com.google.android.material.R.attr.colorSecondary, -1)
+        val colorTertiary =
+            MaterialColors.getColor(ctx, com.google.android.material.R.attr.colorTertiary, -1)
+        val colorOnSurface =
+            MaterialColors.getColor(ctx, com.google.android.material.R.attr.colorOnSurface, -1)
+        val colorSurface =
+            MaterialColors.getColor(ctx, com.google.android.material.R.attr.colorSurface, -1)
+        val colorSurfaceContainer = MaterialColors.getColor(
+            ctx,
+            com.google.android.material.R.attr.colorSurfaceContainer,
+            -1
+        )
+        val colorSecondaryContainer = MaterialColors.getColor(
+            ctx,
+            com.google.android.material.R.attr.colorSecondaryContainer,
+            -1
+        )
+
+        val surfaceTransition = ValueAnimator.ofArgb(surfaceFinalColor, colorSurface).apply {
+            duration = 400L
+            addUpdateListener { animation ->
+                val color = animation.animatedValue as Int
+                binding.cdInfo?.setCardBackgroundColor(color)
+                binding.llInfo.setBackgroundColor(color)
+            }
+        }
+
+        val buttonTransition = ValueAnimator.ofArgb(secondaryFinalColor, colorSecondary).apply {
+            duration = 400L
+            addUpdateListener { animation ->
+                val color = animation.animatedValue as Int
+                val tint = ColorStateList.valueOf(color)
+                listOf(
+                    binding.btnShelf,
+                    binding.tvTocView,
+                    binding.tvChangeGroup,
+                    binding.btnChangeSource
+                ).forEach { btn ->
+                    btn.setTextColor(color)
+                    btn.iconTint = tint
+                }
+            }
+        }
+
+        val backTransition =
+            ValueAnimator.ofArgb(secondaryContainerFinalColor, colorSecondaryContainer).apply {
+                duration = 400L
+                addUpdateListener { animation ->
+                    val color = animation.animatedValue as Int
+                    binding.bgBookMask.setBackgroundColor(color)
+                }
+            }
+
+        val textTransition = ValueAnimator.ofArgb(onSurfaceFinalColor, colorOnSurface).apply {
+            duration = 400L
+            addUpdateListener { animation ->
+                val color = animation.animatedValue as Int
+                binding.tvName.setTextColor(color)
+                binding.tvAuthor.setTextColor(color)
+                binding.tvOrigin.setTextColor(color)
+                binding.tvDetail.setTextColor(color)
+                binding.ivName.imageTintList = ColorStateList.valueOf(color)
+                binding.ivWeb.imageTintList = ColorStateList.valueOf(color)
+            }
+        }
+
+        withContext(Dispatchers.Main) {
+            surfaceTransition.start()
+            buttonTransition.start()
+            textTransition.start()
+            backTransition.start()
+        }
+
+        surfaceFinalColor = colorSurface
+        secondaryFinalColor = colorSecondary
+        onSurfaceFinalColor = colorOnSurface
+
+        (binding.llCover.background as? GradientDrawable)?.colors =
+            intArrayOf(Color.TRANSPARENT, colorSurface)
+
+        binding.collTopBar.setContentScrimColor(colorSurfaceContainer)
+        binding.lbKind.applyColorScheme(colorSurfaceContainer, colorOnSurface)
+        binding.tvChapter.setTextColor(colorPrimary)
+        binding.div.setTextColor(colorSecondary)
+        binding.tvChapterIndex.setTextColor(colorSecondary)
+        binding.btnRead.setBackgroundColor(colorTertiary)
+        binding.tvToc.setTextColor(colorOnSurface)
+        binding.tvLasted.setTextColor(colorOnSurface)
     }
 
     private fun upLoading(isLoading: Boolean, chapterList: List<BookChapter>? = null) {
