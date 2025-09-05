@@ -12,7 +12,7 @@
 
 应用截图：
 ![retouch_2025090304371780](https://github.com/user-attachments/assets/679c7a0e-088a-42fe-856b-cccb6f1d1880)
-![retouch_2025090604293832](https://github.com/user-attachments/assets/d222de47-1334-4272-beb7-28a4b667bfd9)
+![retouch_2025090604321772](https://github.com/user-attachments/assets/c687086b-3bec-4572-9f0b-19328b50f1a1)
 
 # Function-主要功能
 [English](English.md)
