@@ -3,11 +3,11 @@ package io.legato.kazusa.ui.book.read.page.provider
 import android.graphics.Paint.FontMetrics
 import android.graphics.RectF
 import android.graphics.Typeface
-import android.net.Uri
 import android.os.Build
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
+import androidx.core.net.toUri
 import androidx.core.os.postDelayed
 import io.legato.kazusa.constant.AppPattern
 import io.legato.kazusa.constant.EventBus
@@ -24,7 +24,6 @@ import io.legato.kazusa.ui.book.read.page.entities.TextPage
 import io.legato.kazusa.ui.book.read.page.entities.column.ImageColumn
 import io.legato.kazusa.ui.book.read.page.entities.column.ReviewColumn
 import io.legato.kazusa.ui.book.read.page.entities.column.TextColumn
-import io.legato.kazusa.utils.RealPathUtil
 import io.legato.kazusa.utils.buildMainHandler
 import io.legato.kazusa.utils.dpToPx
 import io.legato.kazusa.utils.fastSum
@@ -37,6 +36,7 @@ import io.legato.kazusa.utils.textHeight
 import io.legato.kazusa.utils.toastOnUi
 import kotlinx.coroutines.CoroutineScope
 import splitties.init.appCtx
+import java.io.File
 import java.util.LinkedList
 import java.util.Locale
 
@@ -884,23 +884,24 @@ object ChapterProvider {
     private fun getTypeface(fontPath: String): Typeface? {
         return kotlin.runCatching {
             when {
-                fontPath.isContentScheme() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
+                fontPath.isContentScheme() -> {
                     appCtx.contentResolver
-                        .openFileDescriptor(Uri.parse(fontPath), "r")!!
+                        .openFileDescriptor(fontPath.toUri(), "r")!!
                         .use {
                             Typeface.Builder(it.fileDescriptor).build()
                         }
                 }
 
-                fontPath.isContentScheme() -> {
-                    Typeface.createFromFile(RealPathUtil.getPath(appCtx, Uri.parse(fontPath)))
+                fontPath.isNotEmpty() -> {
+                    Typeface.Builder(File(fontPath)).build()
                 }
 
-                fontPath.isNotEmpty() -> Typeface.createFromFile(fontPath)
-                else -> when (AppConfig.systemTypefaces) {
-                    1 -> Typeface.SERIF
-                    2 -> Typeface.MONOSPACE
-                    else -> Typeface.SANS_SERIF
+                else -> {
+                    when (AppConfig.systemTypefaces) {
+                        1 -> Typeface.SERIF
+                        2 -> Typeface.MONOSPACE
+                        else -> Typeface.SANS_SERIF
+                    }
                 }
             }
         }.getOrElse {
@@ -931,6 +932,7 @@ object ChapterProvider {
         tPaint.color = ReadBookConfig.textColor
         tPaint.letterSpacing = ReadBookConfig.letterSpacing
         tPaint.typeface = titleFont
+        tPaint.setFontVariationSettings("'wght' ${ReadBookConfig.textBold}")
         tPaint.textSize = with(ReadBookConfig) { textSize + titleSize }.toFloat().spToPx()
         tPaint.isAntiAlias = true
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q && AppConfig.optimizeRender) {
@@ -941,6 +943,7 @@ object ChapterProvider {
         cPaint.color = ReadBookConfig.textColor
         cPaint.letterSpacing = ReadBookConfig.letterSpacing
         cPaint.typeface = textFont
+        cPaint.setFontVariationSettings("'wght' ${ReadBookConfig.textBold}")
         cPaint.textSize = ReadBookConfig.textSize.toFloat().spToPx()
         cPaint.isAntiAlias = true
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q && AppConfig.optimizeRender) {

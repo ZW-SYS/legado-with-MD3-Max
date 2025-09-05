@@ -158,7 +158,7 @@ class FontSelectDialog : BaseBottomSheetDialogFragment(R.layout.dialog_font_sele
         binding.sliderFontWeight.apply {
             valueFrom = 100f
             valueTo = 900f
-            stepSize = 10f
+            stepSize = 1f
             value = ReadBookConfig.textBold.toFloat().coerceAtLeast(100f)
             addOnChangeListener { _, newValue, _ ->
                 binding.textFontWeightConverter.text = "自定义"
