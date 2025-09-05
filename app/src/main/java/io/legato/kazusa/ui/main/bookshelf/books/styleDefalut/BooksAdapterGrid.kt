@@ -23,7 +23,7 @@ class BooksAdapterGrid(context: Context, private val callBack: CallBack) :
         item: Book,
         payloads: MutableList<Any>
     ) = binding.run {
-        binding.ivCover.transitionName = "book_${item.bookUrl}"
+        binding.cdCover.transitionName = "book_${item.bookUrl}"
         if (payloads.isEmpty()) {
             tvName.text = item.name
             ivCover.load(item.getDisplayCover(), item.name, item.author, false, item.origin)
@@ -66,13 +66,13 @@ class BooksAdapterGrid(context: Context, private val callBack: CallBack) :
 
         binding.cvContent.setOnClickListener {
             getItem(holder.layoutPosition)?.let {
-                callBack.open(it, binding.ivCover)
+                callBack.open(it, binding.cdCover)
             }
         }
 
         binding.cvContent.setOnLongClickListener {
             getItem(holder.layoutPosition)?.let {
-                callBack.openBookInfo(it, binding.ivCover)
+                callBack.openBookInfo(it, binding.cdCover)
             }
             true
         }
