@@ -38,7 +38,7 @@ class LabelsBar @JvmOverloads constructor(
                 chipEndPadding = 8f
                 chipStrokeWidth = 0f
                 chipBackgroundColor = ColorStateList.valueOf(
-                    context.themeColor(com.google.android.material.R.attr.colorPrimaryContainer)
+                    context.themeColor(com.google.android.material.R.attr.colorSurfaceContainerHighest)
                 )
                 usedChips.add(this)
             }

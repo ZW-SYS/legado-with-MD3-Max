@@ -160,9 +160,12 @@ class BookInfoActivity :
     }
 
     private var surfaceFinalColor: Int = 0
+    private var surfaceContainerFinalColor: Int = 0
     private var secondaryFinalColor: Int = 0
     private var onSurfaceFinalColor: Int = 0
     private var secondaryContainerFinalColor: Int = 0
+    private var primaryFinalColor: Int = 0
+    private var tertiaryFinalColor: Int = 0
     private var currentJob: Job? = null
     private var wrappedContext: Context? = null
     private var chapterChanged = false
@@ -190,9 +193,24 @@ class BookInfoActivity :
             MaterialColors.getColor(this, com.google.android.material.R.attr.colorSecondary, -1)
         onSurfaceFinalColor =
             MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface, -1)
+        surfaceContainerFinalColor = MaterialColors.getColor(
+            this,
+            com.google.android.material.R.attr.colorSurfaceContainer,
+            -1
+        )
         secondaryContainerFinalColor = MaterialColors.getColor(
             this,
             com.google.android.material.R.attr.colorSecondaryContainer,
+            -1
+        )
+        primaryFinalColor = MaterialColors.getColor(
+            this,
+            androidx.appcompat.R.attr.colorPrimary,
+            -1
+        )
+        tertiaryFinalColor = MaterialColors.getColor(
+            this,
+            com.google.android.material.R.attr.colorTertiary,
             -1
         )
         binding.cdCov.transitionName = intent.getStringExtra("transitionName")
@@ -200,7 +218,13 @@ class BookInfoActivity :
             startPostponedEnterTransition()
         }
         setSupportActionBar(binding.topBar)
-        binding.llRead?.applyNavigationBarMargin()
+        
+        binding.scrollView.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+            if (scrollY > oldScrollY) binding.btnRead.shrink()
+            else if (scrollY < oldScrollY) binding.btnRead.extend()
+        }
+
+        binding.btnRead.applyNavigationBarMargin()
         binding.btnShelf.text = getString(R.string.remove_from_bookshelf)
         binding.tvToc.text = getString(R.string.toc_s, getString(R.string.loading))
 
@@ -480,7 +504,8 @@ class BookInfoActivity :
     private suspend fun applyColorScheme() {
         val ctx = wrappedContext ?: this
 
-        val colorPrimary = MaterialColors.getColor(ctx, androidx.appcompat.R.attr.colorPrimary, -1)
+        val colorPrimary =
+            MaterialColors.getColor(ctx, androidx.appcompat.R.attr.colorPrimary, -1)
         val colorSecondary =
             MaterialColors.getColor(ctx, com.google.android.material.R.attr.colorSecondary, -1)
         val colorTertiary =
@@ -489,16 +514,18 @@ class BookInfoActivity :
             MaterialColors.getColor(ctx, com.google.android.material.R.attr.colorOnSurface, -1)
         val colorSurface =
             MaterialColors.getColor(ctx, com.google.android.material.R.attr.colorSurface, -1)
-        val colorSurfaceContainer = MaterialColors.getColor(
-            ctx,
-            com.google.android.material.R.attr.colorSurfaceContainer,
-            -1
-        )
-        val colorSecondaryContainer = MaterialColors.getColor(
-            ctx,
-            com.google.android.material.R.attr.colorSecondaryContainer,
-            -1
-        )
+        val colorSurfaceContainer =
+            MaterialColors.getColor(
+                ctx,
+                com.google.android.material.R.attr.colorSurfaceContainerHighest,
+                -1
+            )
+        val colorSecondaryContainer =
+            MaterialColors.getColor(
+                ctx,
+                com.google.android.material.R.attr.colorSecondaryContainer,
+                -1
+            )
 
         val surfaceTransition = ValueAnimator.ofArgb(surfaceFinalColor, colorSurface).apply {
             duration = 400L
@@ -506,8 +533,20 @@ class BookInfoActivity :
                 val color = animation.animatedValue as Int
                 binding.cdInfo?.setCardBackgroundColor(color)
                 binding.llInfo.setBackgroundColor(color)
+                (binding.llCover.background as? GradientDrawable)?.colors =
+                    intArrayOf(Color.TRANSPARENT, color)
             }
         }
+
+        val surfaceContainerTransition =
+            ValueAnimator.ofArgb(surfaceContainerFinalColor, colorSurfaceContainer).apply {
+                duration = 400L
+                addUpdateListener { animation ->
+                    val color = animation.animatedValue as Int
+                    binding.lbKind.applyColorScheme(color, colorOnSurface)
+                    binding.collTopBar.setContentScrimColor(color)
+                }
+            }
 
         val buttonTransition = ValueAnimator.ofArgb(secondaryFinalColor, colorSecondary).apply {
             duration = 400L
@@ -523,6 +562,8 @@ class BookInfoActivity :
                     btn.setTextColor(color)
                     btn.iconTint = tint
                 }
+                binding.div.setTextColor(color)
+                binding.tvChapterIndex.setTextColor(color)
             }
         }
 
@@ -543,33 +584,48 @@ class BookInfoActivity :
                 binding.tvAuthor.setTextColor(color)
                 binding.tvOrigin.setTextColor(color)
                 binding.tvDetail.setTextColor(color)
+                binding.tvToc.setTextColor(color)
+                binding.tvLasted.setTextColor(color)
                 binding.ivName.imageTintList = ColorStateList.valueOf(color)
                 binding.ivWeb.imageTintList = ColorStateList.valueOf(color)
             }
         }
 
+        val primaryTransition = ValueAnimator.ofArgb(primaryFinalColor, colorPrimary).apply {
+            duration = 400L
+            addUpdateListener { animation ->
+                val color = animation.animatedValue as Int
+                binding.tvChapter.setTextColor(color)
+            }
+        }
+
+        val tertiaryTransition = ValueAnimator.ofArgb(tertiaryFinalColor, colorTertiary).apply {
+            duration = 400L
+            addUpdateListener { animation ->
+                val color = animation.animatedValue as Int
+                binding.btnRead.setBackgroundColor(color)
+            }
+        }
+
         withContext(Dispatchers.Main) {
-            surfaceTransition.start()
-            buttonTransition.start()
-            textTransition.start()
-            backTransition.start()
+            listOf(
+                surfaceTransition,
+                surfaceContainerTransition,
+                buttonTransition,
+                backTransition,
+                textTransition,
+                primaryTransition,
+                tertiaryTransition
+            ).forEach { it.start() }
         }
 
         surfaceFinalColor = colorSurface
         secondaryFinalColor = colorSecondary
         onSurfaceFinalColor = colorOnSurface
-
-        (binding.llCover.background as? GradientDrawable)?.colors =
-            intArrayOf(Color.TRANSPARENT, colorSurface)
-
-        binding.collTopBar.setContentScrimColor(colorSurfaceContainer)
-        binding.lbKind.applyColorScheme(colorSurfaceContainer, colorOnSurface)
-        binding.tvChapter.setTextColor(colorPrimary)
-        binding.div.setTextColor(colorSecondary)
-        binding.tvChapterIndex.setTextColor(colorSecondary)
-        binding.btnRead.setBackgroundColor(colorTertiary)
-        binding.tvToc.setTextColor(colorOnSurface)
-        binding.tvLasted.setTextColor(colorOnSurface)
+        surfaceContainerFinalColor = colorSurfaceContainer
+        primaryFinalColor = colorPrimary
+        tertiaryFinalColor = colorTertiary
+        secondaryContainerFinalColor = colorSecondaryContainer
     }
 
     private fun upLoading(isLoading: Boolean, chapterList: List<BookChapter>? = null) {
