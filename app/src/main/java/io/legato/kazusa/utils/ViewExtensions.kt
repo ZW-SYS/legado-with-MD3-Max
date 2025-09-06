@@ -28,11 +28,13 @@ import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.graphics.createBitmap
 import androidx.core.graphics.record
 import androidx.core.graphics.withTranslation
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.get
+import androidx.core.view.isVisible
 import androidx.core.view.marginBottom
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.RecyclerView
@@ -146,7 +148,7 @@ fun View.visible() {
 fun View.visible(visible: Boolean) {
     if (visible && visibility != VISIBLE) {
         visibility = VISIBLE
-    } else if (!visible && visibility == VISIBLE) {
+    } else if (!visible && isVisible) {
         visibility = INVISIBLE
     }
 }
@@ -158,7 +160,7 @@ fun View.screenshot(bitmap: Bitmap? = null, canvas: Canvas? = null): Bitmap? {
             bitmap
         } else {
             bitmap?.recycle()
-            Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            createBitmap(width, height)
         }
         val c = canvas ?: Canvas()
         c.setBitmap(screenshot)
@@ -302,8 +304,8 @@ fun View.canScroll(direction: Int): Boolean {
     return canScrollVertically(direction) || canScrollHorizontally(direction)
 }
 
-private val requestLayoutBroken = false
-        || Build.VERSION.SDK_INT in Build.VERSION_CODES.O..Build.VERSION_CODES.Q
+private val requestLayoutBroken =
+    Build.VERSION.SDK_INT in Build.VERSION_CODES.O..Build.VERSION_CODES.Q
 
 fun View.setOnApplyWindowInsetsListenerCompat(listener: (View, WindowInsetsCompat) -> WindowInsetsCompat) {
     ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->

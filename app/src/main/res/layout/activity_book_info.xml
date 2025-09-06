@@ -380,10 +380,10 @@
         android:contentDescription="@string/reading"
         android:minWidth="56dp"
         android:text="@string/reading"
-        android:textColor="?attr/colorOnPrimary"
+        android:textColor="?attr/colorOnTertiary"
         app:backgroundTint="?attr/colorTertiary"
         app:icon="@drawable/ic_bottom_books"
-        app:iconTint="?attr/colorOnPrimary"
+        app:iconTint="?attr/colorOnTertiary"
         app:layout_anchor="@id/refresh_layout"
         app:layout_anchorGravity="bottom|end" />
 

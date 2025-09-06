@@ -51,6 +51,7 @@ import io.legato.kazusa.ui.book.source.edit.BookSourceEditActivity
 import io.legato.kazusa.ui.book.toc.TocActivityResult
 import io.legato.kazusa.ui.login.SourceLoginActivity
 import io.legato.kazusa.utils.StartActivityContract
+import io.legato.kazusa.utils.ToolbarUtils.setAllIconsColor
 import io.legato.kazusa.utils.applyNavigationBarPadding
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.observeEvent
@@ -437,16 +438,24 @@ class AudioPlayActivity :
             MaterialColors.getColor(ctx, com.google.android.material.R.attr.colorOnSurface, -1)
         val colorSurface =
             MaterialColors.getColor(ctx, com.google.android.material.R.attr.colorSurface, -1)
-        val colorSurfaceContainer = MaterialColors.getColor(
-            ctx,
-            com.google.android.material.R.attr.colorSurfaceContainer,
-            -1
-        )
-        val colorSecondaryContainer = MaterialColors.getColor(
-            ctx,
-            com.google.android.material.R.attr.colorSecondaryContainer,
-            -1
-        )
+        val colorSurfaceContainer =
+            MaterialColors.getColor(
+                ctx,
+                com.google.android.material.R.attr.colorSurfaceContainer,
+                -1
+            )
+        val colorSecondaryContainer =
+            MaterialColors.getColor(
+                ctx,
+                com.google.android.material.R.attr.colorSecondaryContainer,
+                -1
+            )
+        val colorOnSurfaceVariant =
+            MaterialColors.getColor(
+                ctx,
+                com.google.android.material.R.attr.colorOnSurfaceVariant,
+                -1
+            )
 
         val primaryTransition = ValueAnimator.ofArgb(primaryFinalColor, colorPrimary).apply {
             duration = 400L
@@ -456,6 +465,8 @@ class AudioPlayActivity :
                 binding.settingSlider.trackActiveTintList = ColorStateList.valueOf(color)
                 binding.playerProgress.thumbTintList = ColorStateList.valueOf(color)
                 binding.playerProgress.trackActiveTintList = ColorStateList.valueOf(color)
+                binding.tvDurTime.setTextColor(color)
+                binding.tvAllTime.setTextColor(color)
             }
         }
 
@@ -477,8 +488,6 @@ class AudioPlayActivity :
                 addUpdateListener { animation ->
                     val color = animation.animatedValue as Int
                     binding.vwBg2.setBackgroundColor(color)
-                    binding.cdTimer.setBackgroundColor(color)
-                    binding.cdSpeed.setBackgroundColor(color)
                 }
             }
 
@@ -486,12 +495,7 @@ class AudioPlayActivity :
             duration = 400L
             addUpdateListener { animation ->
                 val color = animation.animatedValue as Int
-                binding.tvSpeed.setTextColor(color)
-                binding.tvTimer.setTextColor(color)
                 binding.tvTitle.setTextColor(color)
-                binding.tvDurTime.setTextColor(color)
-                binding.tvAllTime.setTextColor(color)
-                binding.tvSubTitle.setTextColor(color)
             }
         }
 
@@ -508,7 +512,18 @@ class AudioPlayActivity :
         primaryFinalColor = colorPrimary
         secondaryContainerFinalColor = colorSecondaryContainer
 
+        binding.titleBar.toolbar.setAllIconsColor(colorOnSurface)
         binding.progressLoading.setIndicatorColor(colorPrimary)
+        binding.settingSlider.tickActiveTintList = ColorStateList.valueOf(colorSurface)
+        binding.settingSlider.tickInactiveTintList = ColorStateList.valueOf(colorPrimary)
+
+        binding.tvSubTitle.setTextColor(colorOnSurfaceVariant)
+        binding.btnTimer.imageTintList = ColorStateList.valueOf(colorOnSurface)
+        binding.tvSpeed.setTextColor(colorOnSurface)
+        binding.tvTimer.setTextColor(colorOnSurface)
+
+        binding.cdTimer.setCardBackgroundColor(colorSurfaceContainer)
+        binding.cdSpeed.setCardBackgroundColor(colorSurfaceContainer)
 
         val states = arrayOf(
             intArrayOf(android.R.attr.state_enabled, android.R.attr.state_checked),

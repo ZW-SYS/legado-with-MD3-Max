@@ -52,14 +52,14 @@ class LabelsBar @JvmOverloads constructor(
         addView(chip)
     }
 
-    fun applyColorScheme(colorPrimaryContainer: Int, colorOnPrimaryContainer: Int) {
+    fun applyColorScheme(backgroundColor: Int, textColor: Int) {
         usedChips.forEach { chip ->
-            chip.chipBackgroundColor = ColorStateList.valueOf(colorPrimaryContainer)
-            chip.setTextColor(colorOnPrimaryContainer)
+            chip.chipBackgroundColor = ColorStateList.valueOf(backgroundColor)
+            chip.setTextColor(textColor)
         }
         unUsedChips.forEach { chip ->
-            chip.chipBackgroundColor = ColorStateList.valueOf(colorPrimaryContainer)
-            chip.setTextColor(colorOnPrimaryContainer)
+            chip.chipBackgroundColor = ColorStateList.valueOf(backgroundColor)
+            chip.setTextColor(textColor)
         }
     }
 

@@ -5,12 +5,10 @@ import android.content.res.ColorStateList
 import android.util.AttributeSet
 import android.view.Menu
 import android.view.View
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.appbar.MaterialToolbar
 import io.legato.kazusa.R
-import io.legato.kazusa.help.config.AppConfig
-//import io.legado.app.lib.theme.primaryColor
 import io.legato.kazusa.utils.activity
 import io.legato.kazusa.utils.setOnApplyWindowInsetsListenerCompat
 import splitties.views.bottomPadding
@@ -22,7 +20,7 @@ class TitleBar @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ) : AppBarLayout(context, attrs) {
 
-    val toolbar: Toolbar
+    val toolbar: MaterialToolbar
     val menu: Menu
         get() = toolbar.menu
 
