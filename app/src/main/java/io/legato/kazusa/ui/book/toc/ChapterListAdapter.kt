@@ -81,7 +81,8 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
             val useReplace = AppConfig.tocUiUseReplace && book.getUseReplaceRule()
             val items = getItems()
 
-            val indices = (startIndex until items.size) + (startIndex downTo 0)
+            val indices = ((startIndex until items.size) + (startIndex downTo 0))
+                .filter { it in items.indices }
 
             for (i in indices) {
                 val item = items[i]
