@@ -391,12 +391,9 @@ class ReadMenu @JvmOverloads constructor(
         seekReadPage.addOnChangeListener { slider, value, fromUser ->
             if (fromUser) {
                 VibrationUtils.vibrate(context, 12)
-                if (AppConfig.progressBarBehavior == "page") ReadBook.skipToPage(slider.value.toInt() - 1)
-                ReadBook.skipToPage(slider.value.toInt() - 1)
             }
         }
 
-        //阅读进度
         seekReadPage.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
             override fun onStartTrackingTouch(slider: Slider) {
                 vwMenuBg.setOnClickListener(null)
@@ -405,8 +402,8 @@ class ReadMenu @JvmOverloads constructor(
 
             override fun onStopTrackingTouch(slider: Slider) {
                 vwMenuBg.setOnClickListener { runMenuOut() }
-
                 val progress = slider.value.toInt()
+
                 when (AppConfig.progressBarBehavior) {
                     "page" -> ReadBook.skipToPage(progress - 1)
                     "chapter" -> {
@@ -418,18 +415,15 @@ class ReadMenu @JvmOverloads constructor(
                                     confirmSkipToChapter = true
                                     callBack.skipToChapter(progress - 1)
                                 }
-                                noButton {
-                                    upSeekBar()
-                                }
-                                onCancelled {
-                                    upSeekBar()
-                                }
+                                noButton { upSeekBar() }
+                                onCancelled { upSeekBar() }
                             }
                         }
                     }
                 }
             }
         })
+
 
         //替换
         //fabReplaceRule.setOnClickListener { callBack.openReplaceRule() }
@@ -610,9 +604,10 @@ class ReadMenu @JvmOverloads constructor(
                             stepSize = 1f
                             value = (ReadBook.durPageIndex).coerceIn(1, chapter.pageSize).toFloat()
                         } else {
-                            value = 0f
                             valueFrom = 0f
-                            valueTo = 1000f
+                            valueTo = 10000f
+                            stepSize = 0f
+                            value = 0f
                         }
                     }
                 }
@@ -626,8 +621,9 @@ class ReadMenu @JvmOverloads constructor(
                         value = (ReadBook.durChapterIndex).coerceIn(1, ReadBook.simulatedChapterSize).toFloat()
                     } else {
                         valueFrom = 0f
+                        valueTo = 10000f
+                        stepSize = 0f
                         value = 0f
-                        valueTo = 1000f
                     }
                 }
             }
