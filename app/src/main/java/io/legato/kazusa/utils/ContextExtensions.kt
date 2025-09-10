@@ -437,5 +437,10 @@ val Context.bookshelfLayoutGrid: Int
 fun Context.themeColor(attr: Int): Int {
     val typedValue = TypedValue()
     theme.resolveAttribute(attr, typedValue, true)
-    return ContextCompat.getColor(this, typedValue.resourceId)
+    return if (typedValue.resourceId != 0) {
+        ContextCompat.getColor(this, typedValue.resourceId)
+    } else {
+        typedValue.data
+    }
 }
+
