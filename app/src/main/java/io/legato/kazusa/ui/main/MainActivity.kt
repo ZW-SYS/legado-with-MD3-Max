@@ -107,7 +107,7 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (AppConfig.isFirstLaunch) {
+        if (LocalConfig.isFirstOpenApp) {
             startActivity<WelcomeActivity>()
             finish()
             return

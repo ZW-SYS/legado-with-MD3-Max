@@ -12,4 +12,9 @@
         <item name="alertDialogTheme">@style/AppTheme.AlertDialog</item>
     </style>
 
+    <style name="ThemeOverlay.PureBlack" parent="">
+        <item name="android:colorBackground">#000000</item>
+        <item name="colorSurface">#000000</item>
+    </style>
+
 </resources>

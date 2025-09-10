@@ -7,7 +7,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import io.legato.kazusa.base.BaseActivity
 import io.legato.kazusa.databinding.ActivityWelcomeBinding
-import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.config.LocalConfig
 import io.legato.kazusa.ui.main.MainActivity
 import io.legato.kazusa.utils.startActivity
@@ -96,7 +95,6 @@ class WelcomeActivity : BaseActivity<ActivityWelcomeBinding>() {
     }
 
     private fun finishSetup() {
-        AppConfig.isFirstLaunch = false
         startActivity<MainActivity>()
         finish()
     }

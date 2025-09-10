@@ -21,6 +21,7 @@ import io.legato.kazusa.R
 import io.legato.kazusa.constant.AppLog
 import io.legato.kazusa.constant.EventBus
 import io.legato.kazusa.constant.Theme
+import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.config.ThemeConfig
 import io.legato.kazusa.utils.applyOpenTint
 import io.legato.kazusa.utils.applyTint
@@ -28,8 +29,6 @@ import io.legato.kazusa.utils.disableAutoFill
 import io.legato.kazusa.utils.getPrefString
 import io.legato.kazusa.utils.hideSoftInput
 import io.legato.kazusa.utils.observeEvent
-import io.legato.kazusa.utils.setNavigationBarColorAuto
-import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.windowSize
 
@@ -74,7 +73,7 @@ abstract class BaseActivity<VB : ViewBinding>(
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         enableEdgeToEdge()
-        window.setNavigationBarColorAuto(themeColor(com.google.android.material.R.attr.colorSurface))
+        //window.setNavigationBarColorAuto(themeColor(com.google.android.material.R.attr.colorSurface))
         //setupSystemBar()
         setContentView(binding.root)
         upBackgroundImage()
@@ -129,18 +128,21 @@ abstract class BaseActivity<VB : ViewBinding>(
 
     open fun initTheme() {
         when (getPrefString("app_theme", "0")) {
-            "0" ->
-            {
-                DynamicColors.applyToActivitiesIfAvailable(application)
-            }
+            "0" -> DynamicColors.applyToActivitiesIfAvailable(application)
             "1" -> setTheme(R.style.Theme_Base_GR)
             "2" -> setTheme(R.style.Theme_Base_Lemon)
             "3" -> setTheme(R.style.Theme_Base_WH)
-            "4" -> setTheme(R.style.Theme_Base_Koharu)
-            "5" -> setTheme(R.style.Theme_Base_Yuuka)
-            "6" -> setTheme(R.style.Theme_Base_Phoebe)
-            "7" -> setTheme(R.style.AppTheme_Transparent)
+            "4" -> setTheme(R.style.Theme_Base_Sora)
+            "5" -> setTheme(R.style.Theme_Base_August)
+            "6" -> setTheme(R.style.Theme_Base_Carlotta)
+            "7" -> setTheme(R.style.Theme_Base_Koharu)
+            "8" -> setTheme(R.style.Theme_Base_Yuuka)
+            "9" -> setTheme(R.style.Theme_Base_Phoebe)
+            "10" -> setTheme(R.style.Theme_Base_Mujika)
+            "11" -> setTheme(R.style.AppTheme_Transparent)
         }
+        if (AppConfig.pureBlack)
+            setTheme(R.style.ThemeOverlay_PureBlack)
     }
 
     open fun upBackgroundImage() {

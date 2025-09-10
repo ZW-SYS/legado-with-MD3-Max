@@ -30,6 +30,11 @@
             app:iconSpaceReserved="false"
             app:tipText="透明主题请于设置背景图片后设置" />
 
+        <io.legato.kazusa.lib.prefs.SwitchPreference
+            android:defaultValue="false"
+            android:key="pure_black"
+            android:title="纯黑暗色模式" />
+
         <io.legato.kazusa.lib.prefs.IconListPreference
             android:defaultValue="ic_launcher"
             android:entries="@array/icon_names"
@@ -46,11 +51,6 @@
             android:title="@string/tabletInterface"
             app:entries="@array/tabletInterface"
             app:entryValues="@array/tabletInterface_value" />
-
-        <io.legato.kazusa.lib.prefs.Preference
-            android:key="welcomeStyle"
-            android:title="@string/welcome_style"
-            android:summary="@string/welcome_style_summary" />
 
         <io.legato.kazusa.lib.prefs.Preference
             android:key="fontScale"

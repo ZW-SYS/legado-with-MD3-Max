@@ -9,7 +9,7 @@
         android:id="@+id/title_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
+        android:background="@android:color/transparent"
         android:fitsSystemWindows="true"
         app:liftOnScroll="false"
         android:stateListAnimator="@null">
@@ -20,7 +20,7 @@
             style="?attr/collapsingToolbarLayoutMediumStyle"
             app:collapsedTitleTextAppearance="?attr/textAppearanceTitleLarge"
             app:expandedTitleTextAppearance="?attr/textAppearanceHeadlineLarge"
-            app:contentScrim="?attr/colorSurface"
+            app:contentScrim="?attr/colorSurfaceContainer"
             app:titleCollapseMode="scale"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
@@ -37,7 +37,7 @@
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorSurface"
+            android:background="@android:color/transparent"
             android:paddingHorizontal="16dp"/>
 
     </com.google.android.material.appbar.AppBarLayout>

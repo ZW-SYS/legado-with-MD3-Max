@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.RenderEffect
 import android.graphics.Shader
@@ -533,7 +534,13 @@ class BookInfoActivity :
         val surfaceTransition = ValueAnimator.ofArgb(surfaceFinalColor, colorSurface).apply {
             duration = 400L
             addUpdateListener { animation ->
-                val color = animation.animatedValue as Int
+                val nightModeFlags =
+                    resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+                val isDarkMode = nightModeFlags == Configuration.UI_MODE_NIGHT_YES
+                var color = animation.animatedValue as Int
+                if (AppConfig.pureBlack && isDarkMode) {
+                    color = Color.BLACK
+                }
                 binding.cdInfo?.setCardBackgroundColor(color)
                 binding.llInfo.setBackgroundColor(color)
                 (binding.llCover.background as? GradientDrawable)?.colors =

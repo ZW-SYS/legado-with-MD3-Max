@@ -5,9 +5,7 @@ import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import io.legato.kazusa.R
 import io.legato.kazusa.base.VMBaseActivity
-import io.legato.kazusa.constant.EventBus
 import io.legato.kazusa.databinding.ActivityConfigBinding
-import io.legato.kazusa.utils.observeEvent
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 
 class ConfigActivity : VMBaseActivity<ActivityConfigBinding, ConfigViewModel>() {
@@ -23,7 +21,6 @@ class ConfigActivity : VMBaseActivity<ActivityConfigBinding, ConfigViewModel>() 
             ConfigTag.THEME_CONFIG -> replaceFragment<ThemeConfigFragment>(configTag)
             ConfigTag.BACKUP_CONFIG -> replaceFragment<BackupConfigFragment>(configTag)
             ConfigTag.COVER_CONFIG -> replaceFragment<CoverConfigFragment>(configTag)
-            ConfigTag.WELCOME_CONFIG -> replaceFragment<WelcomeConfigFragment>(configTag)
             else -> finish()
         }
     }

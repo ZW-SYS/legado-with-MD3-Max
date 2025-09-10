@@ -149,12 +149,6 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
             }
         }
 
-    var isFirstLaunch: Boolean
-        get() = appCtx.getPrefBoolean(PreferKey.isFirstLaunch, true)
-        set(value) {
-            appCtx.putPrefBoolean(PreferKey.isFirstLaunch, value)
-        }
-
     var showUnread: Boolean
         get() = appCtx.getPrefBoolean(PreferKey.showUnread, true)
         set(value) {
@@ -615,7 +609,7 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
         }
 
     var bookshelfSortOrder: Int
-        get() = appCtx.getPrefInt(PreferKey.bookshelfSortOrder, 0)
+        get() = appCtx.getPrefInt(PreferKey.bookshelfSortOrder, 1)
         set(value) {
             appCtx.putPrefInt(PreferKey.bookshelfSortOrder, value)
         }
@@ -814,5 +808,10 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
             appCtx.putPrefString(PreferKey.tabletInterface, value)
         }
 
+    var pureBlack
+        get() = appCtx.getPrefBoolean(PreferKey.pureBlack, false)
+        set(value) {
+            appCtx.getPrefBoolean(PreferKey.pureBlack, value)
+        }
 }
 

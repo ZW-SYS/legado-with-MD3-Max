@@ -99,7 +99,7 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
     private var enableRefresh = true
 
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
-        setSupportToolbar(binding.titleBar.toolbar)
+        setSupportToolbar(binding.topBar)
         initRecyclerView()
         initBookGroupData()
         initAllBooksData()
@@ -182,7 +182,7 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
     private fun initBooksData() {
         if (groupId == BookGroup.Companion.IdRoot) {
             if (isAdded) {
-                binding.titleBar.title = getString(R.string.bookshelf)
+                binding.topBar.title = getString(R.string.bookshelf)
                 binding.refreshLayout.isEnabled = true
                 enableRefresh = true
             }
@@ -190,7 +190,7 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
             bookGroups.firstOrNull {
                 groupId == it.groupId
             }?.let {
-                binding.titleBar.title = it.groupName
+                binding.topBar.title = it.groupName
                 binding.refreshLayout.isEnabled = it.enableRefresh
                 enableRefresh = it.enableRefresh
             }

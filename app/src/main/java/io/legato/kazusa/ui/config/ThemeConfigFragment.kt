@@ -136,6 +136,10 @@ class ThemeConfigFragment : PreferenceFragmentCompat(),
                 //recreateActivities()
             }
 
+            PreferKey.pureBlack -> {
+                recreateActivities()
+            }
+
             PreferKey.cPrimary,
             PreferKey.cAccent,
             PreferKey.cBackground,
@@ -192,10 +196,6 @@ class ThemeConfigFragment : PreferenceFragmentCompat(),
 
             "coverConfig" -> startActivity<ConfigActivity> {
                 putExtra("configTag", ConfigTag.COVER_CONFIG)
-            }
-
-            "welcomeStyle" -> startActivity<ConfigActivity> {
-                putExtra("configTag", ConfigTag.WELCOME_CONFIG)
             }
         }
         return super.onPreferenceTreeClick(preference)

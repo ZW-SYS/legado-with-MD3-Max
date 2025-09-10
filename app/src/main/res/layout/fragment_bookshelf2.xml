@@ -1,26 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <io.legato.kazusa.ui.widget.TitleBar
+    <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/title_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:attachToActivity="false"
-        app:layout_constraintTop_toTopOf="parent"
-        app:title="@string/bookshelf" />
+        android:background="@android:color/transparent"
+        android:fitsSystemWindows="true"
+        android:stateListAnimator="@null"
+        app:liftOnScroll="false">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            style="?attr/collapsingToolbarLayoutMediumStyle"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/collapsingToolbarLayoutMediumSize"
+            app:collapsedTitleTextAppearance="?attr/textAppearanceTitleLarge"
+            app:contentScrim="?attr/colorSurface"
+            app:expandedTitleTextAppearance="?attr/textAppearanceHeadlineLarge"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
+            app:titleCollapseMode="scale">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/top_bar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
+                app:title="@string/bookshelf" />
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/refresh_layout"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
         android:paddingHorizontal="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/title_bar"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_bookshelf"
@@ -39,10 +59,6 @@
         android:gravity="center"
         android:text="@string/bookshelf_empty"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/title_bar"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
         tools:text="TextView" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
