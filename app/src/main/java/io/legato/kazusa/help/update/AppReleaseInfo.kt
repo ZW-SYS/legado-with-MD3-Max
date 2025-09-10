@@ -36,6 +36,11 @@ data class GithubRelease(
     val body: String,
     @SerializedName("prerelease")
     val isPreRelease: Boolean,
+    @SerializedName("tag_name")
+    val tagName: String,
+    val name: String?,
+    @SerializedName("created_at")
+    val createdAt: String?
 ) {
     fun gitReleaseToAppReleaseInfo(): List<AppReleaseInfo> {
         assets ?: throw NoStackTraceException("获取新版本出错")
@@ -44,6 +49,7 @@ data class GithubRelease(
             .map { it.assetToAppReleaseInfo(isPreRelease, body) }
     }
 }
+
 
 @Keep
 data class Asset(
@@ -67,11 +73,13 @@ data class Asset(
         val instant = Instant.parse(createdAt)
         val timestamp: Long = instant.toEpochMilli()
 
-        val appVariant = when {
-            preRelease && name.contains("release") -> AppVariant.BETA_RELEASE
-            else -> AppVariant.OFFICIAL
+        val appVariant = if (preRelease) {
+            AppVariant.BETA_RELEASE
+        } else {
+            AppVariant.OFFICIAL
         }
 
         return AppReleaseInfo(appVariant, timestamp, note, name, apkUrl, url)
     }
+
 }
