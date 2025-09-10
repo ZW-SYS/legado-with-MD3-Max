@@ -594,6 +594,7 @@ class ReadMenu @JvmOverloads constructor(
     }
 
     fun upSeekBar() {
+        //孩子们 土方法丑陋但有效
         binding.seekReadPage.apply {
             when (AppConfig.progressBarBehavior) {
                 "page" -> {
@@ -605,7 +606,7 @@ class ReadMenu @JvmOverloads constructor(
                             value = (ReadBook.durPageIndex).coerceIn(1, chapter.pageSize).toFloat()
                         } else {
                             valueFrom = 0f
-                            valueTo = 10000f
+                            valueTo = 100000f
                             stepSize = 0f
                             value = 0f
                         }
@@ -621,7 +622,7 @@ class ReadMenu @JvmOverloads constructor(
                         value = (ReadBook.durChapterIndex).coerceIn(1, ReadBook.simulatedChapterSize).toFloat()
                     } else {
                         valueFrom = 0f
-                        valueTo = 10000f
+                        valueTo = 100000f
                         stepSize = 0f
                         value = 0f
                     }
