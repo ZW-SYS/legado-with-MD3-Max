@@ -253,7 +253,7 @@ class ReadBookActivity : BaseReadBookActivity(),
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        if (AppConfig.sharedElementEnterTransitionEnable) {
+        if (AppConfig.sharedElementEnterTransitionEnable && savedInstanceState == null) {
 
             val transform = MaterialContainerTransform().apply {
                 addTarget(binding.rootView)
@@ -267,28 +267,12 @@ class ReadBookActivity : BaseReadBookActivity(),
                     Transition.TransitionListener {
                     override fun onTransitionStart(transition: Transition) {}
                     override fun onTransitionEnd(transition: Transition) {
-                        lifecycleScope.launch(Dispatchers.Default) {
-                            viewModel.initReadBookConfig(intent)
-                            viewModel.initData(intent)
-
-                            withContext(Main) {
-                                binding.readView.initAfterTransition()
-                                justInitData = true
-                            }
-                        }
+                        loadBook()
                         transition.removeListener(this)
                     }
 
                     override fun onTransitionCancel(transition: Transition) {
-                        lifecycleScope.launch(Dispatchers.Default) {
-                            viewModel.initReadBookConfig(intent)
-                            viewModel.initData(intent)
-
-                            withContext(Main) {
-                                binding.readView.initAfterTransition()
-                                justInitData = true
-                            }
-                        }
+                        loadBook()
                         transition.removeListener(this)
                     }
 
@@ -296,6 +280,8 @@ class ReadBookActivity : BaseReadBookActivity(),
                     override fun onTransitionResume(transition: Transition) {}
                 })
             }
+        } else {
+            loadBook()
         }
         window.sharedElementReturnTransition =
             MaterialSharedAxis(MaterialSharedAxis.X, true).apply {
@@ -336,21 +322,6 @@ class ReadBookActivity : BaseReadBookActivity(),
                 return@addCallback
             }
             finish()
-        }
-    }
-
-    override fun onPostCreate(savedInstanceState: Bundle?) {
-        super.onPostCreate(savedInstanceState)
-        if (!AppConfig.delayBookLoadEnable || !AppConfig.sharedElementEnterTransitionEnable) {
-            lifecycleScope.launch(Dispatchers.Default) {
-                viewModel.initReadBookConfig(intent)
-                viewModel.initData(intent)
-
-                withContext(Main) {
-                    binding.readView.initAfterTransition()
-                    justInitData = true
-                }
-            }
         }
     }
 
@@ -463,6 +434,17 @@ class ReadBookActivity : BaseReadBookActivity(),
         menu.findItem(R.id.menu_same_title_removed)?.isChecked =
             ReadBook.curTextChapter?.sameTitleRemoved == true
         return super.onMenuOpened(featureId, menu)
+    }
+
+    private fun loadBook() {
+        lifecycleScope.launch(Dispatchers.Default) {
+            viewModel.initReadBookConfig(intent)
+            viewModel.initData(intent)
+            withContext(Dispatchers.Main) {
+                binding.readView.initAfterTransition()
+                justInitData = true
+            }
+        }
     }
 
     /**
