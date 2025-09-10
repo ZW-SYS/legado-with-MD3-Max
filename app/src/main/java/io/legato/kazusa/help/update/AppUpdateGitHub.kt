@@ -29,8 +29,6 @@ object AppUpdateGitHub : AppUpdate.AppUpdateInterface {
             "https://api.github.com/repos/HapeLee/legado-with-MD3/releases/latest"
         }
 
-        Log.d("AppUpdate", "checkVariant=$checkVariant, url=$lastReleaseUrl")
-
         val res = okHttpClient.newCallResponse {
             url(lastReleaseUrl)
         }
@@ -46,14 +44,6 @@ object AppUpdateGitHub : AppUpdate.AppUpdateInterface {
             val releases = GSON.fromJsonArray<GithubRelease>(body)
                 .getOrElse { throw NoStackTraceException("获取新版本出错 ${it.localizedMessage}") }
 
-            Log.d("AppUpdate", "beta releases.size=${releases.size}")
-            releases.forEach {
-                Log.d(
-                    "AppUpdate",
-                    "beta release: tag=${it.tagName}, preRelease=${it.isPreRelease}, name=${it.name}"
-                )
-            }
-
             releases.filter { it.isPreRelease }
                 .flatMap { it.gitReleaseToAppReleaseInfo() }
                 .sortedByDescending { it.createdAt }
@@ -61,11 +51,6 @@ object AppUpdateGitHub : AppUpdate.AppUpdateInterface {
         } else {
             val release = GSON.fromJsonObject<GithubRelease>(body)
                 .getOrElse { throw NoStackTraceException("获取新版本出错 ${it.localizedMessage}") }
-
-            Log.d(
-                "AppUpdate",
-                "official release: tag=${release.tagName}, preRelease=${release.isPreRelease}, name=${release.name}"
-            )
 
             release.gitReleaseToAppReleaseInfo()
                 .sortedByDescending { it.createdAt }
@@ -75,22 +60,11 @@ object AppUpdateGitHub : AppUpdate.AppUpdateInterface {
     override fun check(scope: CoroutineScope): Coroutine<AppUpdate.UpdateInfo> {
         return Coroutine.async(scope) {
             val currentVersion = AppConst.appInfo.versionName
-            Log.d("AppUpdate", "currentVersion=$currentVersion, checkVariant=$checkVariant")
 
             val releases = getLatestRelease()
                 .filter { it.appVariant == checkVariant }
 
-            Log.d("AppUpdate", "after variant filter releases.size=${releases.size}")
-            releases.forEach {
-                Log.d(
-                    "AppUpdate",
-                    "release: version=${it.versionName}, variant=${it.appVariant}, createdAt=${it.createdAt}"
-                )
-            }
-
             val latest = releases.firstOrNull { it.versionName.versionCompare(currentVersion) > 0 }
-
-            Log.d("AppUpdate", "latest=${latest?.versionName}")
 
             if (latest != null) {
                 return@async AppUpdate.UpdateInfo(
