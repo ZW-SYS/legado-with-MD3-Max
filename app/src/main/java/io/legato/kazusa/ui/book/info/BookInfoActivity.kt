@@ -18,10 +18,12 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.CheckBox
 import android.widget.LinearLayout
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.scale
 import androidx.core.view.doOnPreDraw
@@ -102,6 +104,10 @@ class BookInfoActivity :
     ChangeCoverDialog.CallBack,
     VariableDialog.Callback {
 
+    companion object {
+        private const val READ_BOOK_REQUEST_CODE = 1001
+    }
+
     private val tocActivityResult = registerForActivityResult(TocActivityResult()) {
         it?.let {
             viewModel.getBook(false)?.let { book ->
@@ -112,7 +118,7 @@ class BookInfoActivity :
                         chapterChanged = it.third
                         appDb.bookDao.update(book)
                     }
-                    startReadActivity(book)
+                    startReadActivity(book, binding.btnRead)
                 }
             }
         } ?: let {
@@ -124,22 +130,6 @@ class BookInfoActivity :
     private val localBookTreeSelect = registerForActivityResult(HandleFileContract()) {
         it.uri?.let { treeUri ->
             AppConfig.defaultBookTreeUri = treeUri.toString()
-        }
-    }
-    private val readBookResult = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) {
-        viewModel.upBook(intent)
-        when (it.resultCode) {
-            RESULT_OK -> {
-                viewModel.inBookshelf = true
-                upTvBookshelf()
-            }
-
-            RESULT_DELETED -> {
-                setResult(RESULT_OK)
-                finish()
-            }
         }
     }
     private val infoEditResult = registerForActivityResult(
@@ -353,6 +343,23 @@ class BookInfoActivity :
             when (it) {
                 "selectBooksDir" -> localBookTreeSelect.launch {
                     title = getString(R.string.select_book_folder)
+                }
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == READ_BOOK_REQUEST_CODE) {
+            when (resultCode) {
+                RESULT_OK -> {
+                    viewModel.inBookshelf = true
+                    upTvBookshelf()
+                }
+
+                RESULT_DELETED -> {
+                    setResult(RESULT_OK)
+                    finish()
                 }
             }
         }
@@ -965,35 +972,44 @@ class BookInfoActivity :
             book.addType(BookType.notShelf)
             viewModel.saveBook(book) {
                 viewModel.saveChapterList {
-                    startReadActivity(book)
+                    startReadActivity(book, binding.btnRead)
                 }
             }
         } else {
             viewModel.saveBook(book) {
-                startReadActivity(book)
+                startReadActivity(book, binding.btnRead)
             }
         }
     }
 
-    private fun startReadActivity(book: Book) {
-        when {
-            book.isAudio -> readBookResult.launch(
-                Intent(this, AudioPlayActivity::class.java)
-                    .putExtra("bookUrl", book.bookUrl)
-                    .putExtra("inBookshelf", viewModel.inBookshelf)
-            )
+    private fun startReadActivity(book: Book, sharedView: View) {
+        val transitionName = "book_${book.bookUrl}_${System.currentTimeMillis()}"
+        sharedView.transitionName = transitionName
 
-            else -> readBookResult.launch(
-                Intent(
-                    this,
-                    if (!book.isLocal && book.isImage && AppConfig.showMangaUi) ReadMangaActivity::class.java
-                    else ReadBookActivity::class.java
-                )
-                    .putExtra("bookUrl", book.bookUrl)
-                    .putExtra("inBookshelf", viewModel.inBookshelf)
-                    .putExtra("chapterChanged", chapterChanged)
-            )
+        val cls = when {
+            book.isAudio -> AudioPlayActivity::class.java
+            !book.isLocal && book.isImage && AppConfig.showMangaUi -> ReadMangaActivity::class.java
+            else -> ReadBookActivity::class.java
         }
+
+        val intent = Intent(this, cls).apply {
+            putExtra("bookUrl", book.bookUrl)
+            putExtra("inBookshelf", viewModel.inBookshelf)
+            putExtra("chapterChanged", chapterChanged)
+            putExtra("transitionName", transitionName)
+        }
+
+        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+            this,
+            sharedView,
+            transitionName
+        )
+        ActivityCompat.startActivityForResult(
+            this,
+            intent,
+            READ_BOOK_REQUEST_CODE,
+            options.toBundle()
+        )
     }
 
     override val oldBook: Book?

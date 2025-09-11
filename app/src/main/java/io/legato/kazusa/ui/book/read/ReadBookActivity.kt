@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
-import android.transition.Transition
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.InputDevice
@@ -250,6 +249,16 @@ class ReadBookActivity : BaseReadBookActivity(),
     private var justInitData: Boolean = false
     private var syncDialog: AlertDialog? = null
 
+    private val delayMillis: Long = 500
+    private var hasLoadedBook = false
+
+    private fun ensureLoadBook() {
+        if (!hasLoadedBook) {
+            hasLoadedBook = true
+            loadBook()
+        }
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -258,39 +267,16 @@ class ReadBookActivity : BaseReadBookActivity(),
             val transform = MaterialContainerTransform().apply {
                 addTarget(binding.rootView)
                 scrimColor = Color.TRANSPARENT
-                duration = 500
+                duration = delayMillis
             }
             window.sharedElementEnterTransition = transform
-
-            if (AppConfig.delayBookLoadEnable) {
-                window.sharedElementEnterTransition?.addListener(object :
-                    Transition.TransitionListener {
-                    override fun onTransitionStart(transition: Transition) {}
-                    override fun onTransitionEnd(transition: Transition) {
-                        loadBook()
-                        transition.removeListener(this)
-                    }
-
-                    override fun onTransitionCancel(transition: Transition) {
-                        loadBook()
-                        transition.removeListener(this)
-                    }
-
-                    override fun onTransitionPause(transition: Transition) {}
-                    override fun onTransitionResume(transition: Transition) {}
-                })
-            }
 
         }
         window.sharedElementReturnTransition =
             MaterialSharedAxis(MaterialSharedAxis.X, true).apply {
-                duration = 300
+                duration = delayMillis
             }
         super.onCreate(savedInstanceState)
-
-        if (savedInstanceState != null && AppConfig.delayBookLoadEnable) {
-            loadBook()
-        }
 
         if (AppConfig.sharedElementEnterTransitionEnable)
             binding.rootView.transitionName = intent.getStringExtra("transitionName")
@@ -330,9 +316,13 @@ class ReadBookActivity : BaseReadBookActivity(),
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        if (!AppConfig.delayBookLoadEnable || !AppConfig.sharedElementEnterTransitionEnable) {
-            loadBook()
+        if (!AppConfig.sharedElementEnterTransitionEnable || !AppConfig.delayBookLoadEnable) {
+            ensureLoadBook()
         }
+        //虽然很扯但有用
+        binding.rootView.postDelayed({
+            ensureLoadBook()
+        }, delayMillis)
     }
 
     override fun onNewIntent(intent: Intent) {
