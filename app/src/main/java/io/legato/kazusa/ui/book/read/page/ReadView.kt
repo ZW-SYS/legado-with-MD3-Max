@@ -236,9 +236,10 @@ class ReadView(context: Context, attrs: AttributeSet) :
                 removeCallbacks(longPressRunnable)
                 if (!pressDown) return true
                 pressDown = false
-                if (!pageDelegate!!.isMoved && !isMove) {
+                if (pageDelegate?.isMoved == false && !isMove) {
                     if (!longPressed && !pressOnTextSelected) {
-                        if (!curPage.onClick(startX, startY)) {
+                        val handled = curPage.onClick(startX, startY)
+                        if (!handled) {
                             onSingleTapUp()
                         }
                         return true

@@ -253,7 +253,7 @@ class ReadBookActivity : BaseReadBookActivity(),
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        if (AppConfig.sharedElementEnterTransitionEnable && savedInstanceState == null) {
+        if (AppConfig.sharedElementEnterTransitionEnable) {
 
             val transform = MaterialContainerTransform().apply {
                 addTarget(binding.rootView)
@@ -280,14 +280,17 @@ class ReadBookActivity : BaseReadBookActivity(),
                     override fun onTransitionResume(transition: Transition) {}
                 })
             }
-        } else {
-            loadBook()
+
         }
         window.sharedElementReturnTransition =
             MaterialSharedAxis(MaterialSharedAxis.X, true).apply {
                 duration = 300
             }
         super.onCreate(savedInstanceState)
+
+        if (savedInstanceState != null && AppConfig.delayBookLoadEnable) {
+            loadBook()
+        }
 
         if (AppConfig.sharedElementEnterTransitionEnable)
             binding.rootView.transitionName = intent.getStringExtra("transitionName")
@@ -322,6 +325,13 @@ class ReadBookActivity : BaseReadBookActivity(),
                 return@addCallback
             }
             finish()
+        }
+    }
+
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        if (!AppConfig.delayBookLoadEnable || !AppConfig.sharedElementEnterTransitionEnable) {
+            loadBook()
         }
     }
 
@@ -440,7 +450,7 @@ class ReadBookActivity : BaseReadBookActivity(),
         lifecycleScope.launch(Dispatchers.Default) {
             viewModel.initReadBookConfig(intent)
             viewModel.initData(intent)
-            withContext(Dispatchers.Main) {
+            withContext(Main) {
                 binding.readView.initAfterTransition()
                 justInitData = true
             }
