@@ -30,8 +30,8 @@
             style="@style/Widget.Material3Expressive.Button.TonalButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:minWidth="0dp"
+            android:layout_marginStart="12dp"
+            android:minWidth="80dp"
             android:textSize="12sp" />
 
         <com.google.android.material.slider.Slider
@@ -188,9 +188,9 @@
         android:valueFrom="0"
         android:valueTo="20"
         app:isBottomBackground="true"
-        app:thumbHeight="28dp"
+        app:thumbHeight="24dp"
         app:title="@string/paragraph_size"
-        app:trackHeight="28dp" />
+        app:trackHeight="24dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"

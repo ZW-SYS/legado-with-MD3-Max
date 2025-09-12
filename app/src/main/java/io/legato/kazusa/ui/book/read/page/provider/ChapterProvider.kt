@@ -912,19 +912,33 @@ object ChapterProvider {
     }
 
     private fun getPaints(typeface: Typeface?): Pair<TextPaint, TextPaint> {
-        // 字体统一处理
-        val (titleFont, textFont) = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            Pair(
-                Typeface.create(typeface, ReadBookConfig.textBold, false),
-                Typeface.create(typeface, ReadBookConfig.textBold, false)
-            )
-        } else {
-            val tf = when (ReadBookConfig.textBold) {
-                in 700..900 -> Typeface.DEFAULT_BOLD
-                in 300..499 -> Typeface.DEFAULT
-                else -> Typeface.DEFAULT
+        val bold = Typeface.create(typeface, Typeface.BOLD)
+        val normal = Typeface.create(typeface, Typeface.NORMAL)
+        val (titleFont, textFont) = when (ReadBookConfig.textBold) {
+            1 -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+                    Pair(Typeface.create(typeface, 900, false), bold)
+                else
+                    Pair(bold, bold)
             }
-            Pair(tf, tf)
+
+            2 -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+                    Pair(normal, Typeface.create(typeface, 300, false))
+                else
+                    Pair(normal, normal)
+            }
+
+            in 100..900 -> {
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    Pair(normal, Typeface.create(typeface, ReadBookConfig.textBold, false))
+                } else {
+                    Pair(normal, normal)
+                }
+            }
+
+            else -> Pair(bold, normal)
         }
 
         //标题
@@ -932,7 +946,8 @@ object ChapterProvider {
         tPaint.color = ReadBookConfig.textColor
         tPaint.letterSpacing = ReadBookConfig.letterSpacing
         tPaint.typeface = titleFont
-        tPaint.setFontVariationSettings("'wght' ${ReadBookConfig.textBold}")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && ReadBookConfig.textBold in 100..900)
+            tPaint.setFontVariationSettings("'wght' ${ReadBookConfig.textBold}")
         tPaint.textSize = with(ReadBookConfig) { textSize + titleSize }.toFloat().spToPx()
         tPaint.isAntiAlias = true
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q && AppConfig.optimizeRender) {
@@ -943,12 +958,14 @@ object ChapterProvider {
         cPaint.color = ReadBookConfig.textColor
         cPaint.letterSpacing = ReadBookConfig.letterSpacing
         cPaint.typeface = textFont
-        cPaint.setFontVariationSettings("'wght' ${ReadBookConfig.textBold}")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && ReadBookConfig.textBold in 100..900)
+            cPaint.setFontVariationSettings("'wght' ${ReadBookConfig.textBold}")
         cPaint.textSize = ReadBookConfig.textSize.toFloat().spToPx()
         cPaint.isAntiAlias = true
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q && AppConfig.optimizeRender) {
             cPaint.isLinearText = true
         }
+
         return Pair(tPaint, cPaint)
     }
 
