@@ -276,7 +276,8 @@ abstract class BaseReadBookActivity :
                         val end = editEnd.text!!.toString().let {
                             if (it.isEmpty()) book.totalChapterNum else it.toInt()
                         }
-                        CacheBook.start(this@BaseReadBookActivity, book, start - 1, end - 1)
+                        val indices = (start - 1..end - 1).toList()
+                        CacheBook.start(this@BaseReadBookActivity, book, indices)
                     }
                 }
                 cancelButton()

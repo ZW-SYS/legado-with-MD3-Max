@@ -4,20 +4,22 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingHorizontal="16dp"
-    android:paddingVertical="8dp"
+    android:paddingVertical="12dp"
     android:background="?attr/selectableItemBackground">
 
     <TextView
         android:id="@+id/tv_chapter_name"
-        style="@style/ChapterNameText"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:paddingBottom="2dp"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tv_book_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="4dp"
+        android:paddingBottom="2dp"
         android:textSize="14sp"
         android:singleLine="true" />
 
@@ -25,6 +27,7 @@
         android:id="@+id/tv_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="?attr/colorSecondary"
         android:textSize="12sp"
         android:singleLine="true" />
 

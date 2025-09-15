@@ -2,6 +2,7 @@
 
 package io.legato.kazusa.ui.book.toc
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -16,8 +17,11 @@ import io.legato.kazusa.R
 import io.legato.kazusa.base.VMBaseActivity
 import io.legato.kazusa.data.entities.Book
 import io.legato.kazusa.databinding.ActivityChapterListBinding
+import io.legato.kazusa.databinding.DialogDownloadChoiceBinding
 import io.legato.kazusa.help.book.isLocalTxt
 import io.legato.kazusa.help.config.AppConfig
+import io.legato.kazusa.lib.dialogs.alert
+import io.legato.kazusa.model.CacheBook
 //import io.legado.app.lib.theme.accentColor
 //import io.legado.app.lib.theme.primaryTextColor
 import io.legato.kazusa.model.ReadBook
@@ -143,6 +147,8 @@ class TocActivity : VMBaseActivity<ActivityChapterListBinding, TocViewModel>(),
                 TxtTocRuleDialog(viewModel.bookData.value?.tocUrl)
             )
 
+            R.id.menu_download -> showDownloadDialog()
+
             R.id.menu_split_long_chapter -> {
                 viewModel.bookData.value?.let { book ->
                     item.isChecked = !item.isChecked
@@ -200,6 +206,32 @@ class TocActivity : VMBaseActivity<ActivityChapterListBinding, TocViewModel>(),
                 } else {
                     ReadBook.upMsg("LoadTocError:${it.localizedMessage}")
                 }
+            }
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    fun showDownloadDialog() {
+        ReadBook.book?.let { book ->
+            alert(titleResource = R.string.offline_cache) {
+                val alertBinding = DialogDownloadChoiceBinding.inflate(layoutInflater).apply {
+                    editStart.setText((book.durChapterIndex + 1).toString())
+                    editEnd.setText(book.totalChapterNum.toString())
+                }
+                customView { alertBinding.root }
+                okButton {
+                    alertBinding.run {
+                        val start = editStart.text!!.toString().let {
+                            if (it.isEmpty()) 0 else it.toInt()
+                        }
+                        val end = editEnd.text!!.toString().let {
+                            if (it.isEmpty()) book.totalChapterNum else it.toInt()
+                        }
+                        val indices = (start - 1..end - 1).toList()
+                        CacheBook.start(this@TocActivity, book, indices)
+                    }
+                }
+                cancelButton()
             }
         }
     }

@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 import io.legato.kazusa.R
 import io.legato.kazusa.base.adapter.DiffRecyclerAdapter
 import io.legato.kazusa.base.adapter.ItemViewHolder
@@ -16,7 +17,6 @@ import io.legato.kazusa.help.book.ContentProcessor
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.lib.theme.ThemeUtils
 import io.legato.kazusa.utils.gone
-import io.legato.kazusa.utils.longToastOnUi
 import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.visible
 import kotlinx.coroutines.CoroutineScope
@@ -27,28 +27,25 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 
-class ChapterListAdapter(context: Context, val callback: Callback) :
-    DiffRecyclerAdapter<BookChapter, ItemChapterListBinding>(context) {
+class ChapterListAdapter(
+    context: Context,
+    val callback: Callback
+) : DiffRecyclerAdapter<BookChapter, ItemChapterListBinding>(context) {
 
     val cacheFileNames = hashSetOf<String>()
     private val displayTitleMap = ConcurrentHashMap<String, String>()
+    private val selectedIndices = LinkedHashSet<Int>()
 
     private val handler = Handler(Looper.getMainLooper())
+    private var upDisplayTileJob: Job? = null
 
     override val diffItemCallback: DiffUtil.ItemCallback<BookChapter>
         get() = object : DiffUtil.ItemCallback<BookChapter>() {
-
-            override fun areItemsTheSame(
-                oldItem: BookChapter,
-                newItem: BookChapter
-            ): Boolean {
+            override fun areItemsTheSame(oldItem: BookChapter, newItem: BookChapter): Boolean {
                 return oldItem.index == newItem.index
             }
 
-            override fun areContentsTheSame(
-                oldItem: BookChapter,
-                newItem: BookChapter
-            ): Boolean {
+            override fun areContentsTheSame(oldItem: BookChapter, newItem: BookChapter): Boolean {
                 return oldItem.bookUrl == newItem.bookUrl
                         && oldItem.url == newItem.url
                         && oldItem.isVip == newItem.isVip
@@ -58,10 +55,7 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
                         && oldItem.wordCount == newItem.wordCount
                         && oldItem.isVolume == newItem.isVolume
             }
-
         }
-
-    private var upDisplayTileJob: Job? = null
 
     override fun onCurrentListChanged() {
         super.onCurrentListChanged()
@@ -80,7 +74,6 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
             val replaceRules = ContentProcessor.get(book.name, book.origin).getTitleReplaceRules()
             val useReplace = AppConfig.tocUiUseReplace && book.getUseReplaceRule()
             val items = getItems()
-
             val indices = ((startIndex until items.size) + (startIndex downTo 0))
                 .filter { it in items.indices }
 
@@ -100,14 +93,87 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
         }
     }
 
+    fun isInSelectionMode(): Boolean = selectedIndices.isNotEmpty()
 
-    private fun getDisplayTitle(chapter: BookChapter): String {
-        return displayTitleMap[chapter.title] ?: chapter.title
+    fun toggleSelection(chapter: BookChapter, position: Int? = null) {
+        val pos = position ?: getItems().indexOfFirst { it.index == chapter.index }
+        if (pos == -1) return
+
+        if (selectedIndices.contains(chapter.index)) {
+            selectedIndices.remove(chapter.index)
+        } else {
+            selectedIndices.add(chapter.index)
+        }
+        notifyItemChanged(pos, true)
+        callback.onSelectionModeChanged(isInSelectionMode())
     }
 
-    override fun getViewBinding(parent: ViewGroup): ItemChapterListBinding {
-        return ItemChapterListBinding.inflate(inflater, parent, false)
+    fun getSelectedChapters(): List<BookChapter> =
+        getItems().filter { selectedIndices.contains(it.index) }
+
+    fun clearSelection() {
+        if (selectedIndices.isNotEmpty()) {
+            val prevSelected = selectedIndices.toList()
+            selectedIndices.clear()
+            prevSelected.forEach { index ->
+                val pos = getItems().indexOfFirst { it.index == index }
+                if (pos != -1) notifyItemChanged(pos, true)
+            }
+            callback.onSelectionModeChanged(false)
+        }
     }
+
+    fun selectAll() {
+        val items = getItems()
+        val changedIndices = items.map { it.index }.filter { !selectedIndices.contains(it) }
+        selectedIndices.clear()
+        selectedIndices.addAll(items.map { it.index })
+        changedIndices.forEach { index ->
+            val pos = items.indexOfFirst { it.index == index }
+            if (pos != -1) notifyItemChanged(pos, true)
+        }
+        callback.onSelectionModeChanged(true)
+    }
+
+    fun invertSelection() {
+        val items = getItems()
+        val newSelected = items.map { it.index }.toSet() - selectedIndices
+        val changedIndices = (selectedIndices + newSelected) // 之前选中 + 新选中 = 改变的项
+        selectedIndices.clear()
+        selectedIndices.addAll(newSelected)
+        changedIndices.forEach { index ->
+            val pos = items.indexOfFirst { it.index == index }
+            if (pos != -1) notifyItemChanged(pos, true)
+        }
+        callback.onSelectionModeChanged(selectedIndices.isNotEmpty())
+    }
+
+    fun selectFrom() {
+        val items = getItems()
+        val startPos = selectedIndices.lastOrNull()?.let { lastIndex ->
+            items.indexOfFirst { it.index == lastIndex }
+        } ?: return
+
+        if (startPos !in items.indices) return
+
+        val changedIndices = mutableListOf<Int>()
+        for (i in startPos until items.size) {
+            val chapterIndex = items[i].index
+            if (!selectedIndices.contains(chapterIndex)) {
+                selectedIndices.add(chapterIndex)
+                changedIndices.add(i)
+            }
+        }
+
+        changedIndices.forEach { notifyItemChanged(it, true) }
+        callback.onSelectionModeChanged(isInSelectionMode())
+    }
+
+    private fun getDisplayTitle(chapter: BookChapter): String =
+        displayTitleMap[chapter.title] ?: chapter.title
+
+    override fun getViewBinding(parent: ViewGroup): ItemChapterListBinding =
+        ItemChapterListBinding.inflate(inflater, parent, false)
 
     override fun convert(
         holder: ItemViewHolder,
@@ -115,18 +181,44 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
         item: BookChapter,
         payloads: MutableList<Any>
     ) {
-        binding.run {
-            val isDur = callback.durChapterIndex() == item.index
-            val cached = callback.isLocalBook
-                    || item.isVolume
-                    || cacheFileNames.contains(item.getFileName())
-            if (payloads.isEmpty()) {
+        val isDur = callback.durChapterIndex() == item.index
+        val cached =
+            callback.isLocalBook || item.isVolume || cacheFileNames.contains(item.getFileName())
 
+        binding.run {
+            if (payloads.isEmpty()) {
+                tvChapterName.text = getDisplayTitle(item)
+                tvChapterItem.foreground =
+                    ThemeUtils.resolveDrawable(context, android.R.attr.selectableItemBackground)
+
+                if (!item.tag.isNullOrEmpty() && !item.isVolume) {
+                    tvTag.text = item.tag
+                    tvTag.visible()
+                } else tvTag.gone()
+
+                if (AppConfig.tocCountWords && !item.wordCount.isNullOrEmpty() && !item.isVolume) {
+                    tvWordCount.text = item.wordCount
+                    tvWordCount.visible()
+                } else tvWordCount.gone()
+
+                if (item.isVip && !item.isPay) ivLocked.visible() else ivLocked.gone()
+
+                upHasCache(binding, cached)
+
+            } else {
+                tvChapterName.text = getDisplayTitle(item)
+                upHasCache(binding, cached)
+            }
+
+            if (selectedIndices.contains(item.index)) {
+                ivVolume.gone()
+                tvChapterItem.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSurfaceBright))
+            } else {
                 if (item.isVolume) {
                     ivVolume.visible()
-                    tvChapterName.text = getDisplayTitle(item)
                     tvChapterName.textSize = 12f
                     tvChapterName.setTextColor(context.themeColor(com.google.android.material.R.attr.colorTertiary))
+                    tvChapterItem.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSurface))
                 } else {
                     ivVolume.gone()
                     if (isDur) {
@@ -136,70 +228,39 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
                         tvChapterName.setTextColor(context.themeColor(com.google.android.material.R.attr.colorOnSurface))
                         tvChapterItem.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSurface))
                     }
-                    tvChapterName.text = getDisplayTitle(item)
-                    tvChapterItem.foreground =
-                        ThemeUtils.resolveDrawable(context, android.R.attr.selectableItemBackground)
                 }
-
-                //卷名不显示
-                if (!item.tag.isNullOrEmpty() && !item.isVolume) {
-                    //更新时间规则
-                    tvTag.text = item.tag
-                    tvTag.visible()
-                } else {
-                    tvTag.gone()
-                }
-                if (AppConfig.tocCountWords && !item.wordCount.isNullOrEmpty() && !item.isVolume) {
-                    //章节字数
-                    tvWordCount.text = item.wordCount
-                    tvWordCount.visible()
-                } else {
-                    tvWordCount.gone()
-                }
-
-                if (item.isVip && !item.isPay) {
-                    ivLocked.visible()
-                } else {
-                    ivLocked.gone()
-                }
-
-                upHasCache(binding, cached)
-            } else {
-                tvChapterName.text = getDisplayTitle(item)
-                upHasCache(binding, cached)
             }
         }
     }
 
+
     override fun registerListener(holder: ItemViewHolder, binding: ItemChapterListBinding) {
         holder.itemView.setOnClickListener {
-            getItem(holder.layoutPosition)?.let {
-                callback.openChapter(it)
+            val pos = holder.bindingAdapterPosition
+            if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+            val item = getItem(pos) ?: return@setOnClickListener
+
+            if (isInSelectionMode()) {
+                toggleSelection(item, pos)
+            } else {
+                callback.openChapter(item)
             }
         }
+
         holder.itemView.setOnLongClickListener {
-            getItem(holder.layoutPosition)?.let { item ->
-                context.longToastOnUi(getDisplayTitle(item))
-            }
+            val pos = holder.bindingAdapterPosition
+            if (pos == RecyclerView.NO_POSITION) return@setOnLongClickListener true
+            val item = getItem(pos) ?: return@setOnLongClickListener true
+
+            toggleSelection(item, pos)
             true
         }
     }
 
-    private fun upHasCache(binding: ItemChapterListBinding, cached: Boolean) =
-        binding.apply {
-            when {
-                cached -> {
-                    ivChecked.setImageResource(R.drawable.ic_download_done)
-                    ivChecked.visible()
-                }
-
-                else -> {
-                    ivChecked.setImageResource(R.drawable.ic_outline_cloud_24)
-                    ivChecked.visible()
-                }
-            }
-        }
-
+    private fun upHasCache(binding: ItemChapterListBinding, cached: Boolean) = binding.apply {
+        ivChecked.setImageResource(if (cached) R.drawable.ic_download_done else R.drawable.ic_outline_cloud_24)
+        ivChecked.visible()
+    }
 
     interface Callback {
         val scope: CoroutineScope
@@ -208,6 +269,6 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
         fun openChapter(bookChapter: BookChapter)
         fun durChapterIndex(): Int
         fun onListChanged()
+        fun onSelectionModeChanged(enabled: Boolean)
     }
-
 }

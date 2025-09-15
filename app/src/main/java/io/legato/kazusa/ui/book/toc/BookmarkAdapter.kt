@@ -7,6 +7,7 @@ import io.legato.kazusa.base.adapter.RecyclerAdapter
 import io.legato.kazusa.data.entities.Bookmark
 import io.legato.kazusa.databinding.ItemBookmarkBinding
 import io.legato.kazusa.utils.gone
+import splitties.views.onClick
 import splitties.views.onLongClick
 
 class BookmarkAdapter(context: Context, val callback: Callback) :
@@ -30,17 +31,16 @@ class BookmarkAdapter(context: Context, val callback: Callback) :
     }
 
     override fun registerListener(holder: ItemViewHolder, binding: ItemBookmarkBinding) {
-        binding.root.setOnClickListener {
+        binding.root.onLongClick {
             getItem(holder.layoutPosition)?.let { bookmark ->
                 callback.onLongClick(bookmark, holder.layoutPosition)
             }
         }
-        binding.root.onLongClick {
+        binding.root.onClick {
             getItem(holder.layoutPosition)?.let { bookmark ->
                 callback.onClick(bookmark)
             }
         }
-
     }
 
     interface Callback {

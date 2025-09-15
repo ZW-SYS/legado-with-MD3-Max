@@ -78,12 +78,19 @@ class CacheBookService : BaseService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.action?.let { action ->
             when (action) {
-                IntentAction.start -> addDownloadData(
-                    intent.getStringExtra("bookUrl"),
-                    intent.getIntExtra("start", 0),
-                    intent.getIntExtra("end", 0)
-                )
-
+                IntentAction.start -> {
+                    val bookUrl = intent.getStringExtra("bookUrl") ?: return@let
+                    val indices = intent.getIntegerArrayListExtra("indices")
+                    if (indices != null && indices.isNotEmpty()) {
+                        addDownloadData(bookUrl, indices)
+                    } else {
+                        addDownloadData(
+                            bookUrl,
+                            intent.getIntExtra("start", 0),
+                            intent.getIntExtra("end", 0)
+                        )
+                    }
+                }
                 IntentAction.remove -> {
                     val bookUrl = intent.getStringExtra("bookUrl")
                     CacheBook.cacheBookMap[bookUrl]?.stop()
@@ -103,12 +110,16 @@ class CacheBookService : BaseService() {
         postEvent(EventBus.UP_DOWNLOAD, "")
     }
 
-    private fun addDownloadData(bookUrl: String?, start: Int, end: Int) {
+    private fun addDownloadData(bookUrl: String?, indices: List<Int>) {
         bookUrl ?: return
+        if (indices.isEmpty()) return
+
         execute {
             val cacheBook = CacheBook.getOrCreate(bookUrl) ?: return@execute
-            val chapterCount = appDb.bookChapterDao.getChapterCount(bookUrl)
+
             val book = cacheBook.book
+            val chapterCount = appDb.bookChapterDao.getChapterCount(bookUrl)
+
             if (chapterCount == 0) {
                 mutex.withLock {
                     val name = book.name
@@ -116,31 +127,39 @@ class CacheBookService : BaseService() {
                         kotlin.runCatching {
                             WebBook.getBookInfoAwait(cacheBook.bookSource, book)
                         }.onFailure {
-                            val msg = "《$name》目录为空且加载详情页失败\n${it.localizedMessage}"
-                            AppLog.put(msg, it, true)
+                            AppLog.put(
+                                "《$name》目录为空且加载详情页失败\n${it.localizedMessage}",
+                                it,
+                                true
+                            )
                             return@execute
                         }
                     }
+
                     WebBook.getChapterListAwait(cacheBook.bookSource, book).onFailure {
                         if (book.totalChapterNum > 0) {
                             book.totalChapterNum = 0
                             book.update()
                         }
-                        val msg = "《$name》目录为空且加载目录失败\n${it.localizedMessage}"
-                        AppLog.put(msg, it, true)
+                        AppLog.put(
+                            "《$name》目录为空且加载目录失败\n${it.localizedMessage}",
+                            it,
+                            true
+                        )
                         return@execute
                     }.getOrNull()?.let { toc ->
                         appDb.bookChapterDao.insert(*toc.toTypedArray())
                     }
+
                     book.update()
                 }
             }
-            val end2 = if (end < 0) {
-                book.lastChapterIndex
-            } else {
-                min(end, book.lastChapterIndex)
+
+            //添加每一章到下载队列
+            indices.forEach { index ->
+                cacheBook.addDownload(index)
             }
-            cacheBook.addDownload(start, end2)
+
             notificationContent = CacheBook.downloadSummary
             upCacheBookNotification()
         }.onFinally {
@@ -149,6 +168,11 @@ class CacheBookService : BaseService() {
             }
         }
     }
+
+    private fun addDownloadData(bookUrl: String?, start: Int, end: Int) {
+        addDownloadData(bookUrl, (start..end).toList())
+    }
+
 
     private fun removeDownload(bookUrl: String?) {
         CacheBook.cacheBookMap[bookUrl]?.stop()

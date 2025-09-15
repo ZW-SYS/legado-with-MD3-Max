@@ -102,10 +102,12 @@ class CacheAdapter(context: Context, private val callBack: CallBack) :
                         if (!it.isStop()) {
                             CacheBook.remove(context, book.bookUrl)
                         } else {
-                            CacheBook.start(context, book, 0, book.lastChapterIndex)
+                            val indices = (0..book.lastChapterIndex).toList()
+                            CacheBook.start(context, book, indices)
                         }
                     } ?: let {
-                        CacheBook.start(context, book, 0, book.lastChapterIndex)
+                        val indices = (0..book.lastChapterIndex).toList()
+                        CacheBook.start(context, book, indices)
                     }
                 }
             }

@@ -71,13 +71,12 @@ object CacheBook {
         }
     }
 
-    fun start(context: Context, book: Book, start: Int, end: Int) {
-        if (!book.isLocal) {
+    fun start(context: Context, book: Book, selectedIndices: List<Int>) {
+        if (!book.isLocal && selectedIndices.isNotEmpty()) {
             context.startService<CacheBookService> {
                 action = IntentAction.start
                 putExtra("bookUrl", book.bookUrl)
-                putExtra("start", start)
-                putExtra("end", end)
+                putIntegerArrayListExtra("indices", ArrayList(selectedIndices))
             }
         }
     }
@@ -182,6 +181,10 @@ object CacheBook {
             }
             cacheBookMap[book.bookUrl] = this
             postEvent(EventBus.UP_DOWNLOAD, book.bookUrl)
+        }
+
+        fun addDownload(index: Int) {
+            addDownload(index, index)
         }
 
         @Synchronized

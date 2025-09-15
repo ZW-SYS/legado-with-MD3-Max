@@ -173,12 +173,8 @@ class CacheActivity : VMBaseActivity<ActivityCacheBookBinding, CacheViewModel>()
             R.id.menu_download_after -> {
                 if (!CacheBook.isRun) {
                     adapter.getItems().forEach { book ->
-                        CacheBook.start(
-                            this@CacheActivity,
-                            book,
-                            book.durChapterIndex,
-                            book.lastChapterIndex
-                        )
+                        val indices = (book.durChapterIndex..book.lastChapterIndex).toList()
+                        CacheBook.start(this@CacheActivity, book, indices)
                     }
                 } else {
                     CacheBook.stop(this@CacheActivity)
@@ -188,12 +184,8 @@ class CacheActivity : VMBaseActivity<ActivityCacheBookBinding, CacheViewModel>()
             R.id.menu_download_all -> {
                 if (!CacheBook.isRun) {
                     adapter.getItems().forEach { book ->
-                        CacheBook.start(
-                            this@CacheActivity,
-                            book,
-                            0,
-                            book.lastChapterIndex
-                        )
+                        val indices = (0..book.lastChapterIndex).toList()
+                        CacheBook.start(this@CacheActivity, book, indices)
                     }
                 } else {
                     CacheBook.stop(this@CacheActivity)

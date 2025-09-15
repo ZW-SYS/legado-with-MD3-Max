@@ -1,5 +1,8 @@
 package io.legato.kazusa.ui.book.searchContent
 
+//import io.legado.app.lib.theme.bottomBackground
+//import io.legado.app.lib.theme.getPrimaryTextColor
+//import io.legado.app.lib.theme.primaryTextColor
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
@@ -23,12 +26,9 @@ import io.legato.kazusa.databinding.ActivitySearchContentBinding
 import io.legato.kazusa.help.IntentData
 import io.legato.kazusa.help.book.BookHelp
 import io.legato.kazusa.help.book.isLocal
-//import io.legado.app.lib.theme.bottomBackground
-//import io.legado.app.lib.theme.getPrimaryTextColor
-//import io.legado.app.lib.theme.primaryTextColor
 import io.legato.kazusa.ui.widget.recycler.UpLinearLayoutManager
 import io.legato.kazusa.ui.widget.recycler.VerticalDivider
-import io.legato.kazusa.utils.applyNavigationBarMargin
+import io.legato.kazusa.utils.applyNavigationBarPadding
 import io.legato.kazusa.utils.hideSoftInput
 import io.legato.kazusa.utils.invisible
 import io.legato.kazusa.utils.observeEvent
@@ -64,7 +64,7 @@ class SearchContentActivity :
 //        val bbg = bottomBackground
 //        val btc = getPrimaryTextColor(ColorUtils.isColorLight(bbg))
 //        binding.llSearchBaseInfo.setBackgroundColor(bbg)
-        binding.llSearchBaseInfo.applyNavigationBarMargin()
+        binding.llSearchBaseInfo.applyNavigationBarPadding()
 //        binding.tvCurrentSearchInfo.setTextColor(btc)
 //        binding.ivSearchContentTop.setColorFilter(btc)
 //        binding.ivSearchContentBottom.setColorFilter(btc)
