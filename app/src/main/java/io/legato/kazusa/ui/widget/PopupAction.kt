@@ -3,6 +3,7 @@ package io.legato.kazusa.ui.widget
 import android.content.Context
 import android.view.ViewGroup
 import android.widget.PopupWindow
+import io.legato.kazusa.R
 import io.legato.kazusa.base.adapter.ItemViewHolder
 import io.legato.kazusa.base.adapter.RecyclerAdapter
 import io.legato.kazusa.databinding.ItemTextBinding
@@ -22,6 +23,7 @@ class PopupAction(private val context: Context) :
     var onActionClick: ((action: String) -> Unit)? = null
 
     init {
+        animationStyle = R.style.TextActionMenuAnimation
         contentView = binding.root
 
         isTouchable = true

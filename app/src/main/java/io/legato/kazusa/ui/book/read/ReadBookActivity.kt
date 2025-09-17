@@ -1412,6 +1412,7 @@ class ReadBookActivity : BaseReadBookActivity(),
      */
     @SuppressLint("RtlHardcoded")
     override fun onImageLongPress(x: Float, y: Float, src: String) {
+        binding.root.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
         popupAction.setItems(
             listOf(
                 SelectItem(getString(R.string.show), "show"),

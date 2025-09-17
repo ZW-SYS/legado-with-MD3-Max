@@ -8,6 +8,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.bumptech.glide.request.RequestOptions
 import io.legato.kazusa.R
+import io.legato.kazusa.base.BaseBottomSheetDialogFragment
 import io.legato.kazusa.base.BaseDialogFragment
 import io.legato.kazusa.databinding.DialogPhotoViewBinding
 import io.legato.kazusa.help.book.BookHelp
@@ -22,7 +23,7 @@ import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 /**
  * 显示图片
  */
-class PhotoDialog() : BaseDialogFragment(R.layout.dialog_photo_view) {
+class PhotoDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_photo_view) {
 
     constructor(src: String, sourceOrigin: String? = null) : this() {
         arguments = Bundle().apply {
@@ -32,11 +33,6 @@ class PhotoDialog() : BaseDialogFragment(R.layout.dialog_photo_view) {
     }
 
     private val binding by viewBinding(DialogPhotoViewBinding::bind)
-
-    override fun onStart() {
-        super.onStart()
-        setLayout(1f, ViewGroup.LayoutParams.MATCH_PARENT)
-    }
 
     @SuppressLint("CheckResult")
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
