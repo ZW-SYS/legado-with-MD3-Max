@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.doOnLayout
 import androidx.recyclerview.widget.DiffUtil
@@ -24,7 +25,6 @@ import io.legato.kazusa.utils.buildMainHandler
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.invisible
 import io.legato.kazusa.utils.startActivity
-import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.visible
 import java.util.Collections
 
@@ -215,13 +215,13 @@ class BookSourceAdapter(
             }
 
             source.enabledExplore -> {
-                iv.setCardBackgroundColor(context.themeColor(androidx.appcompat.R.attr.colorPrimary))
+                iv.setCardBackgroundColor(ContextCompat.getColor(context, R.color.md_green_500))
                 iv.visible()
                 iv.contentDescription = context.getString(R.string.tag_explore_enabled)
             }
 
             else -> {
-                iv.setCardBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorOnError))
+                iv.setCardBackgroundColor(ContextCompat.getColor(context, R.color.md_red_400))
                 iv.visible()
                 iv.contentDescription = context.getString(R.string.tag_explore_disabled)
             }
