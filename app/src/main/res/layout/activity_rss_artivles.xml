@@ -17,10 +17,11 @@
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/collapsingToolbarLayoutLargeSize"
-            style="?attr/collapsingToolbarLayoutLargeSize"
+            android:layout_height="?attr/collapsingToolbarLayoutMediumSize"
+            style="?attr/collapsingToolbarLayoutMediumStyle"
             app:collapsedTitleTextAppearance="?attr/textAppearanceTitleLarge"
             app:expandedTitleTextAppearance="?attr/textAppearanceHeadlineLarge"
+            app:contentScrim="?attr/colorSurfaceContainer"
             app:titleCollapseMode="scale"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
@@ -29,6 +30,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:navigationIcon="@drawable/ic_arrow_back"
+                app:title="@string/rss"
                 app:layout_collapseMode="pin" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
@@ -37,10 +39,8 @@
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorSurface"
-            android:paddingHorizontal="16dp"
-            app:layout_scrollFlags="scroll|enterAlways"
-            tools:ignore="RtlSymmetry" />
+            android:background="@android:color/transparent"
+            android:paddingHorizontal="16dp"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
