@@ -63,7 +63,7 @@ class ImportBookSourceDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_r
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
         //binding.toolBar.setBackgroundColor(primaryColor)
         binding.toolBar.setTitle(R.string.import_book_source)
-        //binding.rotateLoading.visible()
+        binding.rotateLoading.visible()
         initMenu()
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = adapter
@@ -92,14 +92,14 @@ class ImportBookSourceDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_r
             upSelectText()
         }
         viewModel.errorLiveData.observe(this) {
-            //binding.rotateLoading.gone()
+            binding.rotateLoading.gone()
             binding.tvMsg.apply {
                 text = it
                 visible()
             }
         }
         viewModel.successLiveData.observe(this) {
-            //binding.rotateLoading.gone()
+            binding.rotateLoading.gone()
             if (it > 0) {
                 adapter.setItems(viewModel.allSources)
                 upSelectText()

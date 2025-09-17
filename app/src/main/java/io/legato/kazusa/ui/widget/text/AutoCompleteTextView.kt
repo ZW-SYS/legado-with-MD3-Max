@@ -72,6 +72,12 @@ class AutoCompleteTextView @JvmOverloads constructor(
                     showDropDown()
                 }
             }
+            view.setOnClickListener {
+                this@AutoCompleteTextView.setText(getItem(position))
+                this@AutoCompleteTextView.setSelection(getItem(position)?.length ?: 0)
+                dismissDropDown()
+            }
+
             return view
         }
     }
