@@ -188,10 +188,12 @@ class ExploreFragment() : VMBaseFragment<ExploreViewModel>(R.layout.fragment_exp
 
     private fun upGroupsMenu() = groupsMenu?.transaction { subMenu ->
         subMenu.removeGroup(R.id.menu_group_text)
+        subMenu.add(R.id.menu_group_text, Menu.NONE, Menu.NONE, getString(R.string.all))
         groups.forEach {
             subMenu.add(R.id.menu_group_text, Menu.NONE, Menu.NONE, it)
         }
     }
+
 
     override val scope: CoroutineScope
         get() = viewLifecycleOwner.lifecycleScope
@@ -205,15 +207,22 @@ class ExploreFragment() : VMBaseFragment<ExploreViewModel>(R.layout.fragment_exp
     override fun onCompatOptionsItemSelected(item: MenuItem) {
         super.onCompatOptionsItemSelected(item)
         if (item.groupId == R.id.menu_group_text) {
-            val query = "group:${item.title}"
-            searchView.setText(query)
-            upExploreData(query)
-        }else if (item.itemId == R.id.menu_exp_search) {
+            val title = item.title.toString()
+            if (title == getString(R.string.all)) {
+                searchView.setText("")
+                upExploreData(null)
+            } else {
+                val query = "group:$title"
+                searchView.setText(query)
+                upExploreData(query)
+            }
+        } else if (item.itemId == R.id.menu_exp_search) {
             TransitionManager.beginDelayedTransition(binding.rootView)
             binding.searchBar.visibility =
                 if (binding.searchBar.isVisible) View.GONE else View.VISIBLE
         }
     }
+
 
     override fun scrollTo(pos: Int) {
         (binding.rvFind.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(pos, 0)

@@ -35,8 +35,16 @@ class ExploreAdapter(context: Context, val callBack: CallBack) :
     RecyclerAdapter<BookSourcePart, ItemFindBookBinding>(context) {
 
     private val recycler = arrayListOf<View>()
-    private var exIndex = -1
-    private var scrollTo = -1
+    private var expandedId: String? = null
+    private var scrollToId: String? = null
+
+    init {
+        setHasStableIds(true)
+    }
+
+    override fun getItemId(position: Int): Long {
+        return getItem(position)?.bookSourceUrl.hashCode().toLong()
+    }
 
     override fun getViewBinding(parent: ViewGroup): ItemFindBookBinding {
         return ItemFindBookBinding.inflate(inflater, parent, false)
@@ -53,12 +61,16 @@ class ExploreAdapter(context: Context, val callBack: CallBack) :
                 tvName.text = item.bookSourceName
             }
 
-            if (exIndex == holder.layoutPosition) {
+            val isExpanded = (item.bookSourceUrl == expandedId)
+
+            if (isExpanded) {
                 ivStatus.icon = ContextCompat.getDrawable(context, R.drawable.ic_arrow_right)
                 ivStatus.rotation = 90f
 
-                if (scrollTo >= 0) {
-                    callBack.scrollTo(scrollTo)
+                if (scrollToId == item.bookSourceUrl) {
+                    val pos = holder.bindingAdapterPosition
+                    if (pos >= 0) callBack.scrollTo(pos)
+                    scrollToId = null
                 }
 
                 Coroutine.async(callBack.scope) {
@@ -102,7 +114,6 @@ class ExploreAdapter(context: Context, val callBack: CallBack) :
         }
     }
 
-
     @Synchronized
     private fun getFlexboxChild(flexbox: FlexboxLayout): MaterialCardView {
         return if (recycler.isEmpty()) {
@@ -121,33 +132,43 @@ class ExploreAdapter(context: Context, val callBack: CallBack) :
     override fun registerListener(holder: ItemViewHolder, binding: ItemFindBookBinding) {
         binding.apply {
             llTitle.setOnClickListener {
-                val position = holder.layoutPosition
-                val oldEx = exIndex
-                exIndex = if (exIndex == position) -1 else position
-                notifyItemChanged(oldEx, false)
-                if (exIndex != -1) {
-                    scrollTo = position
-                    callBack.scrollTo(position)
-                    notifyItemChanged(position, false)
+                val item = getItem(holder.bindingAdapterPosition) ?: return@setOnClickListener
+                val oldId = expandedId
+                expandedId = if (expandedId == item.bookSourceUrl) null else item.bookSourceUrl
+                notifyItemChangedById(oldId)
+                notifyItemChangedById(expandedId)
+
+                if (expandedId != null) {
+                    scrollToId = expandedId
+                    callBack.scrollTo(holder.bindingAdapterPosition)
                 }
             }
             llTitle.onLongClick {
-                showMenu(llTitle, holder.layoutPosition)
+                showMenu(llTitle, holder.bindingAdapterPosition)
             }
         }
     }
 
     fun compressExplore(): Boolean {
-        return if (exIndex < 0) {
+        return if (expandedId == null) {
             false
         } else {
-            val oldExIndex = exIndex
-            exIndex = -1
-            notifyItemChanged(oldExIndex)
+            val oldId = expandedId
+            expandedId = null
+            notifyItemChangedById(oldId)
             true
         }
     }
-
+    private fun notifyItemChangedById(id: String?) {
+        id ?: return
+        for (pos in 0 until itemCount) {
+            val item = getItem(pos) ?: continue
+            if (item.bookSourceUrl == id) {
+                notifyItemChanged(pos)
+                break
+            }
+        }
+    }
     private fun showMenu(view: View, position: Int) {
         val source = getItem(position) ?: return
         val popupMenu = PopupMenu(context, view)
@@ -162,13 +183,11 @@ class ExploreAdapter(context: Context, val callBack: CallBack) :
                     putExtra("type", "bookSource")
                     putExtra("key", source.bookSourceUrl)
                 }
-
                 R.id.menu_refresh -> Coroutine.async(callBack.scope) {
                     source.clearExploreKindsCache()
                 }.onSuccess {
                     notifyItemChanged(position)
                 }
-
                 R.id.menu_del -> callBack.deleteSource(source)
             }
             true
