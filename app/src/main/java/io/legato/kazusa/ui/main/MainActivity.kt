@@ -351,10 +351,6 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
             else -> false
         }
 
-        // 控制显隐
-        binding.navigationRailView.isVisible = useRail
-        binding.bottomNavigationView.isVisible = !useRail
-
         return if (useRail) binding.navigationRailView else binding.bottomNavigationView
     }
 
@@ -382,7 +378,13 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
         adapter.notifyDataSetChanged()
 
         if (AppConfig.showBottomView) {
+            val navView = getNavigationBarView()
             navView.visible()
+            if (navView === binding.bottomNavigationView) {
+                binding.navigationRailView.gone()
+            } else {
+                binding.bottomNavigationView.gone()
+            }
         } else {
             binding.bottomNavigationView.gone()
             binding.navigationRailView.gone()
