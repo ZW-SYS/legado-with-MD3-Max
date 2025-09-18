@@ -41,11 +41,17 @@ class BookmarkAdapter(context: Context, val callback: Callback) :
                 callback.onClick(bookmark)
             }
         }
+        binding.btnLocate.onClick {
+            getItem(holder.layoutPosition)?.let { bookmark ->
+                callback.onLocate(bookmark)
+            }
+        }
     }
 
     interface Callback {
         fun onClick(bookmark: Bookmark)
         fun onLongClick(bookmark: Bookmark, pos: Int)
+        fun onLocate(bookmark: Bookmark)
     }
 
 }

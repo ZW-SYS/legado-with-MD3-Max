@@ -212,7 +212,7 @@ class ChapterListAdapter(
 
             if (selectedIndices.contains(item.index)) {
                 ivVolume.gone()
-                tvChapterItem.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSurfaceBright))
+                tvChapterItem.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSurfaceContainerHighest))
             } else {
                 if (item.isVolume) {
                     ivVolume.visible()

@@ -1,10 +1,14 @@
 package io.legato.kazusa.ui.book.toc
 
+import android.animation.ArgbEvaluator
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Rect
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.transition.TransitionManager
 import android.view.View
@@ -258,6 +262,35 @@ class ChapterListFragment : VMBaseFragment<TocViewModel>(R.layout.fragment_chapt
             // 可选：清空选择状态并提示
             adapter.clearSelection()
         }
+    }
+
+    fun scrollToChapter(chapterIndex: Int) {
+        val pos = adapter.getItems().indexOfFirst { it.index == chapterIndex }
+        if (pos != -1) {
+            mLayoutManager.scrollToPositionWithOffset(pos, 0)
+
+            binding.recyclerView.post {
+                val holder = binding.recyclerView.findViewHolderForAdapterPosition(pos)
+                holder?.itemView?.let { view ->
+                    flashHighlight(view)
+                }
+            }
+        }
+    }
+
+    private fun flashHighlight(view: View) {
+        val highlightColor = context?.themeColor(com.google.android.material.R.attr.colorSurfaceContainerHighest)
+        val originalColor = (view.background as? ColorDrawable)?.color ?: Color.TRANSPARENT
+        val anim = ValueAnimator.ofObject(ArgbEvaluator(), originalColor, highlightColor, originalColor).apply {
+            duration = 500
+            repeatCount = 1
+            repeatMode = ValueAnimator.RESTART
+            addUpdateListener { animator ->
+                val color = animator.animatedValue as Int
+                view.setBackgroundColor(color)
+            }
+        }
+        anim.start()
     }
 
 

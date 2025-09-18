@@ -210,6 +210,15 @@ class TocActivity : VMBaseActivity<ActivityChapterListBinding, TocViewModel>(),
         }
     }
 
+    fun locateToChapter(index: Int) {
+        val tag = "android:switcher:${binding.viewPager.id}:0"
+        val chapterFragment = supportFragmentManager.findFragmentByTag(tag) as? ChapterListFragment
+        chapterFragment?.scrollToChapter(index)
+
+        binding.viewPager.currentItem = 0
+    }
+
+
     @SuppressLint("SetTextI18n")
     fun showDownloadDialog() {
         ReadBook.book?.let { book ->

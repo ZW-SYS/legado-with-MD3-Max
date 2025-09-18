@@ -12,10 +12,8 @@ import io.legato.kazusa.constant.AppLog
 import io.legato.kazusa.data.appDb
 import io.legato.kazusa.data.entities.Bookmark
 import io.legato.kazusa.databinding.FragmentBookmarkBinding
-//import io.legado.app.lib.theme.primaryColor
 import io.legato.kazusa.ui.book.bookmark.BookmarkDialog
 import io.legato.kazusa.ui.widget.recycler.UpLinearLayoutManager
-import io.legato.kazusa.ui.widget.recycler.VerticalDivider
 import io.legato.kazusa.utils.applyNavigationBarPadding
 import io.legato.kazusa.utils.showDialogFragment
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
@@ -49,10 +47,8 @@ class BookmarkFragment : VMBaseFragment<TocViewModel>(R.layout.fragment_bookmark
     private fun initRecyclerView() {
         //binding.recyclerView.setEdgeEffectColor(primaryColor)
         binding.recyclerView.layoutManager = mLayoutManager
-        binding.recyclerView.addItemDecoration(VerticalDivider(requireContext()))
         binding.recyclerView.adapter = adapter
         binding.recyclerView.applyNavigationBarPadding()
-
         binding.tvEmptyMsg.visible(false)
     }
 
@@ -94,6 +90,10 @@ class BookmarkFragment : VMBaseFragment<TocViewModel>(R.layout.fragment_bookmark
 
     override fun onLongClick(bookmark: Bookmark, pos: Int) {
         showDialogFragment(BookmarkDialog(bookmark, pos))
+    }
+
+    override fun onLocate(bookmark: Bookmark) {
+        (activity as? TocActivity)?.locateToChapter(bookmark.chapterIndex)
     }
 
 }
