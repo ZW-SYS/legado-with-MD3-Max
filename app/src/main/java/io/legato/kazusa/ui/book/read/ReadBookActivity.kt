@@ -18,10 +18,12 @@ import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.doOnPreDraw
 import androidx.core.view.get
 import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.transition.platform.MaterialContainerTransform
+import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
 import com.google.android.material.transition.platform.MaterialSharedAxis
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import io.legato.kazusa.BuildConfig
@@ -263,24 +265,20 @@ class ReadBookActivity : BaseReadBookActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
 
         if (AppConfig.sharedElementEnterTransitionEnable) {
-
+            setEnterSharedElementCallback(MaterialContainerTransformSharedElementCallback())
             val transform = MaterialContainerTransform().apply {
-                addTarget(binding.rootView)
+                addTarget(binding.root)
                 scrimColor = Color.TRANSPARENT
                 duration = delayMillis
             }
             window.sharedElementEnterTransition = transform
-
+            window.sharedElementReturnTransition = transform
         }
-        window.sharedElementReturnTransition =
-            MaterialSharedAxis(MaterialSharedAxis.X, true).apply {
-                duration = delayMillis
-            }
         super.onCreate(savedInstanceState)
 
-        if (AppConfig.sharedElementEnterTransitionEnable)
+        if (AppConfig.sharedElementEnterTransitionEnable){
             binding.rootView.transitionName = intent.getStringExtra("transitionName")
-
+        }
         upScreenTimeOut()
         ReadBook.register(this)
 
@@ -310,7 +308,7 @@ class ReadBookActivity : BaseReadBookActivity(),
             if (getPrefBoolean("disableReturnKey") && !menuLayoutIsVisible) {
                 return@addCallback
             }
-            finish()
+            supportFinishAfterTransition()
         }
     }
 
