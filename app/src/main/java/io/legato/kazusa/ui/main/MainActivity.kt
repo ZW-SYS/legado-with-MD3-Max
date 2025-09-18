@@ -40,6 +40,7 @@ import io.legato.kazusa.help.storage.Backup
 import io.legato.kazusa.lib.dialogs.alert
 import io.legato.kazusa.service.BaseReadAloudService
 import io.legato.kazusa.ui.about.CrashLogsDialog
+import io.legato.kazusa.ui.book.read.ReadBookActivity
 import io.legato.kazusa.ui.book.search.SearchActivity
 import io.legato.kazusa.ui.main.bookshelf.BaseBookshelfFragment
 import io.legato.kazusa.ui.main.bookshelf.books.BookshelfFragment1
@@ -51,6 +52,7 @@ import io.legato.kazusa.ui.main.rss.RssFragment
 import io.legato.kazusa.ui.welcome.WelcomeActivity
 import io.legato.kazusa.ui.widget.dialog.TextDialog
 import io.legato.kazusa.utils.dpToPx
+import io.legato.kazusa.utils.getPrefBoolean
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.hideSoftInput
 import io.legato.kazusa.utils.observeEvent
@@ -111,6 +113,10 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
             startActivity<WelcomeActivity>()
             finish()
             return
+        }
+
+        if (getPrefBoolean(PreferKey.defaultToRead)) {
+            startActivity<ReadBookActivity>()
         }
 
         if (savedInstanceState != null) {
