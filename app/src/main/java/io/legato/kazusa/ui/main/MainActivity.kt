@@ -115,7 +115,7 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
             return
         }
 
-        if (getPrefBoolean(PreferKey.defaultToRead)) {
+        if (savedInstanceState == null && getPrefBoolean(PreferKey.defaultToRead)) {
             startActivity<ReadBookActivity>()
         }
 
