@@ -12,7 +12,7 @@ import io.legato.kazusa.lib.theme.ThemeStore
 class PrimaryTextView(context: Context, attrs: AttributeSet) :
     AppCompatTextView(context, attrs) {
 
-    init {
-        setTextColor(ThemeStore.textColorPrimary(context))
-    }
+//    init {
+//        setTextColor(ThemeStore.textColorPrimary(context))
+//    }
 }

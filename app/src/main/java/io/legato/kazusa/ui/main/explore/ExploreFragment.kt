@@ -179,7 +179,7 @@ class ExploreFragment() : VMBaseFragment<ExploreViewModel>(R.layout.fragment_exp
             ).catch {
                 AppLog.put("发现界面更新数据出错", it)
             }.conflate().flowOn(IO).collect {
-                binding.tvEmptyMsg.isGone = it.isNotEmpty() || searchView.text.isNotEmpty() == true
+                binding.emptyView.isGone = it.isNotEmpty() || searchView.text.isNotEmpty() == true
                 adapter.setItems(it, diffItemCallBack)
                 delay(500)
             }

@@ -93,8 +93,8 @@ class ImportBookSourceDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_r
         }
         viewModel.errorLiveData.observe(this) {
             binding.rotateLoading.gone()
-            binding.tvMsg.apply {
-                text = it
+            binding.emptyView.apply {
+                setMessage(it)
                 visible()
             }
         }
@@ -104,8 +104,8 @@ class ImportBookSourceDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_r
                 adapter.setItems(viewModel.allSources)
                 upSelectText()
             } else {
-                binding.tvMsg.apply {
-                    setText(R.string.wrong_format)
+                binding.emptyView.apply {
+                    setMessage(R.string.wrong_format)
                     visible()
                 }
             }

@@ -613,7 +613,7 @@
     <string name="dur_pos">当前位置：</string>
     <string name="precision_search">精准搜索</string>
     <string name="service_starting">正在启动服务</string>
-    <string name="empty">空</string>
+    <string name="empty">内容为空</string>
     <string name="file_chooser">文件选择</string>
     <string name="folder_chooser">文件夹选择</string>
     <string name="bottom_line">我是有底线的</string>
@@ -786,7 +786,7 @@
     <string name="import_str">导入</string>
     <string name="export_str">导出</string>
     <string name="save_theme_config">保存主题配置</string>
-    <string name="save_day_theme_summary">保存白天主题配置以供调用和分享</string>
+    <string name="save_day_theme_summary">保存主题配置以供调用和分享</string>
     <string name="save_night_theme_summary">保存夜间主题配置以供调用和分享</string>
     <string name="theme_list">主题列表</string>
     <string name="theme_list_summary">使用、保存、导入或分享主题</string>

@@ -254,4 +254,8 @@
         <attr name="tipText" format="string" />
     </declare-styleable>
 
+    <declare-styleable name="EmptyMessageView">
+        <attr name="messageText" format="string" />
+    </declare-styleable>
+
 </resources>

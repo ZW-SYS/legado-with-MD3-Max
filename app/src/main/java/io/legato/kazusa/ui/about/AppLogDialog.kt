@@ -31,11 +31,6 @@ class AppLogDialog : BaseDialogFragment(R.layout.dialog_recycler_view),
         LogAdapter(requireContext())
     }
 
-    override fun onStart() {
-        super.onStart()
-        setLayout(0.9f, ViewGroup.LayoutParams.WRAP_CONTENT)
-    }
-
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
         binding.run {
             //toolBar.setBackgroundColor(primaryColor)
@@ -46,13 +41,21 @@ class AppLogDialog : BaseDialogFragment(R.layout.dialog_recycler_view),
             recyclerView.adapter = adapter
         }
         adapter.setItems(AppLog.logs)
+        updateEmptyView()
     }
+
+    private fun updateEmptyView() {
+        binding.emptyView.visibility =
+            if (adapter.itemCount == 0) View.VISIBLE else View.GONE
+    }
+
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         when (item?.itemId) {
             R.id.menu_clear -> {
                 AppLog.clear()
                 adapter.clearItems()
+                updateEmptyView()
             }
         }
         return true

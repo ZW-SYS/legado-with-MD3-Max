@@ -79,29 +79,13 @@
 
     </LinearLayout>
 
-
-    <LinearLayout
+    <io.legato.kazusa.ui.widget.EmptyMessageView
         android:id="@+id/tv_empty_msg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:gravity="center"
+        android:visibility="invisible"
         android:layout_gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="(๑`^´๑)"
-            android:textSize="24sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:text="还没有源！" />
-    </LinearLayout>
+        app:messageText="还没有源！"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"

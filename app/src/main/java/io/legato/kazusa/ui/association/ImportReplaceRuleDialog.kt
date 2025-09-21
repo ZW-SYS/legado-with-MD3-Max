@@ -88,20 +88,20 @@ class ImportReplaceRuleDialog() : BaseDialogFragment(R.layout.dialog_recycler_vi
             upSelectText()
         }
         viewModel.errorLiveData.observe(this) {
-            //binding.rotateLoading.gone()
-            binding.tvMsg.apply {
-                text = it
+            binding.rotateLoading.gone()
+            binding.emptyView.apply {
+                setMessage(it)
                 visible()
             }
         }
         viewModel.successLiveData.observe(this) {
-           // binding.rotateLoading.gone()
+            binding.rotateLoading.gone()
             if (it > 0) {
                 adapter.setItems(viewModel.allRules)
                 upSelectText()
             } else {
-                binding.tvMsg.apply {
-                    setText(R.string.wrong_format)
+                binding.emptyView.apply {
+                    setMessage(R.string.wrong_format)
                     visible()
                 }
             }

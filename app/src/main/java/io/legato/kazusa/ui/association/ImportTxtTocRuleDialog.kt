@@ -19,6 +19,7 @@ import io.legato.kazusa.databinding.ItemSourceImportBinding
 import io.legato.kazusa.ui.widget.dialog.CodeDialog
 import io.legato.kazusa.ui.widget.dialog.WaitDialog
 import io.legato.kazusa.utils.GSON
+import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.setLayout
 import io.legato.kazusa.utils.showDialogFragment
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
@@ -82,20 +83,20 @@ class ImportTxtTocRuleDialog() : BaseDialogFragment(R.layout.dialog_recycler_vie
             upSelectText()
         }
         viewModel.errorLiveData.observe(this) {
-            //binding.rotateLoading.gone()
-            binding.tvMsg.apply {
-                text = it
+            binding.rotateLoading.gone()
+            binding.emptyView.apply {
+                setMessage(it)
                 visible()
             }
         }
         viewModel.successLiveData.observe(this) {
-            //binding.rotateLoading.gone()
+            binding.rotateLoading.gone()
             if (it > 0) {
                 adapter.setItems(viewModel.allSources)
                 upSelectText()
             } else {
-                binding.tvMsg.apply {
-                    setText(R.string.wrong_format)
+                binding.emptyView.apply {
+                    setMessage(R.string.wrong_format)
                     visible()
                 }
             }

@@ -131,4 +131,9 @@
         <item>关闭</item>
     </string-array>
 
+    <string-array name="customMode">
+        <item>全局</item>
+        <item>仅强调色</item>
+    </string-array>
+
 </resources>

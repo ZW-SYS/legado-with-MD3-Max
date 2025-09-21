@@ -7,6 +7,9 @@ import androidx.core.view.isVisible
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceViewHolder
 import io.legato.kazusa.R
+import io.legato.kazusa.lib.theme.primaryColor
+import io.legato.kazusa.utils.themeColor
+
 //import io.legado.app.lib.theme.accentColor
 //import io.legado.app.lib.theme.backgroundColor
 
@@ -25,7 +28,7 @@ class PreferenceCategory(context: Context, attrs: AttributeSet) :
         if (view is TextView) {  //  && !view.isInEditMode
             view.text = title
             if (view.isInEditMode) return
-            //view.setTextColor(context.accentColor)
+           // view.setTextColor(context.primaryColor)
             view.isVisible = !title.isNullOrEmpty()
 
 //            val da = holder.findViewById(R.id.preference_divider_above)

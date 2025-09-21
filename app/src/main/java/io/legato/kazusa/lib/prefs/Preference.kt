@@ -19,7 +19,7 @@ import io.legato.kazusa.R
 import splitties.views.onLongClick
 import kotlin.math.roundToInt
 
-open class Preference(context: Context, attrs: AttributeSet) :
+open class Preference(context: Context, attrs: AttributeSet?) :
     androidx.preference.Preference(context, attrs) {
 
     private var onLongClick: ((preference: Preference) -> Boolean)? = null
@@ -68,7 +68,7 @@ open class Preference(context: Context, attrs: AttributeSet) :
             if (iconView is ImageView) {
                 iconView.isVisible = icon != null
                 iconView.setImageDrawable(icon)
-                //iconView.setColorFilter(context.accentColor)
+               // iconView.setColorFilter(context.primaryColor)
             }
 
             if (weightLayoutRes != null && weightLayoutRes != 0 && viewId != null && viewId != 0) {

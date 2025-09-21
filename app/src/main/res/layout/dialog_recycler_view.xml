@@ -28,16 +28,17 @@
             android:id="@+id/rotate_loading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:layout_margin="32dp"
             android:layout_gravity="center"/>
 
-        <TextView
-            android:id="@+id/tv_msg"
-            android:layout_width="match_parent"
+        <io.legato.kazusa.ui.widget.EmptyMessageView
+            android:id="@+id/emptyView"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="16dp"
+            android:visibility="invisible"
             android:layout_gravity="center"
-            android:visibility="gone" />
+            app:messageText="@string/empty"/>
 
     </FrameLayout>
 
