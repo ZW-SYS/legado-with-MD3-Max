@@ -23,8 +23,8 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        window.exitTransition = MaterialSharedAxis(MaterialSharedAxis.Z, /* forward= */ true)
-        window.reenterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, /* forward= */ false)
+        window.exitTransition = null
+        window.reenterTransition = null
 
         if (LocalConfig.isFirstOpenApp) {
             startActivity(
@@ -36,7 +36,12 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
         }
 
         if (getPrefBoolean(PreferKey.defaultToRead)) {
-            startActivity(Intent(this, ReadBookActivity::class.java),
+            startActivity(
+                Intent(this, MainActivity::class.java),
+                ActivityOptionsCompat.makeSceneTransitionAnimation(this).toBundle()
+            )
+            startActivity(
+                Intent(this, ReadBookActivity::class.java),
                 ActivityOptionsCompat.makeSceneTransitionAnimation(this).toBundle()
             )
             finish()
