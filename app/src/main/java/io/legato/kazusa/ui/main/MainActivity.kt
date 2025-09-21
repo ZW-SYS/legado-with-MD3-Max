@@ -109,16 +109,6 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (LocalConfig.isFirstOpenApp) {
-            startActivity<WelcomeActivity>()
-            finish()
-            return
-        }
-
-        if (savedInstanceState == null && getPrefBoolean(PreferKey.defaultToRead)) {
-            startActivity<ReadBookActivity>()
-        }
-
         if (savedInstanceState != null) {
             pagePosition = savedInstanceState.getInt("currentPagePosition", 0)
         }

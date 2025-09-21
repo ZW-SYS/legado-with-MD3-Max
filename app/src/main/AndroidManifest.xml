@@ -39,7 +39,7 @@
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/launcher0"
-            android:targetActivity=".ui.main.MainActivity">
+            android:targetActivity=".ui.welcome.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -51,7 +51,7 @@
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/launcher1"
-            android:targetActivity=".ui.main.MainActivity">
+            android:targetActivity=".ui.welcome.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -64,7 +64,7 @@
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/launcher2"
-            android:targetActivity=".ui.main.MainActivity">
+            android:targetActivity=".ui.welcome.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -77,7 +77,7 @@
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/launcher3"
-            android:targetActivity=".ui.main.MainActivity">
+            android:targetActivity=".ui.welcome.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -90,7 +90,7 @@
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/launcher4"
-            android:targetActivity=".ui.main.MainActivity">
+            android:targetActivity=".ui.welcome.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -103,7 +103,7 @@
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/launcher5"
-            android:targetActivity=".ui.main.MainActivity">
+            android:targetActivity=".ui.welcome.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -116,16 +116,15 @@
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/launcher6"
-            android:targetActivity=".ui.main.MainActivity">
+            android:targetActivity=".ui.welcome.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity-alias>
-        <!-- 主界面 -->
         <activity
-            android:name=".ui.main.MainActivity"
+            android:name=".ui.welcome.SplashActivity"
             android:alwaysRetainTaskState="true"
             android:enableOnBackInvokedCallback="true"
             android:exported="true">
@@ -133,6 +132,13 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <!-- 主界面 -->
+        <activity
+            android:name=".ui.main.MainActivity"
+            android:alwaysRetainTaskState="true"
+            android:enableOnBackInvokedCallback="true"
+            android:exported="true">
         </activity>
         <activity
             android:name=".ui.welcome.WelcomeActivity"
