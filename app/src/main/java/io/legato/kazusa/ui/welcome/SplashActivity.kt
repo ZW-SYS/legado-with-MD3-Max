@@ -3,6 +3,7 @@ package io.legato.kazusa.ui.welcome
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.transition.Fade
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat.startActivity
 import androidx.core.view.postDelayed
@@ -23,8 +24,12 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        window.exitTransition = null
-        window.reenterTransition = null
+        window.exitTransition = Fade().apply {
+            duration = 300
+        }
+        window.reenterTransition = Fade().apply {
+            duration = 300
+        }
 
         if (LocalConfig.isFirstOpenApp) {
             startActivity(

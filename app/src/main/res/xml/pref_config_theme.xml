@@ -6,7 +6,7 @@
         android:key="themeCategory"
         android:title="@string/theme"
         app:allowDividerAbove="true"
-        app:allowDividerBelow="false"
+        app:allowDividerBelow="true"
         app:iconSpaceReserved="false"
         app:layout="@layout/view_preference_category">
 
@@ -81,16 +81,30 @@
             app:allowDividerBelow="false"
             app:iconSpaceReserved="false" />
 
+    </io.legato.kazusa.lib.prefs.PreferenceCategory>
+
+    <io.legato.kazusa.lib.prefs.PreferenceCategory
+        android:key="backgroundIma"
+        android:title="@string/background_image"
+        app:allowDividerAbove="false"
+        app:allowDividerBelow="false"
+        app:iconSpaceReserved="false"
+        app:layout="@layout/view_preference_category">
+
         <io.legato.kazusa.lib.prefs.Preference
             android:key="backgroundImage"
-            android:title="@string/background_image" />
+            android:title="浅色模式" />
+
+        <io.legato.kazusa.lib.prefs.Preference
+            android:key="backgroundImageNight"
+            android:title="深色模式" />
 
     </io.legato.kazusa.lib.prefs.PreferenceCategory>
 
     <io.legato.kazusa.lib.prefs.PreferenceCategory
         android:key="dayThemeCategory"
         android:title="@string/share"
-        app:allowDividerAbove="true"
+        app:allowDividerAbove="false"
         app:allowDividerBelow="false"
         app:iconSpaceReserved="false"
         app:layout="@layout/view_preference_category">
