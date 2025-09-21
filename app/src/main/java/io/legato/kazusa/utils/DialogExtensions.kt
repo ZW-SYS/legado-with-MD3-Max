@@ -13,24 +13,24 @@ import splitties.systemservices.windowManager
 
 fun AlertDialog.applyTint(): AlertDialog {
     //window?.setBackgroundDrawable(context.filletBackground)
-    val colorStateList = Selector.colorBuild()
-        .setDefaultColor(ThemeStore.accentColor(context))
-        .setPressedColor(ColorUtils.darkenColor(ThemeStore.accentColor(context)))
-        .create()
-    if (getButton(AlertDialog.BUTTON_NEGATIVE) != null) {
-        getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(colorStateList)
-    }
-    if (getButton(AlertDialog.BUTTON_POSITIVE) != null) {
-        getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(colorStateList)
-    }
-    if (getButton(AlertDialog.BUTTON_NEUTRAL) != null) {
-        getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(colorStateList)
-    }
-    window?.decorView?.post {
-        listView?.forEach {
-            //it.applyTint(context.accentColor)
-        }
-    }
+//    val colorStateList = Selector.colorBuild()
+//        .setDefaultColor(ThemeStore.accentColor(context))
+//        .setPressedColor(ColorUtils.darkenColor(ThemeStore.accentColor(context)))
+//        .create()
+//    if (getButton(AlertDialog.BUTTON_NEGATIVE) != null) {
+//        getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(colorStateList)
+//    }
+//    if (getButton(AlertDialog.BUTTON_POSITIVE) != null) {
+//        getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(colorStateList)
+//    }
+//    if (getButton(AlertDialog.BUTTON_NEUTRAL) != null) {
+//        getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(colorStateList)
+//    }
+//    window?.decorView?.post {
+//        listView?.forEach {
+//            it.applyTint(context.accentColor)
+//        }
+//    }
     return this
 }
 

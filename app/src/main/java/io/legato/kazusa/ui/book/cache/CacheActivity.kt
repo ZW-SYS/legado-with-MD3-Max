@@ -398,7 +398,7 @@ class CacheActivity : VMBaseActivity<ActivityCacheBookBinding, CacheViewModel>()
                 tvSelectExport.setOnClickListener {
                     cbSelectExport.callOnClick()
                 }
-                cbSelectExport.onCheckedChangeListener = { _, isChecked ->
+                cbSelectExport.setOnCheckedChangeListener{ _, isChecked ->
                     if (isChecked) {
                         etEpubSize.isEnabled = true
                         etInputScope.isEnabled = true
@@ -407,7 +407,7 @@ class CacheActivity : VMBaseActivity<ActivityCacheBookBinding, CacheViewModel>()
                         cbAllExport.isChecked = false
                     }
                 }
-                cbAllExport.onCheckedChangeListener = { _, isChecked ->
+                cbAllExport.setOnCheckedChangeListener{ _, isChecked ->
                     if (isChecked) {
                         etEpubSize.isEnabled = false
                         etInputScope.isEnabled = false
