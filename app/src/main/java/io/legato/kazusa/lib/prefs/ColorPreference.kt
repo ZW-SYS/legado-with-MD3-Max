@@ -14,9 +14,13 @@ import androidx.preference.PreferenceViewHolder
 import com.jaredrummler.android.colorpicker.*
 import io.legato.kazusa.utils.ColorUtils
 import io.legato.kazusa.utils.applyTint
+import io.legato.kazusa.utils.themeColor
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
-class ColorPreference(context: Context, attrs: AttributeSet) : Preference(context, attrs),
+class ColorPreference @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null
+) : Preference(context, attrs),
     ColorPickerDialogListener {
 
     var onSaveColor: ((color: Int) -> Boolean)? = null
@@ -123,6 +127,7 @@ class ColorPreference(context: Context, attrs: AttributeSet) : Preference(contex
         )
         if (v is ColorPanelView) {
             v.color = mColor
+            v.setBorderColor(context.themeColor(com.google.android.material.R.attr.colorPrimaryContainer))
         }
     }
 

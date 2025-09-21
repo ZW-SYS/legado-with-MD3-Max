@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.os.Handler
+import android.os.Looper
 import android.util.AttributeSet
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
@@ -17,6 +19,7 @@ import com.google.android.material.card.MaterialCardView
 import io.legato.kazusa.R
 import io.legato.kazusa.constant.EventBus
 import io.legato.kazusa.utils.postEvent
+import io.legato.kazusa.utils.restart
 
 @SuppressLint("ResourceType")
 class ThemeCardPreference(context: Context, attrs: AttributeSet) : Preference(context, attrs) {
@@ -73,11 +76,19 @@ class ThemeCardPreference(context: Context, attrs: AttributeSet) : Preference(co
 
             holder.card.setOnClickListener {
                 if (value != currentValue) {
+                    val oldValue = currentValue
                     currentValue = value
                     persistString(value)
                     callChangeListener(value)
                     notifyDataSetChanged()
-                    postEvent(EventBus.RECREATE, "")
+                    val isDynamicSwitch = (oldValue == "11" || value == "11")
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        if (isDynamicSwitch) {
+                            context.restart()
+                        } else {
+                            postEvent(EventBus.RECREATE, "")
+                        }
+                    }, 300)
                 }
             }
         }
@@ -98,8 +109,8 @@ class ThemeCardPreference(context: Context, attrs: AttributeSet) : Preference(co
         "8" to R.style.Theme_Base_Yuuka,
         "9" to R.style.Theme_Base_Phoebe,
         "10" to R.style.Theme_Base_Mujika,
-        "11" to R.style.AppTheme_Transparent
-        )
+        "11" to R.style.Theme_Base_WH,
+        "12" to R.style.AppTheme_Transparent)
 
     private fun getThemeColors(value: String): List<Int> {
         val themeResId = themeResIdMap[value] ?: return listOf(Color.GRAY, Color.GRAY, Color.GRAY, Color.GRAY)

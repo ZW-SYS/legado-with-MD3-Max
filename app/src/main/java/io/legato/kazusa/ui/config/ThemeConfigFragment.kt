@@ -2,13 +2,18 @@ package io.legato.kazusa.ui.config
 
 //import io.legado.app.lib.theme.primaryColor
 import android.annotation.SuppressLint
+import android.app.Application
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.SeekBar
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import com.google.android.material.color.DynamicColors
+import com.google.android.material.color.DynamicColorsOptions
 import io.legato.kazusa.R
 import io.legato.kazusa.base.AppContextWrapper
 import io.legato.kazusa.constant.EventBus
@@ -21,8 +26,11 @@ import io.legato.kazusa.help.config.ThemeConfig
 import io.legato.kazusa.lib.dialogs.alert
 import io.legato.kazusa.lib.dialogs.selector
 import io.legato.kazusa.lib.prefs.ColorPreference
+import io.legato.kazusa.lib.prefs.NameListPreference
 import io.legato.kazusa.lib.prefs.ThemeCardPreference
 import io.legato.kazusa.lib.prefs.ThemeModePreference
+import io.legato.kazusa.lib.theme.ThemeStore
+import io.legato.kazusa.lib.theme.primaryColor
 import io.legato.kazusa.ui.widget.number.NumberPickerDialog
 import io.legato.kazusa.ui.widget.seekbar.SeekBarChangeListener
 import io.legato.kazusa.utils.ColorUtils
@@ -38,6 +46,7 @@ import io.legato.kazusa.utils.putPrefInt
 import io.legato.kazusa.utils.putPrefString
 import io.legato.kazusa.utils.readUri
 import io.legato.kazusa.utils.removePref
+import io.legato.kazusa.utils.restart
 import io.legato.kazusa.utils.startActivity
 import io.legato.kazusa.utils.toastOnUi
 import splitties.init.appCtx
@@ -101,10 +110,24 @@ class ThemeConfigFragment : PreferenceFragmentCompat(),
             }
         }
 
-        findPreference<ThemeCardPreference>(PreferKey.themePref)?.let {
+        val themePref = findPreference<ThemeCardPreference>(PreferKey.themePref)
+        val colorPrimary = findPreference<ColorPreference>("colorPrimary")
+
+        val currentTheme = getPrefString("app_theme")
+        colorPrimary?.isVisible = currentTheme == "11"
+
+        val customMode = findPreference<NameListPreference>("customMode")
+        customMode?.isVisible = currentTheme == "11"
+        themePref?.let {
             it.setOnPreferenceChangeListener { _, _ ->
                 true
             }
+        }
+
+        themePref?.setOnPreferenceChangeListener { _, newValue ->
+            colorPrimary?.isVisible = newValue == "11"
+            customMode?.isVisible = newValue == "11"
+            true
         }
     }
 
@@ -136,19 +159,38 @@ class ThemeConfigFragment : PreferenceFragmentCompat(),
                 //recreateActivities()
             }
 
-            PreferKey.pureBlack -> {
-                recreateActivities()
+            PreferKey.customMode -> {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    requireContext().restart()
+                }, 300)
             }
 
-            PreferKey.cPrimary,
-            PreferKey.cAccent,
+            PreferKey.pureBlack -> {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    recreateActivities()
+                }, 300)
+            }
+
+            PreferKey.cPrimary -> {
+                val color = getPrefInt(key, ThemeStore.primaryColor(requireContext()))
+                ThemeStore.editTheme(requireContext())
+                    .primaryColor(color)
+                    .apply()
+                DynamicColors.applyToActivitiesIfAvailable(requireContext().applicationContext as Application, DynamicColorsOptions.Builder()
+                    .setContentBasedSource(requireContext().primaryColor)
+                    .build())
+                Handler(Looper.getMainLooper()).postDelayed({
+                    recreateActivities()
+                }, 300)
+            }
+
             PreferKey.cBackground,
             PreferKey.cBBackground -> {
                 upTheme(false)
             }
 
-            PreferKey.cNPrimary,
-            PreferKey.cNAccent,
+            //PreferKey.cNPrimary,
+
             PreferKey.cNBackground,
             PreferKey.cNBBackground -> {
                 upTheme(true)

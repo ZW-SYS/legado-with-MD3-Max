@@ -1,6 +1,8 @@
 package io.legato.kazusa.lib.prefs
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.AttributeSet
 import androidx.preference.PreferenceViewHolder
 import com.google.android.material.button.MaterialButtonToggleGroup
@@ -56,7 +58,9 @@ class ThemeModePreference(context: Context, attrs: AttributeSet) : Preference(co
                     currentValue = newValue
                     persistString(newValue)
                     callChangeListener(newValue)
-                    ThemeConfig.applyDayNight(context)
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        ThemeConfig.applyDayNight(context)
+                    }, 300)
                 }
             }
         }

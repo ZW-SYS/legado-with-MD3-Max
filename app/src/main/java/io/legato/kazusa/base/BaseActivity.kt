@@ -17,6 +17,7 @@ import androidx.core.view.WindowCompat
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.color.DynamicColors
+import com.google.android.material.color.DynamicColorsOptions
 import io.legato.kazusa.R
 import io.legato.kazusa.constant.AppLog
 import io.legato.kazusa.constant.EventBus
@@ -31,6 +32,7 @@ import io.legato.kazusa.utils.hideSoftInput
 import io.legato.kazusa.utils.observeEvent
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.windowSize
+import io.legato.kazusa.lib.theme.primaryColor
 
 
 abstract class BaseActivity<VB : ViewBinding>(
@@ -128,7 +130,9 @@ abstract class BaseActivity<VB : ViewBinding>(
 
     open fun initTheme() {
         when (getPrefString("app_theme", "0")) {
-            "0" -> DynamicColors.applyToActivitiesIfAvailable(application)
+            "0" -> {
+                DynamicColors.applyToActivitiesIfAvailable(application)
+            }
             "1" -> setTheme(R.style.Theme_Base_GR)
             "2" -> setTheme(R.style.Theme_Base_Lemon)
             "3" -> setTheme(R.style.Theme_Base_WH)
@@ -139,8 +143,17 @@ abstract class BaseActivity<VB : ViewBinding>(
             "8" -> setTheme(R.style.Theme_Base_Yuuka)
             "9" -> setTheme(R.style.Theme_Base_Phoebe)
             "10" -> setTheme(R.style.Theme_Base_Mujika)
-            "11" -> setTheme(R.style.AppTheme_Transparent)
+            "11" -> {
+                if (AppConfig.customMode == "accent")
+                    setTheme(R.style.ThemeOverlay_WhiteBackground)
+                DynamicColors.applyToActivitiesIfAvailable(application, DynamicColorsOptions.Builder()
+                    .setContentBasedSource(application.primaryColor)
+                    .build())
+
+            }
+            "12" -> setTheme(R.style.AppTheme_Transparent)
         }
+
         if (AppConfig.pureBlack)
             setTheme(R.style.ThemeOverlay_PureBlack)
     }

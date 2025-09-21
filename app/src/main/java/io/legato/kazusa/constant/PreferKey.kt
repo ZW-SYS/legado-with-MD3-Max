@@ -162,6 +162,7 @@ object PreferKey {
     const val firebaseEnable = "firebaseEnable"
     const val cPrimary = "colorPrimary"
     const val cAccent = "colorAccent"
+    const val customMode = "customMode"
     const val cBackground = "colorBackground"
     const val cBBackground = "colorBottomBackground"
     const val bgImage = "backgroundImage"

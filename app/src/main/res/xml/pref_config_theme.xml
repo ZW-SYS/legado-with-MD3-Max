@@ -33,7 +33,22 @@
         <io.legato.kazusa.lib.prefs.SwitchPreference
             android:defaultValue="false"
             android:key="pure_black"
-            android:title="纯黑暗色模式" />
+            android:title="纯黑深色模式" />
+
+        <io.legato.kazusa.lib.prefs.ColorPreference
+            android:defaultValue="@color/md_green_500"
+            android:key="colorPrimary"
+            android:summary="使用种子颜色创建主题"
+            android:title="种子色"
+            app:cpv_dialogType="preset"
+            app:iconSpaceReserved="false" />
+
+        <io.legato.kazusa.lib.prefs.NameListPreference
+            android:defaultValue="global"
+            android:key="customMode"
+            android:title="自定义模式"
+            app:entries="@array/customMode"
+            app:entryValues="@array/customMode_value" />
 
         <io.legato.kazusa.lib.prefs.IconListPreference
             android:defaultValue="ic_launcher"
@@ -67,6 +82,20 @@
             app:iconSpaceReserved="false" />
 
         <io.legato.kazusa.lib.prefs.Preference
+            android:key="backgroundImage"
+            android:title="@string/background_image" />
+
+    </io.legato.kazusa.lib.prefs.PreferenceCategory>
+
+    <io.legato.kazusa.lib.prefs.PreferenceCategory
+        android:key="dayThemeCategory"
+        android:title="@string/share"
+        app:allowDividerAbove="true"
+        app:allowDividerBelow="false"
+        app:iconSpaceReserved="false"
+        app:layout="@layout/view_preference_category">
+
+        <io.legato.kazusa.lib.prefs.Preference
             android:key="themeList"
             android:summary="@string/theme_list_summary"
             android:title="@string/theme_list"
@@ -74,45 +103,9 @@
             app:allowDividerBelow="false"
             app:iconSpaceReserved="false" />
 
-    </io.legato.kazusa.lib.prefs.PreferenceCategory>
-
-    <io.legato.kazusa.lib.prefs.PreferenceCategory
-        android:key="dayThemeCategory"
-        android:title="@string/day"
-        app:allowDividerAbove="true"
-        app:allowDividerBelow="false"
-        app:iconSpaceReserved="false"
-        app:layout="@layout/view_preference_category">
-
-        <io.legato.kazusa.lib.prefs.Preference
-            android:key="backgroundImage"
-            android:title="@string/background_image" />
-
         <io.legato.kazusa.lib.prefs.Preference
             android:key="saveDayTheme"
             android:summary="@string/save_day_theme_summary"
-            android:title="@string/save_theme_config"
-            app:allowDividerAbove="false"
-            app:allowDividerBelow="false"
-            app:iconSpaceReserved="false" />
-
-    </io.legato.kazusa.lib.prefs.PreferenceCategory>
-
-    <io.legato.kazusa.lib.prefs.PreferenceCategory
-        android:key="nightThemeCategory"
-        android:title="@string/night"
-        app:allowDividerAbove="true"
-        app:allowDividerBelow="false"
-        app:iconSpaceReserved="false"
-        app:layout="@layout/view_preference_category">
-
-        <io.legato.kazusa.lib.prefs.Preference
-            android:key="backgroundImageNight"
-            android:title="@string/background_image" />
-
-        <io.legato.kazusa.lib.prefs.Preference
-            android:key="saveNightTheme"
-            android:summary="@string/save_night_theme_summary"
             android:title="@string/save_theme_config"
             app:allowDividerAbove="false"
             app:allowDividerBelow="false"

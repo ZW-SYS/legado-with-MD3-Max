@@ -66,9 +66,9 @@
     <color name="wh_theme_onError">#FFFFFF</color>
     <color name="wh_theme_errorContainer">#FFDAD6</color>
     <color name="wh_theme_onErrorContainer">#93000A</color>
-    <color name="wh_theme_background">#FCF8F8</color>
+    <color name="wh_theme_background">#FAFAFA</color>
     <color name="wh_theme_onBackground">#1C1B1B</color>
-    <color name="wh_theme_surface">#FCF8F8</color>
+    <color name="wh_theme_surface">#F8F8F8</color>
     <color name="wh_theme_onSurface">#1C1B1B</color>
     <color name="wh_theme_surfaceVariant">#E0E3E3</color>
     <color name="wh_theme_onSurfaceVariant">#444748</color>
@@ -91,7 +91,7 @@
     <color name="wh_theme_tertiaryFixedDim">#CBC5C7</color>
     <color name="wh_theme_onTertiaryFixedVariant">#494648</color>
     <color name="wh_theme_surfaceDim">#DDD9D8</color>
-    <color name="wh_theme_surfaceBright">#FCF8F8</color>
+    <color name="wh_theme_surfaceBright">#F8F8F8</color>
     <color name="wh_theme_surfaceContainerLowest">#FFFFFF</color>
     <color name="wh_theme_surfaceContainerLow">#F7F3F2</color>
     <color name="wh_theme_surfaceContainer">#F1EDEC</color>
