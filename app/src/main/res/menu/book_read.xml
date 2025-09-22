@@ -46,7 +46,7 @@
 
     <item
         android:id="@+id/menu_tool_button"
-        android:title="配置底部按钮"
+        android:title="@string/config_btn"
         app:showAsAction="never" />
 
     <item

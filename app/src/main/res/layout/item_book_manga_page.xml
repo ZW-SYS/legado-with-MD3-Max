@@ -37,7 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="重新加载"
+            android:text="@string/load_error_retry"
             android:textSize="18sp"
             android:textColor="?attr/colorSurfaceVariant"
             app:backgroundTint="?attr/colorOnSurface"
@@ -53,7 +53,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="0%"
+            android:text=""
             android:textColor="?attr/colorSurfaceVariant"
             android:visibility="gone"
             tools:visibility="visible" />

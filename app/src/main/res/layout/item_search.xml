@@ -46,7 +46,7 @@
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="4dp"
                 android:paddingVertical="2dp"
-                android:text="书架中"
+                android:text="@string/remove_from_bookshelf"
                 android:textColor="?attr/colorTertiary"
                 android:textStyle="bold"
                 android:textSize="10sp"

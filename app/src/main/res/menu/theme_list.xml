@@ -4,7 +4,8 @@
 
     <item
         android:id="@+id/menu_import"
-        android:title="剪贴板导入"
+        android:icon="@drawable/ic_copy"
+        android:title="@string/copy_from"
         app:showAsAction="always" />
 
 </menu>

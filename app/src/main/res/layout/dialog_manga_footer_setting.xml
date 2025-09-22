@@ -28,7 +28,7 @@
                 android:id="@+id/bottom_sheet_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="漫画设置"
+                android:text="@string/manga_setting"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:paddingHorizontal="16dp"
             android:paddingVertical="8dp"
-            android:text="阅读模式"
+            android:text="@string/read_type"
             android:textStyle="bold" />
 
         <com.google.android.material.chip.ChipGroup
@@ -64,7 +64,7 @@
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="16dp"
                 android:paddingTop="8dp"
-                android:text="条漫"
+                android:text="@string/webtoon"
                 android:textStyle="bold" />
 
             <io.legato.kazusa.ui.widget.DetailSeekBar
@@ -161,7 +161,7 @@
                 android:clickable="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="第三话" />
+                android:text="@string/epi_3" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/cb_page_number_label"

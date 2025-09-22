@@ -58,7 +58,7 @@
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="4dp"
                     android:paddingVertical="2dp"
-                    android:text="进度"
+                    android:text="@string/progress"
                     android:textColor="?attr/colorTertiary"
                     android:textSize="10sp"
                     android:textStyle="bold"
@@ -67,27 +67,15 @@
             </com.google.android.material.card.MaterialCardView>
         </com.google.android.material.appbar.AppBarLayout>
 
-        <LinearLayout
+        <io.legato.kazusa.ui.widget.EmptyMessageView
             android:id="@+id/tv_empty_msg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:messageText="@string/search_empty"
             android:layout_gravity="center"
             android:gravity="center"
             android:orientation="vertical"
-            android:visibility="visible">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="(๑`^´๑)"
-                android:textSize="32sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:text="@string/search_empty" />
-        </LinearLayout>
+            android:visibility="visible"/>
 
         <io.legato.kazusa.ui.widget.dynamiclayout.DynamicFrameLayout
             android:id="@+id/content_view"

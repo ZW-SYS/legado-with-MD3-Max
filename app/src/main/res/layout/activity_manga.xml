@@ -71,21 +71,14 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:visibility="visible">
 
-            <TextView
+            <io.legato.kazusa.ui.widget.EmptyMessageView
                 android:id="@+id/tv_msg2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Σ(#`O′)"
                 android:textColor="@color/white"
                 android:textSize="32sp" />
-
-            <TextView
-                android:id="@+id/tv_msg"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/white" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/tv_retry"
@@ -95,7 +88,7 @@
                 app:icon="@drawable/ic_refresh"
                 android:layout_margin="16dp"
                 app:iconPadding="4dp"
-                android:text="重新加载"
+                android:text="@string/load_error_retry"
                 tools:visibility="visible" />
         </LinearLayout>
 

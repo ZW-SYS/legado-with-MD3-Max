@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
-            android:text="欢迎！"
+            android:text="@string/welcome_title"
             android:textSize="36sp"
             android:textStyle="bold" />
 
@@ -40,7 +40,7 @@
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="16dp"
-            android:text="请先阅读应用的服务条款与用户协议。"
+            android:text="@string/first_read"
             android:textStyle="bold" />
 
         <com.google.android.material.progressindicator.LinearProgressIndicator

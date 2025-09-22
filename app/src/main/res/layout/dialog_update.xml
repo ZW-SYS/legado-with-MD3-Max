@@ -28,7 +28,7 @@
                 android:id="@+id/bottom_sheet_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="检测到更新！"
+                android:text="@string/update_available"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
@@ -79,7 +79,7 @@
                 android:paddingVertical="2dp"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:text="ABI: arm64-v8a"
+                android:text="@string/abi_arm64_v8a"
                 android:textAppearance="?attr/textAppearanceBodySmall"
                 android:textColor="?attr/colorOnSurfaceVariant" />
         </com.google.android.material.card.MaterialCardView>
@@ -134,7 +134,7 @@
         android:id="@+id/tv_url"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="下载链接"
+        android:text="@string/download_link"
         android:autoLink="web"
         android:textAppearance="?attr/textAppearanceBodySmall"
         android:textColor="?attr/colorPrimary"
@@ -145,7 +145,7 @@
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:textSize="14sp"
-        android:text="更新日志"/>
+        android:text="@string/update_log"/>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

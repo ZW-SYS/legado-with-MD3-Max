@@ -124,14 +124,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checkable="true"
-                    android:text="紧凑网格" />
+                    android:text="@string/compact_grid" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_grid_cover"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checkable="true"
-                    android:text="封面网格" />
+                    android:text="@string/cover_grid" />
             </com.google.android.material.chip.ChipGroup>
 
             <TextView

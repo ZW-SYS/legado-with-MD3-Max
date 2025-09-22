@@ -16,7 +16,7 @@
         android:autoSizePresetSizes="12sp"
         android:autoSizeStepGranularity="2dp"
         android:autoSizeTextType="uniform"
-        android:text="已读完"
+        android:text="@string/read_end"
         android:textColor="@color/white"
         android:textStyle="bold" />
 
@@ -29,7 +29,7 @@
         android:autoSizePresetSizes="22sp"
         android:autoSizeStepGranularity="2dp"
         android:autoSizeTextType="uniform"
-        android:text="下一章123"
+        android:text=""
         android:textColor="@color/white"
         android:textSize="22sp"
         android:textStyle="bold" />

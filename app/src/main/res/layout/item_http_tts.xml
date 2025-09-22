@@ -29,15 +29,18 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="SYS" />
+            android:paddingVertical="4dp"
+            android:paddingHorizontal="8dp"
+            android:text="@string/system_engine"
+            android:textSize="12sp"
+            android:textStyle="bold"/>
     </com.google.android.material.card.MaterialCardView>
 
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/iv_edit"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
         android:layout_gravity="center"
         android:contentDescription="@string/edit"
@@ -49,8 +52,8 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/iv_menu_delete"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
         app:icon="@drawable/ic_clear_all"
         app:iconGravity="textStart"

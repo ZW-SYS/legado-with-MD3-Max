@@ -19,7 +19,7 @@
             android:id="@+id/edit_start"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="起始章"
+            android:hint="@string/start_chapter"
             android:inputType="number" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -39,7 +39,7 @@
             android:id="@+id/edit_end"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="结束章"
+            android:hint="@string/end_chapter"
             android:inputType="number" />
     </com.google.android.material.textfield.TextInputLayout>
 

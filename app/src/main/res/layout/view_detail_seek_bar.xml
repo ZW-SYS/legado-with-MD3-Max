@@ -41,7 +41,7 @@
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="4dp"
                 android:singleLine="true"
-                android:text="0" />
+                android:text="" />
         </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>

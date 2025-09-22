@@ -23,7 +23,7 @@
             android:id="@+id/bottom_sheet_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="配置底部按钮"
+            android:text="@string/config_btn"
             android:textSize="18sp"
             android:textStyle="bold" />
     </LinearLayout>

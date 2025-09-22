@@ -38,7 +38,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    android:text="界面设置"
+                    android:text="@string/read_config"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -79,7 +79,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
-                    android:text="字体与间距"
+                    android:text="@string/text_and_padding"
                     app:icon="@drawable/ic_cfg_txt"
                     tool:ignore="SmallSp" />
 
