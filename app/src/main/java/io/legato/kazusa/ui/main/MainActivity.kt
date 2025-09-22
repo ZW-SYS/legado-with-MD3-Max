@@ -14,7 +14,6 @@ import android.widget.ImageView
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.core.view.get
-import androidx.core.view.isVisible
 import androidx.core.view.postDelayed
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -24,6 +23,7 @@ import androidx.viewpager.widget.ViewPager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.navigation.NavigationBarView
+import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
 import io.legato.kazusa.BuildConfig
 import io.legato.kazusa.R
 import io.legato.kazusa.base.VMBaseActivity
@@ -40,7 +40,6 @@ import io.legato.kazusa.help.storage.Backup
 import io.legato.kazusa.lib.dialogs.alert
 import io.legato.kazusa.service.BaseReadAloudService
 import io.legato.kazusa.ui.about.CrashLogsDialog
-import io.legato.kazusa.ui.book.read.ReadBookActivity
 import io.legato.kazusa.ui.book.search.SearchActivity
 import io.legato.kazusa.ui.main.bookshelf.BaseBookshelfFragment
 import io.legato.kazusa.ui.main.bookshelf.books.BookshelfFragment1
@@ -49,10 +48,8 @@ import io.legato.kazusa.ui.main.bookshelf.books.BookshelfFragment3
 import io.legato.kazusa.ui.main.explore.ExploreFragment
 import io.legato.kazusa.ui.main.my.MyFragment
 import io.legato.kazusa.ui.main.rss.RssFragment
-import io.legato.kazusa.ui.welcome.WelcomeActivity
 import io.legato.kazusa.ui.widget.dialog.TextDialog
 import io.legato.kazusa.utils.dpToPx
-import io.legato.kazusa.utils.getPrefBoolean
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.hideSoftInput
 import io.legato.kazusa.utils.observeEvent
@@ -108,7 +105,7 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        setExitSharedElementCallback(MaterialContainerTransformSharedElementCallback())
         if (savedInstanceState != null) {
             pagePosition = savedInstanceState.getInt("currentPagePosition", 0)
         }

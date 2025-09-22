@@ -445,7 +445,7 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
             if (loadingViewVisible) {
                 binding.llLoading.isGone = true
                 binding.llRetry.isVisible = true
-                binding.tvMsg.text = msg
+                binding.tvMsg2.setMessage(msg)
             } else {
                 loadMoreView.error(null, "加载失败，点击重试")
             }
@@ -786,7 +786,7 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
             if (paddingDp == 0) {
                 recyclerView.setPadding(0, 0, 0, 0)
             } else if (width > 0) {
-                val paddingPx = (width * paddingDp / 100).toInt()
+                val paddingPx = (width * paddingDp / 100)
                 recyclerView.setPadding(paddingPx, 0, paddingPx, 0)
             }
         }

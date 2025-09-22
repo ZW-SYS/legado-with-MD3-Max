@@ -18,13 +18,11 @@ import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.view.doOnPreDraw
 import androidx.core.view.get
 import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
-import com.google.android.material.transition.platform.MaterialSharedAxis
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import io.legato.kazusa.BuildConfig
 import io.legato.kazusa.R
@@ -266,6 +264,7 @@ class ReadBookActivity : BaseReadBookActivity(),
 
         if (AppConfig.sharedElementEnterTransitionEnable) {
             setEnterSharedElementCallback(MaterialContainerTransformSharedElementCallback())
+            setExitSharedElementCallback(MaterialContainerTransformSharedElementCallback())
             val transform = MaterialContainerTransform().apply {
                 addTarget(binding.root)
                 scrimColor = Color.TRANSPARENT
