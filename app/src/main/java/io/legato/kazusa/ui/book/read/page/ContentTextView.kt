@@ -8,6 +8,7 @@ import android.view.MotionEvent
 import android.view.View
 import io.legato.kazusa.R
 import io.legato.kazusa.data.entities.Bookmark
+import io.legato.kazusa.help.book.isOnLineTxt
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.model.ReadBook
 import io.legato.kazusa.ui.book.read.page.delegate.PageDelegate
@@ -247,6 +248,14 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
                 is ImageColumn -> if (AppConfig.previewImageByClick) {
                     activity?.showDialogFragment(PhotoDialog(column.src))
                     handled = true
+                } else {
+                    if (ReadBook.book?.isOnLineTxt == true) {
+                        val src = column.src
+                        if (src.contains("\"js\"") || src.contains("'js'")) {
+                            callBack.clickImg(src)
+                            handled = true
+                        }
+                    }
                 }
             }
         }
@@ -713,5 +722,6 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
         fun onImageLongPress(x: Float, y: Float, src: String)
         fun onCancelSelect()
         fun onLongScreenshotTouchEvent(event: MotionEvent): Boolean
+        fun clickImg(clickjs: String)
     }
 }

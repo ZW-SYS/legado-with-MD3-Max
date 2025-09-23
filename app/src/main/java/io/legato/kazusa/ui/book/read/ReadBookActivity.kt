@@ -100,18 +100,21 @@ import io.legato.kazusa.ui.replace.edit.ReplaceEditActivity
 import io.legato.kazusa.ui.widget.PopupAction
 import io.legato.kazusa.ui.widget.dialog.PhotoDialog
 import io.legato.kazusa.utils.Debounce
+import io.legato.kazusa.utils.GSON
 import io.legato.kazusa.utils.LogUtils
 import io.legato.kazusa.utils.NetworkUtils
 import io.legato.kazusa.utils.StartActivityContract
 import io.legato.kazusa.utils.applyOpenTint
 import io.legato.kazusa.utils.buildMainHandler
 import io.legato.kazusa.utils.dismissDialogFragment
+import io.legato.kazusa.utils.fromJsonObject
 import io.legato.kazusa.utils.getPrefBoolean
 import io.legato.kazusa.utils.getPrefString
 import io.legato.kazusa.utils.hexString
 import io.legato.kazusa.utils.iconItemOnLongClick
 import io.legato.kazusa.utils.invisible
 import io.legato.kazusa.utils.isAbsUrl
+import io.legato.kazusa.utils.isJsonObject
 import io.legato.kazusa.utils.isTrue
 import io.legato.kazusa.utils.navigationBarGravity
 import io.legato.kazusa.utils.observeEvent
@@ -1402,6 +1405,48 @@ class ReadBookActivity : BaseReadBookActivity(),
 
     override fun showHelp() {
         showHelp("readMenuHelp")
+    }
+
+    override fun clickImg(clickjs: String) {
+        val braceIndex = clickjs.indexOf(",{")
+        val braceIndex2 = if (braceIndex == -1) clickjs.indexOf(", {") else -1
+        if (braceIndex != -1 || braceIndex2 != -1) {
+            val book = ReadBook.book ?: return
+            val chapter = appDb.bookChapterDao.getChapter(book.bookUrl, ReadBook.durChapterIndex)
+            if (chapter == null) {
+                toastOnUi("章节不存在")
+                return
+            }
+            val (result, urlOptionStr) = when {
+                braceIndex != -1 -> {
+                    clickjs.substring(0, braceIndex) to clickjs.substring(braceIndex + 1)
+                }
+                else -> {
+                    clickjs.substring(0, braceIndex2) to clickjs.substring(braceIndex2 + 2)
+                }
+            }
+            if (urlOptionStr.isJsonObject()) {
+                val urlOptionMap = GSON.fromJsonObject<Map<String, String>>(urlOptionStr).getOrThrow()
+                val jsStr = urlOptionMap["js"]
+                jsStr?.let {
+                    Coroutine.async(lifecycleScope) {
+                        val source = ReadBook.bookSource ?: throw Exception("书源不存在")
+                        AnalyzeRule(book, source).apply {
+                            setCoroutineContext(coroutineContext)
+                            setBaseUrl(chapter.url)
+                            setChapter(chapter)
+                            evalJS(jsStr, result).toString()
+                        }
+                    }.onError {
+                        AppLog.put("图片点击执行出错\n${it.localizedMessage}", it, true)
+                    }
+                }
+            }
+            else {
+                toastOnUi("链接格式错误")
+                return
+            }
+        }
     }
 
     /**
