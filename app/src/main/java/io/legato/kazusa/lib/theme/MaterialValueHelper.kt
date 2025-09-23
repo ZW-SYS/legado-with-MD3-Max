@@ -9,9 +9,3 @@ import android.content.Context
  */
 val Context.primaryColor: Int
     get() = ThemeStore.primaryColor(this)
-
-val Context.secondaryColor: Int
-    get() = ThemeStore.secondaryColor(this)
-
-val Context.primaryContainerColor: Int
-    get() = ThemeStore.primaryContainerColor(this)

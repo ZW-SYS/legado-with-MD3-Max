@@ -39,17 +39,17 @@ private constructor(private val mContext: Context) : ThemeStoreInterface {
 
         val fallback = color
 
-        val secondary = MaterialColors.getColor(
-            wrapped,
-            com.google.android.material.R.attr.colorSecondary,
-            fallback
-        )
-
-        val primaryContainer = MaterialColors.getColor(
-            wrapped,
-            com.google.android.material.R.attr.colorSecondaryContainer,
-            fallback
-        )
+//        val secondary = MaterialColors.getColor(
+//            wrapped,
+//            com.google.android.material.R.attr.colorSecondary,
+//            fallback
+//        )
+//
+//        val primaryContainer = MaterialColors.getColor(
+//            wrapped,
+//            com.google.android.material.R.attr.colorPrimaryContainer,
+//            fallback
+//        )
 
         val primary = MaterialColors.getColor(
             wrapped,
@@ -57,8 +57,8 @@ private constructor(private val mContext: Context) : ThemeStoreInterface {
             fallback
         )
 
-        mEditor.putInt(ThemeStorePrefKeys.KEY_SECONDARY_COLOR, secondary)
-        mEditor.putInt(ThemeStorePrefKeys.KEY_PRIMARY_CONTAINER_COLOR, primaryContainer)
+        //mEditor.putInt(ThemeStorePrefKeys.KEY_SECONDARY_COLOR, secondary)
+        //mEditor.putInt(ThemeStorePrefKeys.KEY_PRIMARY_CONTAINER_COLOR, primaryContainer)
         mEditor.putInt(ThemeStorePrefKeys.KEY_PRIMARY_COLOR, primary)
 
         return this
@@ -67,7 +67,8 @@ private constructor(private val mContext: Context) : ThemeStoreInterface {
     override fun primaryColor(@ColorInt color: Int): ThemeStore {
         if (autoGeneratePrimaryDark(mContext))
             primaryColorDark(ColorUtils.darkenColor(color))
-        addColorScheme(color)
+        mEditor.putInt(ThemeStorePrefKeys.KEY_PRIMARY_COLOR, color)
+        //addColorScheme(color)
         return this
     }
 
@@ -155,27 +156,27 @@ private constructor(private val mContext: Context) : ThemeStoreInterface {
             }
         }
 
-        fun primaryContainerColor(context: Context = appCtx): Int {
-            return if (isCustomThemeEnabled(context)) {
-                prefs(context).getInt(
-                    ThemeStorePrefKeys.KEY_PRIMARY_CONTAINER_COLOR,
-                    "#FFFFFF".toColorInt()
-                )
-            } else {
-                ThemeUtils.resolveColor(context, com.google.android.material.R.attr.colorPrimaryContainer)
-            }
-        }
-
-        fun secondaryColor(context: Context = appCtx): Int {
-            return if (isCustomThemeEnabled(context)) {
-                prefs(context).getInt(
-                    ThemeStorePrefKeys.KEY_SECONDARY_COLOR,
-                    primaryColor(context)
-                )
-            } else {
-                primaryColor(context)
-            }
-        }
+//        fun primaryContainerColor(context: Context = appCtx): Int {
+//            return if (isCustomThemeEnabled(context)) {
+//                prefs(context).getInt(
+//                    ThemeStorePrefKeys.KEY_PRIMARY_CONTAINER_COLOR,
+//                    "#FFFFFF".toColorInt()
+//                )
+//            } else {
+//                ThemeUtils.resolveColor(context, com.google.android.material.R.attr.colorPrimaryContainer)
+//            }
+//        }
+//
+//        fun secondaryColor(context: Context = appCtx): Int {
+//            return if (isCustomThemeEnabled(context)) {
+//                prefs(context).getInt(
+//                    ThemeStorePrefKeys.KEY_SECONDARY_COLOR,
+//                    primaryColor(context)
+//                )
+//            } else {
+//                primaryColor(context)
+//            }
+//        }
 
         @CheckResult
         @ColorInt
