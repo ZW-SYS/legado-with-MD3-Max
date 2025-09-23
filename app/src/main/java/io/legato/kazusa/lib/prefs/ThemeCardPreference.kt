@@ -109,7 +109,7 @@ class ThemeCardPreference(context: Context, attrs: AttributeSet) : Preference(co
         "8" to R.style.Theme_Base_Yuuka,
         "9" to R.style.Theme_Base_Phoebe,
         "10" to R.style.Theme_Base_Mujika,
-        "11" to R.style.Theme_Base_WH,
+        "11" to R.style.ThemeOverlay_WhiteBackground,
         "12" to R.style.AppTheme_Transparent)
 
     private fun getThemeColors(value: String): List<Int> {
