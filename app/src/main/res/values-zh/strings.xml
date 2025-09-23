@@ -1235,7 +1235,7 @@
     <string name="number_rows_columns">每行列数</string>
     <string name="ascending_order">升序</string>
     <string name="descending_order">降序</string>
-    <string name="checking_update">检查更新中...</string>
+    <string name="checking_update">检查更新中…</string>
     <string name="search_empty">没有内容哦</string>
     <string name="firebase_enable_title">匿名统计</string>
     <string name="firebase_enable_summary">允许应用使用Google Firebase进行崩溃和性能统计</string>
