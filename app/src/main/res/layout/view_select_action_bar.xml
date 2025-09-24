@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:paddingHorizontal="8dp"
@@ -17,40 +18,37 @@
         android:layout_marginStart="4dp"
         android:text="@string/select_all" />
 
-    <com.google.android.material.button.MaterialButtonGroup
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_revert_selection"
+        style="@style/Widget.Material3Expressive.Button.TonalButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="0dp"
+        android:layout_marginEnd="8dp"
+        android:text="@string/revert_selection" />
+
+    <com.google.android.material.button.MaterialSplitButton
+        android:id="@+id/btn_split"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_revert_selection"
-            style="@style/Widget.Material3Expressive.Button.TonalButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="0dp"
-            android:text="@string/revert_selection" />
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_select_action_main"
-            style="@style/Widget.Material3Expressive.Button"
+            style="?attr/materialSplitButtonLeadingFilledStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="0dp"
             android:text="@string/app_name"
             android:visibility="visible" />
 
-    </com.google.android.material.button.MaterialButtonGroup>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/iv_menu_more"
+            style="?attr/materialSplitButtonIconFilledStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/more_menu"
+            app:icon="@drawable/m3_split_button_chevron_avd"/>
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/iv_menu_more"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginStart="4dp"
-        android:padding="4dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/more_menu"
-        android:src="@drawable/ic_more_vert"
-        android:tooltipText="@string/more_menu"
-        android:visibility="visible"
-        tools:ignore="RtlHardcoded,UnusedAttribute" />
+    </com.google.android.material.button.MaterialSplitButton>
 
 </LinearLayout>

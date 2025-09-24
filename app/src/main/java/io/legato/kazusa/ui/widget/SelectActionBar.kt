@@ -47,27 +47,36 @@ class SelectActionBar @JvmOverloads constructor(
             }
             binding.btnRevertSelection.setOnClickListener { callBack?.revertSelection() }
             binding.btnSelectActionMain.setOnClickListener { callBack?.onClickSelectBarMainAction() }
-            binding.ivMenuMore.setOnClickListener { selMenu?.show() }
+            binding.ivMenuMore.addOnCheckedChangeListener { button, isChecked ->
+                if (isChecked) {
+                    selMenu?.show()
+                }
+            }
             applyNavigationBarPadding()
         }
     }
 
     fun setMainActionText(text: String) = binding.run {
         btnSelectActionMain.text = text
-        btnSelectActionMain.visible()
+        btnSplit.visible()
     }
 
     fun setMainActionText(@StringRes id: Int) = binding.run {
         btnSelectActionMain.setText(id)
-        btnSelectActionMain.visible()
+        btnSplit.visible()
     }
 
     fun inflateMenu(@MenuRes resId: Int): Menu? {
-        selMenu = PopupMenu(context, binding.ivMenuMore)
-        selMenu?.inflate(resId)
-        binding.ivMenuMore.visible()
+        selMenu = PopupMenu(context, binding.ivMenuMore).apply {
+            inflate(resId)
+
+            setOnDismissListener {
+                binding.ivMenuMore.isChecked = false
+            }
+        }
         return selMenu?.menu
     }
+
 
     fun setCallBack(callBack: CallBack) {
         this.callBack = callBack
@@ -104,15 +113,8 @@ class SelectActionBar @JvmOverloads constructor(
     private fun setMenuClickable(isClickable: Boolean) = binding.run {
         btnRevertSelection.isEnabled = isClickable
         btnRevertSelection.isClickable = isClickable
-        btnSelectActionMain.isEnabled = isClickable
-        btnSelectActionMain.isClickable = isClickable
-//        if (isClickable) {
-//            ivMenuMore.setColorFilter(primaryTextColor, PorterDuff.Mode.SRC_IN)
-//        } else {
-//            ivMenuMore.setColorFilter(disabledColor, PorterDuff.Mode.SRC_IN)
-//        }
-        ivMenuMore.isEnabled = isClickable
-        ivMenuMore.isClickable = isClickable
+        btnSplit.isEnabled = isClickable
+        btnSplit.isClickable = isClickable
     }
 
     interface CallBack {
