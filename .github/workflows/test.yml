@@ -3,7 +3,7 @@ name: Test Build
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - '**'
       # - '!**/assets/**'
@@ -53,7 +53,7 @@ jobs:
     strategy:
       matrix:
         product: [ app ]
-        type: [ release, releaseA ]
+        type: [ release ]
       fail-fast: false
     runs-on: ubuntu-latest
     env:
@@ -76,12 +76,11 @@ jobs:
           echo "">$GITHUB_WORKSPACE/app/src/main/assets/18PlusList.txt
       - name: Release Apk Sign
         run: |
-          echo "给apk增加签名"
-          cp $GITHUB_WORKSPACE/.github/workflows/legado.jks $GITHUB_WORKSPACE/app/legado.jks
-          sed '$a\RELEASE_STORE_FILE=./legado.jks'          $GITHUB_WORKSPACE/gradle.properties -i
-          sed '$a\RELEASE_KEY_ALIAS=legado'                 $GITHUB_WORKSPACE/gradle.properties -i
-          sed '$a\RELEASE_STORE_PASSWORD=gedoor_legado'     $GITHUB_WORKSPACE/gradle.properties -i
-          sed '$a\RELEASE_KEY_PASSWORD=gedoor_legado'       $GITHUB_WORKSPACE/gradle.properties -i
+          echo "${{ secrets.SIGNING_KEY }}" | base64 -d > $GITHUB_WORKSPACE/app/my-release-key.jks
+          echo "RELEASE_STORE_FILE=my-release-key.jks" >> $GITHUB_WORKSPACE/gradle.properties
+          echo "RELEASE_STORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> $GITHUB_WORKSPACE/gradle.properties
+          echo "RELEASE_KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> $GITHUB_WORKSPACE/gradle.properties
+          echo "RELEASE_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> $GITHUB_WORKSPACE/gradle.properties
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -89,22 +88,15 @@ jobs:
       - name: Build With Gradle
         continue-on-error: true
         run: |
-          if [ ${{ env.type }} == 'release' ]; then
-            typeName="原包名"
-          else
-            typeName="共存"
-            sed "s/'.release'/'.releaseA'/" $GITHUB_WORKSPACE/app/build.gradle  -i
-            sed 's/.release/.releaseA/'     $GITHUB_WORKSPACE/app/google-services.json -i
-          fi
           echo "统一版本号"
           sed "/def version/c def version = \"${{ env.VERSION }}\"" $GITHUB_WORKSPACE/app/build.gradle  -i
-          echo "开始${{ env.product }}$typeName构建"
+          echo "开始${{ env.product }}${{ env.type }}构建"
           chmod +x gradlew
           ./gradlew assemble${{ env.product }}release --build-cache --parallel --daemon --warning-mode all
           echo "修改APK文件名"
           mkdir -p ${{ github.workspace }}/apk/
           for file in `ls ${{ github.workspace }}/app/build/outputs/apk/*/*/*.apk`; do
-            mv "$file" ${{ github.workspace }}/apk/legado_${{ env.product }}_${{ env.VERSIONL }}_$typeName.apk
+            mv "$file" ${{ github.workspace }}/apk/legado_${{ env.product }}_${{ env.VERSIONL }}_${{ env.type }}.apk
           done
           echo "移动mapping文件"
           mkdir -p ${{ github.workspace }}/mapping/
@@ -155,7 +147,7 @@ jobs:
 
   prerelease:
     needs: [ prepare, build ]
-    if: github.event_name != 'pull_request' && github.repository == 'gedoor/legado'
+    if: github.event_name != 'pull_request' && github.repository == 'HapeLee/legado-with-MD3'
     runs-on: ubuntu-latest
     env: 
       VERSION: ${{ needs.prepare.outputs.version }}
@@ -170,12 +162,8 @@ jobs:
           mv */*.apk .
           rm -rf */
 
-          for file in `ls *.apk`; do
-            if [[ "$file" == *原包名* ]]; then
-              mv "$file" $(echo $file | sed s/原包名/release/)
-            else
-              mv "$file" $(echo $file | sed s/共存/releaseA/)
-            fi
+          for file in *.apk; do
+            mv "$file" "$(echo $file | sed 's/legado_/legado_release_/')"
           done
 
       - name: Delete Pre-Release
