@@ -91,6 +91,7 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
         if (!isMainView) return
         ChapterProvider.upViewSize(w, h)
         textPage.format()
+        //TODO: 有关测量相关问题
     }
 
     override fun onDraw(canvas: Canvas) {

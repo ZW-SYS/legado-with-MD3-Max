@@ -119,17 +119,11 @@ class ReadView(context: Context, attrs: AttributeSet) :
         nextPage.invisible()
         curPage.markAsMainView()
         if (!isInEditMode) {
-            //upBg()
+            upBg()
             setWillNotDraw(false)
-            //upPageAnim()
-            //upPageSlopSquare()
+            upPageAnim()
+            upPageSlopSquare()
         }
-    }
-
-    fun initAfterTransition() {
-        upBg()
-        upPageAnim()
-        upPageSlopSquare()
     }
 
     private fun setRect9x() {

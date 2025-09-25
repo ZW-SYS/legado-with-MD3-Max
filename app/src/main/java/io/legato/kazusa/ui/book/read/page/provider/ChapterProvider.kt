@@ -33,7 +33,6 @@ import io.legato.kazusa.utils.postEvent
 import io.legato.kazusa.utils.spToPx
 import io.legato.kazusa.utils.splitNotBlank
 import io.legato.kazusa.utils.textHeight
-import io.legato.kazusa.utils.toastOnUi
 import kotlinx.coroutines.CoroutineScope
 import splitties.init.appCtx
 import java.io.File
@@ -1020,13 +1019,6 @@ object ChapterProvider {
             return
         }
 
-        visibleRect.set(
-            paddingLeft.toFloat(),
-            paddingTop.toFloat(),
-            visibleRight.toFloat(),
-            visibleBottom.toFloat()
-        )
-
         paddingLeft = ReadBookConfig.paddingLeft.dpToPx()
         paddingTop = ReadBookConfig.paddingTop.dpToPx()
         paddingRight = ReadBookConfig.paddingRight.dpToPx()
@@ -1041,23 +1033,13 @@ object ChapterProvider {
         visibleRight = viewWidth - paddingRight
         visibleBottom = paddingTop + visibleHeight
 
-        if (paddingLeft >= visibleRight || paddingTop >= visibleBottom) {
-            appCtx.toastOnUi("边距设置过大，请重新设置")
-            visibleRect.set(
-                0f,
-                0f,
-                viewWidth.toFloat(),
-                viewHeight.toFloat()
-            )
-        } else {
-            visibleRect.set(
-                paddingLeft.toFloat(),
-                paddingTop.toFloat(),
-                visibleRight.toFloat(),
-                visibleBottom.toFloat()
-            )
-        }
-
+        visibleRect.set(
+            paddingLeft.toFloat(),
+            paddingTop.toFloat(),
+            visibleRight.toFloat(),
+            visibleBottom.toFloat()
+        )
+        //TODO: 有关测量相关问题
     }
 
 }

@@ -95,11 +95,18 @@ jobs:
           sed "/def version/c def version = \"${{ env.VERSION }}\"" $GITHUB_WORKSPACE/app/build.gradle  -i
           echo "开始${{ env.product }}${{ env.type }}构建"
           chmod +x gradlew
-          ./gradlew assemble${{ env.product }}release --build-cache --parallel --daemon --warning-mode all
+          ./gradlew assemble${{ env.product }}Release
           echo "修改APK文件名"
           mkdir -p ${{ github.workspace }}/apk/
-          for file in `ls ${{ github.workspace }}/app/build/outputs/apk/*/*/*.apk`; do
-            mv "$file" ${{ github.workspace }}/apk/legado_${{ env.product }}_${{ env.VERSIONL }}_${{ env.type }}.apk
+          for file in ${{ github.workspace }}/app/build/outputs/apk/*/*-release.apk; do
+            filename=$(basename "$file")
+            if [[ "$filename" == *"armeabi-v7a"* ]]; then
+              mv "$file" ${{ github.workspace }}/apk/legado_${{ env.product }}_${{ env.VERSIONL }}_${{ env.type }}_32.apk
+            elif [[ "$filename" == *"arm64-v8a"* ]]; then
+              mv "$file" ${{ github.workspace }}/apk/legado_${{ env.product }}_${{ env.VERSIONL }}_${{ env.type }}_64.apk
+            elif [[ "$filename" == *"universal"* ]]; then
+              mv "$file" ${{ github.workspace }}/apk/legado_${{ env.product }}_${{ env.VERSIONL }}_${{ env.type }}_universal.apk
+            fi
           done
           echo "移动mapping文件"
           mkdir -p ${{ github.workspace }}/mapping/
@@ -134,12 +141,23 @@ jobs:
             exit 1
           fi
 
-      - name: Upload App To Artifact
+      - name: Upload 32-bit APK
         uses: actions/upload-artifact@v4
         with:
-          name: legado.${{ env.product }}.${{ env.type }}
-          if-no-files-found: ignore
-          path: ${{ github.workspace }}/apk/*.apk
+          name: legado.${{ env.product }}.${{ env.type }}.apk.32
+          path: ${{ github.workspace }}/apk/*_32.apk
+
+      - name: Upload 64-bit APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: legado.${{ env.product }}.${{ env.type }}.apk.64
+          path: ${{ github.workspace }}/apk/*_64.apk
+
+      - name: Upload Universal APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: legado.${{ env.product }}.${{ env.type }}.apk.universal
+          path: ${{ github.workspace }}/apk/*_universal.apk
 
       - name: Upload Mapping File To Artifact
         uses: actions/upload-artifact@v4
@@ -147,35 +165,6 @@ jobs:
           name: legado.${{ env.product }}.${{ env.type }}.mapping
           if-no-files-found: ignore
           path: ${{ github.workspace }}/mapping/mapping.txt
-
-  prerelease:
-    needs: [ prepare, build ]
-    if: github.event_name != 'pull_request' && github.repository == 'HapeLee/legado-with-MD3'
-    runs-on: ubuntu-latest
-    env: 
-      VERSION: ${{ needs.prepare.outputs.version }}
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v5
-        with:
-          path: apk/
-
-      - name: Delete Pre-Release
-        run: |
-          if gh release view beta &>/dev/null; then
-            gh release delete beta -y
-          fi
-        env:
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Publish Pre-Release
-        uses: ncipollo/release-action@v1
-        with:
-          name: legado_app_${{ env.VERSION }}
-          tag: "beta"
-          body: "此版本为测试版，签名与正式版不同，可能存在不稳定情况，升级前请务必备份好数据。"
-          prerelease: true
-          artifacts: ${{ github.workspace }}/apk/*.apk
 
   lanzou:
     needs: [ prepare, build ]

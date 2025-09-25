@@ -310,7 +310,13 @@ class ReadBookActivity : BaseReadBookActivity(),
             if (getPrefBoolean("disableReturnKey") && !menuLayoutIsVisible) {
                 return@addCallback
             }
-            supportFinishAfterTransition()
+            if (savedInstanceState != null) {
+                finish()
+            } else {
+                supportFinishAfterTransition()
+            }
+            //TODO: 有关测量相关问题
+            //孩子们，我的水平不够，只能这样修复测量问题了
         }
     }
 
@@ -441,7 +447,6 @@ class ReadBookActivity : BaseReadBookActivity(),
             viewModel.initReadBookConfig(intent)
             viewModel.initData(intent)
             withContext(Main) {
-                binding.readView.initAfterTransition()
                 justInitData = true
             }
         }
