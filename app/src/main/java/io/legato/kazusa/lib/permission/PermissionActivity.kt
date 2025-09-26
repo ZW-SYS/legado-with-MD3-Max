@@ -19,6 +19,7 @@ import io.legato.kazusa.exception.NoStackTraceException
 import io.legato.kazusa.utils.registerForActivityResult
 import io.legato.kazusa.utils.toastOnUi
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
 
 class PermissionActivity : AppCompatActivity() {
 
@@ -90,16 +91,11 @@ class PermissionActivity : AppCompatActivity() {
                             && requestPermissionResult.launch(Permissions.POST_NOTIFICATIONS)
                         ) {
                             onRequestPermissionFinish()
-                        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            //这种方案适用于 API 26, 即8.0（含8.0）以上可以用
-                            val intent = Intent()
+                        } else
                             intent.action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
                             intent.putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
                             intent.putExtra(Settings.EXTRA_CHANNEL_ID, applicationInfo.uid)
                             settingActivityResult.launch(intent)
-                        } else {
-                            openSettingsActivity()
-                        }
                     } catch (e: Exception) {
                         AppLog.put("请求通知权限出错\n$e", e, true)
                         RequestPlugins.sRequestCallback?.onError(e)
@@ -114,7 +110,7 @@ class PermissionActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     try {
                         val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
-                        intent.setData(Uri.parse("package:$packageName"))
+                        intent.setData("package:$packageName".toUri())
                         val className =
                             "com.android.settings.fuelgauge.RequestIgnoreBatteryOptimizations"
                         val activities = packageManager.queryIntentActivities(
