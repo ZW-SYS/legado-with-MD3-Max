@@ -97,9 +97,15 @@ class RssFragment() : VMBaseFragment<RssViewModel>(R.layout.fragment_rss),
                     if (binding.searchBar.isVisible) View.GONE else View.VISIBLE
             }
             else -> if (item.groupId == R.id.menu_group_text) {
-                searchView.setText("group:${item.title}")
-                upRssFlowJob("group:${item.title}")
+                if (item.title == getString(R.string.all)) {
+                    upRssFlowJob()
+                    searchView.setText("")
+                } else {
+                    searchView.setText("group:${item.title}")
+                    upRssFlowJob("group:${item.title}")
+                }
             }
+
         }
     }
 
@@ -110,6 +116,7 @@ class RssFragment() : VMBaseFragment<RssViewModel>(R.layout.fragment_rss),
 
     private fun upGroupsMenu() = groupsMenu?.transaction { subMenu ->
         subMenu.removeGroup(R.id.menu_group_text)
+        subMenu.add(R.id.menu_group_text, Menu.NONE, Menu.NONE, getString(R.string.all))
         groups.forEach {
             subMenu.add(R.id.menu_group_text, Menu.NONE, Menu.NONE, it)
         }
