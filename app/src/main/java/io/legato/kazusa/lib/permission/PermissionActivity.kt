@@ -71,7 +71,7 @@ class PermissionActivity : AppCompatActivity() {
                         val settingIntent =
                             Intent(
                                 Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
-                                Uri.parse("package:$packageName")
+                                "package:$packageName".toUri()
                             )
                         settingActivityResult.launch(settingIntent)
                     } else {

@@ -3,7 +3,6 @@ package io.legato.kazusa.ui.widget.number
 import android.app.AlertDialog
 import android.content.Context
 import android.view.View
-import android.widget.LinearLayout
 import android.widget.NumberPicker
 import android.widget.TextView
 import com.google.android.material.button.MaterialButton
@@ -11,7 +10,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import io.legato.kazusa.R
-import io.legato.kazusa.utils.hideSoftInput
 
 
 class NumberPickerDialog(context: Context) {
