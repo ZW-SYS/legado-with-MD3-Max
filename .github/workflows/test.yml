@@ -113,7 +113,9 @@ jobs:
 
       - name: Check Build production
         run: |
-          if ! ls $GITHUB_WORKSPACE/app/build/outputs/apk/app/release/*-release.apk 1> /dev/null 2>&1; then
+          echo "查看 APK 输出目录"
+          ls -R $GITHUB_WORKSPACE/app/app/build/outputs/apk/
+          if ! ls $GITHUB_WORKSPACE/app/app/build/outputs/apk/release/*/*.apk 1> /dev/null 2>&1; then
             echo "Build production not found! Check gradle logs."
             exit 1
           fi
@@ -123,9 +125,7 @@ jobs:
         with:
           name: APKs
           path: |
-            ${{ github.workspace }}/app/build/outputs/apk/app/release/*-armeabi-v7a-release.apk
-            ${{ github.workspace }}/app/build/outputs/apk/app/release/*-arm64-v8a-release.apk
-            ${{ github.workspace }}/app/build/outputs/apk/app/release/*-universal-release.apk
+            $GITHUB_WORKSPACE/app/app/build/outputs/apk/release/*/*.apk
 
       - name: Upload Mapping File To Artifact
         uses: actions/upload-artifact@v4
