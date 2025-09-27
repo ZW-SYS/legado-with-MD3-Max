@@ -8,7 +8,6 @@ import android.text.format.DateUtils
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.MotionEvent
-import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.activity.addCallback
@@ -16,10 +15,10 @@ import androidx.activity.viewModels
 import androidx.core.view.get
 import androidx.core.view.postDelayed
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.navigation.NavigationBarView
@@ -53,11 +52,9 @@ import io.legato.kazusa.utils.dpToPx
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.hideSoftInput
 import io.legato.kazusa.utils.observeEvent
-import io.legato.kazusa.utils.setNavigationBarColorAuto
 import io.legato.kazusa.utils.shouldHideSoftInput
 import io.legato.kazusa.utils.showDialogFragment
 import io.legato.kazusa.utils.startActivity
-import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 import io.legato.kazusa.utils.visible
@@ -91,7 +88,7 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
     private var bottomMenuCount = 4
     private val realPositions = arrayOf(idBookshelf, idExplore, idRss, idMy)
     private val adapter by lazy {
-        TabFragmentPageAdapter(supportFragmentManager)
+        TabFragmentPageAdapter(this)
     }
 
     private val badge by lazy {
@@ -175,21 +172,16 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
         }
     }
 
-    override fun onNavigationItemSelected(item: MenuItem): Boolean = binding.run {
-        when (item.itemId) {
-            R.id.menu_bookshelf ->
-                viewPagerMain.setCurrentItem(0, false)
-
-            R.id.menu_discovery ->
-                viewPagerMain.setCurrentItem(realPositions.indexOf(idExplore), false)
-
-            R.id.menu_rss ->
-                viewPagerMain.setCurrentItem(realPositions.indexOf(idRss), false)
-
-            R.id.menu_my_config ->
-                viewPagerMain.setCurrentItem(realPositions.indexOf(idMy), false)
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        val index = when (item.itemId) {
+            R.id.menu_bookshelf -> 0
+            R.id.menu_discovery -> realPositions.indexOf(idExplore)
+            R.id.menu_rss -> realPositions.indexOf(idRss)
+            R.id.menu_my_config -> realPositions.indexOf(idMy)
+            else -> 0
         }
-        return false
+        binding.viewPagerMain.setCurrentItem(index, true)
+        return true
     }
 
     override fun onNavigationItemReselected(item: MenuItem) {
@@ -215,8 +207,9 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
     private fun initView() = binding.run {
         viewPagerMain.offscreenPageLimit = 3
         viewPagerMain.adapter = adapter
-        viewPagerMain.addOnPageChangeListener(PageChangeCallback())
-        window.setNavigationBarColorAuto(themeColor(com.google.android.material.R.attr.colorSurfaceContainer))
+        viewPagerMain.registerOnPageChangeCallback(PageChangeCallback())
+
+        //window.setNavigationBarColorAuto(themeColor(com.google.android.material.R.attr.colorSurfaceContainer))
     }
 
     /**
@@ -464,45 +457,29 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
         return id
     }
 
-
-    private inner class PageChangeCallback : ViewPager.SimpleOnPageChangeListener() {
-
+    private inner class PageChangeCallback : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             pagePosition = position
-            val navView = getNavigationBarView()
-            navView.menu[realPositions[position]].isChecked = true
+            getNavigationBarView().selectedItemId = when (realPositions[position]) {
+                idBookshelf -> R.id.menu_bookshelf
+                idExplore -> R.id.menu_discovery
+                idRss -> R.id.menu_rss
+                idMy -> R.id.menu_my_config
+                else -> R.id.menu_bookshelf
+            }
             updateNavigationRailFab(position)
         }
-
     }
 
-    private inner class TabFragmentPageAdapter(fm: FragmentManager) :
-        FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
-        private fun getId(position: Int): Int {
-            return getFragmentId(position)
-        }
+    private inner class TabFragmentPageAdapter(
+        activity: FragmentActivity
+    ) : FragmentStateAdapter(activity) {
 
-        override fun getItemPosition(any: Any): Int {
-            val position = (any as? MainFragmentInterface)?.position ?: return POSITION_NONE
-            val fragmentId = getId(position)
+        override fun getItemCount(): Int = bottomMenuCount
 
-            if (
-                (fragmentId == idBookshelf1 && any is BookshelfFragment1) ||
-                (fragmentId == idBookshelf2 && any is BookshelfFragment2) ||
-                (fragmentId == idBookshelf3 && any is BookshelfFragment3) ||
-                (fragmentId == idExplore && any is ExploreFragment) ||
-                (fragmentId == idRss && any is RssFragment) ||
-                (fragmentId == idMy && any is MyFragment)
-            ) {
-                return POSITION_UNCHANGED
-            }
-            return POSITION_NONE
-        }
-
-
-        override fun getItem(position: Int): Fragment {
-            return when (getId(position)) {
+        override fun createFragment(position: Int): Fragment {
+            val fragment = when (getFragmentId(position)) {
                 idBookshelf1 -> BookshelfFragment1(position)
                 idBookshelf2 -> BookshelfFragment2(position)
                 idBookshelf3 -> BookshelfFragment3(position)
@@ -510,18 +487,22 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
                 idRss -> RssFragment(position)
                 else -> MyFragment(position)
             }
-        }
 
-        override fun getCount(): Int {
-            return bottomMenuCount
-        }
-
-        override fun instantiateItem(container: ViewGroup, position: Int): Any {
-            val fragment = super.instantiateItem(container, position) as Fragment
-            fragmentMap[getId(position)] = fragment
+            fragmentMap[getFragmentId(position)] = fragment
             return fragment
         }
 
+        override fun getItemId(position: Int): Long {
+            return getFragmentId(position).toLong()
+        }
+
+        override fun containsItem(itemId: Long): Boolean {
+            return realPositions.map { getFragmentId(it).toLong() }.contains(itemId)
+        }
     }
 
+
+
 }
+
+

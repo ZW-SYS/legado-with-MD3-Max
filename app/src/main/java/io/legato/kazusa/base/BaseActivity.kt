@@ -3,6 +3,7 @@ package io.legato.kazusa.base
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.util.AttributeSet
@@ -33,6 +34,10 @@ import io.legato.kazusa.utils.observeEvent
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.windowSize
 import io.legato.kazusa.lib.theme.primaryColor
+import io.legato.kazusa.utils.fullScreen
+import io.legato.kazusa.utils.setNavigationBarColorAuto
+import io.legato.kazusa.utils.setStatusBarColorAuto
+import io.legato.kazusa.utils.themeColor
 
 
 abstract class BaseActivity<VB : ViewBinding>(
@@ -74,7 +79,12 @@ abstract class BaseActivity<VB : ViewBinding>(
         AppContextWrapper.applyLocaleAndFont(this)
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        enableEdgeToEdge()
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q)
+            enableEdgeToEdge()
+        else{
+            window.setNavigationBarColorAuto(themeColor(com.google.android.material.R.attr.colorSurface))
+            setupSystemBar()
+        }
         //window.setNavigationBarColorAuto(themeColor(com.google.android.material.R.attr.colorSurface))
         //setupSystemBar()
         setContentView(binding.root)
@@ -93,6 +103,20 @@ abstract class BaseActivity<VB : ViewBinding>(
 //        findViewById<TitleBar>(R.id.title_bar)
 //            ?.onMultiWindowModeChanged(isInMultiWindowMode, fullScreen)
         //setupSystemBar()
+    }
+
+    open fun setupSystemBar() {
+        if (fullScreen && !isInMultiWindow) {
+            fullScreen()
+        }
+        setStatusBarColorAuto(Color.TRANSPARENT, false, fullScreen)
+        val isDarkTheme = when (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+            Configuration.UI_MODE_NIGHT_YES -> true
+            Configuration.UI_MODE_NIGHT_NO,
+            Configuration.UI_MODE_NIGHT_UNDEFINED -> false
+            else -> false
+        }
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = !isDarkTheme
     }
 
 //    override fun onConfigurationChanged(newConfig: Configuration) {

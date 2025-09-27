@@ -35,12 +35,15 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- ViewPager -->
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/view_pager_bookshelf"
+    <io.legato.kazusa.ui.widget.NestedScrollableHost
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingHorizontal="8dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/view_pager_bookshelf"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="8dp" />
+    </io.legato.kazusa.ui.widget.NestedScrollableHost>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
