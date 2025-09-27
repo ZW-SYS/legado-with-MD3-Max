@@ -21,7 +21,6 @@
             style="?attr/collapsingToolbarLayoutMediumStyle"
             app:collapsedTitleTextAppearance="?attr/textAppearanceTitleLarge"
             app:expandedTitleTextAppearance="?attr/textAppearanceHeadlineLarge"
-            app:contentScrim="?attr/colorSurfaceContainer"
             app:titleCollapseMode="scale"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 

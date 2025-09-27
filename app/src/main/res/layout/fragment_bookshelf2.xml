@@ -19,7 +19,6 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/collapsingToolbarLayoutMediumSize"
             app:collapsedTitleTextAppearance="?attr/textAppearanceTitleLarge"
-            app:contentScrim="?attr/colorSurface"
             app:expandedTitleTextAppearance="?attr/textAppearanceHeadlineLarge"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
             app:titleCollapseMode="scale">
