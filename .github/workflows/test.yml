@@ -125,7 +125,7 @@ jobs:
         with:
           name: APKs
           path: |
-            $GITHUB_WORKSPACE/app/build/outputs/apk/release/*/*/*.apk
+            $GITHUB_WORKSPACE/app/build/outputs/apk/app/release/*.apk
 
       - name: Upload Mapping File To Artifact
         uses: actions/upload-artifact@v4
