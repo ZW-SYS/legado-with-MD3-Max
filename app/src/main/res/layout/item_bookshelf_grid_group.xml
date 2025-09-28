@@ -29,7 +29,7 @@
                     android:id="@+id/cd_cover"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    app:cardCornerRadius="8dp"
+                    app:cardCornerRadius="6dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     android:layout_margin="8dp"
                     android:transitionName="img_cover"
