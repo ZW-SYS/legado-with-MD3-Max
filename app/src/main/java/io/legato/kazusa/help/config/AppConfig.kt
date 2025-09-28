@@ -814,5 +814,11 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
         set(value) {
             appCtx.getPrefBoolean(PreferKey.pureBlack, value)
         }
+
+    var labelVisibilityMode
+        get() = appCtx.getPrefString(PreferKey.labelVisibilityMode, "auto")
+        set(value) {
+            appCtx.putPrefString(PreferKey.labelVisibilityMode, value)
+        }
 }
 

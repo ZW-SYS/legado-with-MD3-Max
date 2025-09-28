@@ -17,7 +17,6 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import com.jeremyliao.liveeventbus.LiveEventBus
 import io.legato.kazusa.R
-import io.legato.kazusa.constant.EventBus
 import io.legato.kazusa.constant.PreferKey
 import io.legato.kazusa.databinding.DialogEditTextBinding
 import io.legato.kazusa.help.AppFreezeMonitor
@@ -205,7 +204,6 @@ class OtherConfigFragment : PreferenceFragment(),
                 setProcessTextEnable(it.getBoolean(key, true))
             }
 
-            PreferKey.showDiscovery, PreferKey.showRss, PreferKey.showBottomView -> postEvent(EventBus.NOTIFY_MAIN, true)
             PreferKey.language -> listView.postDelayed(1000) {
                 appCtx.restart()
             }

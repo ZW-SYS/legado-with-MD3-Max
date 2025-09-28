@@ -3,8 +3,8 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:cardBackgroundColor="?attr/colorTertiaryFixed"
-    app:strokeColor="?attr/colorTertiaryFixed"
+    app:cardBackgroundColor="?attr/colorTertiaryContainer"
+    app:strokeColor="?attr/colorTertiaryContainer"
     android:clickable="true"
     android:focusable="true">
     <TextView
@@ -20,7 +20,7 @@
         android:paddingEnd="16dp"
         android:maxLines="1"
         android:textSize="14sp"
-        android:textColor="?attr/colorOnTertiaryFixedVariant"
+        android:textColor="?attr/colorOnTertiaryContainer"
         tools:ignore="UnusedAttribute" />
 </com.google.android.material.card.MaterialCardView>
 

@@ -28,40 +28,15 @@
             android:key="defaultToRead"
             android:summary="@string/ps_default_read"
             android:title="@string/pt_default_read"
-            app:iconSpaceReserved="false" />
-
-        <io.legato.kazusa.lib.prefs.SwitchPreference
-            android:defaultValue="true"
-            android:key="showDiscovery"
-            android:title="@string/show_discovery"
-            app:iconSpaceReserved="false" />
-
-        <io.legato.kazusa.lib.prefs.SwitchPreference
-            android:defaultValue="true"
-            android:key="showRss"
-            android:title="@string/show_rss"
-            app:iconSpaceReserved="false" />
-
-        <io.legato.kazusa.lib.prefs.SwitchPreference
-            android:defaultValue="true"
-            android:key="showBottomView"
-            android:summary="仍可滑动切换页面"
-            android:title="显示底部导航栏"
-            app:iconSpaceReserved="false" />
-
-        <io.legato.kazusa.lib.prefs.NameListPreference
-            android:defaultValue="bookshelf"
-            android:key="defaultHomePage"
-            android:title="@string/default_home_page"
             app:allowDividerAbove="false"
             app:allowDividerBelow="false"
-            app:entries="@array/default_home_page"
-            app:entryValues="@array/default_home_page_value" />
+            app:iconSpaceReserved="false" />
 
     </io.legato.kazusa.lib.prefs.PreferenceCategory>
 
     <io.legato.kazusa.lib.prefs.PreferenceCategory
-        android:title="@string/other_setting"
+        android:title="隐私"
+        app:allowDividerAbove="false"
         app:allowDividerBelow="false"
         app:iconSpaceReserved="false"
         app:layout="@layout/view_preference_category">
@@ -78,72 +53,29 @@
             android:summary="@string/ignore_battery_permission_rationale"
             android:title="后台权限" />
 
-        <io.legato.kazusa.lib.prefs.NameListPreference
-            android:defaultValue="official_version"
-            android:key="updateToVariant"
-            android:summary="@string/update_to_variant_summary"
-            android:title="@string/update_to_variant_title"
-            app:allowDividerAbove="false"
-            app:allowDividerBelow="false"
-            app:entries="@array/default_app_variant"
-            app:entryValues="@array/default_app_variant_value" />
-
         <io.legato.kazusa.lib.prefs.SwitchPreference
             android:defaultValue="true"
             android:key="firebaseEnable"
             android:summary="@string/firebase_enable_summary"
             android:title="@string/firebase_enable_title" />
 
-        <io.legato.kazusa.lib.prefs.SwitchPreference
-            android:defaultValue="true"
-            android:key="sharedElementEnterTransitionEnable"
-            android:summary="从书架进入阅读界面时，优化动画效果。"
-            android:title="使用共享元素动画" />
-
-        <io.legato.kazusa.lib.prefs.SwitchPreference
-            android:defaultValue="true"
-            android:key="delayBookLoadEnable"
-            android:summary="减少进入阅读界面时的卡顿，但加载书籍时间会延长。"
-            android:title="延缓书籍加载" />
-
         <io.legato.kazusa.lib.prefs.Preference
             android:key="localPassword"
             android:summary="@string/set_local_password_summary"
             android:title="@string/set_local_password" />
 
-        <io.legato.kazusa.lib.prefs.Preference
-            android:key="userAgent"
-            android:title="@string/user_agent" />
+    </io.legato.kazusa.lib.prefs.PreferenceCategory>
 
-        <io.legato.kazusa.lib.prefs.SwitchPreference
-            android:defaultValue="false"
-            android:key="webServiceWakeLock"
-            android:summary="@string/web_service_wake_lock_summary"
-            android:title="@string/web_service_wake_lock" />
+    <io.legato.kazusa.lib.prefs.PreferenceCategory
+        android:title="阅读"
+        app:allowDividerBelow="false"
+        app:iconSpaceReserved="false"
+        app:layout="@layout/view_preference_category">
 
         <io.legato.kazusa.lib.prefs.Preference
             android:key="defaultBookTreeUri"
             android:summary="@string/book_tree_uri_s"
             android:title="@string/book_tree_uri_t" />
-
-        <io.legato.kazusa.lib.prefs.Preference
-            android:key="sourceEditMaxLine"
-            android:title="@string/source_edit_text_max_line" />
-
-        <io.legato.kazusa.lib.prefs.Preference
-            android:key="checkSource"
-            android:title="@string/check_source_config" />
-
-        <io.legato.kazusa.lib.prefs.Preference
-            android:key="uploadRule"
-            android:summary="@string/direct_link_upload_rule_summary"
-            android:title="@string/direct_link_upload_rule" />
-
-        <io.legato.kazusa.lib.prefs.SwitchPreference
-            android:defaultValue="false"
-            android:key="Cronet"
-            android:summary="@string/pref_cronet_summary"
-            android:title="Cronet" />
 
         <io.legato.kazusa.lib.prefs.SwitchPreference
             android:defaultValue="false"
@@ -211,6 +143,67 @@
             android:title="@string/show_manga_ui"
             app:iconSpaceReserved="false" />
 
+    </io.legato.kazusa.lib.prefs.PreferenceCategory>
+
+    <io.legato.kazusa.lib.prefs.PreferenceCategory
+        android:title="@string/other_setting"
+        app:allowDividerBelow="false"
+        app:iconSpaceReserved="false"
+        app:layout="@layout/view_preference_category">
+
+        <io.legato.kazusa.lib.prefs.NameListPreference
+            android:defaultValue="official_version"
+            android:key="updateToVariant"
+            android:summary="@string/update_to_variant_summary"
+            android:title="@string/update_to_variant_title"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false"
+            app:entries="@array/default_app_variant"
+            app:entryValues="@array/default_app_variant_value" />
+
+
+
+        <io.legato.kazusa.lib.prefs.SwitchPreference
+            android:defaultValue="true"
+            android:key="sharedElementEnterTransitionEnable"
+            android:summary="从书架进入阅读界面时，优化动画效果。"
+            android:title="使用共享元素动画" />
+
+        <io.legato.kazusa.lib.prefs.SwitchPreference
+            android:defaultValue="true"
+            android:key="delayBookLoadEnable"
+            android:summary="减少进入阅读界面时的卡顿，但加载书籍时间会延长。"
+            android:title="延缓书籍加载" />
+
+        <io.legato.kazusa.lib.prefs.Preference
+            android:key="userAgent"
+            android:title="@string/user_agent" />
+
+        <io.legato.kazusa.lib.prefs.SwitchPreference
+            android:defaultValue="false"
+            android:key="webServiceWakeLock"
+            android:summary="@string/web_service_wake_lock_summary"
+            android:title="@string/web_service_wake_lock" />
+
+        <io.legato.kazusa.lib.prefs.Preference
+            android:key="sourceEditMaxLine"
+            android:title="@string/source_edit_text_max_line" />
+
+        <io.legato.kazusa.lib.prefs.Preference
+            android:key="checkSource"
+            android:title="@string/check_source_config" />
+
+        <io.legato.kazusa.lib.prefs.Preference
+            android:key="uploadRule"
+            android:summary="@string/direct_link_upload_rule_summary"
+            android:title="@string/direct_link_upload_rule" />
+
+        <io.legato.kazusa.lib.prefs.SwitchPreference
+            android:defaultValue="false"
+            android:key="Cronet"
+            android:summary="@string/pref_cronet_summary"
+            android:title="Cronet" />
+
         <io.legato.kazusa.lib.prefs.Preference
             android:key="webPort"
             android:title="@string/web_port_title"
@@ -261,6 +254,5 @@
             app:iconSpaceReserved="false" />
 
     </io.legato.kazusa.lib.prefs.PreferenceCategory>
-
 
 </androidx.preference.PreferenceScreen>

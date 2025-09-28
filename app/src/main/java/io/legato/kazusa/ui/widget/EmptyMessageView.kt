@@ -18,7 +18,7 @@ class EmptyMessageView @JvmOverloads constructor(
     private val messageTextView: TextView
 
     private val faces = listOf(
-        "(๑`^´๑)", "(´･ᴗ･`)", "(•̀ᴗ•́)و", "(ᵔᴥᵔ)", "(¬‿¬)", "(ಥ﹏ಥ)", "(｡•́︿•̀｡)"
+        "(；′⌒`)", "(つ﹏⊂)", "(•̀ᴗ•́)و", "(๑•́ ₃ •̀๑)", "(눈‸눈)", "(ಥ﹏ಥ)", "(｡•́︿•̀｡)"
     )
 
     init {
@@ -70,9 +70,4 @@ class EmptyMessageView @JvmOverloads constructor(
         messageTextView.text = msg
     }
 
-
-    /** 可选：手动刷新随机颜文字 */
-    fun refreshFace() {
-        faceTextView.text = faces.random()
-    }
 }

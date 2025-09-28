@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/navigation_rail_fab"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="top|start"
     android:clipChildren="false"
@@ -13,6 +13,7 @@
         android:id="@+id/nav_botton"
         android:layout_width="56dp"
         android:layout_height="56dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
         android:scaleType="center"
         android:src="@drawable/ic_menu" />
 
@@ -20,6 +21,11 @@
         android:id="@+id/nav_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="?attr/colorTertiaryContainer"
+        app:iconTint="?attr/colorOnTertiaryContainer"
+        android:textColor="?attr/colorOnTertiaryContainer"
+        android:minWidth="0dp"
+        android:scrollbars="none"
         android:text="@string/search"
         app:icon="@drawable/ic_search" />
 

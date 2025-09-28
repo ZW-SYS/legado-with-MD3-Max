@@ -16,68 +16,76 @@
         android:background="?attr/selectableItemBackground"
         tools:ignore="UnusedAttribute">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_cover"
-            android:layout_width="70dp"
-            android:layout_height="98dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginVertical="8dp"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cd_cover"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="8dp"
+            app:strokeWidth="0dp"
+            android:layout_margin="8dp"
+            android:transitionName="img_cover"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
-            <!-- 书封面 -->
-            <io.legato.kazusa.ui.widget.image.CoverImageView
-                android:id="@+id/iv_cover"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/image_cover_default"
-                android:transitionName="img_cover"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                tools:ignore="ImageContrastCheck" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_cover"
+                android:layout_width="70dp"
+                android:layout_height="98dp">
 
-            <com.google.android.material.progressindicator.LinearProgressIndicator
-                android:id="@+id/rl_loading"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="4dp"
-                android:layout_marginHorizontal="6dp"
-                android:indeterminate="true"
-                android:visibility="invisible"
-                android:layout_gravity="top"
-                app:layout_constraintTop_toTopOf="@id/iv_cover"
-                app:layout_constraintStart_toStartOf="@id/iv_cover"
-                app:layout_constraintEnd_toEndOf="@id/iv_cover" />
+                <io.legato.kazusa.ui.widget.image.CoverImageView
+                    android:id="@+id/iv_cover"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/image_cover_default"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    tools:ignore="ImageContrastCheck" />
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cd_unread"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="4dp"
-                android:visibility="visible"
-                app:cardCornerRadius="4dp"
-                app:strokeWidth="0dp"
-                app:cardBackgroundColor="?attr/colorSecondaryVariant"
-                app:layout_constraintTop_toTopOf="@id/iv_cover"
-                app:layout_constraintEnd_toEndOf="@id/iv_cover">
+                <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/rl_loading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="4dp"
+                    android:layout_marginHorizontal="6dp"
+                    android:indeterminate="true"
+                    android:visibility="invisible"
+                    android:layout_gravity="top"
+                    app:layout_constraintTop_toTopOf="@id/iv_cover"
+                    app:layout_constraintStart_toStartOf="@id/iv_cover"
+                    app:layout_constraintEnd_toEndOf="@id/iv_cover" />
 
-                <TextView
-                    android:id="@+id/tv_unread"
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cd_unread"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="?attr/colorSurface"
-                    android:textSize="10sp"
-                    android:padding="4dp"
-                    android:textStyle="bold"
-                    android:includeFontPadding="false"
-                    tools:text="5"
-                    tools:ignore="SmallSp" />
+                    android:layout_margin="4dp"
+                    android:visibility="visible"
+                    app:cardCornerRadius="4dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="?attr/colorSecondaryVariant"
+                    app:layout_constraintTop_toTopOf="@id/iv_cover"
+                    app:layout_constraintEnd_toEndOf="@id/iv_cover">
 
-            </com.google.android.material.card.MaterialCardView>
+                    <TextView
+                        android:id="@+id/tv_unread"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="?attr/colorSurface"
+                        android:textSize="10sp"
+                        android:padding="4dp"
+                        android:textStyle="bold"
+                        android:includeFontPadding="false"
+                        tools:text="5"
+                        tools:ignore="SmallSp" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+
 
         <TextView
             android:id="@+id/tv_name"
@@ -90,9 +98,9 @@
             android:text="@string/book_name"
             style="@style/ChapterNameText"
             tools:ignore="RtlHardcoded,RtlSymmetry"
-            app:layout_constraintStart_toEndOf="@+id/cl_cover"
+            app:layout_constraintStart_toEndOf="@+id/cd_cover"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/cl_cover" />
+            app:layout_constraintTop_toTopOf="@id/cd_cover" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/iv_author"

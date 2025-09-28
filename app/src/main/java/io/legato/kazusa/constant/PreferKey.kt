@@ -103,7 +103,6 @@ object PreferKey {
     const val mangaColorFilter = "mangaColorFilter"
     const val enableMangaEInk = "enableMangaEInk"
     const val mangaEInkThreshold = "mangaEInkThreshold"
-    const val disableHorizontalAnimator = "disableHorizontalAnimator"
     const val enableMangaGray = "enableMangaGray"
 
     const val autoRefresh = "auto_refresh"
@@ -204,4 +203,5 @@ object PreferKey {
     const val bookshelfLayoutGridPortrait = "bookshelfLayoutGridPortrait"
     const val tabletInterface = "tabletInterface"
     const val pureBlack = "pure_black"
+    const val labelVisibilityMode = "labelVisibilityMode"
 }

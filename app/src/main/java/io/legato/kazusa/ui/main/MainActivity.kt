@@ -20,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.bottomnavigation.LabelVisibilityMode
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
@@ -48,7 +49,6 @@ import io.legato.kazusa.ui.main.explore.ExploreFragment
 import io.legato.kazusa.ui.main.my.MyFragment
 import io.legato.kazusa.ui.main.rss.RssFragment
 import io.legato.kazusa.ui.widget.dialog.TextDialog
-import io.legato.kazusa.utils.dpToPx
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.hideSoftInput
 import io.legato.kazusa.utils.observeEvent
@@ -371,42 +371,67 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
             } else {
                 binding.bottomNavigationView.gone()
             }
+
+            navView.labelVisibilityMode = when (AppConfig.labelVisibilityMode) {
+                "auto" -> LabelVisibilityMode.LABEL_VISIBILITY_AUTO
+                "selected" -> LabelVisibilityMode.LABEL_VISIBILITY_SELECTED
+                "labeled" -> LabelVisibilityMode.LABEL_VISIBILITY_LABELED
+                "unlabeled" -> LabelVisibilityMode.LABEL_VISIBILITY_UNLABELED
+                else -> LabelVisibilityMode.LABEL_VISIBILITY_AUTO
+            }
+
         } else {
             binding.bottomNavigationView.gone()
             binding.navigationRailView.gone()
         }
 
-        val efab =
-            binding.navigationRailView.headerView?.findViewById<ExtendedFloatingActionButton>(R.id.nav_fab)
-        efab?.let { it.isExtended = false }
-
         val lp =
-            binding.navigationRailView.headerView?.let { it.layoutParams as FrameLayout.LayoutParams }
-        lp!!.gravity = Gravity.START
+            binding.navigationRailView.headerView!!.layoutParams as FrameLayout.LayoutParams
+        lp.gravity = Gravity.START
 
-        binding.navigationRailView.headerView?.setPadding(
-            12.dpToPx(),
-            12.dpToPx(),
-            12.dpToPx(),
-            12.dpToPx()
-        )
+        binding.navigationRailView.headerView!!
+            .setPadding(
+                binding.navigationRailView.itemActiveIndicatorExpandedMarginHorizontal,
+                0,
+                binding.navigationRailView.itemActiveIndicatorExpandedMarginHorizontal,
+                0)
 
-        binding.navigationRailView.headerView?.findViewById<ExtendedFloatingActionButton>(R.id.nav_fab)
-            ?.setOnClickListener {
+        val efab =
+            binding.navigationRailView.headerView!!.findViewById<ExtendedFloatingActionButton>(R.id.nav_fab)
+        val button =
+            binding.navigationRailView.headerView!!.findViewById<ImageView>(R.id.nav_botton)
+
+        efab.let {
+            if (LocalConfig.navExtended) {
+                it.isExtended = true
+                binding.navigationRailView.expand()
+                button.setImageResource(R.drawable.ic_menu_open)
+            } else {
+                it.isExtended = false
+                binding.navigationRailView.collapse()
+                button.setImageResource(R.drawable.ic_menu)
+            }
+        }
+
+        efab.setOnClickListener {
                 startActivity<SearchActivity>()
             }
-        binding.navigationRailView.headerView?.findViewById<ImageView>(R.id.nav_botton)
-            ?.setOnClickListener {
-                efab?.let { it1 ->
-                    if (it1.isExtended) {
-                        efab.isExtended = false
-                        binding.navigationRailView.collapse()
-                    } else {
-                        efab.isExtended = true
-                        binding.navigationRailView.expand()
-                    }
+
+        button.setOnClickListener {
+            efab.let { it1 ->
+                if (it1.isExtended) {
+                    efab.isExtended = false
+                    binding.navigationRailView.collapse()
+                    button.setImageResource(R.drawable.ic_menu)
+                } else {
+                    efab.isExtended = true
+                    binding.navigationRailView.expand()
+                    button.setImageResource(R.drawable.ic_menu_open)
                 }
+                LocalConfig.navExtended = it1.isExtended
             }
+        }
+
     }
 
     private fun bindNavigationListener() {
@@ -416,14 +441,6 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
         binding.viewPagerMain.post {
             binding.viewPagerMain.setCurrentItem(pagePosition, false)
             getNavigationBarView().menu[pagePosition].isChecked = true
-        }
-    }
-
-    private fun updateNavigationRailFab(position: Int) {
-        binding.navigationRailView.headerView?.gone()
-        val fragmentId = getFragmentId(position)
-        if (fragmentId == idBookshelf1 || fragmentId == idBookshelf2 || fragmentId == idBookshelf3) {
-            binding.navigationRailView.headerView?.visible()
         }
     }
 
@@ -467,7 +484,6 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
                 idMy -> R.id.menu_my_config
                 else -> R.id.menu_bookshelf
             }
-            updateNavigationRailFab(position)
         }
     }
 

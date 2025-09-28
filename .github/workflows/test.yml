@@ -114,8 +114,8 @@ jobs:
       - name: Check Build production
         run: |
           echo "查看 APK 输出目录"
-          ls -R $GITHUB_WORKSPACE/app/app/build/outputs/apk/
-          if ! ls $GITHUB_WORKSPACE/app/app/build/outputs/apk/release/*/*.apk 1> /dev/null 2>&1; then
+          ls -R $GITHUB_WORKSPACE/app/build/outputs/apk/
+          if ! ls $GITHUB_WORKSPACE/app/build/outputs/apk/*/*/*.apk 1> /dev/null 2>&1; then
             echo "Build production not found! Check gradle logs."
             exit 1
           fi

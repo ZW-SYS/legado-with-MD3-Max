@@ -205,9 +205,9 @@ class ThemeConfigFragment : PreferenceFragmentCompat(),
                 upPreferenceSummary(key, getPrefString(key))
             }
 
-            PreferKey.tabletInterface -> {
-                recreateActivities()
-            }
+            PreferKey.showDiscovery, PreferKey.showRss,
+            PreferKey.showBottomView, PreferKey.tabletInterface,
+            PreferKey.labelVisibilityMode -> postEvent(EventBus.NOTIFY_MAIN, true)
         }
 
     }

@@ -136,4 +136,11 @@
         <item>仅强调色</item>
     </string-array>
 
+    <string-array name="label_vis_mode" >
+        <item>自动</item>
+        <item>选中时显示</item>
+        <item>常驻</item>
+        <item>不显示</item>
+    </string-array>
+
 </resources>

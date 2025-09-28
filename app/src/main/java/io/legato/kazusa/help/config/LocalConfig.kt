@@ -41,6 +41,12 @@ by appCtx.getSharedPreferences("local", Context.MODE_PRIVATE) {
             putBoolean("privacyPolicyOk", value)
         }
 
+    var navExtended: Boolean
+        get() = getBoolean("navExtended")
+        set(value) {
+            putBoolean("navExtended", value)
+        }
+
     val readHelpVersionIsLast: Boolean
         get() = isLastVersion(1, "readHelpVersion", "firstRead")
 

@@ -81,4 +81,11 @@
         <item>accent</item>
     </string-array>
 
+    <string-array name="label_vis_mode_value">
+        <item>auto</item>
+        <item>selected</item>
+        <item>labeled</item>
+        <item>unlabeled</item>
+    </string-array>
+
 </resources>

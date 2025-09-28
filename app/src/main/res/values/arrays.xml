@@ -222,4 +222,11 @@
 		<item>@string/bookshelf_px_5</item>
 	</string-array>
 
+    <string-array name="label_vis_mode" >
+		<item>Auto</item>
+		<item>Selected</item>
+		<item>Labeled</item>
+		<item>Unlabeled</item>
+	</string-array>
+
 </resources>
