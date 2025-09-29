@@ -80,14 +80,34 @@ object AppUpdateGitHub : AppUpdate.AppUpdateInterface {
     }
 
     fun String.versionCompare(other: String): Int {
-        val thisParts = this.split(".")
-        val otherParts = other.split(".")
+        val regex = Regex("""(\d+)|(\D+)""")
+        val thisParts = regex.findAll(this).map { it.value }.toList()
+        val otherParts = regex.findAll(other).map { it.value }.toList()
         val maxLength = maxOf(thisParts.size, otherParts.size)
+
         for (i in 0 until maxLength) {
-            val thisPart = thisParts.getOrNull(i)?.toIntOrNull() ?: 0
-            val otherPart = otherParts.getOrNull(i)?.toIntOrNull() ?: 0
-            if (thisPart != otherPart) return thisPart - otherPart
+            val a = thisParts.getOrNull(i)
+            val b = otherParts.getOrNull(i)
+
+            if (a == null) return -1
+            if (b == null) return 1
+
+            val isANum = a.all { it.isDigit() }
+            val isBNum = b.all { it.isDigit() }
+
+            if (isANum && a.length > 1 && a.startsWith("0")) return -1
+            if (isBNum && b.length > 1 && b.startsWith("0")) return 1
+
+            val cmp = if (isANum && isBNum) {
+                a.toInt() - b.toInt()
+            } else {
+                a.compareTo(b)
+            }
+
+            if (cmp != 0) return cmp
         }
+
         return 0
     }
+
 }

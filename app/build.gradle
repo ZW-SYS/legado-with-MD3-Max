@@ -15,13 +15,30 @@ plugins {
 }
 apply from: 'download.gradle'
 
-static def releaseTime() {
-    return new Date().format("yy.MMddHH", TimeZone.getTimeZone("GMT+8"))
+ext {
+    versionMajor = 3
+    versionMinor = 25
+    versionPatch = 9
 }
 
 def name = "legado"
-def version = "3." + releaseTime()
 def gitCommits = Integer.parseInt('git rev-list HEAD --count'.execute().text.trim())
+
+ext.versionBuild = gitCommits
+ext.versionName = "${ext.versionMajor}.${ext.versionMinor}.${ext.versionPatch}"
+
+def getGitCommitHash() {
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-parse', '--short', 'HEAD'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    } catch (Exception ignored) {
+        return "unknown"
+    }
+}
 
 android {
     compileSdk = compile_sdk_version
@@ -52,9 +69,9 @@ android {
         minSdk 26
         targetSdk 36
         versionCode 10000 + gitCommits
-        versionName version
+        versionName project.ext.versionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        project.ext.set("archivesBaseName", name + "_" + version)
+        project.ext.set("archivesBaseName", name + "_" + versionName)
 
         buildConfigField "String", "Cronet_Version", "\"$CronetVersion\""
         buildConfigField "String", "Cronet_Main_Version", "\"$CronetMainVersion\""
@@ -98,7 +115,7 @@ android {
             manifestPlaceholders.put("app_name", "@string/app_name")
 
             //applicationIdSuffix '.debug'
-            versionNameSuffix 'debug'
+            versionNameSuffix "_debug-${getGitCommitHash()}"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'cronet-proguard-rules.pro'
         }
@@ -127,7 +144,8 @@ android {
         variant.outputs.configureEach { output ->
             def abi = output.getFilter(com.android.build.OutputFile.ABI)
             def flavor = variant.productFlavors[0].name
-            def apkName = "${name}_${flavor}_${defaultConfig.versionName}"
+            def baseVersionName = variant.versionName
+            def apkName = "${name}_${flavor}_${baseVersionName}"
             if (abi != null) {
                 apkName += "_${abi}"
             }
