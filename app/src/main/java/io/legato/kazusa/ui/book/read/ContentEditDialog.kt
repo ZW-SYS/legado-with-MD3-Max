@@ -1,16 +1,17 @@
 package io.legato.kazusa.ui.book.read
 
-//import io.legado.app.lib.theme.primaryColor
 import android.app.Application
 import android.content.DialogInterface
 import android.os.Bundle
+import android.text.Spannable
+import android.text.Spanned
+import android.text.style.BackgroundColorSpan
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import io.legato.kazusa.R
-import io.legato.kazusa.base.BaseDialogFragment
+import io.legato.kazusa.base.BaseBottomSheetDialogFragment
 import io.legato.kazusa.base.BaseViewModel
 import io.legato.kazusa.data.appDb
 import io.legato.kazusa.data.entities.BookChapter
@@ -25,7 +26,7 @@ import io.legato.kazusa.model.ReadBook
 import io.legato.kazusa.model.webBook.WebBook
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.sendToClip
-import io.legato.kazusa.utils.setLayout
+import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 import io.legato.kazusa.utils.visible
 import kotlinx.coroutines.Dispatchers.IO
@@ -35,15 +36,10 @@ import kotlinx.coroutines.withContext
 /**
  * 内容编辑
  */
-class ContentEditDialog : BaseDialogFragment(R.layout.dialog_content_edit) {
+class ContentEditDialog : BaseBottomSheetDialogFragment(R.layout.dialog_content_edit) {
 
     val binding by viewBinding(DialogContentEditBinding::bind)
     val viewModel by viewModels<ContentEditViewModel>()
-
-    override fun onStart() {
-        super.onStart()
-        setLayout(1f, ViewGroup.LayoutParams.MATCH_PARENT)
-    }
 
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
         //binding.toolBar.setBackgroundColor(primaryColor)
@@ -68,13 +64,18 @@ class ContentEditDialog : BaseDialogFragment(R.layout.dialog_content_edit) {
         viewModel.initContent {
             binding.contentView.setText(it)
             binding.contentView.post {
-                binding.contentView.apply {
-                    val lineIndex = layout.getLineForOffset(ReadBook.durChapterPos)
-                    val lineHeight = layout.getLineTop(lineIndex)
-                    scrollTo(0, lineHeight)
-                }
+                val layout = binding.contentView.layout ?: return@post
+                val targetY = binding.contentView.top +
+                        layout.getLineTop(
+                            layout.getLineForOffset(ReadBook.durChapterPos)
+                        )
+
+                binding.scrollView.smoothScrollTo(0, targetY)
+
+                highlightCurrentLineTwice()
             }
         }
+
     }
 
     private fun initMenu() {
@@ -115,6 +116,35 @@ class ContentEditDialog : BaseDialogFragment(R.layout.dialog_content_edit) {
             }
         }
     }
+
+    private fun highlightCurrentLineTwice() {
+        val editText = binding.contentView
+        val layout = editText.layout ?: return
+        val offset = ReadBook.durChapterPos
+        val lineIndex = layout.getLineForOffset(offset)
+
+        val start = layout.getLineStart(lineIndex)
+        val end = layout.getLineEnd(lineIndex)
+
+        val spannable = editText.text as Spannable
+        val span =
+            BackgroundColorSpan(requireContext().themeColor(com.google.android.material.R.attr.colorSecondaryContainer))
+
+
+        fun flash(times: Int) {
+            if (times <= 0) return
+            spannable.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editText.postDelayed({
+                spannable.removeSpan(span)
+                editText.postDelayed({
+                    flash(times - 1)
+                }, 200)
+            }, 300)
+        }
+
+        flash(3)
+    }
+
 
     override fun onCancel(dialog: DialogInterface) {
         super.onCancel(dialog)
