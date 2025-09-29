@@ -120,19 +120,11 @@ jobs:
             exit 1
           fi
 
-      - name: Upload APKs individually
-        run: |
-          for apk in app/build/outputs/apk/app/release/*.apk; do
-            if [[ $apk == *.apk && $apk != *.idsig ]]; then
-              name=$(basename $apk .apk)
-              echo "Uploading $apk as $name"
-              gh-actions-upload-artifact() {
-                echo "::set-output name=artifact-path::$apk"
-                echo "::set-output name=artifact-name::$name"
-              }
-              gh workflow run upload-artifact --artifact-name "$name" --path "$apk"
-            fi
-          done
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: APKs
+          path: app/build/outputs/apk/app/release/*.apk
 
       - name: Upload Mapping File To Artifact
         uses: actions/upload-artifact@v4
