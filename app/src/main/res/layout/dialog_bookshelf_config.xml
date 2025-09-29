@@ -80,9 +80,8 @@
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chip_group_style"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
                 android:checkableBehavior="single"
                 android:paddingBottom="8dp"
                 app:selectionRequired="true"
@@ -98,9 +97,9 @@
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chip_group_layout"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
+                app:chipSpacingVertical="0dp"
                 android:checkableBehavior="single"
                 app:selectionRequired="true"
                 app:singleSelection="true">

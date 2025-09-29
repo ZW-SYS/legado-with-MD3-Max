@@ -35,7 +35,7 @@
     </io.legato.kazusa.lib.prefs.PreferenceCategory>
 
     <io.legato.kazusa.lib.prefs.PreferenceCategory
-        android:title="隐私"
+        android:title="@string/privacy"
         app:allowDividerAbove="false"
         app:allowDividerBelow="false"
         app:iconSpaceReserved="false"
@@ -45,13 +45,13 @@
             android:defaultValue="true"
             android:key="notificationsPost"
             android:summary="@string/notification_permission_rationale"
-            android:title="通知权限" />
+            android:title="@string/notification_permission" />
 
         <io.legato.kazusa.lib.prefs.Preference
             android:defaultValue="true"
             android:key="ignoreBatteryPermission"
             android:summary="@string/ignore_battery_permission_rationale"
-            android:title="后台权限" />
+            android:title="@string/background_permission" />
 
         <io.legato.kazusa.lib.prefs.SwitchPreference
             android:defaultValue="true"
@@ -67,7 +67,7 @@
     </io.legato.kazusa.lib.prefs.PreferenceCategory>
 
     <io.legato.kazusa.lib.prefs.PreferenceCategory
-        android:title="阅读"
+        android:title="@string/read"
         app:allowDividerBelow="false"
         app:iconSpaceReserved="false"
         app:layout="@layout/view_preference_category">
@@ -161,19 +161,17 @@
             app:entries="@array/default_app_variant"
             app:entryValues="@array/default_app_variant_value" />
 
-
-
         <io.legato.kazusa.lib.prefs.SwitchPreference
             android:defaultValue="true"
             android:key="sharedElementEnterTransitionEnable"
-            android:summary="从书架进入阅读界面时，优化动画效果。"
-            android:title="使用共享元素动画" />
+            android:summary="@string/opt_animation"
+            android:title="@string/use_animation" />
 
         <io.legato.kazusa.lib.prefs.SwitchPreference
             android:defaultValue="true"
             android:key="delayBookLoadEnable"
-            android:summary="减少进入阅读界面时的卡顿，但加载书籍时间会延长。"
-            android:title="延缓书籍加载" />
+            android:summary="@string/reduce_stutter"
+            android:title="@string/delay_book_load" />
 
         <io.legato.kazusa.lib.prefs.Preference
             android:key="userAgent"

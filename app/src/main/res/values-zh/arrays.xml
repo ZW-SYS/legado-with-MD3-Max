@@ -124,6 +124,22 @@
         <item>@string/bookshelf_px_5</item>
     </string-array>
 
+    <string-array name="themes_item">
+        <item>动态取色</item>
+        <item>草野</item>
+        <item>柠檬</item>
+        <item>黑白</item>
+        <item>晴空</item>
+        <item>八月</item>
+        <item>新浪潮</item>
+        <item>春</item>
+        <item>千禧年</item>
+        <item>隐海修会</item>
+        <item>乐队</item>
+        <item>自定义</item>
+        <item>透明</item>
+    </string-array>
+
     <string-array name="tabletInterface">
         <item>自动</item>
         <item>总是</item>

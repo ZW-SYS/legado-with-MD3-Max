@@ -73,7 +73,7 @@
     <string name="theme_setting">Theme settings</string>
     <string name="theme_setting_s">Some settings related to interface or color</string>
     <string name="other_setting">Other settings</string>
-    <string name="other_setting_s">Some function-related settings</string>
+    <string name="other_setting_s">Language • Other Settings</string>
     <string name="about">About</string>
     <string name="donate">Donations</string>
     <string name="exit">Exit</string>
@@ -112,7 +112,7 @@
     <string name="ps_auto_download">Download the latest chapters automatically  when updating books</string>
     <string name="backup_restore">Backup and restore</string>
     <string name="web_dav_set">WebDav settings</string>
-    <string name="web_dav_set_import_old">WebDav settings/Import legacy data</string>
+    <string name="web_dav_set_import_old">WebDav settings • Import legacy data</string>
     <string name="backup">Backup</string>
     <string name="restore">Restore</string>
     <string name="backup_permission">Backup needs storage permission</string>
@@ -192,7 +192,7 @@
     <string name="rule_summary">Rules description</string>
     <string name="share">Share</string>
     <string name="share_app">Share to</string>
-    <string name="flow_sys">Follow system</string>
+    <string name="flow_sys">System</string>
     <string name="add">Add</string>
     <string name="import_book_source">Import book sources</string>
     <string name="import_local">Import local</string>
@@ -230,7 +230,7 @@
     <string name="import_select_book">Import selected book(s)</string>
     <string name="threads_num_title">Number of concurrent tasks</string>
     <string name="change_icon">Change icon</string>
-    <string name="remove_from_bookshelf">In bookshelf</string>
+    <string name="remove_from_bookshelf">In library</string>
     <string name="start_read">Start reading</string>
     <string name="data_loading">Loading…</string>
     <string name="load_error_retry">Load failed, tap to retry</string>
@@ -686,7 +686,7 @@
     <string name="save_image">Save image</string>
     <string name="no_default_path">No default path</string>
     <string name="change_group">Group settings</string>
-    <string name="view_toc">View Chapters</string>
+    <string name="view_toc">Chapters</string>
     <string name="bar_elevation">Navigation bar shadow</string>
     <string name="bar_elevation_s">Current shadow size(elevation): %s</string>
     <string name="btn_default_s">Default</string>
@@ -1269,4 +1269,20 @@
     <string name="copy_from">Import from Clipboard</string>
     <string name="light_mode">Light</string>
     <string name="dark_mode">Dark</string>
+    <string name="pure_black">True Black Mode</string>
+    <string name="transparent_theme_alarm">Please set the transparent theme after setting a background image.</string>
+    <string name="seed_color_summary">Create a theme from a seed color</string>
+    <string name="seed_color">Seed Color</string>
+    <string name="custom_mode">Custom Mode</string>
+    <string name="be_swiped">Pages can still be swiped</string>
+    <string name="show_bottom_nav">Show Navigation Bar</string>
+    <string name="nav_label_mode">Navigation Bar Label Mode</string>
+    <string name="read">Read</string>
+    <string name="privacy">Privacy</string>
+    <string name="notification_permission">Notification Permission</string>
+    <string name="background_permission">Background Permission</string>
+    <string name="opt_animation">Optimize the animation effect when entering the reading interface from the bookshelf.</string>
+    <string name="use_animation">Use Shared Element Animation</string>
+    <string name="reduce_stutter">Reduces stutter when entering the reading interface, but increases book loading time.</string>
+    <string name="delay_book_load">Delay Book Loading</string>
 </resources>
