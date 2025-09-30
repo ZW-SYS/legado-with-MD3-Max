@@ -11,13 +11,9 @@ data class AppReleaseInfo(
     val note: String,
     val name: String,
     val downloadUrl: String,
-    val assetUrl: String
-) {
-    val versionName: String = Regex("""legado_app_([\d.]+)\.apk""")
-        .find(name)
-        ?.groupValues?.get(1)
-        ?: ""
-}
+    val assetUrl: String,
+    val versionName: String
+)
 
 enum class AppVariant {
     OFFICIAL,
@@ -43,11 +39,14 @@ data class GithubRelease(
     val createdAt: String?
 ) {
     fun gitReleaseToAppReleaseInfo(): List<AppReleaseInfo> {
+        val version = tagName // 直接用 release 的 tag_name 作为版本号
         assets ?: throw NoStackTraceException("获取新版本出错")
+
         return assets
             .filter { it.isValid }
-            .map { it.assetToAppReleaseInfo(isPreRelease, body) }
+            .map { it.assetToAppReleaseInfo(isPreRelease, body, version) }
     }
+
 }
 
 
@@ -69,17 +68,21 @@ data class Asset(
     val isValid: Boolean
         get() = (contentType == "application/vnd.android.package-archive") && (state == "uploaded")
 
-    fun assetToAppReleaseInfo(preRelease: Boolean, note: String): AppReleaseInfo {
+    fun assetToAppReleaseInfo(preRelease: Boolean, note: String, version: String): AppReleaseInfo {
         val instant = Instant.parse(createdAt)
         val timestamp: Long = instant.toEpochMilli()
 
-        val appVariant = if (preRelease) {
-            AppVariant.BETA_RELEASE
-        } else {
-            AppVariant.OFFICIAL
-        }
+        val appVariant = if (preRelease) AppVariant.BETA_RELEASE else AppVariant.OFFICIAL
 
-        return AppReleaseInfo(appVariant, timestamp, note, name, apkUrl, url)
+        return AppReleaseInfo(
+            appVariant = appVariant,
+            createdAt = timestamp,
+            note = note,
+            name = name,
+            downloadUrl = apkUrl,
+            assetUrl = url,
+            versionName = version // 直接传入 tagName
+        )
     }
 
 }

@@ -29,16 +29,10 @@ object AppUpdateGitHub : AppUpdate.AppUpdateInterface {
             "https://api.github.com/repos/HapeLee/legado-with-MD3/releases/latest"
         }
 
-        val res = okHttpClient.newCallResponse {
-            url(lastReleaseUrl)
-        }
-        if (!res.isSuccessful) {
-            throw NoStackTraceException("获取新版本出错(${res.code})")
-        }
+        val res = okHttpClient.newCallResponse { url(lastReleaseUrl) }
+        if (!res.isSuccessful) throw NoStackTraceException("获取新版本出错(${res.code})")
         val body = res.body.text()
-        if (body.isBlank()) {
-            throw NoStackTraceException("获取新版本出错")
-        }
+        if (body.isBlank()) throw NoStackTraceException("获取新版本出错")
 
         return if (checkVariant.isBeta()) {
             val releases = GSON.fromJsonArray<GithubRelease>(body)
@@ -60,11 +54,16 @@ object AppUpdateGitHub : AppUpdate.AppUpdateInterface {
     override fun check(scope: CoroutineScope): Coroutine<AppUpdate.UpdateInfo> {
         return Coroutine.async(scope) {
             val currentVersion = AppConst.appInfo.versionName
-
             val releases = getLatestRelease()
                 .filter { it.appVariant == checkVariant }
 
-            val latest = releases.firstOrNull { it.versionName.versionCompare(currentVersion) > 0 }
+            val latest = releases.firstOrNull { r ->
+                try {
+                    r.versionName.versionCompare(currentVersion) > 0
+                } catch (e: Exception) {
+                    false
+                }
+            }
 
             if (latest != null) {
                 return@async AppUpdate.UpdateInfo(
@@ -79,35 +78,57 @@ object AppUpdateGitHub : AppUpdate.AppUpdateInterface {
         }.timeout(10000)
     }
 
-    fun String.versionCompare(other: String): Int {
-        val regex = Regex("""(\d+)|(\D+)""")
-        val thisParts = regex.findAll(this).map { it.value }.toList()
-        val otherParts = regex.findAll(other).map { it.value }.toList()
-        val maxLength = maxOf(thisParts.size, otherParts.size)
+    private data class SemVer(
+        val major: Int,
+        val minor: Int,
+        val patch: Int,
+        val preRelease: String? = null
+    ) : Comparable<SemVer> {
+        override fun compareTo(other: SemVer): Int {
+            if (major != other.major) return major - other.major
+            if (minor != other.minor) return minor - other.minor
+            if (patch != other.patch) return patch - other.patch
 
-        for (i in 0 until maxLength) {
-            val a = thisParts.getOrNull(i)
-            val b = otherParts.getOrNull(i)
+            if (preRelease == null && other.preRelease != null) return 1
+            if (preRelease != null && other.preRelease == null) return -1
+            if (preRelease == null && other.preRelease == null) return 0
 
-            if (a == null) return -1
-            if (b == null) return 1
+            val aParts = preRelease!!.split(".")
+            val bParts = other.preRelease!!.split(".")
+            val maxLen = maxOf(aParts.size, bParts.size)
 
-            val isANum = a.all { it.isDigit() }
-            val isBNum = b.all { it.isDigit() }
+            for (i in 0 until maxLen) {
+                val a = aParts.getOrNull(i)
+                val b = bParts.getOrNull(i)
+                if (a == null) return -1
+                if (b == null) return 1
 
-            if (isANum && a.length > 1 && a.startsWith("0")) return -1
-            if (isBNum && b.length > 1 && b.startsWith("0")) return 1
-
-            val cmp = if (isANum && isBNum) {
-                a.toInt() - b.toInt()
-            } else {
-                a.compareTo(b)
+                val isANum = a.all { it.isDigit() }
+                val isBNum = b.all { it.isDigit() }
+                if (isANum && isBNum) {
+                    val cmp = a.toInt().compareTo(b.toInt())
+                    if (cmp != 0) return cmp
+                } else {
+                    val cmp = a.compareTo(b)
+                    if (cmp != 0) return cmp
+                }
             }
-
-            if (cmp != 0) return cmp
+            return 0
         }
 
-        return 0
+        companion object {
+            fun parse(version: String): SemVer {
+                val regex = Regex("""(\d+)\.(\d+)\.(\d+)(?:-([\w.]+))?""")
+                val match = regex.matchEntire(version)
+                    ?: throw IllegalArgumentException("Invalid version: $version")
+                val (maj, min, pat, pre) = match.destructured
+                return SemVer(maj.toInt(), min.toInt(), pat.toInt(), pre.ifBlank { null })
+            }
+        }
     }
 
+    fun String.versionCompare(other: String): Int {
+        return SemVer.parse(this).compareTo(SemVer.parse(other))
+    }
 }
+

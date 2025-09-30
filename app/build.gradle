@@ -120,7 +120,7 @@ android {
             manifestPlaceholders.put("app_name", "@string/app_name")
 
             //applicationIdSuffix '.debug'
-            versionNameSuffix "_debug-${getGitCommitHash()}"
+            versionNameSuffix "_debug+${getGitCommitHash()}"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'cronet-proguard-rules.pro'
         }
