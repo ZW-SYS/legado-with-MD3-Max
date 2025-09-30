@@ -18,7 +18,7 @@ apply from: 'download.gradle'
 ext {
     versionMajor = 3
     versionMinor = 25
-    versionPatch = 9
+    versionPatch = 10
 }
 
 def name = "legado"

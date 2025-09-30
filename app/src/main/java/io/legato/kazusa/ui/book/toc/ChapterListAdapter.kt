@@ -170,7 +170,7 @@ class ChapterListAdapter(
     }
 
     private fun getDisplayTitle(chapter: BookChapter): String =
-        displayTitleMap[chapter.title] ?: chapter.title
+        displayTitleMap[chapter.url] ?: chapter.title
 
     override fun getViewBinding(parent: ViewGroup): ItemChapterListBinding =
         ItemChapterListBinding.inflate(inflater, parent, false)
