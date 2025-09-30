@@ -23,13 +23,14 @@ ext {
     versionMajor = versionProps['VERSION_MAJOR'].toInteger()
     versionMinor = versionProps['VERSION_MINOR'].toInteger()
     versionPatch = versionProps['VERSION_PATCH'].toInteger()
+    versionSuffix = versionProps['VERSION_SUFFIX'] ?: ""
 }
 
 def name = "legado"
 def gitCommits = Integer.parseInt('git rev-list HEAD --count'.execute().text.trim())
 
 ext.versionBuild = gitCommits
-ext.versionName = "${ext.versionMajor}.${ext.versionMinor}.${ext.versionPatch}"
+ext.versionName = "${ext.versionMajor}.${ext.versionMinor}.${ext.versionPatch}${ext.versionSuffix}"
 
 def getGitCommitHash() {
     try {
