@@ -52,9 +52,11 @@ import io.legato.kazusa.ui.widget.dialog.TextDialog
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.hideSoftInput
 import io.legato.kazusa.utils.observeEvent
+import io.legato.kazusa.utils.setNavigationBarColorAuto
 import io.legato.kazusa.utils.shouldHideSoftInput
 import io.legato.kazusa.utils.showDialogFragment
 import io.legato.kazusa.utils.startActivity
+import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 import io.legato.kazusa.utils.visible
@@ -209,7 +211,7 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
         viewPagerMain.adapter = adapter
         viewPagerMain.registerOnPageChangeCallback(PageChangeCallback())
 
-        //window.setNavigationBarColorAuto(themeColor(com.google.android.material.R.attr.colorSurfaceContainer))
+        window.setNavigationBarColorAuto(themeColor(com.google.android.material.R.attr.colorSurfaceContainer))
     }
 
     /**

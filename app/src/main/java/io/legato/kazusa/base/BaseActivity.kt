@@ -82,10 +82,9 @@ abstract class BaseActivity<VB : ViewBinding>(
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q)
             enableEdgeToEdge()
         else{
-            window.setNavigationBarColorAuto(themeColor(com.google.android.material.R.attr.colorSurface))
             setupSystemBar()
         }
-        //window.setNavigationBarColorAuto(themeColor(com.google.android.material.R.attr.colorSurface))
+        window.setNavigationBarColorAuto(themeColor(com.google.android.material.R.attr.colorSurface))
         //setupSystemBar()
         setContentView(binding.root)
         upBackgroundImage()

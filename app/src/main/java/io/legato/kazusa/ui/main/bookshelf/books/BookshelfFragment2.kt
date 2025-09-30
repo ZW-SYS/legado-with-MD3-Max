@@ -182,7 +182,7 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
     private fun initBooksData() {
         if (groupId == BookGroup.Companion.IdRoot) {
             if (isAdded) {
-                binding.topBar.title = getString(R.string.bookshelf)
+                binding.collTopBar.title = getString(R.string.bookshelf)
                 binding.refreshLayout.isEnabled = true
                 enableRefresh = true
             }
@@ -190,7 +190,7 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
             bookGroups.firstOrNull {
                 groupId == it.groupId
             }?.let {
-                binding.topBar.title = it.groupName
+                binding.collTopBar.title = it.groupName
                 binding.refreshLayout.isEnabled = it.enableRefresh
                 enableRefresh = it.enableRefresh
             }
