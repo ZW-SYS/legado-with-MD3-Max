@@ -15,10 +15,14 @@ plugins {
 }
 apply from: 'download.gradle'
 
+def versionPropsFile = file("version.properties")
+def versionProps = new Properties()
+versionProps.load(new FileInputStream(versionPropsFile))
+
 ext {
-    versionMajor = 3
-    versionMinor = 25
-    versionPatch = 10
+    versionMajor = versionProps['VERSION_MAJOR'].toInteger()
+    versionMinor = versionProps['VERSION_MINOR'].toInteger()
+    versionPatch = versionProps['VERSION_PATCH'].toInteger()
 }
 
 def name = "legado"
