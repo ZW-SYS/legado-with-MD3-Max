@@ -64,7 +64,9 @@ class ExploreFragment() : VMBaseFragment<ExploreViewModel>(R.layout.fragment_exp
 
     override val viewModel by viewModels<ExploreViewModel>()
     private val binding by viewBinding(FragmentExploreBinding::bind)
-    private val adapter by lazy { ExploreAdapter(requireContext(), this) }
+    private val adapter by lazy {
+        ExploreAdapter(requireContext(), this)
+    }
     private val linearLayoutManager by lazy { LinearLayoutManager(context) }
     private val searchBar: SearchBar by lazy { binding.searchBar }
     private val searchView: SearchView by lazy { binding.searchView }
@@ -114,7 +116,7 @@ class ExploreFragment() : VMBaseFragment<ExploreViewModel>(R.layout.fragment_exp
                 upExploreData(it.toString())
 
                 if (it.isEmpty()) {
-                    searchBar.hint = getString(R.string.search_rss_source)
+                    searchBar.hint = getString(R.string.screen_find)
                 }
             }
         }

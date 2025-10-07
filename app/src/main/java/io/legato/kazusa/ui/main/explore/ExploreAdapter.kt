@@ -19,7 +19,6 @@ import io.legato.kazusa.databinding.ItemFindBookBinding
 import io.legato.kazusa.help.coroutine.Coroutine
 import io.legato.kazusa.help.source.clearExploreKindsCache
 import io.legato.kazusa.help.source.exploreKinds
-//import io.legado.app.lib.theme.accentColor
 import io.legato.kazusa.ui.login.SourceLoginActivity
 import io.legato.kazusa.ui.widget.dialog.TextDialog
 import io.legato.kazusa.utils.activity
@@ -31,8 +30,10 @@ import io.legato.kazusa.utils.visible
 import kotlinx.coroutines.CoroutineScope
 import splitties.views.onLongClick
 
-class ExploreAdapter(context: Context, val callBack: CallBack) :
-    RecyclerAdapter<BookSourcePart, ItemFindBookBinding>(context) {
+class ExploreAdapter(
+    context: Context,
+    private val callBack: CallBack
+) : RecyclerAdapter<BookSourcePart, ItemFindBookBinding>(context) {
 
     private val recycler = arrayListOf<View>()
     private var expandedId: String? = null
@@ -144,7 +145,7 @@ class ExploreAdapter(context: Context, val callBack: CallBack) :
                 }
             }
             llTitle.onLongClick {
-                showMenu(llTitle, holder.bindingAdapterPosition)
+                showMenu(ivStatus, holder.bindingAdapterPosition)
             }
         }
     }
