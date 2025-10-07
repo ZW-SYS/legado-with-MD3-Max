@@ -138,7 +138,7 @@
             android:name=".ui.main.MainActivity"
             android:alwaysRetainTaskState="true"
             android:enableOnBackInvokedCallback="true"
-            android:exported="true">
+            android:exported="false">
         </activity>
         <activity
             android:name=".ui.welcome.WelcomeActivity"
