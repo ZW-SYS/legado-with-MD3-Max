@@ -8,13 +8,7 @@ import android.widget.FrameLayout
 import androidx.annotation.MenuRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.PopupMenu
-import io.legato.kazusa.R
 import io.legato.kazusa.databinding.ViewSelectActionBarBinding
-//import io.legado.app.lib.theme.accentColor
-//import io.legado.app.lib.theme.bottomBackground
-//import io.legado.app.lib.theme.getPrimaryTextColor
-//import io.legado.app.lib.theme.getSecondaryDisabledTextColor
-import io.legato.kazusa.utils.applyNavigationBarPadding
 import io.legato.kazusa.utils.visible
 
 
@@ -24,10 +18,6 @@ class SelectActionBar @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ) : FrameLayout(context, attrs) {
 
-//    private val bgIsLight = ColorUtils.isColorLight(context.bottomBackground)
-//    private val primaryTextColor = context.getPrimaryTextColor(bgIsLight)
-//    private val disabledColor = context.getSecondaryDisabledTextColor(bgIsLight)
-
     private var callBack: CallBack? = null
     private var selMenu: PopupMenu? = null
     private val binding = ViewSelectActionBarBinding
@@ -35,12 +25,7 @@ class SelectActionBar @JvmOverloads constructor(
 
     init {
         if (!isInEditMode) {
-//            setBackgroundColor(context.bottomBackground)
-//            //elevation = context.elevation
-//            binding.cbSelectedAll.setTextColor(primaryTextColor)
-//            TintHelper.setTint(binding.cbSelectedAll, context.accentColor, !bgIsLight)
-//            binding.ivMenuMore.setColorFilter(disabledColor, PorterDuff.Mode.SRC_IN)
-            binding.cbSelectedAll.setOnCheckedChangeListener { buttonView, isChecked ->
+            binding.cbSelectedAll.addOnCheckedChangeListener { buttonView, isChecked ->
                 if (buttonView.isPressed) {
                     callBack?.selectAll(isChecked)
                 }
@@ -52,7 +37,6 @@ class SelectActionBar @JvmOverloads constructor(
                     selMenu?.show()
                 }
             }
-            applyNavigationBarPadding()
         }
     }
 
@@ -94,19 +78,9 @@ class SelectActionBar @JvmOverloads constructor(
         }
 
         //重置全选的文字
-        if (cbSelectedAll.isChecked) {
-            cbSelectedAll.text = context.getString(
-                R.string.select_cancel_count,
-                selectCount,
-                allCount
-            )
-        } else {
-            cbSelectedAll.text = context.getString(
-                R.string.select_all_count,
-                selectCount,
-                allCount
-            )
-        }
+        tvCount.text = selectCount.toString()
+        tvCountAll.text = allCount.toString()
+
         setMenuClickable(selectCount > 0)
     }
 
