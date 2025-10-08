@@ -112,6 +112,13 @@
                     android:text="@string/list" />
 
                 <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_list_compact"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="@string/compact_list" />
+
+                <com.google.android.material.chip.Chip
                     android:id="@+id/chip_grid"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

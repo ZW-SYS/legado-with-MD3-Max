@@ -1284,4 +1284,6 @@
     <string name="use_animation">使用共享元素动画</string>
     <string name="reduce_stutter">减少进入阅读界面时的卡顿，但加载书籍时间会延长。</string>
     <string name="delay_book_load">延缓书籍加载</string>
+    <string name="compact_list">紧凑列表</string>
+    <string name="author_read">%s • %d章未读</string>
 </resources>

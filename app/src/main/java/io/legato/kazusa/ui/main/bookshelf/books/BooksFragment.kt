@@ -39,6 +39,7 @@ import io.legato.kazusa.ui.main.bookshelf.books.styleDefalut.BooksAdapterGrid
 import io.legato.kazusa.ui.main.bookshelf.books.styleDefalut.BooksAdapterGridCompact
 import io.legato.kazusa.ui.main.bookshelf.books.styleDefalut.BooksAdapterGridCover
 import io.legato.kazusa.ui.main.bookshelf.books.styleDefalut.BooksAdapterList
+import io.legato.kazusa.ui.main.bookshelf.books.styleDefalut.BooksAdapterListCompact
 import io.legato.kazusa.utils.bookshelfLayoutGrid
 import io.legato.kazusa.utils.bookshelfLayoutMode
 import io.legato.kazusa.utils.cnCompare
@@ -92,8 +93,12 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
                 BooksAdapterGridCompact(requireContext(), this)
             }
 
-            else -> {
+            3 -> {
                 BooksAdapterGridCover(requireContext(), this)
+            }
+
+            else -> {
+                BooksAdapterListCompact(requireContext(), this, this, viewLifecycleOwner.lifecycle)
             }
         }
     }
@@ -127,7 +132,7 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
             binding.refreshLayout.isRefreshing = false
             activityViewModel.upToc(booksAdapter.getItems())
         }
-        if (bookshelfLayoutMode == 0) {
+        if (bookshelfLayoutMode == 0 ||bookshelfLayoutMode == 4) {
             binding.rvBookshelf.layoutManager = LinearLayoutManager(context)
             binding.rvBookshelf.setRecycledViewPool(activityViewModel.booksListRecycledViewPool)
         } else {
@@ -232,7 +237,7 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
 
     private fun startLastUpdateTimeJob() {
         upLastUpdateTimeJob?.cancel()
-        if (!AppConfig.showLastUpdateTime || bookshelfLayoutMode != 0) {
+        if (!AppConfig.showLastUpdateTime || bookshelfLayoutMode != 0 ||bookshelfLayoutMode != 4) {
             return
         }
         upLastUpdateTimeJob = lifecycleScope.launch {

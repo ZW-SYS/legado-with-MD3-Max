@@ -36,6 +36,7 @@ import io.legato.kazusa.ui.main.bookshelf.books.styleFold.BooksAdapterGrid
 import io.legato.kazusa.ui.main.bookshelf.books.styleFold.BooksAdapterGridCompact
 import io.legato.kazusa.ui.main.bookshelf.books.styleFold.BooksAdapterGridCover
 import io.legato.kazusa.ui.main.bookshelf.books.styleFold.BooksAdapterList
+import io.legato.kazusa.ui.main.bookshelf.books.styleFold.BooksAdapterListCompact
 import io.legato.kazusa.utils.bookshelfLayoutGrid
 import io.legato.kazusa.utils.bookshelfLayoutMode
 import io.legato.kazusa.utils.cnCompare
@@ -85,8 +86,12 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
                 BooksAdapterGridCompact(requireContext(), this)
             }
 
-            else -> {
+            3 -> {
                 BooksAdapterGridCover(requireContext(), this)
+            }
+
+            else -> {
+                BooksAdapterListCompact(requireContext(), this)
             }
         }
     }
@@ -111,7 +116,7 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
             binding.refreshLayout.isRefreshing = false
             activityViewModel.upToc(books)
         }
-        if (bookshelfLayoutMode == 0) {
+        if (bookshelfLayoutMode == 0 || bookshelfLayoutMode == 4) {
             binding.rvBookshelf.layoutManager = LinearLayoutManager(context)
         } else {
             binding.rvBookshelf.layoutManager = GridLayoutManager(context, bookshelfLayoutGrid)

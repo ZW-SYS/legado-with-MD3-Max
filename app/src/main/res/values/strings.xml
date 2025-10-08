@@ -1285,4 +1285,6 @@
     <string name="use_animation">Use Shared Element Animation</string>
     <string name="reduce_stutter">Reduces stutter when entering the reading interface, but increases book loading time.</string>
     <string name="delay_book_load">Delay Book Loading</string>
+    <string name="compact_list">Compact List</string>
+    <string name="author_read">%s • %dNot read</string>
 </resources>

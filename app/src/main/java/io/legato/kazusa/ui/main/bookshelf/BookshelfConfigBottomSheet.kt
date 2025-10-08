@@ -36,6 +36,7 @@ class BookshelfConfigBottomSheet : BaseBottomSheetDialogFragment(R.layout.dialog
         val isGrid = bookshelfLayout == 1
         val isGridCompact = bookshelfLayout == 2
         val isGridCover = bookshelfLayout == 3
+        val isListCompact = bookshelfLayout == 4
 
         val columnCount = requireContext().bookshelfLayoutGrid.takeIf { it > 0 } ?: 1
 
@@ -76,12 +77,16 @@ class BookshelfConfigBottomSheet : BaseBottomSheetDialogFragment(R.layout.dialog
             swShowBookshelfFastScroller.isChecked = AppConfig.showBookshelfFastScroller
 
             chipList.isChecked = isList
+            chipListCompact.isChecked = isListCompact
             chipGrid.isChecked = isGrid
             chipGridCompact.isChecked = isGridCompact
             chipGridCover.isChecked = isGridCover
-            sliderText.isVisible = isGrid || isGridCompact || isGridCover
-            sliderGridCount.isVisible = isGrid || isGridCompact || isGridCover
+
+            val showSlider = isGrid || isGridCompact || isGridCover
+            sliderText.isVisible = showSlider
+            sliderGridCount.isVisible = showSlider
             sliderGridCount.value = columnCount.toFloat()
+
 
             when (AppConfig.bookshelfSortOrder) {
                 0 -> binding.chipGroupOrder.check(binding.chipAsc.id)
@@ -90,10 +95,11 @@ class BookshelfConfigBottomSheet : BaseBottomSheetDialogFragment(R.layout.dialog
 
             chipGroupLayout.setOnCheckedStateChangeListener { _, checkedIds ->
                 val checkedId = checkedIds.firstOrNull()
-                val showSlider =
-                    checkedId == R.id.chip_grid || checkedId == R.id.chip_grid_compact || checkedId == R.id.chip_grid_cover
-                sliderText.isVisible = showSlider
+                val showSlider = checkedId == R.id.chip_grid ||
+                        checkedId == R.id.chip_grid_compact ||
+                        checkedId == R.id.chip_grid_cover
                 TransitionManager.beginDelayedTransition(root)
+                sliderText.isVisible = showSlider
                 sliderGridCount.isVisible = showSlider
             }
 
@@ -136,6 +142,7 @@ class BookshelfConfigBottomSheet : BaseBottomSheetDialogFragment(R.layout.dialog
                     chipGrid.isChecked -> 1
                     chipGridCompact.isChecked -> 2
                     chipGridCover.isChecked -> 3
+                    chipListCompact.isChecked -> 4
                     else -> 0
                 }
 
@@ -149,7 +156,7 @@ class BookshelfConfigBottomSheet : BaseBottomSheetDialogFragment(R.layout.dialog
                         AppConfig.bookshelfLayoutGridPortrait = selectedColumn
                     }
 
-                    if (newLayout == 0) {
+                    if (newLayout == 0 || newLayout == 4) {
                         activityViewModel.booksGridRecycledViewPool.clear()
                     } else {
                         activityViewModel.booksListRecycledViewPool.clear()

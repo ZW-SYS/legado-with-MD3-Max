@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="4dp"
     app:strokeWidth="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -85,122 +84,100 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
 
-
-
-        <TextView
-            android:id="@+id/tv_name"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:scrollbars="none"
-            android:singleLine="true"
-            android:layout_marginTop="4dp"
+            android:orientation="vertical"
             android:layout_marginHorizontal="8dp"
-            android:text="@string/book_name"
-            style="@style/ChapterNameText"
-            tools:ignore="RtlHardcoded,RtlSymmetry"
-            app:layout_constraintStart_toEndOf="@+id/cd_cover"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/cd_cover" />
+            android:gravity="center_vertical"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/cd_cover"
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/iv_author"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:layout_marginTop="2dp"
-            android:contentDescription="@string/author"
-            android:scrollbars="none"
-            android:src="@drawable/ic_author"
-            tools:ignore="RtlHardcoded,RtlSymmetry"
-            app:layout_constraintStart_toStartOf="@+id/tv_name"
-            app:layout_constraintTop_toBottomOf="@+id/tv_name"/>
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:scrollbars="none"
+                android:singleLine="true"
+                android:text="@string/book_name"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="RtlHardcoded,RtlSymmetry"
+                app:layout_constraintStart_toEndOf="@+id/cd_cover"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/cd_cover" />
 
-        <TextView
-            android:id="@+id/tv_author"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:maxLines="1"
-            android:scrollbars="none"
-            android:singleLine="true"
-            android:text="@string/author"
-            android:textSize="13sp"
-            tools:ignore="RtlSymmetry,TextContrastCheck"
-            app:layout_constraintStart_toEndOf="@+id/iv_author"
-            app:layout_constraintBottom_toTopOf="@+id/iv_author"
-            app:layout_constraintTop_toBottomOf="@+id/iv_author" />
+            <TextView
+                android:id="@+id/tv_author"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:maxLines="1"
+                android:scrollbars="none"
+                android:singleLine="true"
+                android:text="@string/author"
+                android:textSize="13sp"
+                tools:ignore="RtlSymmetry,TextContrastCheck"
+                app:layout_constraintStart_toEndOf="@+id/iv_author"
+                app:layout_constraintBottom_toTopOf="@+id/iv_author"
+                app:layout_constraintTop_toBottomOf="@+id/iv_author" />
 
-        <TextView
-            android:id="@+id/tv_last_update_time"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="8dp"
-            android:maxLines="1"
-            android:scrollbars="none"
-            android:singleLine="true"
-            android:text="@string/text"
-            android:textSize="13sp"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_author"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tv_author" />
+            <TextView
+                android:id="@+id/tv_read"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:scrollbars="none"
+                android:singleLine="true"
+                android:text="@string/read_dur_progress"
+                android:textSize="13sp"
+                tools:ignore="TextContrastCheck"
+                app:layout_constraintBottom_toTopOf="@id/iv_read"
+                app:layout_constraintStart_toEndOf="@+id/iv_read"
+                app:layout_constraintTop_toBottomOf="@+id/iv_read"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/iv_read"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:layout_marginTop="4dp"
-            android:contentDescription="@string/read_dur_progress"
-            android:scrollbars="none"
-            android:src="@drawable/ic_history"
-            tools:ignore="RtlHardcoded,RtlSymmetry"
-            app:layout_constraintStart_toStartOf="@+id/tv_name"
-            app:layout_constraintTop_toBottomOf="@id/tv_author" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tv_read"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="8dp"
-            android:layout_weight="1"
-            android:scrollbars="none"
-            android:singleLine="true"
-            android:text="@string/read_dur_progress"
-            android:textSize="13sp"
-            tools:ignore="TextContrastCheck"
-            app:layout_constraintBottom_toTopOf="@id/iv_read"
-            app:layout_constraintStart_toEndOf="@+id/iv_read"
-            app:layout_constraintTop_toBottomOf="@+id/iv_read"
-            app:layout_constraintEnd_toEndOf="parent"/>
+                <TextView
+                    android:id="@+id/tv_last_update_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="4dp"
+                    android:maxLines="1"
+                    android:scrollbars="none"
+                    android:singleLine="true"
+                    android:text="@string/text"
+                    android:textSize="13sp"
+                    android:textColor="?attr/colorPrimary"
+                    app:layout_constraintBottom_toTopOf="@id/iv_last"
+                    app:layout_constraintStart_toEndOf="@+id/iv_last"
+                    app:layout_constraintTop_toBottomOf="@+id/iv_last" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/iv_last"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:layout_marginTop="4dp"
-            android:contentDescription="@string/lasted_show"
-            android:scrollbars="none"
-            android:src="@drawable/ic_book_last"
-            tools:ignore="RtlHardcoded,RtlSymmetry"
-            app:layout_constraintStart_toStartOf="@+id/tv_name"
-            app:layout_constraintTop_toBottomOf="@id/iv_read" />
+                <TextView
+                    android:id="@+id/tv_last"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:scrollbars="none"
+                    android:singleLine="true"
+                    android:text="@string/lasted_show"
+                    android:textSize="13sp"
+                    tools:ignore="TextContrastCheck"
+                    app:layout_constraintBottom_toTopOf="@id/iv_last"
+                    app:layout_constraintStart_toEndOf="@+id/tv_last_update_time"
+                    app:layout_constraintTop_toBottomOf="@+id/iv_last"
+                    app:layout_constraintEnd_toEndOf="parent"/>
 
-        <TextView
-            android:id="@+id/tv_last"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="8dp"
-            android:layout_weight="1"
-            android:scrollbars="none"
-            android:singleLine="true"
-            android:text="@string/lasted_show"
-            android:textSize="13sp"
-            tools:ignore="TextContrastCheck"
-            app:layout_constraintBottom_toTopOf="@id/iv_last"
-            app:layout_constraintStart_toEndOf="@+id/iv_last"
-            app:layout_constraintTop_toBottomOf="@+id/iv_last"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            </LinearLayout>
 
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

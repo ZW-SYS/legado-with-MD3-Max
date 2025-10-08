@@ -65,9 +65,9 @@ class BooksAdapterList(context: Context, callBack: CallBack) :
             tvLast.text = item.latestChapterTitle
             ivCover.load(item.getDisplayCover(), item.name, item.author, false, item.origin)
             cdUnread.visible()
-            ivAuthor.visible()
-            ivLast.visible()
-            ivRead.visible()
+//            ivAuthor.visible()
+//            ivLast.visible()
+//            ivRead.visible()
             upRefresh(this, item)
             upLastUpdateTime(binding, item)
         }
