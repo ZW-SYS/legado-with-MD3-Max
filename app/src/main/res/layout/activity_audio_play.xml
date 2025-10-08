@@ -163,7 +163,7 @@
         android:layout_marginHorizontal="14dp"
         android:value="0"
         android:valueFrom="0"
-        android:valueTo="1"
+        android:valueTo="100000"
         app:tickColorInactive="@android:color/transparent"
         app:layout_constraintBottom_toTopOf="@id/tv_all_time"
         app:thumbElevation="0dp"

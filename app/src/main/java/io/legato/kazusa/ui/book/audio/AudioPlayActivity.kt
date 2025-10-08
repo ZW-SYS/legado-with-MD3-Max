@@ -229,7 +229,6 @@ class AudioPlayActivity :
 //            }
 //        })
 
-        // 替换原来的 SeekBar 监听器
         binding.playerProgress.addOnChangeListener { _, value, fromUser ->
             if (fromUser) {
                 binding.tvDurTime.text = progressTimeFormat.format(value.toLong())
@@ -648,14 +647,16 @@ class AudioPlayActivity :
 //            binding.playerProgress.secondaryProgress = it
 //
 //        }
-        observeEventSticky<Int>(EventBus.AUDIO_SIZE) {
-            binding.playerProgress.valueTo = maxOf(1f, it.toFloat())
-            binding.tvAllTime.text = progressTimeFormat.format(it.toLong())
+        observeEventSticky<Int>(EventBus.AUDIO_SIZE) { size ->
+            binding.playerProgress.valueTo = maxOf(1f, size.toFloat())
+            binding.tvAllTime.text = progressTimeFormat.format(size.toLong())
         }
 
-        observeEventSticky<Int>(EventBus.AUDIO_PROGRESS) {
-            if (!adjustProgress) binding.playerProgress.value = it.toFloat()
-            binding.tvDurTime.text = progressTimeFormat.format(it.toLong())
+        observeEventSticky<Int>(EventBus.AUDIO_PROGRESS) { progress ->
+            val slider = binding.playerProgress
+            val safeValue = progress.toFloat().coerceIn(slider.valueFrom, slider.valueTo)
+            if (!adjustProgress) slider.value = safeValue
+            binding.tvDurTime.text = progressTimeFormat.format(progress.toLong())
         }
 
         observeEventSticky<Int>(EventBus.AUDIO_BUFFER_PROGRESS) {
