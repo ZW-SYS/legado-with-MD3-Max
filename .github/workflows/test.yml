@@ -91,7 +91,7 @@ jobs:
       - name: Build With Gradle
         run: |
           echo "统一版本号"
-          sed "/def version/c def version = \"${{ env.VERSION }}\"" $GITHUB_WORKSPACE/app/build.gradle -i
+          sed -i "s/ext.versionName = .*/ext.versionName = \"${{ env.VERSION }}\"/" $GITHUB_WORKSPACE/app/build.gradle
           echo "开始${{ env.product }}${{ env.type }}构建"
           chmod +x gradlew
           ./gradlew assemble${{ env.product }}Release
