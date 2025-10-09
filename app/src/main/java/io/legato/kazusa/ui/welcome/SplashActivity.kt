@@ -3,11 +3,8 @@ package io.legato.kazusa.ui.welcome
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.transition.Fade
 import androidx.core.app.ActivityOptionsCompat
-import androidx.core.content.ContextCompat.startActivity
-import androidx.core.view.postDelayed
-import com.google.android.material.transition.platform.MaterialSharedAxis
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import io.legato.kazusa.base.BaseActivity
 import io.legato.kazusa.constant.PreferKey
 import io.legato.kazusa.databinding.ActivitySplashBinding
@@ -22,40 +19,32 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
     override val binding by viewBinding(ActivitySplashBinding::inflate)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+        splashScreen.setKeepOnScreenCondition { true }
+        routeNext()
+    }
 
-        window.exitTransition = Fade().apply {
-            duration = 300
+    private fun routeNext() {
+        when {
+            LocalConfig.isFirstOpenApp -> {
+                go(WelcomeActivity::class.java)
+            }
+            getPrefBoolean(PreferKey.defaultToRead) -> {
+                go(MainActivity::class.java)
+                go(ReadBookActivity::class.java)
+            }
+            else -> {
+                go(MainActivity::class.java)
+            }
         }
-        window.reenterTransition = Fade().apply {
-            duration = 300
-        }
-
-        if (LocalConfig.isFirstOpenApp) {
-            startActivity(
-                Intent(this, WelcomeActivity::class.java),
-                ActivityOptionsCompat.makeSceneTransitionAnimation(this).toBundle()
-            )
-            finish()
-            return
-        }
-
-        if (getPrefBoolean(PreferKey.defaultToRead)) {
-            startActivity(
-                Intent(this, MainActivity::class.java),
-                ActivityOptionsCompat.makeSceneTransitionAnimation(this).toBundle()
-            )
-            startActivity(
-                Intent(this, ReadBookActivity::class.java),
-                ActivityOptionsCompat.makeSceneTransitionAnimation(this).toBundle()
-            )
-            finish()
-            return
-        }
-
-        startActivity(Intent(this, MainActivity::class.java),
-            ActivityOptionsCompat.makeSceneTransitionAnimation(this).toBundle())
         finish()
     }
-}
 
+    private fun go(target: Class<*>) {
+        startActivity(
+            Intent(this, target),
+            ActivityOptionsCompat.makeSceneTransitionAnimation(this).toBundle()
+        )
+    }
+}
