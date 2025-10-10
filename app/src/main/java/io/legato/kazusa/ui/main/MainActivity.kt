@@ -2,6 +2,7 @@
 
 package io.legato.kazusa.ui.main
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Bundle
 import android.text.format.DateUtils
@@ -12,6 +13,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.activity.addCallback
 import androidx.activity.viewModels
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.get
 import androidx.core.view.postDelayed
 import androidx.fragment.app.Fragment
@@ -40,6 +42,7 @@ import io.legato.kazusa.help.storage.Backup
 import io.legato.kazusa.lib.dialogs.alert
 import io.legato.kazusa.service.BaseReadAloudService
 import io.legato.kazusa.ui.about.CrashLogsDialog
+import io.legato.kazusa.ui.book.read.ReadBookActivity
 import io.legato.kazusa.ui.book.search.SearchActivity
 import io.legato.kazusa.ui.main.bookshelf.BaseBookshelfFragment
 import io.legato.kazusa.ui.main.bookshelf.books.BookshelfFragment1
@@ -48,7 +51,9 @@ import io.legato.kazusa.ui.main.bookshelf.books.BookshelfFragment3
 import io.legato.kazusa.ui.main.explore.ExploreFragment
 import io.legato.kazusa.ui.main.my.MyFragment
 import io.legato.kazusa.ui.main.rss.RssFragment
+import io.legato.kazusa.ui.welcome.WelcomeActivity
 import io.legato.kazusa.ui.widget.dialog.TextDialog
+import io.legato.kazusa.utils.getPrefBoolean
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.hideSoftInput
 import io.legato.kazusa.utils.observeEvent
@@ -103,8 +108,12 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        if (checkStartupRoute()) return
         setExitSharedElementCallback(MaterialContainerTransformSharedElementCallback())
+
         if (savedInstanceState != null) {
             pagePosition = savedInstanceState.getInt("currentPagePosition", 0)
         }
@@ -203,6 +212,21 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
                     (fragmentMap[1] as? ExploreFragment)?.compressExplore()
                 }
             }
+        }
+    }
+
+    private fun checkStartupRoute(): Boolean {
+        return when {
+            LocalConfig.isFirstOpenApp -> {
+                startActivity<WelcomeActivity>()
+                finish()
+                true
+            }
+            getPrefBoolean(PreferKey.defaultToRead) -> {
+                startActivity<ReadBookActivity>()
+                false
+            }
+            else -> false
         }
     }
 
@@ -343,6 +367,7 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
     }
 
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun upBottomMenu() {
         val navView = getNavigationBarView()
         val menu = navView.menu

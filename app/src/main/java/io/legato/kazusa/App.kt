@@ -9,6 +9,8 @@ import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
 import android.os.Build
 import com.github.liuyueyi.quick.transfer.constants.TransType
+import com.google.android.material.color.DynamicColors
+import com.google.android.material.color.DynamicColorsOptions
 import com.jeremyliao.liveeventbus.LiveEventBus
 import com.jeremyliao.liveeventbus.logger.DefaultLogger
 import com.script.rhino.ReadOnlyJavaObject
@@ -44,12 +46,14 @@ import io.legato.kazusa.help.http.okHttpClient
 import io.legato.kazusa.help.rhino.NativeBaseSource
 import io.legato.kazusa.help.source.SourceHelp
 import io.legato.kazusa.help.storage.Backup
+import io.legato.kazusa.lib.theme.primaryColor
 import io.legato.kazusa.model.BookCover
 import io.legato.kazusa.utils.ChineseUtils
 import io.legato.kazusa.utils.FirebaseManager
 import io.legato.kazusa.utils.LogUtils
 import io.legato.kazusa.utils.defaultSharedPreferences
 import io.legato.kazusa.utils.getPrefBoolean
+import io.legato.kazusa.utils.getPrefString
 import io.legato.kazusa.utils.isDebuggable
 import kotlinx.coroutines.launch
 import org.chromium.base.ThreadUtils
@@ -64,6 +68,20 @@ class App : Application() {
     private lateinit var oldConfig: Configuration
 
     override fun onCreate() {
+
+        when (getPrefString("app_theme", "0")) {
+            "11" -> {
+                if (AppConfig.customMode == "accent")
+                    setTheme(R.style.ThemeOverlay_WhiteBackground)
+                DynamicColors.applyToActivitiesIfAvailable(this, DynamicColorsOptions.Builder()
+                    .setContentBasedSource(this.primaryColor)
+                    .build())
+
+            }
+        }
+
+        if (AppConfig.pureBlack)
+            setTheme(R.style.ThemeOverlay_PureBlack)
         super.onCreate()
         FirebaseManager.init(this)
         CrashHandler(this)

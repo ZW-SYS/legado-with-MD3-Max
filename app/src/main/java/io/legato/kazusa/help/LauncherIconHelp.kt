@@ -25,7 +25,7 @@ object LauncherIconHelp {
     // 主Activity的ComponentName
     private val mainActivity = ComponentName(
         appCtx.packageName,
-        "${appCtx.packageName}.ui.welcome.SplashActivity"
+        "${appCtx.packageName}.ui.main.MainActivity"
     )
 
     fun changeIcon(icon: String?) {
