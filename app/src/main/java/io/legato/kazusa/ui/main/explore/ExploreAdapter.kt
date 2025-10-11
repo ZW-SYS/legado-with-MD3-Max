@@ -67,7 +67,7 @@ class ExploreAdapter(
             if (isExpanded) {
                 ivStatus.icon = ContextCompat.getDrawable(context, R.drawable.ic_arrow_right)
                 ivStatus.rotation = 90f
-
+                rotateLoading.visible()
                 if (scrollToId == item.bookSourceUrl) {
                     val pos = holder.bindingAdapterPosition
                     if (pos >= 0) callBack.scrollTo(pos)
@@ -78,6 +78,8 @@ class ExploreAdapter(
                     item.exploreKinds()
                 }.onSuccess { kindList ->
                     upKindList(flexbox, item.bookSourceUrl, kindList)
+                }.onFinally {
+                    rotateLoading.gone()
                 }
             } else {
                 ivStatus.icon = ContextCompat.getDrawable(context, R.drawable.ic_arrow_right)

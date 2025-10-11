@@ -14,7 +14,7 @@
     android:animateLayoutChanges="true"
     android:background="?attr/selectableItemBackground">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -25,19 +25,35 @@
             android:id="@+id/tv_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-            tools:text="起点中文" />
-
+            tools:text="起点中文"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/iv_status"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/iv_status"
             style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:icon="@drawable/ic_arrow_right"/>
+            app:icon="@drawable/ic_arrow_right"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
-    </LinearLayout>
+        <com.google.android.material.loadingindicator.LoadingIndicator
+            android:id="@+id/rotate_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:indicatorSize="24dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="@id/iv_status"
+            app:layout_constraintBottom_toBottomOf="@id/iv_status"
+            app:layout_constraintStart_toStartOf="@id/iv_status"
+            app:layout_constraintEnd_toEndOf="@id/iv_status"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.flexbox.FlexboxLayout
         android:id="@+id/flexbox"
