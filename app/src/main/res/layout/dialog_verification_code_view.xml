@@ -20,21 +20,20 @@
         android:layout_height="100dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:scaleType="fitCenter"
-        tools:ignore="UnusedAttribute" />
+        tools:ignore="UnusedAttribute"
+        android:layout_marginHorizontal="16dp"/>
 
-    <io.legato.kazusa.ui.widget.text.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:padding="3dp">
+        android:layout_margin="16dp">
 
-        <io.legato.kazusa.lib.theme.view.ThemeEditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/verification_code"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/verification_code"
             tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
-
-    </io.legato.kazusa.ui.widget.text.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
 </LinearLayout>
