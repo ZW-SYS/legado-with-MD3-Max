@@ -155,10 +155,7 @@
                     android:singleLine="true"
                     android:text="@string/text"
                     android:textSize="13sp"
-                    android:textColor="?attr/colorPrimary"
-                    app:layout_constraintBottom_toTopOf="@id/iv_last"
-                    app:layout_constraintStart_toEndOf="@+id/iv_last"
-                    app:layout_constraintTop_toBottomOf="@+id/iv_last" />
+                    android:textColor="?attr/colorPrimary" />
 
                 <TextView
                     android:id="@+id/tv_last"
@@ -168,12 +165,7 @@
                     android:scrollbars="none"
                     android:singleLine="true"
                     android:text="@string/lasted_show"
-                    android:textSize="13sp"
-                    tools:ignore="TextContrastCheck"
-                    app:layout_constraintBottom_toTopOf="@id/iv_last"
-                    app:layout_constraintStart_toEndOf="@+id/tv_last_update_time"
-                    app:layout_constraintTop_toBottomOf="@+id/iv_last"
-                    app:layout_constraintEnd_toEndOf="parent"/>
+                    android:textSize="13sp" />
 
             </LinearLayout>
 

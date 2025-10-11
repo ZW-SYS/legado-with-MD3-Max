@@ -22,8 +22,7 @@ abstract class BaseBooksAdapter<VH : RecyclerView.ViewHolder>(
         override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
             return when {
                 oldItem is Book && newItem is Book -> {
-                    oldItem.name == newItem.name
-                            && oldItem.author == newItem.author
+                    oldItem.bookUrl == newItem.bookUrl
                 }
 
                 oldItem is BookGroup && newItem is BookGroup -> {

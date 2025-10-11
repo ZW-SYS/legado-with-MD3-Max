@@ -132,13 +132,8 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
             binding.refreshLayout.isRefreshing = false
             activityViewModel.upToc(booksAdapter.getItems())
         }
-        if (bookshelfLayoutMode == 0 ||bookshelfLayoutMode == 4) {
-            binding.rvBookshelf.layoutManager = LinearLayoutManager(context)
-            binding.rvBookshelf.setRecycledViewPool(activityViewModel.booksListRecycledViewPool)
-        } else {
-            binding.rvBookshelf.layoutManager = GridLayoutManager(context, bookshelfLayoutGrid)
-            binding.rvBookshelf.setRecycledViewPool(activityViewModel.booksGridRecycledViewPool)
-        }
+        binding.rvBookshelf.layoutManager = GridLayoutManager(context, bookshelfLayoutGrid)
+        binding.rvBookshelf.setRecycledViewPool(activityViewModel.booksGridRecycledViewPool)
         booksAdapter.stateRestorationPolicy = StateRestorationPolicy.PREVENT_WHEN_EMPTY
         binding.rvBookshelf.adapter = booksAdapter
         booksAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
@@ -237,7 +232,7 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
 
     private fun startLastUpdateTimeJob() {
         upLastUpdateTimeJob?.cancel()
-        if (!AppConfig.showLastUpdateTime || bookshelfLayoutMode != 0 ||bookshelfLayoutMode != 4) {
+        if (!AppConfig.showLastUpdateTime || (bookshelfLayoutMode != 0 && bookshelfLayoutMode != 4)) {
             return
         }
         upLastUpdateTimeJob = lifecycleScope.launch {
@@ -271,6 +266,8 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
         /**
          * 将 RecyclerView 中的视图全部回收到 RecycledViewPool 中
          */
+        upLastUpdateTimeJob?.cancel()
+        booksFlowJob?.cancel()
         binding.rvBookshelf.setItemViewCacheSize(0)
         binding.rvBookshelf.adapter = null
     }

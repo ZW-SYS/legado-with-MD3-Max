@@ -105,9 +105,10 @@ class BooksAdapterList(context: Context, callBack: CallBack) :
                 val time = item.latestChapterTime.toTimeAgo()
                 if (binding.tvLastUpdateTime.text != time) {
                     binding.tvLastUpdateTime.text = time
+                    binding.tvLastUpdateTime.visible()
                 }
             } else {
-                binding.tvLastUpdateTime.text = ""
+                binding.tvLastUpdateTime.gone()
             }
         }
 

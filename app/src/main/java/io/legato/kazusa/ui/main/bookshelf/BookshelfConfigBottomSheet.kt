@@ -3,9 +3,7 @@ package io.legato.kazusa.ui.main.bookshelf
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
-import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.transition.TransitionManager
 import com.google.android.material.chip.Chip
 import io.legato.kazusa.R
 import io.legato.kazusa.base.BaseBottomSheetDialogFragment
@@ -81,26 +79,12 @@ class BookshelfConfigBottomSheet : BaseBottomSheetDialogFragment(R.layout.dialog
             chipGrid.isChecked = isGrid
             chipGridCompact.isChecked = isGridCompact
             chipGridCover.isChecked = isGridCover
-
-            val showSlider = isGrid || isGridCompact || isGridCover
-            sliderText.isVisible = showSlider
-            sliderGridCount.isVisible = showSlider
             sliderGridCount.value = columnCount.toFloat()
 
 
             when (AppConfig.bookshelfSortOrder) {
                 0 -> binding.chipGroupOrder.check(binding.chipAsc.id)
                 1 -> binding.chipGroupOrder.check(binding.chipDesc.id)
-            }
-
-            chipGroupLayout.setOnCheckedStateChangeListener { _, checkedIds ->
-                val checkedId = checkedIds.firstOrNull()
-                val showSlider = checkedId == R.id.chip_grid ||
-                        checkedId == R.id.chip_grid_compact ||
-                        checkedId == R.id.chip_grid_cover
-                TransitionManager.beginDelayedTransition(root)
-                sliderText.isVisible = showSlider
-                sliderGridCount.isVisible = showSlider
             }
 
             btnOk.setOnClickListener {

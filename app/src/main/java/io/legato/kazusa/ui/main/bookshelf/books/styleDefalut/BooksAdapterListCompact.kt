@@ -92,9 +92,10 @@ class BooksAdapterListCompact(
             val time = item.latestChapterTime.toTimeAgo()
             if (binding.tvLastUpdateTime.text != time) {
                 binding.tvLastUpdateTime.text = time
+                binding.tvLastUpdateTime.isVisible = true
             }
         } else {
-            binding.tvLastUpdateTime.text = ""
+            binding.tvLastUpdateTime.isVisible = false
         }
     }
 

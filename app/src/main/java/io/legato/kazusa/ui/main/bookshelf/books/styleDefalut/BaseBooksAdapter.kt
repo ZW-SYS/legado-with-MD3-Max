@@ -16,8 +16,7 @@ abstract class BaseBooksAdapter<VB : ViewBinding>(context: Context) :
         object : DiffUtil.ItemCallback<Book>() {
 
             override fun areItemsTheSame(oldItem: Book, newItem: Book): Boolean {
-                return oldItem.name == newItem.name
-                        && oldItem.author == newItem.author
+                return oldItem.bookUrl == newItem.bookUrl
             }
 
             override fun areContentsTheSame(oldItem: Book, newItem: Book): Boolean {
@@ -76,7 +75,7 @@ abstract class BaseBooksAdapter<VB : ViewBinding>(context: Context) :
     fun notification(bookUrl: String) {
         getItems().forEachIndexed { i, it ->
             if (it.bookUrl == bookUrl) {
-                notifyItemChanged(i, bundleOf(Pair("refresh", null), Pair("lastUpdateTime", null)))
+                notifyItemChanged(i, bundleOf("refresh" to true, "lastUpdateTime" to true))
                 return
             }
         }

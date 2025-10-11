@@ -116,11 +116,8 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
             binding.refreshLayout.isRefreshing = false
             activityViewModel.upToc(books)
         }
-        if (bookshelfLayoutMode == 0 || bookshelfLayoutMode == 4) {
-            binding.rvBookshelf.layoutManager = LinearLayoutManager(context)
-        } else {
-            binding.rvBookshelf.layoutManager = GridLayoutManager(context, bookshelfLayoutGrid)
-        }
+
+        binding.rvBookshelf.layoutManager = GridLayoutManager(context, bookshelfLayoutGrid)
         binding.rvBookshelf.itemAnimator = null
         binding.rvBookshelf.adapter = booksAdapter
         booksAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
