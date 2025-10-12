@@ -20,7 +20,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorSurfaceContainer"
-        android:alpha="0.92"
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
@@ -121,85 +120,78 @@
         android:id="@+id/bottom_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:alpha="0.92"
         android:orientation="horizontal"
+        android:background="@android:color/transparent"
         app:layout_constraintBottom_toBottomOf="parent">
 
-            <LinearLayout
-                android:id="@+id/ll_bottom_bg"
-                android:layout_width="match_parent"
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2" />
+
+        <!--章节设置-->
+        <LinearLayout
+            android:id="@+id/ll_slider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:layout_marginVertical="8dp"
+            android:importantForAccessibility="no"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/tv_pre"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:importantForAccessibility="no"
-                android:orientation="horizontal">
+                android:clickable="true"
+                android:enabled="false"
+                android:focusable="true"
+                app:icon="@drawable/ic_previous"
+                android:contentDescription="@string/previous_chapter"
+                tools:ignore="TouchTargetSizeCheck" />
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="2" />
-
-                <!--章节设置-->
-                <LinearLayout
-                    android:layout_width="0dp"
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:cardCornerRadius="32dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainer"
+                app:strokeWidth="0dp">
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/seek_read_page"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:layout_marginVertical="8dp"
-                    android:importantForAccessibility="no"
-                    android:gravity="center"
-                    android:orientation="horizontal">
+                    android:layout_gravity="center_vertical"/>
+            </com.google.android.material.card.MaterialCardView>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/tv_pre"
-                        style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:clickable="true"
-                        android:enabled="false"
-                        android:focusable="true"
-                        app:icon="@drawable/ic_previous"
-                        android:contentDescription="@string/previous_chapter"
-                        tools:ignore="TouchTargetSizeCheck" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/tv_next"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:enabled="false"
+                android:focusable="true"
+                app:icon="@drawable/ic_next"
+                android:contentDescription="@string/next_chapter"
+                tools:ignore="TouchTargetSizeCheck"/>
+        </LinearLayout>
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        app:cardCornerRadius="32dp"
-                        app:cardBackgroundColor="?attr/colorSurfaceContainer"
-                        app:strokeWidth="0dp">
-                        <com.google.android.material.slider.Slider
-                            android:id="@+id/seek_read_page"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical"/>
-                    </com.google.android.material.card.MaterialCardView>
+        <com.google.android.material.button.MaterialButtonGroup
+            android:id="@+id/bottom_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:importantForAccessibility="no"
+            android:paddingVertical="8dp"
+            android:gravity="center"
+            android:paddingHorizontal="16dp"
+            android:orientation="horizontal">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/tv_next"
-                        style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:clickable="true"
-                        android:enabled="false"
-                        android:focusable="true"
-                        app:icon="@drawable/ic_next"
-                        android:contentDescription="@string/next_chapter"
-                        tools:ignore="TouchTargetSizeCheck"/>
-                </LinearLayout>
+        </com.google.android.material.button.MaterialButtonGroup>
 
-                <com.google.android.material.button.MaterialButtonGroup
-                    android:id="@+id/bottom_view"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:importantForAccessibility="no"
-                    android:paddingVertical="8dp"
-                    android:gravity="center"
-                    android:paddingHorizontal="16dp"
-                    android:orientation="horizontal">
-
-                </com.google.android.material.button.MaterialButtonGroup>
-            </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

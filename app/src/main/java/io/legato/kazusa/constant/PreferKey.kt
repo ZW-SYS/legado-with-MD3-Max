@@ -204,4 +204,5 @@ object PreferKey {
     const val tabletInterface = "tabletInterface"
     const val pureBlack = "pure_black"
     const val labelVisibilityMode = "labelVisibilityMode"
+    const val menuAlpha = "menuAlpha"
 }

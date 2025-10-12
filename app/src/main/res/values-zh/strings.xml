@@ -1286,4 +1286,6 @@
     <string name="delay_book_load">延缓书籍加载</string>
     <string name="compact_list">紧凑列表</string>
     <string name="author_read">%s • %d章未读</string>
+    <string name="menu_alpha_sum">当前 %d%%</string>
+    <string name="menu_alpha">菜单透明度</string>
 </resources>

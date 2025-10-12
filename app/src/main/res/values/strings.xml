@@ -1287,4 +1287,6 @@
     <string name="delay_book_load">Delay Book Loading</string>
     <string name="compact_list">Compact List</string>
     <string name="author_read">%s • %dNot read</string>
+    <string name="menu_alpha_sum">Current %d%%</string>
+    <string name="menu_alpha">Menu transparency</string>
 </resources>

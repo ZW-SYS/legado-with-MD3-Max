@@ -820,5 +820,11 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
         set(value) {
             appCtx.putPrefString(PreferKey.labelVisibilityMode, value)
         }
+
+    var menuAlpha
+        get() = appCtx.getPrefInt(PreferKey.menuAlpha, 100)
+        set(value) {
+            appCtx.putPrefInt(PreferKey.menuAlpha, value)
+        }
 }
 

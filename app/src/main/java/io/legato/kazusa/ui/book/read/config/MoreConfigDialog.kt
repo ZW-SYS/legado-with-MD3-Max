@@ -50,6 +50,7 @@ class MoreConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_more_conf
         @SuppressLint("RestrictedApi")
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             addPreferencesFromResource(R.xml.pref_config_read)
+            upPreferenceSummary(PreferKey.menuAlpha, AppConfig.menuAlpha.toString())
             upPreferenceSummary(PreferKey.pageTouchSlop, slopSquare.toString())
             if (!CanvasRecorderFactory.isSupport) {
                 removePref(PreferKey.optimizeRender)
@@ -144,6 +145,19 @@ class MoreConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_more_conf
                     (activity as? ReadBookActivity)?.showClickRegionalConfig()
                 }
 
+                PreferKey.menuAlpha -> {
+                    NumberPickerDialog(requireContext())
+                        .setTitle(getString(R.string.menu_alpha))
+                        .setMaxValue(100)
+                        .setMinValue(0)
+                        .setValue(AppConfig.menuAlpha)
+                        .show {
+                            AppConfig.menuAlpha = it
+                            upPreferenceSummary(PreferKey.menuAlpha, it.toString())
+                            postEvent(EventBus.UPDATE_READ_ACTION_BAR, true)
+                        }
+                }
+
                 PreferKey.pageTouchSlop -> {
                     NumberPickerDialog(requireContext())
                         .setTitle(getString(R.string.page_touch_slop_dialog_title))
@@ -163,6 +177,8 @@ class MoreConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_more_conf
         private fun upPreferenceSummary(preferenceKey: String, value: String?) {
             val preference = findPreference<Preference>(preferenceKey) ?: return
             when (preferenceKey) {
+                PreferKey.menuAlpha -> preference.summary =
+                    getString(R.string.menu_alpha_sum, AppConfig.menuAlpha)
                 PreferKey.pageTouchSlop -> preference.summary =
                     getString(R.string.page_touch_slop_summary, value)
             }

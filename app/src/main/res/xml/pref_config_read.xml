@@ -28,6 +28,13 @@
         app:iconSpaceReserved="false"
         app:isBottomBackground="true" />
 
+    <io.legato.kazusa.lib.prefs.Preference
+        android:key="menuAlpha"
+        android:summary="@string/menu_alpha_sum"
+        android:title="@string/menu_alpha"
+        app:iconSpaceReserved="false"
+        app:isBottomBackground="true" />
+
     <io.legato.kazusa.lib.prefs.SwitchPreference
         android:defaultValue="false"
         android:key="hideStatusBar"

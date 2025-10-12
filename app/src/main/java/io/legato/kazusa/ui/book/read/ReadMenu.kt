@@ -12,6 +12,7 @@ import android.view.animation.Animation
 import android.widget.FrameLayout
 import android.widget.SeekBar
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import com.google.android.material.button.MaterialButton
@@ -181,7 +182,6 @@ class ReadMenu @JvmOverloads constructor(
         llBrightness.background = brightnessBackground
         if (AppConfig.isEInkMode) {
             titleBar.setBackgroundResource(R.drawable.bg_eink_border_bottom)
-            llBottomBg.setBackgroundResource(R.drawable.bg_eink_border_top)
         } else {
             //llBottomBg.setBackgroundColor(bgColor)
         }
@@ -195,6 +195,11 @@ class ReadMenu @JvmOverloads constructor(
         } else {
             titleBarAddition.gone()
         }
+        val alpha = (AppConfig.menuAlpha / 100f * 255).toInt()
+        val color = context.themeColor(com.google.android.material.R.attr.colorSurfaceContainer)
+        titleBar.setBackgroundColor(ColorUtils.setAlphaComponent(color, alpha))
+        bottomView.setBackgroundColor(ColorUtils.setAlphaComponent(color, alpha))
+        llSlider.alpha = AppConfig.menuAlpha / 100f
         upBrightnessVwPos()
         /**
          * 确保视图不被导航栏遮挡
