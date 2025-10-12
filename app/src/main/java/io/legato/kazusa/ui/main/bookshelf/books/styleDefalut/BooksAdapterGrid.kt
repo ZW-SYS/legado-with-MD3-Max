@@ -2,13 +2,14 @@ package io.legato.kazusa.ui.main.bookshelf.books.styleDefalut
 
 import android.content.Context
 import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import io.legato.kazusa.base.adapter.ItemViewHolder
 import io.legato.kazusa.data.entities.Book
 import io.legato.kazusa.databinding.ItemBookshelfGridBinding
 import io.legato.kazusa.help.book.isLocal
 import io.legato.kazusa.help.config.AppConfig
+import io.legato.kazusa.utils.gone
+import io.legato.kazusa.utils.visible
 
 class BooksAdapterGrid(context: Context, private val callBack: CallBack) :
     BaseBooksAdapter<ItemBookshelfGridBinding>(context) {
@@ -44,20 +45,20 @@ class BooksAdapterGrid(context: Context, private val callBack: CallBack) :
 
     private fun upRefresh(binding: ItemBookshelfGridBinding, item: Book) {
         if (!item.isLocal && callBack.isUpdate(item.bookUrl)) {
-            binding.cdUnread.visibility = View.GONE
-            binding.rlLoading.visibility = View.VISIBLE
+            binding.cdUnread.gone()
+            binding.rlLoading.visible()
         } else {
-            binding.rlLoading.visibility = View.GONE
+            binding.rlLoading.gone()
             if (AppConfig.showUnread) {
                 val unreadCount = item.getUnreadChapterNum()
                 if (unreadCount > 0) {
-                    binding.cdUnread.visibility = View.VISIBLE
+                    binding.cdUnread.visible()
                     binding.tvUnread.text = unreadCount.toString()
                 } else {
-                    binding.cdUnread.visibility = View.GONE
+                    binding.cdUnread.gone()
                 }
             } else {
-                binding.cdUnread.visibility = View.GONE
+                binding.cdUnread.gone()
             }
         }
     }

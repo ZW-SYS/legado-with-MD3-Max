@@ -126,11 +126,15 @@ class BooksAdapterListCompact(context: Context, callBack: CallBack) :
             } else {
                 binding.rlLoading.isVisible = false
                 if (AppConfig.showUnread) {
-                    //binding.tvUnread.setHighlight(item.lastCheckCount > 0)
-                    binding.tvUnread.isVisible = true
-                    binding.tvUnread.text = item.getUnreadChapterNum().toString()
+                    val unreadCount = item.getUnreadChapterNum()
+                    if (unreadCount > 0) {
+                        binding.cdUnread.visible()
+                        binding.tvUnread.text = unreadCount.toString()
+                    } else {
+                        binding.cdUnread.gone()
+                    }
                 } else {
-                    binding.tvUnread.isVisible = false
+                    binding.cdUnread.gone()
                 }
             }
         }

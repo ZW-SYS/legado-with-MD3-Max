@@ -11,7 +11,9 @@ import io.legato.kazusa.data.entities.Book
 import io.legato.kazusa.databinding.ItemBookshelfListBinding
 import io.legato.kazusa.help.book.isLocal
 import io.legato.kazusa.help.config.AppConfig
+import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.toTimeAgo
+import io.legato.kazusa.utils.visible
 import splitties.views.onLongClick
 
 class BooksAdapterList(
@@ -74,11 +76,15 @@ class BooksAdapterList(
         } else {
             binding.rlLoading.isVisible = false
             if (AppConfig.showUnread) {
-                //binding.tvUnread.setHighlight(item.lastCheckCount > 0)
-                binding.tvUnread.isVisible = true
-                binding.tvUnread.text = item.getUnreadChapterNum().toString()
+                val unreadCount = item.getUnreadChapterNum()
+                if (unreadCount > 0) {
+                    binding.cdUnread.visible()
+                    binding.tvUnread.text = unreadCount.toString()
+                } else {
+                    binding.cdUnread.gone()
+                }
             } else {
-                binding.tvUnread.isVisible = false
+                binding.cdUnread.gone()
             }
         }
     }
