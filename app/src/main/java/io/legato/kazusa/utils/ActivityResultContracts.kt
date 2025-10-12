@@ -26,22 +26,25 @@ class SelectImageContract : ActivityResultContract<Int?, SelectImageContract.Res
         val intent = Intent(Intent.ACTION_GET_CONTENT)
             .addCategory(Intent.CATEGORY_OPENABLE)
             .setType("image/*")
-        if (intent.resolveActivity(appCtx.packageManager) == null) {
-            useFallback = true
+        useFallback = intent.resolveActivity(appCtx.packageManager) == null
+        return if (useFallback) {
             val request = PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            return delegate.createIntent(context, request)
+            delegate.createIntent(context, request)
+        } else {
+            intent
         }
-        return intent
     }
 
     override fun parseResult(resultCode: Int, intent: Intent?): Result {
-        val uri = if (useFallback) {
+        val isFallback = useFallback
+        useFallback = false
+
+        val uri = if (isFallback) {
             delegate.parseResult(resultCode, intent)
         } else if (resultCode == RESULT_OK) {
             intent?.data
-        } else {
-            null
-        }
+        } else null
+
         return Result(requestCode, uri)
     }
 

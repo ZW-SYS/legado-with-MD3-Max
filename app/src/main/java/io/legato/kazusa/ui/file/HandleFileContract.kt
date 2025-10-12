@@ -41,15 +41,20 @@ class HandleFileContract :
     }
 
     override fun parseResult(resultCode: Int, intent: Intent?): Result {
-        val uri = if (resultCode != RESULT_OK || intent?.data == null ||
-            RealPathUtil.getTreePath(intent.data!!)
-                ?.startsWith(appCtx.externalFiles.parent!!) == true
+        if (resultCode != RESULT_OK || intent == null) {
+            return Result(null, requestCode, null)
+        }
+
+        val dataUri = intent.data
+        val uri = if (dataUri == null ||
+            RealPathUtil.getTreePath(dataUri)?.startsWith(appCtx.externalFiles.parent!!) == true
         ) {
             null
         } else {
-            intent.data
+            dataUri
         }
-        return Result(uri, requestCode, intent?.getStringExtra("value"))
+
+        return Result(uri, requestCode, intent.getStringExtra("value"))
     }
 
     companion object {
