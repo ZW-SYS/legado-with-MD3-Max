@@ -69,19 +69,14 @@ class App : Application() {
 
     override fun onCreate() {
 
-        when (getPrefString("app_theme", "0")) {
-            "11" -> {
-                if (AppConfig.customMode == "accent")
-                    setTheme(R.style.ThemeOverlay_WhiteBackground)
-                DynamicColors.applyToActivitiesIfAvailable(this, DynamicColorsOptions.Builder()
-                    .setContentBasedSource(this.primaryColor)
-                    .build())
-
-            }
+        if (getPrefString("app_theme", "0") == "11") {
+            if (AppConfig.customMode == "accent")
+                setTheme(R.style.ThemeOverlay_WhiteBackground)
+            DynamicColors.applyToActivitiesIfAvailable(this, DynamicColorsOptions.Builder()
+                .setContentBasedSource(this.primaryColor)
+                .build())
         }
 
-        if (AppConfig.pureBlack)
-            setTheme(R.style.ThemeOverlay_PureBlack)
         super.onCreate()
         FirebaseManager.init(this)
         CrashHandler(this)
