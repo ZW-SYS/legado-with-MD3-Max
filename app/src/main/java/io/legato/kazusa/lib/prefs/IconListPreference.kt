@@ -11,15 +11,15 @@ import android.widget.ImageView
 import androidx.fragment.app.FragmentActivity
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceViewHolder
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import io.legato.kazusa.R
 import io.legato.kazusa.base.BaseBottomSheetDialogFragment
 import io.legato.kazusa.base.adapter.ItemViewHolder
 import io.legato.kazusa.base.adapter.RecyclerAdapter
 import io.legato.kazusa.databinding.DialogRecyclerViewBinding
 import io.legato.kazusa.databinding.ItemIconPreferenceBinding
-//import io.legado.app.lib.theme.primaryColor
 import io.legato.kazusa.utils.getCompatDrawable
+import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 
 
@@ -134,7 +134,7 @@ class IconListPreference(context: Context, attrs: AttributeSet) : ListPreference
         override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
             //binding.toolBar.setBackgroundColor(primaryColor)
             binding.toolBar.setTitle(R.string.change_icon)
-            binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
+            binding.recyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
             val adapter = Adapter(requireContext())
             binding.recyclerView.adapter = adapter
             arguments?.let {
@@ -164,23 +164,21 @@ class IconListPreference(context: Context, attrs: AttributeSet) : ListPreference
             ) {
                 binding.run {
                     val index = findIndexOfValue(item.toString())
-                    dialogEntries?.let {
-                        label.text = it[index]
-                    }
                     dialogIconNames?.let {
-                        val resId = context.resources
-                            .getIdentifier(it[index].toString(), "mipmap", context.packageName)
-                        val d = try {
-                            context.getCompatDrawable(resId)
-                        } catch (e: Exception) {
-                            null
-                        }
-                        d?.let {
-                            icon.setImageDrawable(d)
-                        }
+                        val resId = context.resources.getIdentifier(it[index].toString(), "mipmap", context.packageName)
+                        val d = context.getCompatDrawable(resId)
+                        d?.let { icon.setImageDrawable(it) }
                     }
-                    label.isChecked = item.toString() == dialogValue
-                    root.setOnClickListener {
+
+                    val isSelected = item.toString() == dialogValue
+
+                    if (isSelected) {
+                        card.setCardBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSecondaryContainer))
+                    } else {
+                        card.setCardBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSurfaceContainer))
+                    }
+
+                    card.setOnClickListener {
                         onChanged?.invoke(item.toString())
                         this@IconDialog.dismissAllowingStateLoss()
                     }

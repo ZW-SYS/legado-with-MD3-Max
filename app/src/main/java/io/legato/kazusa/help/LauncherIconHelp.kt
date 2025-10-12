@@ -13,6 +13,7 @@ import splitties.init.appCtx
 object LauncherIconHelp {
     private val packageManager: PackageManager = appCtx.packageManager
     private val componentNames = arrayListOf(
+        ComponentName(appCtx.packageName, "${appCtx.packageName}.Launcherw"),
         ComponentName(appCtx.packageName, "${appCtx.packageName}.Launcher0"),
         ComponentName(appCtx.packageName, "${appCtx.packageName}.Launcher1"),
         ComponentName(appCtx.packageName, "${appCtx.packageName}.Launcher2"),

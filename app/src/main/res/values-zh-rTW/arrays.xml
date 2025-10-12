@@ -62,6 +62,7 @@
 
     <string-array name="icon_names">
         <item>iconMain</item>
+        <item>iconWhite</item>
         <item>icon0</item>
         <item>icon1</item>
         <item>icon2</item>

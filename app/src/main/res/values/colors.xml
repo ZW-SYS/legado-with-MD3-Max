@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="ic_launcher_background">#2E2D3D</color>
+    <color name="ic_launcher_background_w">#F2F1F6</color>
+
     <!--    GR Theme-->
     <color name="gr_theme_primary">#4C662B</color>
     <color name="gr_theme_onPrimary">#FFFFFF</color>
