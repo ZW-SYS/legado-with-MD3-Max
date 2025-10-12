@@ -221,7 +221,7 @@ class TocActivity : VMBaseActivity<ActivityChapterListBinding, TocViewModel>(),
 
     @SuppressLint("SetTextI18n")
     fun showDownloadDialog() {
-        ReadBook.book?.let { book ->
+        (viewModel.bookData.value ?: ReadBook.book)?.let { book ->
             alert(titleResource = R.string.offline_cache) {
                 val alertBinding = DialogDownloadChoiceBinding.inflate(layoutInflater).apply {
                     editStart.setText((book.durChapterIndex + 1).toString())
@@ -230,12 +230,8 @@ class TocActivity : VMBaseActivity<ActivityChapterListBinding, TocViewModel>(),
                 customView { alertBinding.root }
                 okButton {
                     alertBinding.run {
-                        val start = editStart.text!!.toString().let {
-                            if (it.isEmpty()) 0 else it.toInt()
-                        }
-                        val end = editEnd.text!!.toString().let {
-                            if (it.isEmpty()) book.totalChapterNum else it.toInt()
-                        }
+                        val start = editStart.text!!.toString().toIntOrNull() ?: 0
+                        val end = editEnd.text!!.toString().toIntOrNull() ?: book.totalChapterNum
                         val indices = (start - 1..end - 1).toList()
                         CacheBook.start(this@TocActivity, book, indices)
                     }
