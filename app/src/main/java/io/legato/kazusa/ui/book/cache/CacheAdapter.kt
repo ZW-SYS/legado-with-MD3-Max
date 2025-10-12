@@ -46,24 +46,24 @@ class CacheAdapter(context: Context, private val callBack: CallBack) :
         payloads: MutableList<Any>
     ) {
         binding.run {
+            progressDownload.gone()
+            progressExport.gone()
+            tvMsg.gone()
+            tvDownload.text = ""
+            ivDownload.icon = null
+
             if (payloads.isEmpty()) {
                 tvName.text = item.name
                 tvAuthor.text = context.getString(R.string.author_show, item.getRealAuthor())
 
                 if (item.isLocal) {
                     tvDownload.setText(R.string.local_book)
-                    progressDownload.gone()
                 } else {
                     val cs = callBack.cacheChapters[item.bookUrl]
-                    if (cs == null) {
-                        tvDownload.setText(R.string.loading)
+                    tvDownload.text = if (cs == null) {
+                        context.getString(R.string.loading)
                     } else {
-                        tvDownload.text =
-                            context.getString(
-                                R.string.download_count,
-                                cs.size,
-                                item.totalChapterNum
-                            )
+                        context.getString(R.string.download_count, cs.size, item.totalChapterNum)
                     }
                 }
             } else {
@@ -71,21 +71,12 @@ class CacheAdapter(context: Context, private val callBack: CallBack) :
                     tvDownload.setText(R.string.local_book)
                 } else {
                     val cacheSize = callBack.cacheChapters[item.bookUrl]?.size ?: 0
+                    tvDownload.text = context.getString(R.string.download_count, cacheSize, item.totalChapterNum)
                     val cacheTask = CacheBook.cacheBookMap[item.bookUrl]
-                    tvDownload.text =
-                        context.getString(R.string.download_count, cacheSize, item.totalChapterNum)
-
                     if (cacheTask != null && !cacheTask.isStop()) {
-                        val progress = if (item.totalChapterNum > 0) {
-                            (cacheSize * 100 / item.totalChapterNum)
-                        } else {
-                            0
-                        }
-                        tvMsg.gone()
+                        val progress = if (item.totalChapterNum > 0) cacheSize * 100 / item.totalChapterNum else 0
                         progressDownload.progress = progress
                         progressDownload.visible()
-                    } else {
-                        progressDownload.gone()
                     }
                 }
             }
@@ -93,6 +84,7 @@ class CacheAdapter(context: Context, private val callBack: CallBack) :
             upExportInfo(tvMsg, progressExport, item)
         }
     }
+
 
     override fun registerListener(holder: ItemViewHolder, binding: ItemDownloadBinding) {
         binding.run {
@@ -121,7 +113,7 @@ class CacheAdapter(context: Context, private val callBack: CallBack) :
                             CacheBook.remove(context, book.bookUrl)
                             Handler(Looper.getMainLooper()).postDelayed({
                                 callBack.deleteDownload(book)
-                            }, 500)
+                            }, 10)
                         } else {
                             callBack.deleteDownload(book)
                         }
@@ -152,22 +144,21 @@ class CacheAdapter(context: Context, private val callBack: CallBack) :
     }
 
     private fun upExportInfo(msgView: TextView, progressView: ProgressBar, book: Book) {
+        msgView.gone()
+        progressView.gone()
+
         val msg = callBack.exportMsg(book.bookUrl)
         if (msg != null) {
             msgView.text = msg
             msgView.visible()
-            progressView.gone()
             return
         }
-        msgView.gone()
         val progress = callBack.exportProgress(book.bookUrl)
         if (progress != null) {
             progressView.max = book.totalChapterNum
             progressView.progress = progress
             progressView.visible()
-            return
         }
-        progressView.gone()
     }
 
     interface CallBack {
