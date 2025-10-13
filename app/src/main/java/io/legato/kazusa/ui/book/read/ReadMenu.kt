@@ -198,7 +198,6 @@ class ReadMenu @JvmOverloads constructor(
         val alpha = (AppConfig.menuAlpha / 100f * 255).toInt()
         val color = context.themeColor(com.google.android.material.R.attr.colorSurfaceContainer)
         titleBar.setBackgroundColor(ColorUtils.setAlphaComponent(color, alpha))
-        bottomView.setBackgroundColor(ColorUtils.setAlphaComponent(color, alpha))
         llSlider.alpha = AppConfig.menuAlpha / 100f
         upBrightnessVwPos()
         /**
@@ -207,6 +206,7 @@ class ReadMenu @JvmOverloads constructor(
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             binding.bottomMenu.applyNavigationBarPadding()
         } else {
+            bottomView.setBackgroundColor(ColorUtils.setAlphaComponent(color, alpha))
             binding.bottomView.applyNavigationBarPadding()
         }
     }
