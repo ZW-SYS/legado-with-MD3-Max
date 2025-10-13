@@ -67,7 +67,6 @@ class BgTextConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_bg
     private val binding by viewBinding(DialogReadBgTextBinding::bind)
     private val configFileName = "readConfig.zip"
     private val adapter by lazy { BgAdapter(requireContext(), secondaryTextColor) }
-    private var primaryTextColor = 0
     private var secondaryTextColor = 0
     private val importFormNet = "网络导入"
     private val selectBgImage = registerForActivityResult(SelectImageContract()) {
@@ -132,7 +131,7 @@ class BgTextConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_bg
         binding.tvName.text = name.ifBlank { "文字" }
         binding.swDarkStatusIcon.isChecked = curStatusIconDark()
         binding.swUnderline.isChecked = underline
-        binding.sbBgAlpha.value = bgAlpha.toFloat()
+        binding.sbBgAlpha.value = ReadBookConfig.bgAlpha.toFloat()
     }
 
     @SuppressLint("InflateParams")
