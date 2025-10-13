@@ -29,6 +29,7 @@ import io.legato.kazusa.ui.book.read.page.delegate.SimulationPageDelegate
 import io.legato.kazusa.ui.book.read.page.delegate.SlidePageDelegate
 import io.legato.kazusa.ui.book.read.page.entities.PageDirection
 import io.legato.kazusa.ui.book.read.page.entities.TextChapter
+import io.legato.kazusa.ui.book.read.page.entities.TextLine
 import io.legato.kazusa.ui.book.read.page.entities.TextPage
 import io.legato.kazusa.ui.book.read.page.entities.TextPos
 import io.legato.kazusa.ui.book.read.page.entities.column.TextColumn
@@ -672,8 +673,8 @@ class ReadView(context: Context, attrs: AttributeSet) :
         return curPage.getCurVisiblePage()
     }
 
-    fun getCurPagePosition(): Int {
-        return curPage.getCurVisibleFirstLine()?.pagePosition ?: 0
+    fun getCurVisibleFirstLine(): TextLine? {
+        return curPage.getCurVisibleFirstLine()
     }
 
     fun invalidateTextPage() {

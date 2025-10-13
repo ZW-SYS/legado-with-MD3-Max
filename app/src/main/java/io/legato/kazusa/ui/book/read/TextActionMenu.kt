@@ -31,6 +31,7 @@ import io.legato.kazusa.utils.share
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.visible
 import androidx.core.net.toUri
+import io.legato.kazusa.constant.AppLog
 
 @SuppressLint("RestrictedApi")
 class TextActionMenu(private val context: Context, private val callBack: CallBack) :
@@ -218,8 +219,12 @@ class TextActionMenu(private val context: Context, private val callBack: CallBac
             }
 
             else -> item.intent?.let {
-                it.putExtra(Intent.EXTRA_PROCESS_TEXT, callBack.selectedText)
-                context.startActivity(it)
+                kotlin.runCatching {
+                    it.putExtra(Intent.EXTRA_PROCESS_TEXT, callBack.selectedText)
+                    context.startActivity(it)
+                }.onFailure { e ->
+                    AppLog.put("执行文本菜单操作出错\n$e", e, true)
+                }
             }
         }
     }

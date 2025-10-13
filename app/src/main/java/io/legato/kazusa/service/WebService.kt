@@ -61,7 +61,7 @@ class WebService : BaseService() {
 
     private val useWakeLock = appCtx.getPrefBoolean(PreferKey.webServiceWakeLock, false)
     private val wakeLock: PowerManager.WakeLock by lazy {
-        powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "legado:webService")
+        powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "legado:WebService")
             .apply {
                 setReferenceCounted(false)
             }

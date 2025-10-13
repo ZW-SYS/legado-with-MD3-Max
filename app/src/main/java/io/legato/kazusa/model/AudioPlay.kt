@@ -78,6 +78,7 @@ object AudioPlay : CoroutineScope by MainScope() {
             chapterSize
         }
         if (durChapterIndex != book.durChapterIndex) {
+            stopPlay()
             durChapterIndex = book.durChapterIndex
             durChapterPos = book.durChapterPos
             durPlayUrl = ""
@@ -152,6 +153,8 @@ object AudioPlay : CoroutineScope by MainScope() {
                     }.onError {
                         AppLog.put("获取资源链接出错\n$it", it, true)
                         upLoading(false)
+                    }.onCancel {
+                        removeLoading(index)
                     }.onFinally {
                         removeLoading(index)
                     }
