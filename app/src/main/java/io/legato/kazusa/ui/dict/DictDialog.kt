@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.transition.TransitionManager
 import com.google.android.material.tabs.TabLayout
 import io.legato.kazusa.R
 import io.legato.kazusa.base.BaseBottomSheetDialogFragment
@@ -40,36 +41,60 @@ class DictDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_dict) {
             return
         }
 
+        setupTabs()
+        observeDicts()
+    }
+
+    private fun setupTabs() {
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabReselected(tab: TabLayout.Tab) {
-
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab) {
-
-            }
+            override fun onTabReselected(tab: TabLayout.Tab) = Unit
+            override fun onTabUnselected(tab: TabLayout.Tab) = Unit
 
             override fun onTabSelected(tab: TabLayout.Tab) {
                 val dictRule = tab.tag as DictRule
-                binding.rotateLoading.visible()
-                viewModel.dict(dictRule, word!!) {
-                    binding.rotateLoading.gone()
-                    binding.tvDict.setHtml(it)
-                }
+                loadDict(dictRule)
             }
         })
-        viewModel.initData {
-            it.forEach {
+    }
+
+    private fun observeDicts() {
+        viewModel.initData { dictRules ->
+            if (dictRules.isEmpty()) {
+                showEmptyView("暂无可用词典")
+                return@initData
+            }
+
+            binding.emptyMessageView.gone()
+            dictRules.forEach {
                 binding.tabLayout.addTab(binding.tabLayout.newTab().apply {
                     text = it.name
                     tag = it
                 })
             }
-            setupTabLayoutMode(it.size)
+            setupTabLayoutMode(dictRules.size)
+
+
+            binding.tabLayout.getTabAt(0)?.select()
         }
     }
 
-    //根据已启用词典数动态选取布局
+    private fun loadDict(dictRule: DictRule) {
+
+        binding.tvDict.gone()
+        binding.emptyMessageView.gone()
+        binding.rotateLoading.visible()
+
+        viewModel.dict(dictRule, word!!) { result ->
+            binding.rotateLoading.gone()
+            if (result.isBlank()) {
+                showEmptyView("没有查询到结果")
+            } else {
+                binding.tvDict.visible()
+                binding.tvDict.setHtml(result)
+            }
+        }
+    }
+
     private fun setupTabLayoutMode(dictCount: Int) {
         if (dictCount <= 4) {
             binding.tabLayout.tabMode = TabLayout.MODE_FIXED
@@ -80,4 +105,10 @@ class DictDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_dict) {
         }
     }
 
+    private fun showEmptyView(message: String) {
+        binding.tvDict.gone()
+        binding.rotateLoading.gone()
+        binding.emptyMessageView.visible()
+        binding.emptyMessageView.setMessage(message)
+    }
 }
