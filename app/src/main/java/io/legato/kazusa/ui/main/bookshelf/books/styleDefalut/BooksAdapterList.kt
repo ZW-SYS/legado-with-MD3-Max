@@ -71,10 +71,10 @@ class BooksAdapterList(
 
     private fun upRefresh(binding: ItemBookshelfListBinding, item: Book) {
         if (!item.isLocal && callBack.isUpdate(item.bookUrl)) {
-            binding.tvUnread.isVisible = false
-            binding.rlLoading.isVisible = true
+            binding.cdUnread.gone()
+            binding.rlLoading.visible()
         } else {
-            binding.rlLoading.isVisible = false
+            binding.rlLoading.gone()
             if (AppConfig.showUnread) {
                 val unreadCount = item.getUnreadChapterNum()
                 if (unreadCount > 0) {

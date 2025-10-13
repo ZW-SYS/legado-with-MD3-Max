@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import io.legato.kazusa.R
 import io.legato.kazusa.data.entities.Book
@@ -123,10 +122,10 @@ class BooksAdapterList(context: Context, callBack: CallBack) :
 
         private fun upRefresh(binding: ItemBookshelfListBinding, item: Book) {
             if (!item.isLocal && callBack.isUpdate(item.bookUrl)) {
-                binding.tvUnread.isVisible = false
-                binding.rlLoading.isVisible = true
+                binding.cdUnread.gone()
+                binding.rlLoading.visible()
             } else {
-                binding.rlLoading.isVisible = false
+                binding.rlLoading.gone()
                 if (AppConfig.showUnread) {
                     val unreadCount = item.getUnreadChapterNum()
                     if (unreadCount > 0) {
