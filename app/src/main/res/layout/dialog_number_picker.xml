@@ -17,18 +17,11 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
-    <TextView
-        android:id="@+id/tv_range"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/til_input"
-        app:layout_constraintStart_toStartOf="@id/til_input"/>
-
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_input"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        style="@style/Widget.Material3.TextInputLayout.FilledBox.Dense"
         android:visibility="gone"
         android:layout_marginEnd="16dp"
         app:layout_constraintStart_toStartOf="parent"
