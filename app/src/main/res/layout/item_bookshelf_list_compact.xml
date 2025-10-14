@@ -71,7 +71,7 @@
                         android:id="@+id/tv_unread"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="?attr/colorOnSecondaryContainer"
+                        android:textColor="?attr/colorOnSecondary"
                         android:textSize="9sp"
                         android:padding="3dp"
                         android:textStyle="bold"
