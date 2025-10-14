@@ -94,11 +94,11 @@ class ReadAloudDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_aloud
     }
 
     private fun initEvent() = binding.run {
-        llMainMenu.setOnClickListener {
+        ivMainMenu.setOnClickListener {
             callBack?.showMenuBar()
             dismissAllowingStateLoss()
         }
-        llSetting.setOnClickListener {
+        ivSetting.setOnClickListener {
             ReadAloudConfigDialog().show(childFragmentManager, "readAloudConfigDialog")
         }
         tvPre.setOnClickListener { ReadBook.moveToPrevChapter(upContent = true, toLast = false) }
@@ -110,8 +110,8 @@ class ReadAloudDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_aloud
         ivPlayPause.setOnClickListener { callBack?.onClickReadAloud() }
         ivPlayPrev.setOnClickListener { ReadAloud.prevParagraph(requireContext()) }
         ivPlayNext.setOnClickListener { ReadAloud.nextParagraph(requireContext()) }
-        llCatalog.setOnClickListener { callBack?.openChapterList() }
-        llToBackstage.setOnClickListener { callBack?.finish() }
+        ivCatalog.setOnClickListener { callBack?.openChapterList() }
+        ivToBackstage.setOnClickListener { callBack?.finish() }
         cbTtsFollowSys.setOnCheckedChangeListener { _, isChecked ->
             AppConfig.ttsFlowSys = isChecked
             upTtsSpeechRateEnabled(!isChecked)
@@ -134,6 +134,7 @@ class ReadAloudDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_aloud
             val newValue = (seekTtsSpeechRate.value - 1).coerceAtLeast(seekTtsSpeechRate.valueFrom)
             seekTtsSpeechRate.value = newValue
             AppConfig.ttsSpeechRate = newValue.toInt()
+            upTtsSpeechRateText(newValue.toInt())
             upTtsSpeechRate()
         }
 
@@ -142,6 +143,7 @@ class ReadAloudDialog : BaseBottomSheetDialogFragment(R.layout.dialog_read_aloud
             val newValue = (seekTtsSpeechRate.value + 1).coerceAtMost(seekTtsSpeechRate.valueTo)
             seekTtsSpeechRate.value = newValue
             AppConfig.ttsSpeechRate = newValue.toInt()
+            upTtsSpeechRateText(newValue.toInt())
             upTtsSpeechRate()
         }
 

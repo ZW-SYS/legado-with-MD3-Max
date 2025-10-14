@@ -254,7 +254,7 @@
         <!--目录按钮-->
         <LinearLayout
             android:id="@+id/ll_catalog"
-            android:layout_width="60dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
@@ -263,16 +263,13 @@
             android:orientation="vertical"
             android:paddingBottom="7dp">
 
-            <androidx.appcompat.widget.AppCompatImageView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/iv_catalog"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:adjustViewBounds="true"
-                android:contentDescription="@string/chapter_list"
-                android:maxHeight="20dp"
-                android:src="@drawable/ic_toc"
-                tools:ignore="NestedWeights" />
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+                app:icon="@drawable/ic_toc"
+                app:iconGravity="textStart"/>
 
             <TextView
                 android:id="@+id/tv_catalog"
@@ -289,11 +286,11 @@
         <View
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="2" />
+            android:layout_weight="1" />
         <!--调节按钮-->
         <LinearLayout
             android:id="@+id/ll_main_menu"
-            android:layout_width="60dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
@@ -303,16 +300,13 @@
             android:paddingBottom="7dp"
             tools:ignore="TextSizeCheck">
 
-            <androidx.appcompat.widget.AppCompatImageView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/iv_main_menu"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:adjustViewBounds="true"
-                android:contentDescription="@string/main_menu"
-                android:maxHeight="20dp"
-                android:src="@drawable/ic_menu"
-                tools:ignore="NestedWeights" />
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+                app:icon="@drawable/ic_menu"
+                app:iconGravity="textStart"/>
 
             <TextView
                 android:id="@+id/tv_main_menu"
@@ -329,11 +323,11 @@
         <View
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="2" />
+            android:layout_weight="1" />
         <!--界面按钮-->
         <LinearLayout
             android:id="@+id/ll_to_backstage"
-            android:layout_width="60dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
@@ -342,16 +336,13 @@
             android:orientation="vertical"
             android:paddingBottom="7dp">
 
-            <androidx.appcompat.widget.AppCompatImageView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/iv_to_backstage"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:adjustViewBounds="true"
-                android:contentDescription="@string/to_backstage"
-                android:maxHeight="20dp"
-                android:src="@drawable/ic_visibility_off"
-                tools:ignore="NestedWeights" />
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+                app:icon="@drawable/ic_visibility_off"
+                app:iconGravity="textStart"/>
 
             <TextView
                 android:id="@+id/tv_to_backstage"
@@ -368,11 +359,11 @@
         <View
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="2" />
+            android:layout_weight="1" />
         <!--设置按钮-->
         <LinearLayout
             android:id="@+id/ll_setting"
-            android:layout_width="60dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
@@ -381,16 +372,13 @@
             android:orientation="vertical"
             android:paddingBottom="7dp">
 
-            <androidx.appcompat.widget.AppCompatImageView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/iv_setting"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:adjustViewBounds="true"
-                android:contentDescription="@string/aloud_config"
-                android:maxHeight="20dp"
-                android:src="@drawable/ic_settings"
-                tools:ignore="NestedWeights" />
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+                app:icon="@drawable/ic_settings"
+                app:iconGravity="textStart"/>
 
             <TextView
                 android:id="@+id/tv_setting"
