@@ -487,7 +487,7 @@
     <color name="transparent_theme_onPrimaryContainer">#FF000000</color>
     <color name="transparent_theme_secondary">#80FFFFFF</color>
     <color name="transparent_theme_onSecondary">#FF000000</color>
-    <color name="transparent_theme_secondaryContainer">#40FFFFFF</color>
+    <color name="transparent_theme_secondaryContainer">#A0FFFFFF</color>
     <color name="transparent_theme_onSecondaryContainer">#FF000000</color>
     <color name="transparent_theme_tertiary">#80FFFFFF</color>
     <color name="transparent_theme_onTertiary">#FF000000</color>
@@ -524,7 +524,7 @@
     <color name="transparent_theme_surfaceDim">#1AFFFFFF</color>
     <color name="transparent_theme_surfaceBright">#33FFFFFF</color>
     <color name="transparent_theme_surfaceContainerLowest">#0DFFFFFF</color>
-    <color name="transparent_theme_surfaceContainerLow">#1AFFFFFF</color>
+
     <color name="transparent_theme_surfaceContainer">#33FFFFFF</color>
     <color name="transparent_theme_surfaceContainerHigh">#4DFFFFFF</color>
     <color name="transparent_theme_surfaceContainerHighest">#66FFFFFF</color>
