@@ -188,55 +188,6 @@ class TitleBar @JvmOverloads constructor(
         toolbar.setSubtitle(subtitleId)
     }
 
-//    fun setTitleTextColor(@ColorInt color: Int) {
-//        toolbar.setTitleTextColor(color)
-//    }
-//
-//    fun setTitleTextAppearance(@StyleRes resId: Int) {
-//        toolbar.setTitleTextAppearance(context, resId)
-//    }
-//
-//    fun setSubTitleTextColor(@ColorInt color: Int) {
-//        toolbar.setSubtitleTextColor(color)
-//    }
-//
-//    fun setSubTitleTextAppearance(@StyleRes resId: Int) {
-//        toolbar.setSubtitleTextAppearance(context, resId)
-//    }
-//
-//    fun setTextColor(@ColorInt color: Int) {
-//        setTitleTextColor(color)
-//        setSubTitleTextColor(color)
-//    }
-//
-//    fun setColorFilter(@ColorInt color: Int) {
-//        val colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP)
-//        toolbar.children.firstOrNull { it is ImageView }?.background?.colorFilter = colorFilter
-//        toolbar.navigationIcon?.colorFilter = colorFilter
-//        toolbar.overflowIcon?.colorFilter = colorFilter
-//        toolbar.menu.children.forEach {
-//            it.icon?.colorFilter = colorFilter
-//        }
-//    }
-//
-//    override fun setBackgroundColor(color: Int) {
-//        if (color.alpha < 255) {
-//            //这里不能改为0f,改为0f在横屏模式下文字和图标颜色会变
-//            elevation = 0.1f
-//        }
-//        super.setBackgroundColor(color)
-//    }
-//
-//    override fun setBackground(background: Drawable?) {
-//        if (background is ColorDrawable) {
-//            if (background.alpha < 255) {
-//                //这里不能改为0f,改为0f在横屏模式下文字和图标颜色会变
-//                elevation = 0.1f
-//            }
-//        }
-//        super.setBackground(background)
-//    }
-
     fun onMultiWindowModeChanged(isInMultiWindowMode: Boolean, fullScreen: Boolean) {
 //        if (fitStatusBar) {
 //            val topPadding = if (!isInMultiWindowMode && fullScreen) context.statusBarHeight else 0
