@@ -18,8 +18,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import io.legato.kazusa.R
 import io.legato.kazusa.constant.EventBus
+import io.legato.kazusa.constant.PreferKey
+import io.legato.kazusa.utils.getPrefString
 import io.legato.kazusa.utils.postEvent
 import io.legato.kazusa.utils.restart
+import io.legato.kazusa.utils.toastOnUi
+import splitties.init.appCtx
 
 @SuppressLint("ResourceType")
 class ThemeCardPreference(context: Context, attrs: AttributeSet) : Preference(context, attrs) {
@@ -76,6 +80,14 @@ class ThemeCardPreference(context: Context, attrs: AttributeSet) : Preference(co
 
             holder.card.setOnClickListener {
                 if (value != currentValue) {
+                    if (value == "12") {
+                        val hasLightBg = !appCtx.getPrefString(PreferKey.bgImage).isNullOrEmpty()
+                        val hasDarkBg = !appCtx.getPrefString(PreferKey.bgImageN).isNullOrEmpty()
+                        if (!hasLightBg || !hasDarkBg) {
+                            context.toastOnUi(R.string.transparent_theme_alarm)
+                            return@setOnClickListener
+                        }
+                    }
                     val oldValue = currentValue
                     currentValue = value
                     persistString(value)
