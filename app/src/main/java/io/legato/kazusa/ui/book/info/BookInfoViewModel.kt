@@ -15,6 +15,7 @@ import io.legato.kazusa.data.appDb
 import io.legato.kazusa.data.entities.Book
 import io.legato.kazusa.data.entities.BookChapter
 import io.legato.kazusa.data.entities.BookSource
+import io.legato.kazusa.data.entities.SearchBook
 import io.legato.kazusa.exception.NoBooksDirException
 import io.legato.kazusa.exception.NoStackTraceException
 import io.legato.kazusa.help.AppWebDav
@@ -56,28 +57,17 @@ class BookInfoViewModel(application: Application) : BaseViewModel(application) {
 
     fun initData(intent: Intent) {
         execute {
-            val name = intent.getStringExtra("name") ?: ""
-            val author = intent.getStringExtra("author") ?: ""
             val bookUrl = intent.getStringExtra("bookUrl") ?: ""
-            appDb.bookDao.getBook(name, author)?.let {
+            appDb.bookDao.getBook(bookUrl)?.let {
                 inBookshelf = !it.isNotShelf
                 upBook(it)
                 return@execute
             }
-            if (bookUrl.isNotBlank()) {
-                appDb.searchBookDao.getSearchBook(bookUrl)?.toBook()?.let {
-                    upBook(it)
-                    return@execute
-                }
-            }
-            appDb.searchBookDao.getFirstByNameAuthor(name, author)?.toBook()?.let {
+            appDb.searchBookDao.getSearchBook(bookUrl)?.toBook()?.let {
                 upBook(it)
                 return@execute
             }
             throw NoStackTraceException("未找到书籍")
-        }.onError {
-            AppLog.put(it.localizedMessage, it)
-            context.toastOnUi(it.localizedMessage)
         }
     }
 
@@ -85,9 +75,12 @@ class BookInfoViewModel(application: Application) : BaseViewModel(application) {
         execute {
             val name = intent.getStringExtra("name") ?: ""
             val author = intent.getStringExtra("author") ?: ""
-            appDb.bookDao.getBook(name, author)?.let { book ->
-                upBook(book)
+            val bookUrl = intent.getStringExtra("bookUrl") ?: ""
+            val book = when {
+                bookUrl.isNotBlank() -> appDb.bookDao.getBook(bookUrl)
+                else -> appDb.bookDao.getBook(name, author)
             }
+            book?.let { upBook(it) }
         }
     }
 
@@ -481,6 +474,24 @@ class BookInfoViewModel(application: Application) : BaseViewModel(application) {
             context.toastOnUi(R.string.clear_cache_success)
         }.onError {
             context.toastOnUi("清理缓存出错\n${it.localizedMessage}")
+        }
+    }
+
+
+    fun addToBookshelf(book: Book, toc: List<BookChapter>, success: (() -> Unit)? = null) {
+        execute {
+            book.removeType(BookType.notShelf)
+            if (book.order == 0) {
+                book.order = appDb.bookDao.minOrder - 1
+            }
+
+            appDb.bookDao.insert(book)
+            appDb.bookChapterDao.insert(*toc.toTypedArray())
+        }.onSuccess {
+            success?.invoke()
+        }.onError {
+            AppLog.put("添加书籍到书架失败", it)
+            context.toastOnUi("添加书籍失败")
         }
     }
 

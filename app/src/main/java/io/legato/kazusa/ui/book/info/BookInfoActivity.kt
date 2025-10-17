@@ -1060,4 +1060,9 @@ class BookInfoActivity :
         }
     }
 
+    override fun addToBookshelf(book: Book, toc: List<BookChapter>) {
+        viewModel.addToBookshelf(book, toc) {
+            toastOnUi("已添加到书架")
+        }
+    }
 }

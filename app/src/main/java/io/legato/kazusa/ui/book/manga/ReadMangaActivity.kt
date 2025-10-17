@@ -685,6 +685,7 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
             bookInfoActivity.launch {
                 putExtra("name", it.name)
                 putExtra("author", it.author)
+                putExtra("bookUrl", it.bookUrl)
             }
         }
     }
@@ -956,5 +957,10 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
         return super.onKeyDown(keyCode, event)
     }
 
+    override fun addToBookshelf(book: Book, toc: List<BookChapter>) {
+        viewModel.addToBookshelf(book, toc) {
+            toastOnUi("已添加到书架")
+        }
+    }
 
 }

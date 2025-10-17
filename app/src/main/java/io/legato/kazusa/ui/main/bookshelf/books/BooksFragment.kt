@@ -300,6 +300,7 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
         val intent = Intent(requireContext(), BookInfoActivity::class.java).apply {
             putExtra("name", book.name)
             putExtra("author", book.author)
+            putExtra("bookUrl", book.bookUrl)
             putExtra("transitionName", "book_${book.bookUrl}") // 给共享元素唯一标识
         }
 

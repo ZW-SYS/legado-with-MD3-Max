@@ -61,6 +61,7 @@ import io.legato.kazusa.utils.showDialogFragment
 import io.legato.kazusa.utils.startActivity
 import io.legato.kazusa.utils.startActivityForBook
 import io.legato.kazusa.utils.startAnimation
+import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 import io.legato.kazusa.utils.visible
 import kotlinx.coroutines.CoroutineScope
@@ -685,6 +686,12 @@ class AudioPlayActivity :
     override fun upLoading(loading: Boolean) {
         runOnUiThread {
             binding.progressLoading.visible(loading)
+        }
+    }
+
+    override fun addToBookshelf(book: Book, toc: List<BookChapter>) {
+        viewModel.addToBookshelf(book, toc) {
+            toastOnUi("已添加到书架")
         }
     }
 

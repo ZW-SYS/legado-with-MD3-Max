@@ -60,6 +60,7 @@ import io.legato.kazusa.lib.dialogs.alert
 import io.legato.kazusa.lib.dialogs.selector
 import io.legato.kazusa.model.ReadAloud
 import io.legato.kazusa.model.ReadBook
+import io.legato.kazusa.model.ReadManga
 import io.legato.kazusa.model.analyzeRule.AnalyzeRule
 import io.legato.kazusa.model.analyzeRule.AnalyzeRule.Companion.setChapter
 import io.legato.kazusa.model.analyzeRule.AnalyzeRule.Companion.setCoroutineContext
@@ -202,7 +203,7 @@ class ReadBookActivity : BaseReadBookActivity(),
         registerForActivityResult(StartActivityContract(BookInfoActivity::class.java)) {
             if (it.resultCode == RESULT_OK) {
                 setResult(RESULT_DELETED)
-                super.finish()
+                finish()
             } else {
                 ReadBook.loadOrUpContent()
             }
@@ -1206,10 +1207,11 @@ class ReadBookActivity : BaseReadBookActivity(),
     }
 
     override fun openBookInfoActivity() {
-        ReadBook.book?.let {
+        ReadManga.book?.let {
             bookInfoActivity.launch {
                 putExtra("name", it.name)
                 putExtra("author", it.author)
+                putExtra("bookUrl", it.bookUrl)
             }
         }
     }
@@ -1685,6 +1687,7 @@ class ReadBookActivity : BaseReadBookActivity(),
                     ReadBook.book?.save()
                     ReadBook.inBookshelf = true
                     setResult(RESULT_OK)
+                    super.finish()
                 }
                 noButton { viewModel.removeFromBookshelf { super.finish() } }
             }
@@ -1800,6 +1803,12 @@ class ReadBookActivity : BaseReadBookActivity(),
             } else {
                 keepScreenOn(false)
             }
+        }
+    }
+
+    override fun addToBookshelf(book: Book, toc: List<BookChapter>) {
+        viewModel.addToBookshelf(book, toc) {
+            toastOnUi("已添加到书架")
         }
     }
 

@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView
 import io.legato.kazusa.R
 import io.legato.kazusa.base.BaseBottomSheetDialogFragment
 import io.legato.kazusa.constant.AppLog
+import io.legato.kazusa.constant.BookType
 import io.legato.kazusa.constant.EventBus
 import io.legato.kazusa.data.appDb
 import io.legato.kazusa.data.entities.Book
@@ -29,6 +30,7 @@ import io.legato.kazusa.data.entities.SearchBook
 import io.legato.kazusa.databinding.DialogBookChangeSourceBinding
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.lib.dialogs.alert
+import io.legato.kazusa.model.ReadBook
 import io.legato.kazusa.ui.book.read.ReadBookActivity
 import io.legato.kazusa.ui.book.source.edit.BookSourceEditActivity
 import io.legato.kazusa.ui.book.source.manage.BookSourceActivity
@@ -40,6 +42,7 @@ import io.legato.kazusa.utils.dpToPx
 import io.legato.kazusa.utils.getCompatDrawable
 import io.legato.kazusa.utils.observeEvent
 import io.legato.kazusa.utils.startActivity
+import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.transaction
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 import io.legato.kazusa.utils.visible
@@ -74,6 +77,7 @@ class ChangeBookSourceDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_b
             val origin = it.data?.getStringExtra("origin") ?: return@registerForActivityResult
             viewModel.startSearch(origin)
         }
+    private var currentSelectedSearchBook: SearchBook? = null
     private val searchFinishCallback: (isEmpty: Boolean) -> Unit = {
         if (it) {
             val searchGroup = AppConfig.searchGroup
@@ -327,23 +331,65 @@ class ChangeBookSourceDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_b
     }
 
     override fun changeTo(searchBook: SearchBook) {
+        currentSelectedSearchBook = searchBook
+        showChangeSourceOptionDialog(searchBook)
+    }
+
+    private fun showChangeSourceOptionDialog(searchBook: SearchBook) {
         val oldBookType = callBack?.oldBook?.type ?: 0
-        if (searchBook.sameBookTypeLocal(oldBookType)) {
-            changeSource(searchBook) {
-                dismissAllowingStateLoss()
-            }
-        } else {
+
+        if (!searchBook.sameBookTypeLocal(oldBookType)) {
             alert(
                 titleResource = R.string.book_type_different,
                 messageResource = R.string.soure_change_source
             ) {
                 okButton {
-                    changeSource(searchBook) {
-                        dismissAllowingStateLoss()
-                    }
+                    showChangeSourceActionDialog(searchBook)
                 }
                 cancelButton()
             }
+        } else {
+            showChangeSourceActionDialog(searchBook)
+        }
+    }
+
+    private fun showChangeSourceActionDialog(searchBook: SearchBook) {
+        context?.alert(getString(R.string.change_source_option_title)) {
+            positiveButton(getString(R.string.replace_current_book)) {
+                performChangeSource(searchBook, true)
+            }
+            negativeButton(getString(R.string.add_as_new_book)) {
+                performChangeSource(searchBook, false)
+            }
+        }
+    }
+
+    private fun performChangeSource(searchBook: SearchBook, isReplace: Boolean) {
+        val baseBook = viewModel.bookMap[searchBook.primaryStr()] ?: searchBook.toBook()
+        val book = baseBook
+
+        waitDialog.setText(if (isReplace) R.string.load_toc else R.string.load_info)
+        waitDialog.show()
+
+        val coroutine = viewModel.getToc(book, { toc, source ->
+            waitDialog.dismiss()
+            if (isReplace) {
+
+                callBack?.changeTo(source, book, toc)
+                dismissAllowingStateLoss()
+            } else {
+                ReadBook.book?.migrateTo(book, toc)
+                callBack?.addToBookshelf(book, toc)
+                context?.toastOnUi(getString(R.string.book_added_to_shelf))
+            }
+        }, {
+            waitDialog.dismiss()
+            AppLog.put("${if (isReplace) "换源" else "添加书籍"}获取目录出错\n$it", it, true)
+            context?.toastOnUi("${if (isReplace) "换源" else "添加书籍"}失败")
+        })
+
+        waitDialog.setOnCancelListener {
+            coroutine.cancel()
         }
     }
 
@@ -457,6 +503,7 @@ class ChangeBookSourceDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_b
     interface CallBack {
         val oldBook: Book?
         fun changeTo(source: BookSource, book: Book, toc: List<BookChapter>)
+        fun addToBookshelf(book: Book, toc: List<BookChapter>)
     }
 
 }

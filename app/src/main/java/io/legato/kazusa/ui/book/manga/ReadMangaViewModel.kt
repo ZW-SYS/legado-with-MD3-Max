@@ -352,4 +352,21 @@ class ReadMangaViewModel(application: Application) : BaseViewModel(application) 
                 }
         }
     }
+
+    fun addToBookshelf(book: Book, toc: List<BookChapter>, success: (() -> Unit)? = null) {
+        execute {
+            book.removeType(BookType.notShelf)
+            if (book.order == 0) {
+                book.order = appDb.bookDao.minOrder - 1
+            }
+
+            appDb.bookDao.insert(book)
+            appDb.bookChapterDao.insert(*toc.toTypedArray())
+        }.onSuccess {
+            success?.invoke()
+        }.onError {
+            AppLog.put("添加书籍到书架失败", it)
+            context.toastOnUi("添加书籍失败")
+        }
+    }
 }
