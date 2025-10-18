@@ -37,6 +37,11 @@
             app:cpv_dialogType="preset"
             app:iconSpaceReserved="false" />
 
+        <io.legato.kazusa.lib.prefs.ImagePreviewPreference
+            android:key="colorImage"
+            android:title="种子图片"
+            android:summary="@string/seed_photo_summary"/>
+
         <io.legato.kazusa.lib.prefs.NameListPreference
             android:defaultValue="global"
             android:key="customMode"
@@ -131,11 +136,11 @@
         app:iconSpaceReserved="false"
         app:layout="@layout/view_preference_category">
 
-        <io.legato.kazusa.lib.prefs.Preference
+        <io.legato.kazusa.lib.prefs.ImagePreviewPreference
             android:key="backgroundImage"
             android:title="@string/light_mode" />
 
-        <io.legato.kazusa.lib.prefs.Preference
+        <io.legato.kazusa.lib.prefs.ImagePreviewPreference
             android:key="backgroundImageNight"
             android:title="@string/dark_mode" />
 

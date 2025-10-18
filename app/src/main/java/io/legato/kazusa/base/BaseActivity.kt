@@ -3,6 +3,7 @@ package io.legato.kazusa.base
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -14,6 +15,7 @@ import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.drawable.toDrawable
+import androidx.core.graphics.scale
 import androidx.core.view.WindowCompat
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.appbar.AppBarLayout
@@ -22,6 +24,7 @@ import com.google.android.material.color.DynamicColorsOptions
 import io.legato.kazusa.R
 import io.legato.kazusa.constant.AppLog
 import io.legato.kazusa.constant.EventBus
+import io.legato.kazusa.constant.PreferKey
 import io.legato.kazusa.constant.Theme
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.config.ThemeConfig
@@ -38,6 +41,7 @@ import io.legato.kazusa.utils.fullScreen
 import io.legato.kazusa.utils.setNavigationBarColorAuto
 import io.legato.kazusa.utils.setStatusBarColorAuto
 import io.legato.kazusa.utils.themeColor
+import java.io.File
 
 
 abstract class BaseActivity<VB : ViewBinding>(
@@ -169,11 +173,36 @@ abstract class BaseActivity<VB : ViewBinding>(
             "11" -> {
                 if (AppConfig.customMode == "accent")
                     setTheme(R.style.ThemeOverlay_WhiteBackground)
-                DynamicColors.applyToActivitiesIfAvailable(application, DynamicColorsOptions.Builder()
-                    .setContentBasedSource(application.primaryColor)
-                    .build())
 
+                val colorImagePath = getPrefString(PreferKey.colorImage)
+                if (!colorImagePath.isNullOrBlank()) {
+                    val file = File(colorImagePath)
+                    if (file.exists()) {
+                        val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+                        if (bitmap != null) {
+                            val colorAccuracy = true
+                            val targetWidth = if (colorAccuracy) (bitmap.width / 4).coerceAtMost(256) else 16
+                            val targetHeight = if (colorAccuracy) (bitmap.height / 4).coerceAtMost(256) else 16
+                            val scaledBitmap = bitmap.scale(targetWidth, targetHeight, false)
+
+                            val options = DynamicColorsOptions.Builder()
+                                .setContentBasedSource(scaledBitmap)
+                                .build()
+
+                            DynamicColors.applyToActivitiesIfAvailable(application, options)
+                            bitmap.recycle()
+                        }
+                    }
+                }else{
+                    DynamicColors.applyToActivitiesIfAvailable(
+                        application,
+                        DynamicColorsOptions.Builder()
+                            .setContentBasedSource(application.primaryColor)
+                            .build()
+                    )
+                }
             }
+
             "12" -> setTheme(R.style.AppTheme_Transparent)
         }
 

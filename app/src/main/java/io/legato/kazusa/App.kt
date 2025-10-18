@@ -7,7 +7,9 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
+import android.graphics.BitmapFactory
 import android.os.Build
+import androidx.core.graphics.scale
 import com.github.liuyueyi.quick.transfer.constants.TransType
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.DynamicColorsOptions
@@ -59,6 +61,7 @@ import kotlinx.coroutines.launch
 import org.chromium.base.ThreadUtils
 import splitties.init.appCtx
 import splitties.systemservices.notificationManager
+import java.io.File
 import java.net.URL
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
@@ -72,9 +75,34 @@ class App : Application() {
         if (getPrefString("app_theme", "0") == "11") {
             if (AppConfig.customMode == "accent")
                 setTheme(R.style.ThemeOverlay_WhiteBackground)
-            DynamicColors.applyToActivitiesIfAvailable(this, DynamicColorsOptions.Builder()
-                .setContentBasedSource(this.primaryColor)
-                .build())
+
+            val colorImagePath = getPrefString(PreferKey.colorImage)
+            if (!colorImagePath.isNullOrBlank()) {
+                val file = File(colorImagePath)
+                if (file.exists()) {
+                    val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+                    if (bitmap != null) {
+                        val colorAccuracy = true
+                        val targetWidth = if (colorAccuracy) (bitmap.width / 4).coerceAtMost(256) else 16
+                        val targetHeight = if (colorAccuracy) (bitmap.height / 4).coerceAtMost(256) else 16
+                        val scaledBitmap = bitmap.scale(targetWidth, targetHeight, false)
+
+                        val options = DynamicColorsOptions.Builder()
+                            .setContentBasedSource(scaledBitmap)
+                            .build()
+
+                        DynamicColors.applyToActivitiesIfAvailable(this, options)
+                        bitmap.recycle()
+                    }
+                }
+            }else{
+                DynamicColors.applyToActivitiesIfAvailable(
+                    this,
+                    DynamicColorsOptions.Builder()
+                        .setContentBasedSource(this.primaryColor)
+                        .build()
+                )
+            }
         }
 
         super.onCreate()

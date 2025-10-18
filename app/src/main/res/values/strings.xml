@@ -1294,4 +1294,7 @@
     <string name="add_as_new_book">新增书籍到书架</string>
     <string name="quick_add_to_shelf">快速添加到书架</string>
     <string name="book_added_to_shelf">书籍已添加到书架</string>
+    <string name="seed_photo_summary">使用图片生成主题颜色</string>
+    <string name="seed_photo_alart">若需使用种子颜色，请取消种子图片选择</string>
+    <string name="click_to_delete">Click to delete or change</string>
 </resources>

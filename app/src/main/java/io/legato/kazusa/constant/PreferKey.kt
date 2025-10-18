@@ -205,4 +205,6 @@ object PreferKey {
     const val pureBlack = "pure_black"
     const val labelVisibilityMode = "labelVisibilityMode"
     const val menuAlpha = "menuAlpha"
+
+    const val colorImage = "colorImage"
 }

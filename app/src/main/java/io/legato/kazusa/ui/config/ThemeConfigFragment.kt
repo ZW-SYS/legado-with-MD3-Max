@@ -58,10 +58,12 @@ class ThemeConfigFragment : PreferenceFragmentCompat(),
     SharedPreferences.OnSharedPreferenceChangeListener
     //MenuProvider
     {
+        private val requestCodeBgLight = 121
+        private val requestCodeBgDark = 122
 
-    private val requestCodeBgLight = 121
-    private val requestCodeBgDark = 122
-    private val selectImage = registerForActivityResult(SelectImageContract()) {
+        private val requestCodeColorImage = 123
+
+        private val selectImage = registerForActivityResult(SelectImageContract()) {
         it.uri?.let { uri ->
             when (it.requestCode) {
                 requestCodeBgLight -> setBgFromUri(uri, PreferKey.bgImage) {
@@ -71,6 +73,10 @@ class ThemeConfigFragment : PreferenceFragmentCompat(),
                 requestCodeBgDark -> setBgFromUri(uri, PreferKey.bgImageN) {
                     upTheme(true)
                 }
+
+                requestCodeColorImage -> setBgFromUri(uri, PreferKey.colorImage) {
+                    upPreferenceSummary(PreferKey.colorImage, getPrefString(PreferKey.colorImage))
+                }
             }
         }
     }
@@ -78,8 +84,6 @@ class ThemeConfigFragment : PreferenceFragmentCompat(),
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.pref_config_theme)
 
-        upPreferenceSummary(PreferKey.bgImage, getPrefString(PreferKey.bgImage))
-        upPreferenceSummary(PreferKey.bgImageN, getPrefString(PreferKey.bgImageN))
         upPreferenceSummary(PreferKey.fontScale)
 
         findPreference<ColorPreference>(PreferKey.cBackground)?.let {
@@ -129,6 +133,18 @@ class ThemeConfigFragment : PreferenceFragmentCompat(),
             customMode?.isVisible = newValue == "11"
             true
         }
+
+        val hasColorImage = !getPrefString(PreferKey.colorImage).isNullOrBlank()
+        colorPrimary?.isEnabled = !hasColorImage
+        if (hasColorImage)
+        {
+            upPreferenceSummary("colorPrimary", getString(R.string.seed_photo_alart))
+            upPreferenceSummary(PreferKey.colorImage, getString(R.string.click_to_delete))
+        }
+        if (!getPrefString(PreferKey.bgImage).isNullOrBlank())
+            upPreferenceSummary(PreferKey.bgImage, getString(R.string.click_to_delete))
+        if (!getPrefString(PreferKey.bgImageN).isNullOrBlank())
+            upPreferenceSummary(PreferKey.bgImageN, getString(R.string.click_to_delete))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -200,6 +216,11 @@ class ThemeConfigFragment : PreferenceFragmentCompat(),
                 //recreateActivities()
             }
 
+            PreferKey.colorImage ->
+                Handler(Looper.getMainLooper()).postDelayed({
+                    requireContext().restart()
+                }, 100)
+
             PreferKey.bgImage,
             PreferKey.bgImageN -> {
                 upPreferenceSummary(key, getPrefString(key))
@@ -232,6 +253,8 @@ class ThemeConfigFragment : PreferenceFragmentCompat(),
 
             PreferKey.bgImage -> selectBgAction(false)
             PreferKey.bgImageN -> selectBgAction(true)
+            "colorImage" -> selectBgAction(null)
+
             "themeList" -> ThemeListDialog().show(childFragmentManager, "themeList")
             "saveDayTheme",
             "saveNightTheme" -> alertSaveTheme(key)
@@ -267,39 +290,60 @@ class ThemeConfigFragment : PreferenceFragmentCompat(),
         }
     }
 
-    private fun selectBgAction(isNight: Boolean) {
-        val bgKey = if (isNight) PreferKey.bgImageN else PreferKey.bgImage
-        val blurringKey = if (isNight) PreferKey.bgImageNBlurring else PreferKey.bgImageBlurring
-        val actions = arrayListOf(
-            getString(R.string.background_image_blurring),
-            getString(R.string.select_image)
-        )
-        if (!getPrefString(bgKey).isNullOrEmpty()) {
-            actions.add(getString(R.string.delete))
-        }
-        context?.selector(items = actions) { _, i ->
-            when (i) {
-                0 -> alertImageBlurring(blurringKey) {
-                    upTheme(isNight)
-                }
+        private fun selectBgAction(isNight: Boolean?) {
+            val bgKey = when (isNight) {
+                true -> PreferKey.bgImageN
+                false -> PreferKey.bgImage
+                null -> PreferKey.colorImage
+            }
+            val blurringKey = when (isNight) {
+                true -> PreferKey.bgImageNBlurring
+                false -> PreferKey.bgImageBlurring
+                else -> null
+            }
 
-                1 -> {
-                    if (isNight) {
-                        selectImage.launch(requestCodeBgDark)
-                    } else {
-                        selectImage.launch(requestCodeBgLight)
+            val actions = mutableListOf<String>()
+
+            if (isNight != null) {
+                actions.add(getString(R.string.background_image_blurring))
+            }
+
+            actions.add(getString(R.string.select_image))
+
+            if (!getPrefString(bgKey).isNullOrEmpty()) {
+                actions.add(getString(R.string.delete))
+            }
+
+            context?.selector(items = actions) { _, i ->
+                when {
+                    isNight != null && i == 0 -> {
+                        alertImageBlurring(blurringKey!!) {
+                            upTheme(isNight)
+                        }
                     }
-                }
 
-                2 -> {
-                    removePref(bgKey)
-                    upTheme(isNight)
+                    (isNight == null && i == 0) || (isNight != null && i == 1) -> {
+                        when (isNight) {
+                            true -> selectImage.launch(requestCodeBgDark)
+                            false -> selectImage.launch(requestCodeBgLight)
+                            null -> selectImage.launch(requestCodeColorImage)
+                        }
+                    }
+
+                    (isNight == null && i == 1) || (isNight != null && i == 2) -> {
+                        removePref(bgKey)
+                        if (isNight != null) {
+                            upTheme(isNight)
+                        } else {
+                            upPreferenceSummary(PreferKey.colorImage, getPrefString(PreferKey.colorImage))
+                        }
+                    }
                 }
             }
         }
-    }
 
-    private fun alertImageBlurring(preferKey: String, success: () -> Unit) {
+
+        private fun alertImageBlurring(preferKey: String, success: () -> Unit) {
         alert(R.string.background_image_blurring) {
             val alertBinding = DialogImageBlurringBinding.inflate(layoutInflater).apply {
                 getPrefInt(preferKey, 0).let {
