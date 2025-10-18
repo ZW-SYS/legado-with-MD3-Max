@@ -551,32 +551,30 @@ class AudioPlayService : BaseService(),
     }
 
     private fun createNotification(): NotificationCompat.Builder {
-        var nTitle: String = when {
+        val nTitle: String = when {
             pause -> getString(R.string.audio_pause)
-            timeMinute in 1..60 -> getString(
-                R.string.playing_timer,
-                timeMinute
-            )
-
+            timeMinute in 1..60 -> getString(R.string.playing_timer, timeMinute)
             else -> getString(R.string.audio_play_t)
-        }
-        nTitle += ": ${AudioPlay.book?.name}"
-        var nSubtitle = AudioPlay.durChapter?.title
-        if (nSubtitle.isNullOrEmpty()) {
-            nSubtitle = getString(R.string.audio_play_s)
-        }
-        val builder = NotificationCompat
-            .Builder(this@AudioPlayService, AppConst.channelIdReadAloud)
+        } + ": ${AudioPlay.book?.name}"
+
+        val nSubtitle = AudioPlay.durChapter?.title ?: getString(R.string.audio_play_s)
+
+        val builder = NotificationCompat.Builder(this@AudioPlayService, AppConst.channelIdReadAloud)
             .setSmallIcon(R.drawable.ic_volume_up)
             .setSubText(getString(R.string.audio))
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setContentTitle(nTitle)
             .setContentText(nSubtitle)
-            .setContentIntent(
-                activityPendingIntent<AudioPlayActivity>("activity")
+            .setContentIntent(activityPendingIntent<AudioPlayActivity>("activity"))
+            .setLargeIcon(cover)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setStyle(
+                androidx.media.app.NotificationCompat.MediaStyle()
+                    .setShowActionsInCompactView(0, 1, 2)
+                    .setMediaSession(mediaSessionCompat?.sessionToken)
             )
-        builder.setLargeIcon(cover)
+
         if (pause) {
             builder.addAction(
                 R.drawable.ic_play,
@@ -590,6 +588,7 @@ class AudioPlayService : BaseService(),
                 servicePendingIntent<AudioPlayService>(IntentAction.pause)
             )
         }
+
         builder.addAction(
             R.drawable.ic_stop_black_24dp,
             getString(R.string.stop),
@@ -600,12 +599,7 @@ class AudioPlayService : BaseService(),
             getString(R.string.set_timer),
             servicePendingIntent<AudioPlayService>(IntentAction.addTimer)
         )
-        builder.setStyle(
-            androidx.media.app.NotificationCompat.MediaStyle()
-                .setShowActionsInCompactView(0, 1, 2)
-                .setMediaSession(mediaSessionCompat?.sessionToken)
-        )
-        builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+
         return builder
     }
 
