@@ -2,7 +2,6 @@ package io.legato.kazusa.lib.prefs
 
 import android.content.Context
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
@@ -21,7 +20,7 @@ class ImagePreviewPreference(context: Context, attrs: AttributeSet) : Preference
 
     override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)
-        val v = Preference.bindView<ImageView>(
+        val v = bindView<ImageView>(
             context, holder, icon, title, summary,
             widgetLayoutResource,
             R.id.preview,
