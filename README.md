@@ -1,14 +1,7 @@
-
-
->注意，此版本为Material Design 3风格重构版本，仍在快速更新。
->新用户？
->软件不提供内容，需要您自己手动添加，例如导入书源等。
->看看 [官方帮助文档](https://www.yuque.com/legado/wiki)，也许里面就有你要的答案。
+>此版本为Material Design 3风格重构版本。
 
 与[官方版本](https://github.com/gedoor/legado)的区别：
-
 重新设计界面，使用Material Design 3设计，和增加一些奇怪的新功能。
-注意，目前不使用官方的主题系统，一些设置无效，且很多界面与官方差异较大。
 
 应用截图：
 ![retouch_2025090304371780](https://github.com/user-attachments/assets/679c7a0e-088a-42fe-856b-cccb6f1d1880)
@@ -53,10 +46,14 @@ https://gedoor.github.io/Disclaimer
 
 
 # Grateful-感谢 [![](https://img.shields.io/badge/-Grateful-F5F5F5.svg)](#Grateful-感谢-)
-> * github.com/gedoor/legado
-> * github.com/komikku-app/komikku
-> * github.com/FoedusProgramme/Gramophone
-> * 
+[gedoor/legado](https://github.com/gedoor/legado)
+
+[Luoyacheng/legado](https://github.com/Luoyacheng/legado)
+
+[komikku-app/komikku](https://github.com/komikku-app/komikku)
+
+[FoedusProgramme/Gramophone](https://github.com/FoedusProgramme/Gramophone)
+
 > * org.jsoup:jsoup
 > * cn.wanghaomiao:JsoupXpath
 > * com.jayway.jsonpath:json-path
