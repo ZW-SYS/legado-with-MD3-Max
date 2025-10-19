@@ -18,6 +18,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.TransitionManager
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.material.search.SearchBar
 import com.google.android.material.search.SearchView
@@ -181,24 +182,9 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
 
     private fun initMaterialSearch() {
 
-        binding.appBar.applyStatusBarPadding()
 
-        binding.appBar.post {
-            val maxPaddingTop = binding.appBar.paddingTop
-            binding.appBar.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
-                val totalScrollRange = appBarLayout.totalScrollRange
-                val scrollRatio =
-                    (1f - (abs(verticalOffset).toFloat() / totalScrollRange)).coerceIn(0f, 1f)
 
-                appBarLayout.alpha = scrollRatio
-                appBarLayout.setPadding(
-                    appBarLayout.paddingLeft,
-                    (maxPaddingTop * scrollRatio).toInt(),
-                    appBarLayout.paddingRight,
-                    appBarLayout.paddingBottom
-                )
-            }
-        }
+
 
         searchBar.setOnMenuItemClickListener { item ->
             onCompatOptionsItemSelected(item)
@@ -450,7 +436,8 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
      * 搜索结束
      */
     private fun searchFinally() {
-        binding.refreshProgressBar.invisible()
+        TransitionManager.beginDelayedTransition(binding.root)
+        binding.refreshProgressBar.gone()
         binding.cdProgress.gone()
         if (!isManualStopSearch && viewModel.hasMore) {
             binding.fbStartStop.setImageResource(R.drawable.ic_play)
