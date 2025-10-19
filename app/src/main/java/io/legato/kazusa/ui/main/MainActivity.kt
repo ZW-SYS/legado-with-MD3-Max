@@ -12,7 +12,6 @@ import android.view.MotionEvent
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.get
@@ -41,7 +40,6 @@ import io.legato.kazusa.help.config.LocalConfig
 import io.legato.kazusa.help.coroutine.Coroutine
 import io.legato.kazusa.help.storage.Backup
 import io.legato.kazusa.lib.dialogs.alert
-import io.legato.kazusa.service.BaseReadAloudService
 import io.legato.kazusa.ui.about.CrashLogsDialog
 import io.legato.kazusa.ui.book.read.ReadBookActivity
 import io.legato.kazusa.ui.book.search.SearchActivity
@@ -63,7 +61,6 @@ import io.legato.kazusa.utils.shouldHideSoftInput
 import io.legato.kazusa.utils.showDialogFragment
 import io.legato.kazusa.utils.startActivity
 import io.legato.kazusa.utils.themeColor
-import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 import io.legato.kazusa.utils.visible
 import kotlinx.coroutines.Dispatchers.IO
@@ -88,7 +85,6 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
     private val idExplore = 1
     private val idRss = 2
     private val idMy = 3
-    private var exitTime: Long = 0
     private var bookshelfReselected: Long = 0
     private var exploreReselected: Long = 0
     private var pagePosition = 0

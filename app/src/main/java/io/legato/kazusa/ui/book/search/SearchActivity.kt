@@ -35,7 +35,6 @@ import io.legato.kazusa.ui.about.AppLogDialog
 import io.legato.kazusa.ui.book.info.BookInfoActivity
 import io.legato.kazusa.ui.book.source.manage.BookSourceActivity
 import io.legato.kazusa.utils.applyNavigationBarMargin
-import io.legato.kazusa.utils.applyStatusBarPadding
 import io.legato.kazusa.utils.getPrefBoolean
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.invisible
