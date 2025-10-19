@@ -11,6 +11,7 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -97,7 +98,7 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
     private val adapter by lazy {
         TabFragmentPageAdapter(this)
     }
-
+    private lateinit var backCallback: OnBackPressedCallback
     private val badge by lazy {
         getNavigationBarView().getOrCreateBadge(R.id.menu_bookshelf)
     }
@@ -105,6 +106,23 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         recreate()
+    }
+
+    private fun setupBackCallback() {
+        backCallback = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                if (pagePosition != 0) {
+                    binding.viewPagerMain.currentItem = 0
+                    return
+                }
+
+                val fragment = fragmentMap[getFragmentId(0)] as? BookshelfFragment2
+                if (fragment?.back() == true) {
+                    return
+                }
+            }
+        }
+        onBackPressedDispatcher.addCallback(this, backCallback)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -118,29 +136,8 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
             pagePosition = savedInstanceState.getInt("currentPagePosition", 0)
         }
 
-        onBackPressedDispatcher.addCallback(this) {
-            if (pagePosition != 0) {
-                binding.viewPagerMain.currentItem = 0
-                return@addCallback
-            }
-
-            (fragmentMap[getFragmentId(0)] as? BookshelfFragment2)?.let {
-                if (it.back()) return@addCallback
-            }
-
-            if (System.currentTimeMillis() - exitTime > 2000) {
-                toastOnUi(R.string.double_click_exit)
-                exitTime = System.currentTimeMillis()
-            } else {
-                if (BaseReadAloudService.pause) {
-                    finish()
-                } else {
-                    moveTaskToBack(true)
-                }
-            }
-        }
-
         // 其他初始化逻辑
+        setupBackCallback()
         upBottomMenu()
         initView()
         upHomePage()
@@ -511,9 +508,14 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
                 idMy -> R.id.menu_my_config
                 else -> R.id.menu_bookshelf
             }
+            updateBackCallbackState()
         }
     }
 
+    private fun updateBackCallbackState() {
+        val fragment = fragmentMap[getFragmentId(0)] as? BookshelfFragment2
+        backCallback.isEnabled = (pagePosition != 0) || (fragment?.canHandleBack() == true)
+    }
 
     private inner class TabFragmentPageAdapter(
         activity: FragmentActivity
@@ -524,7 +526,13 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
         override fun createFragment(position: Int): Fragment {
             val fragment = when (getFragmentId(position)) {
                 idBookshelf1 -> BookshelfFragment1(position)
-                idBookshelf2 -> BookshelfFragment2(position)
+                idBookshelf2 -> {
+                    val bookshelfFragment = BookshelfFragment2(position)
+                    bookshelfFragment.setGroupIdChangeListener {
+                        updateBackCallbackState()
+                    }
+                    bookshelfFragment
+                }
                 idBookshelf3 -> BookshelfFragment3(position)
                 idExplore -> ExploreFragment(position)
                 idRss -> RssFragment(position)

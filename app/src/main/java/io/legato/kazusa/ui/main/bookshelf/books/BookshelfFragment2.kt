@@ -60,6 +60,10 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
     SearchView.OnQueryTextListener,
     BaseBooksAdapter.CallBack {
 
+    fun interface OnGroupIdChangeListener {
+        fun onGroupIdChanged()
+    }
+
     constructor(position: Int) : this() {
         val bundle = Bundle()
         bundle.putInt("position", position)
@@ -71,6 +75,12 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
     private val bookshelfLayoutMode by lazy { requireContext().bookshelfLayoutMode }
 
     private val bookshelfLayoutGrid by lazy { requireContext().bookshelfLayoutGrid }
+
+    private var groupIdChangeListener: OnGroupIdChangeListener? = null
+
+    fun setGroupIdChangeListener(listener: OnGroupIdChangeListener) {
+        this.groupIdChangeListener = listener
+    }
 
     private val booksAdapter: BaseBooksAdapter<*> by lazy {
         when (bookshelfLayoutMode) {
@@ -251,6 +261,7 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
         if (groupId != BookGroup.Companion.IdRoot) {
             groupId = BookGroup.Companion.IdRoot
             initBooksData()
+            groupIdChangeListener?.onGroupIdChanged()
             return true
         }
         return false
@@ -302,6 +313,7 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
             is BookGroup -> {
                 groupId = item.groupId
                 initBooksData()
+                groupIdChangeListener?.onGroupIdChanged()
             }
         }
     }
@@ -340,6 +352,10 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
         } else {
             books.size
         }
+    }
+
+    fun canHandleBack(): Boolean {
+        return groupId != BookGroup.Companion.IdRoot
     }
 
     override fun getItems(): List<Any> {
