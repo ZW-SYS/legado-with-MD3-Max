@@ -324,6 +324,7 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
                 val intent = Intent(requireContext(), BookInfoActivity::class.java).apply {
                     putExtra("name", item.name)
                     putExtra("author", item.author)
+                    putExtra("bookUrl", item.bookUrl)
                     putExtra("transitionName", "book_${item.bookUrl}") // 给共享元素唯一标识
                 }
 
