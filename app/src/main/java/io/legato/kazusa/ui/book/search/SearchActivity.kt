@@ -9,6 +9,7 @@ import android.view.MenuItem
 import android.view.View.VISIBLE
 import android.view.inputmethod.EditorInfo
 import androidx.activity.viewModels
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
@@ -88,13 +89,12 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
         setSupportActionBar(binding.searchBar)
         initRecyclerView()
         initMaterialSearch()
         initOtherView()
         initData()
+        updateSelectedGroup()
         receiptIntent(intent)
     }
 
@@ -112,79 +112,84 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
     }
 
     override fun onMenuOpened(featureId: Int, menu: Menu): Boolean {
-        menu.transaction {
-            menu.removeGroup(R.id.menu_group_1)
-            menu.removeGroup(R.id.menu_group_2)
-            var hasChecked = false
-            val searchScopeNames = viewModel.searchScope.displayNames
-            if (viewModel.searchScope.isSource()) {
-                menu.add(R.id.menu_group_1, Menu.NONE, Menu.NONE, searchScopeNames.first()).apply {
-                    isChecked = true
-                    hasChecked = true
-                }
-            }
-            val allSourceMenu =
-                menu.add(R.id.menu_group_2, R.id.menu_1, Menu.NONE, getString(R.string.all_source))
-                    .apply {
-                        if (searchScopeNames.isEmpty()) {
-                            isChecked = true
-                            hasChecked = true
-                        }
-                    }
-            groups?.forEach {
-                if (searchScopeNames.contains(it)) {
-                    menu.add(R.id.menu_group_1, Menu.NONE, Menu.NONE, it).apply {
-                        isChecked = true
-                        hasChecked = true
-                    }
-                } else {
-                    menu.add(R.id.menu_group_2, Menu.NONE, Menu.NONE, it)
-                }
-            }
-            if (!hasChecked) {
-                viewModel.searchScope.update("")
-                allSourceMenu.isChecked = true
-            }
-            menu.setGroupCheckable(R.id.menu_group_1, true, false)
-            menu.setGroupCheckable(R.id.menu_group_2, true, true)
-        }
+        buildSearchScopeMenu(menu)
         return super.onMenuOpened(featureId, menu)
     }
 
     override fun onCompatOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menu_precision_search -> {
-                putPrefBoolean(
-                    PreferKey.precisionSearch,
-                    !getPrefBoolean(PreferKey.precisionSearch)
-                )
-                precisionSearchMenuItem?.isChecked = getPrefBoolean(PreferKey.precisionSearch)
-                searchView.text.toString().trim().let {
-                    searchView.setText(it)
+                val newValue = !getPrefBoolean(PreferKey.precisionSearch)
+                putPrefBoolean(PreferKey.precisionSearch, newValue)
+                precisionSearchMenuItem?.isChecked = newValue
+                binding.chipPrecisionSearch.isChecked = newValue
+                binding.searchView.text.toString().trim().let {
+                    binding.searchView.setText(it)
                 }
             }
 
             R.id.menu_search_scope -> alertSearchScope()
             R.id.menu_source_manage -> startActivity<BookSourceActivity>()
             R.id.menu_log -> showDialogFragment(AppLogDialog())
-            R.id.menu_1 -> viewModel.searchScope.update("")
+            R.id.menu_1 -> {
+                viewModel.searchScope.update("")
+                updateSelectedGroup()
+            }
             else -> {
                 if (item.groupId == R.id.menu_group_1) {
                     viewModel.searchScope.remove(item.title.toString())
                 } else if (item.groupId == R.id.menu_group_2) {
                     viewModel.searchScope.update(item.title.toString())
                 }
+                updateSelectedGroup()
             }
         }
         return super.onCompatOptionsItemSelected(item)
     }
 
     private fun initMaterialSearch() {
+        binding.chipPrecisionSearch.isChecked = getPrefBoolean(PreferKey.precisionSearch)
+        binding.chipPrecisionSearch.setOnCheckedChangeListener { chip, isChecked ->
+            putPrefBoolean(PreferKey.precisionSearch, isChecked)
+            precisionSearchMenuItem?.isChecked = isChecked
+            binding.searchView.text.toString().trim().let {
+                binding.searchView.setText(it)
+            }
+        }
+        binding.chipSearchScope.setOnClickListener {
+            alertSearchScope()
+        }
+        binding.chipGroup.setOnClickListener { view ->
+            val popup = PopupMenu(this, view)
+            val menu = popup.menu
+            buildSearchScopeMenu(menu)
+            popup.setOnMenuItemClickListener { item ->
+                when (item.groupId) {
+                    R.id.menu_group_1 -> item.title.toString()
+                    R.id.menu_group_2 -> {
+                        if (item.itemId == R.id.menu_1) {
+                            ""
+                        } else {
+                            item.title.toString()
+                        }
+                    }
+                    else -> item.title.toString()
+                }
+                if (item.groupId == R.id.menu_group_1) {
+                    viewModel.searchScope.remove(item.title.toString())
+                } else {
+                    if (item.itemId == R.id.menu_1) {
+                        viewModel.searchScope.update("")
+                    } else {
+                        viewModel.searchScope.update(item.title.toString())
+                    }
+                }
+                updateSelectedGroup()
+                true
+            }
 
-
-
-
-
+            popup.show()
+        }
         searchBar.setOnMenuItemClickListener { item ->
             onCompatOptionsItemSelected(item)
         }
@@ -235,6 +240,60 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
 
         visibleInputHelp()
     }
+
+    private fun updateSelectedGroup() {
+        val chip = binding.chipGroup
+        val displayNames = viewModel.searchScope.displayNames
+        val groupName = displayNames.firstOrNull().orEmpty()
+        chip.text = groupName.ifEmpty { getString(R.string.search_select_group) }
+        chip.isCheckable = true
+        chip.isChecked = groupName.isNotEmpty()
+    }
+
+    private fun buildSearchScopeMenu(menu: Menu) {
+        menu.transaction {
+            menu.removeGroup(R.id.menu_group_1)
+            menu.removeGroup(R.id.menu_group_2)
+            var hasChecked = false
+            val searchScopeNames = viewModel.searchScope.displayNames
+
+            if (viewModel.searchScope.isSource()) {
+                menu.add(R.id.menu_group_1, Menu.NONE, Menu.NONE, searchScopeNames.first()).apply {
+                    isChecked = true
+                    hasChecked = true
+                }
+            }
+
+            val allSourceMenu =
+                menu.add(R.id.menu_group_2, R.id.menu_1, Menu.NONE, getString(R.string.all_source))
+                    .apply {
+                        if (searchScopeNames.isEmpty()) {
+                            isChecked = true
+                            hasChecked = true
+                        }
+                    }
+
+            groups?.forEach { groupName ->
+                if (searchScopeNames.contains(groupName)) {
+                    menu.add(R.id.menu_group_1, Menu.NONE, Menu.NONE, groupName).apply {
+                        isChecked = true
+                        hasChecked = true
+                    }
+                } else {
+                    menu.add(R.id.menu_group_2, Menu.NONE, Menu.NONE, groupName)
+                }
+            }
+
+            if (!hasChecked) {
+                viewModel.searchScope.update("")
+                allSourceMenu.isChecked = true
+            }
+
+            menu.setGroupCheckable(R.id.menu_group_1, true, false)
+            menu.setGroupCheckable(R.id.menu_group_2, true, true)
+        }
+    }
+
 
     private fun initRecyclerView() {
         binding.rvBookshelfSearch.layoutManager = FlexboxLayoutManager(this)

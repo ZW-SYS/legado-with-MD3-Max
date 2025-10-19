@@ -109,6 +109,7 @@
         android:id="@+id/search_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:menu="@menu/book_search"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -122,6 +123,31 @@
             android:focusable="true"
             android:orientation="vertical"
             android:visibility="visible">
+
+            <com.google.android.material.chip.ChipGroup
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginHorizontal="16dp">
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_precision_search"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="@string/precision_search"/>
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_search_scope"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:text="@string/search_scope"/>
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_group"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:text="@string/search_select_group"/>
+            </com.google.android.material.chip.ChipGroup>
 
             <TextView
                 android:id="@+id/tv_book_show"
@@ -144,8 +170,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingHorizontal="16dp"
-                android:paddingTop="4dp">
+                android:paddingHorizontal="16dp">
 
                 <TextView
                     android:id="@+id/tv_history"

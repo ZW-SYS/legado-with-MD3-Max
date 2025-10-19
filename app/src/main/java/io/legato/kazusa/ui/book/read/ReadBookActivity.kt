@@ -60,7 +60,6 @@ import io.legato.kazusa.lib.dialogs.alert
 import io.legato.kazusa.lib.dialogs.selector
 import io.legato.kazusa.model.ReadAloud
 import io.legato.kazusa.model.ReadBook
-import io.legato.kazusa.model.ReadManga
 import io.legato.kazusa.model.analyzeRule.AnalyzeRule
 import io.legato.kazusa.model.analyzeRule.AnalyzeRule.Companion.setChapter
 import io.legato.kazusa.model.analyzeRule.AnalyzeRule.Companion.setCoroutineContext
