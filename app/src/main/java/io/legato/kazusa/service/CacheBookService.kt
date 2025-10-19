@@ -210,9 +210,20 @@ class CacheBookService : BaseService() {
     }
 
     private fun upCacheBookNotification() {
-        notificationBuilder.setContentText(notificationContent)
-        val notification = notificationBuilder.build()
-        notificationManager.notify(NotificationId.CacheBookService, notification)
+        val total = CacheBook.totalCount
+        val progress = CacheBook.completedCount
+        val summary = CacheBook.downloadSummary
+
+        notificationBuilder.apply {
+            setContentText(summary)
+            if (total > 0) {
+                setProgress(total, progress, false)
+            } else {
+                setProgress(0, 0, true)
+            }
+        }
+
+        notificationManager.notify(NotificationId.CacheBookService, notificationBuilder.build())
     }
 
     /**

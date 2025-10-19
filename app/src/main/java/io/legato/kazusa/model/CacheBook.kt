@@ -30,6 +30,20 @@ object CacheBook {
 
     val cacheBookMap = ConcurrentHashMap<String, CacheBookModel>()
 
+    val totalCount: Int
+        get() {
+            var total = 0
+            cacheBookMap.forEach { (_, model) ->
+                total += model.waitCount + model.onDownloadCount
+            }
+            total += successDownloadSet.size
+            total += errorDownloadMap.size
+            return total
+        }
+
+    val completedCount: Int
+        get() = successDownloadSet.size + errorDownloadMap.size
+
     @Synchronized
     fun getOrCreate(bookUrl: String): CacheBookModel? {
         val book = appDb.bookDao.getBook(bookUrl) ?: return null
