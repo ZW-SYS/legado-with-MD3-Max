@@ -322,6 +322,9 @@ class ReadMenu @JvmOverloads constructor(
         titleBar.toolbar.setOnClickListener {
             callBack.openBookInfoActivity()
         }
+        tvBookName.setOnClickListener {
+            callBack.openBookInfoActivity()
+        }
         val chapterViewClickListener = OnClickListener {
             if (ReadBook.isLocalBook) {
                 return@OnClickListener

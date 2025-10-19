@@ -1207,7 +1207,7 @@ class ReadBookActivity : BaseReadBookActivity(),
     }
 
     override fun openBookInfoActivity() {
-        ReadManga.book?.let {
+        ReadBook.book?.let {
             bookInfoActivity.launch {
                 putExtra("name", it.name)
                 putExtra("author", it.author)
