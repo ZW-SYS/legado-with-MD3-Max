@@ -24,6 +24,12 @@
             android:entryValues="@array/themes_value"
             android:defaultValue="0" />
 
+        <io.legato.kazusa.lib.prefs.TipPreference
+            android:key="tip"
+            android:selectable="false"
+            app:iconSpaceReserved="false"
+            app:tipText="@string/tip_custom_mode"/>
+
         <io.legato.kazusa.lib.prefs.SwitchPreference
             android:defaultValue="false"
             android:key="pure_black"

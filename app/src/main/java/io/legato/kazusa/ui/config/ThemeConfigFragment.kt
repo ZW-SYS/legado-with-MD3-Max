@@ -179,16 +179,12 @@ class ThemeConfigFragment : PreferenceFragmentCompat(),
                 //recreateActivities()
             }
 
-            PreferKey.customMode -> {
-                Handler(Looper.getMainLooper()).postDelayed({
-                    requireContext().restart()
-                }, 300)
-            }
+            PreferKey.customMode -> handleRestartRequired()
 
             PreferKey.pureBlack -> {
                 Handler(Looper.getMainLooper()).postDelayed({
                     recreateActivities()
-                }, 300)
+                }, 100)
             }
 
             PreferKey.cPrimary -> {
@@ -201,7 +197,7 @@ class ThemeConfigFragment : PreferenceFragmentCompat(),
                     .build())
                 Handler(Looper.getMainLooper()).postDelayed({
                     recreateActivities()
-                }, 300)
+                }, 100)
             }
 
             PreferKey.cBackground,
@@ -220,10 +216,7 @@ class ThemeConfigFragment : PreferenceFragmentCompat(),
                 //recreateActivities()
             }
 
-            PreferKey.colorImage ->
-                Handler(Looper.getMainLooper()).postDelayed({
-                    requireContext().restart()
-                }, 100)
+            PreferKey.colorImage -> handleRestartRequired()
 
             PreferKey.bgImage,
             PreferKey.bgImageN -> {
@@ -346,6 +339,18 @@ class ThemeConfigFragment : PreferenceFragmentCompat(),
             }
         }
 
+        private fun handleRestartRequired() {
+            alert(getString(R.string.restart_required_message)) {
+                okButton {
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        requireContext().restart()
+                    }, 100)
+                }
+                cancelButton {
+                    toastOnUi(R.string.restart_later_message)
+                }
+            }
+        }
 
         private fun alertImageBlurring(preferKey: String, success: () -> Unit) {
         alert(R.string.background_image_blurring) {

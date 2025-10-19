@@ -19,6 +19,7 @@ import com.google.android.material.card.MaterialCardView
 import io.legato.kazusa.R
 import io.legato.kazusa.constant.EventBus
 import io.legato.kazusa.constant.PreferKey
+import io.legato.kazusa.lib.dialogs.alert
 import io.legato.kazusa.utils.getPrefString
 import io.legato.kazusa.utils.postEvent
 import io.legato.kazusa.utils.restart
@@ -96,11 +97,20 @@ class ThemeCardPreference(context: Context, attrs: AttributeSet) : Preference(co
                     val isDynamicSwitch = (oldValue == "11" || value == "11")
                     Handler(Looper.getMainLooper()).postDelayed({
                         if (isDynamicSwitch) {
-                            context.restart()
+                            context.alert(context.getString(R.string.restart_required_message)) {
+                                okButton {
+                                    Handler(Looper.getMainLooper()).postDelayed({
+                                        context.restart()
+                                    }, 100)
+                                }
+                                cancelButton {
+                                    context.toastOnUi(R.string.restart_later_message)
+                                }
+                            }
                         } else {
                             postEvent(EventBus.RECREATE, "")
                         }
-                    }, 300)
+                    }, 100)
                 }
             }
         }
