@@ -311,7 +311,7 @@ class ReadBookActivity : BaseReadBookActivity(),
             if (getPrefBoolean("disableReturnKey") && !menuLayoutIsVisible) {
                 return@addCallback
             }
-            if (savedInstanceState != null) {
+            if (savedInstanceState != null || !ReadBook.inBookshelf) {
                 finish()
             } else {
                 supportFinishAfterTransition()
