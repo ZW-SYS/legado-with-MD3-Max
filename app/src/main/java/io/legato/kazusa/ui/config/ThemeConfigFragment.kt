@@ -26,6 +26,7 @@ import io.legato.kazusa.help.config.ThemeConfig
 import io.legato.kazusa.lib.dialogs.alert
 import io.legato.kazusa.lib.dialogs.selector
 import io.legato.kazusa.lib.prefs.ColorPreference
+import io.legato.kazusa.lib.prefs.ImagePreviewPreference
 import io.legato.kazusa.lib.prefs.NameListPreference
 import io.legato.kazusa.lib.prefs.ThemeCardPreference
 import io.legato.kazusa.lib.prefs.ThemeModePreference
@@ -115,13 +116,15 @@ class ThemeConfigFragment : PreferenceFragmentCompat(),
         }
 
         val themePref = findPreference<ThemeCardPreference>(PreferKey.themePref)
+        val colorImage = findPreference<ImagePreviewPreference>(PreferKey.colorImage)
         val colorPrimary = findPreference<ColorPreference>("colorPrimary")
-
-        val currentTheme = getPrefString("app_theme")
-        colorPrimary?.isVisible = currentTheme == "11"
-
         val customMode = findPreference<NameListPreference>("customMode")
+        val currentTheme = getPrefString("app_theme")
+
+        colorPrimary?.isVisible = currentTheme == "11"
+        colorImage?.isVisible = currentTheme == "11"
         customMode?.isVisible = currentTheme == "11"
+
         themePref?.let {
             it.setOnPreferenceChangeListener { _, _ ->
                 true
@@ -130,6 +133,7 @@ class ThemeConfigFragment : PreferenceFragmentCompat(),
 
         themePref?.setOnPreferenceChangeListener { _, newValue ->
             colorPrimary?.isVisible = newValue == "11"
+            colorImage?.isVisible = currentTheme == "11"
             customMode?.isVisible = newValue == "11"
             true
         }
