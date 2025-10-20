@@ -10,6 +10,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.WindowManager
 import android.view.animation.LinearInterpolator
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.doOnLayout
@@ -42,6 +43,7 @@ import io.legato.kazusa.help.storage.Backup
 import io.legato.kazusa.lib.dialogs.SelectItem
 import io.legato.kazusa.lib.dialogs.alert
 import io.legato.kazusa.lib.dialogs.selector
+import io.legato.kazusa.model.ReadBook
 import io.legato.kazusa.model.ReadManga
 import io.legato.kazusa.receiver.NetworkChangedListener
 import io.legato.kazusa.ui.book.changesource.ChangeBookSourceDialog
@@ -197,6 +199,13 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
             GSON.fromJsonObject<MangaFooterConfig>(AppConfig.mangaFooterConfig).getOrNull()
                 ?: MangaFooterConfig()
 
+        onBackPressedDispatcher.addCallback(this){
+            if (savedInstanceState != null || !ReadBook.inBookshelf) {
+                finish()
+            } else {
+                supportFinishAfterTransition()
+            }
+        }
     }
 
     override fun observeLiveBus() {
