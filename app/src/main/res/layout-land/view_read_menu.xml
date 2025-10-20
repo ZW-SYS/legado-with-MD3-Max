@@ -183,14 +183,12 @@
             android:id="@+id/bottom_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            app:overflowMode="menu"
             android:layout_weight="2"
             android:importantForAccessibility="no"
             android:paddingVertical="8dp"
-            android:gravity="center"
             android:paddingHorizontal="16dp"
-            android:orientation="horizontal">
-
-        </com.google.android.material.button.MaterialButtonGroup>
+            android:orientation="horizontal"/>
 
     </LinearLayout>
 

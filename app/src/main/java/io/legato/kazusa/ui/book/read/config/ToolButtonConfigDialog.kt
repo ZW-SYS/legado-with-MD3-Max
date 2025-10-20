@@ -114,7 +114,7 @@ class ToolButtonConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_too
     }
 
     private fun getAllButtonIds(): List<String> {
-        return listOf("search", "auto_page", "catalog", "read_aloud", "setting", "addBookmark")
+        return listOf("search", "auto_page", "catalog", "read_aloud", "setting", "addBookmark", "theme")
     }
 
     private fun getButtonInfo(id: String): Pair<Int, String> {
@@ -125,6 +125,7 @@ class ToolButtonConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_too
             "read_aloud" -> R.drawable.ic_read_aloud to getString(R.string.read_aloud)
             "setting" -> R.drawable.ic_settings to getString(R.string.setting)
             "addBookmark" -> R.drawable.ic_bookmark to getString(R.string.bookmark)
+            "theme" -> R.drawable.ic_daytime to getString(R.string.day_night_switch)
             else -> R.drawable.ic_help to id
         }
     }

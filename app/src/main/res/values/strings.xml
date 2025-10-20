@@ -1301,4 +1301,5 @@
     <string name="restart_required_message">修改该选项需要重启</string>
     <string name="restart_later_message">稍后重启</string>
     <string name="search_select_group">选择书源分组</string>
+    <string name="day_night_switch">深浅色模式开关</string>
 </resources>

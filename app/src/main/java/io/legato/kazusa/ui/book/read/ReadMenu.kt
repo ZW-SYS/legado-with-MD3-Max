@@ -23,6 +23,7 @@ import io.legato.kazusa.constant.PreferKey
 import io.legato.kazusa.databinding.ViewReadMenuBinding
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.help.config.LocalConfig
+import io.legato.kazusa.help.config.ThemeConfig
 import io.legato.kazusa.help.coroutine.Coroutine
 import io.legato.kazusa.help.source.getSourceType
 import io.legato.kazusa.lib.dialogs.alert
@@ -470,6 +471,7 @@ class ReadMenu @JvmOverloads constructor(
                 contentDescription = btn.description
                 tooltipText = btn.description
                 strokeWidth = 0
+                iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
                 setOnClickListener { btn.onClick() }
                 btn.onLongClick?.let { longAction ->
                     setOnLongClickListener {
@@ -478,8 +480,16 @@ class ReadMenu @JvmOverloads constructor(
                     }
                 }
             }
-
-            group.addView(button)
+            group.addView(button,
+                MaterialButtonGroup.LayoutParams(
+                    LayoutParams.WRAP_CONTENT,
+                    LayoutParams.WRAP_CONTENT
+                ).apply {
+                    weight = 1f
+                }
+            )
+            val lp = button.layoutParams as MaterialButtonGroup.LayoutParams
+            lp.overflowText = btn.description
             buttonMap[btn.id] = button
         }
     }
@@ -522,6 +532,18 @@ class ReadMenu @JvmOverloads constructor(
                 iconRes = R.drawable.ic_bookmark,
                 description = context.getString(R.string.bookmark),
                 onClick = { runMenuOut { callBack.addBookmark() } }
+            ),
+            ToolButton(
+                id = "theme",
+                iconRes = if (AppConfig.isNightTheme) R.drawable.ic_daytime else R.drawable.ic_brightness,
+                description = context.getString(R.string.day_night_switch),
+                onClick = {
+                    AppConfig.isNightTheme = !AppConfig.isNightTheme
+                    ThemeConfig.applyDayNight(context)
+                    buttonMap["theme"]?.setIconResource(
+                        if (AppConfig.isNightTheme) R.drawable.ic_daytime else R.drawable.ic_brightness
+                    )
+                }
             )
         )
     }
