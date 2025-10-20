@@ -397,9 +397,11 @@ class ReadMenu @JvmOverloads constructor(
             AppConfig.brightnessVwPos = !AppConfig.brightnessVwPos
             upBrightnessVwPos()
         }
+
         seekReadPage.addOnChangeListener { slider, value, fromUser ->
             if (fromUser) {
                 VibrationUtils.vibrate(context, 12)
+                ReadBook.skipToPage(value.toInt() - 1)
             }
         }
 
