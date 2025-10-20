@@ -749,9 +749,15 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
 
     //漫画滚动方式
     var mangaScrollMode: Int
-        get() = appCtx.getPrefInt(PreferKey.mangaScrollMode, MangaScrollMode.PAGE_RIGHT_TO_LEFT)
+        get() = appCtx.getPrefInt(PreferKey.mangaScrollMode, MangaScrollMode.WEBTOON)
         set(value) {
             appCtx.putPrefInt(PreferKey.mangaScrollMode, value)
+        }
+
+    var mangaLongClick
+        get() = appCtx.getPrefBoolean(PreferKey.mangaLongClick, true)
+        set(value) {
+            appCtx.putPrefBoolean(PreferKey.mangaLongClick, value)
         }
 
     //漫画滤镜

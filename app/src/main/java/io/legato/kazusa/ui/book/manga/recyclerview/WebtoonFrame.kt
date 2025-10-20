@@ -41,16 +41,18 @@ class WebtoonFrame : FrameLayout {
     private val recycler: WebtoonRecyclerView?
         get() = getChildAt(0) as? WebtoonRecyclerView
 
-    var disabledClickScroll = false
     var actionHandler: ClickActionHandler? = null
 
     private val gestureDetector =
         GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
             override fun onLongPress(e: MotionEvent) {
-                recycler?.let {
-                    val centerPos = it.findCenterViewPosition()
-                    if (centerPos != RecyclerView.NO_POSITION) {
-                        longPressListener?.invoke(centerPos)
+                if (AppConfig.mangaLongClick)
+                {
+                    recycler?.let {
+                        val centerPos = it.findCenterViewPosition()
+                        if (centerPos != RecyclerView.NO_POSITION) {
+                            longPressListener?.invoke(centerPos)
+                        }
                     }
                 }
             }

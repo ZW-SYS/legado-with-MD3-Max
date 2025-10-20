@@ -1301,4 +1301,6 @@
     <string name="restart_later_message">更改将在下次启动应用时生效</string>
     <string name="search_select_group">选择书源分组</string>
     <string name="day_night_switch">深浅色模式开关</string>
+    <string name="manga_long_click">长按保存图片</string>
+    <string name="read_type_long">长按设置为全局默认模式</string>
 </resources>

@@ -191,7 +191,7 @@ object PreferKey {
     const val mangaClickActionBL = "mangaClickActionBottomLeft"
     const val mangaClickActionBC = "mangaClickActionBottomCenter"
     const val mangaClickActionBR = "mangaClickActionBottomRight"
-
+    const val mangaLongClick = "mangaLongClick"
     const val permissionChecked = "permissionChecked"
     const val notificationsPost = "notificationsPost"
     const val ignoreBatteryPermission = "ignoreBatteryPermission"
@@ -205,6 +205,5 @@ object PreferKey {
     const val pureBlack = "pure_black"
     const val labelVisibilityMode = "labelVisibilityMode"
     const val menuAlpha = "menuAlpha"
-
     const val colorImage = "colorImage"
 }

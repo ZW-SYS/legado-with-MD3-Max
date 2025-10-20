@@ -24,6 +24,7 @@ import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader
 import com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
 import com.bumptech.glide.util.FixedPreloadSizeProvider
 import com.google.android.material.transition.platform.MaterialContainerTransform
+import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
 import io.legato.kazusa.BuildConfig
 import io.legato.kazusa.R
 import io.legato.kazusa.base.VMBaseActivity
@@ -163,6 +164,8 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setEnterSharedElementCallback(MaterialContainerTransformSharedElementCallback())
+        setExitSharedElementCallback(MaterialContainerTransformSharedElementCallback())
         val transform = MaterialContainerTransform().apply {
             addTarget(binding.rootView)
             scrimColor = Color.TRANSPARENT
@@ -195,9 +198,6 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
             GSON.fromJsonObject<MangaFooterConfig>(AppConfig.mangaFooterConfig).getOrNull()
                 ?: MangaFooterConfig()
 
-        onBackPressedDispatcher.addCallback(this) {
-            finish()
-        }
     }
 
     override fun observeLiveBus() {
@@ -228,7 +228,6 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
             itemAnimator = null
             layoutManager = mLayoutManager
             setHasFixedSize(true)
-            setDisableClickScroll(AppConfig.disableClickScroll)
             setDisableMangaScale(AppConfig.disableMangaScale)
             setRecyclerViewPreloader(AppConfig.mangaPreDownloadNum)
             setPreScrollListener { _, _, _, position ->
@@ -622,7 +621,6 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
     //点击滑动
     override fun onClickScrollDisabledChanged(disabled: Boolean) {
         AppConfig.disableClickScroll = disabled
-        setDisableClickScroll(disabled)
     }
 
     //双击缩放
@@ -671,6 +669,10 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
 //        }
     }
 
+    override fun onMangaLongClickChanged(checked: Boolean) {
+        AppConfig.mangaLongClick = checked
+    }
+
     override fun onVolumeKeyPageChanged(enable: Boolean) {
         AppConfig.MangaVolumeKeyPage = enable
     }
@@ -715,7 +717,6 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
         }
     }
 
-
     override fun upSystemUiVisibility(menuIsVisible: Boolean) {
         toggleSystemBar(menuIsVisible)
         if (enableAutoScroll) {
@@ -725,7 +726,6 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
             mScrollTimer.isEnabledPage = !menuIsVisible
         }
     }
-
 
     /**
      * 调整漫画类型
@@ -820,10 +820,6 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
         }
     }
 
-    private fun setDisableClickScroll(disable: Boolean) {
-        binding.webtoonFrame.disabledClickScroll = disable
-    }
-
     private fun upLayoutInDisplayCutoutMode() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             window.attributes = window.attributes.apply {
@@ -834,11 +830,18 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
     }
 
     private fun scrollToNext() {
-        scrollPageTo(1)
+        if (!AppConfig.disableClickScroll)
+            scrollPageTo(1)
     }
 
     private fun scrollToPrev() {
-        scrollPageTo(-1)
+        if (!AppConfig.disableClickScroll)
+            scrollPageTo(-1)
+    }
+
+    private fun isHorizontalScroll(): Boolean {
+        return scrollMode == MangaScrollMode.PAGE_LEFT_TO_RIGHT ||
+                scrollMode == MangaScrollMode.PAGE_RIGHT_TO_LEFT
     }
 
     private fun scrollPageTo(direction: Int) {
@@ -847,7 +850,7 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
         }
         var dx = 0
         var dy = 0
-        if (AppConfig.enableMangaHorizontalScroll) {
+        if (isHorizontalScroll()) {
             dx = binding.recyclerView.run {
                 width - paddingStart - paddingEnd
             }

@@ -17,6 +17,7 @@ import io.legato.kazusa.ui.widget.ReaderInfoBarView
 import io.legato.kazusa.utils.GSON
 import io.legato.kazusa.utils.fromJsonObject
 import io.legato.kazusa.utils.postEvent
+import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
 
 class MangaFooterSettingDialog :
@@ -26,7 +27,7 @@ class MangaFooterSettingDialog :
         ?: MangaFooterConfig()
 
     var initialWebtoonSidePadding: Int = 0
-    var initialScrollMode: Int = MangaScrollMode.PAGE_RIGHT_TO_LEFT
+    var initialScrollMode: Int = MangaScrollMode.WEBTOON
 
     var callback: Callback? = null
 
@@ -53,12 +54,16 @@ class MangaFooterSettingDialog :
                     binding.llWebtoon.isVisible = mode == MangaScrollMode.WEBTOON ||
                             mode == MangaScrollMode.WEBTOON_WITH_GAP
                 }
+                setOnLongClickListener {
+                    AppConfig.mangaScrollMode = mode
+                    toastOnUi("已设置为全局默认模式")
+                    true
+                }
             })
         }
 
         binding.llWebtoon.isVisible = initialScrollMode == MangaScrollMode.WEBTOON ||
                 initialScrollMode == MangaScrollMode.WEBTOON_WITH_GAP
-
 
         binding.scvPadding.apply {
             valueFormat = { "$it %" }
@@ -93,6 +98,13 @@ class MangaFooterSettingDialog :
             isChecked = AppConfig.MangaVolumeKeyPage
             setOnCheckedChangeListener { _, isChecked ->
                 callback?.onVolumeKeyPageChanged(isChecked)
+            }
+        }
+
+        binding.checkboxMangaLongClick.apply {
+            isChecked = AppConfig.mangaLongClick
+            setOnCheckedChangeListener { _, isChecked ->
+                callback?.onMangaLongClickChanged(isChecked)
             }
         }
 
@@ -256,6 +268,7 @@ class MangaFooterSettingDialog :
         fun onMangaScaleDisabledChanged(disabled: Boolean)
         fun onHideMangaTitleChanged(hide: Boolean)
         fun onVolumeKeyPageChanged(enable: Boolean)
+        fun onMangaLongClickChanged(checked: Boolean)
     }
 
 }

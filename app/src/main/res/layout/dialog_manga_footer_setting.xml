@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -40,9 +41,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp"
+            android:paddingTop="8dp"
             android:text="@string/read_type"
             android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="8dp"
+            android:textSize="9sp"
+            android:text="@string/read_type_long"
+            android:textStyle="bold"
+            tools:ignore="SmallSp" />
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroupScrollMode"
@@ -250,6 +261,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/volume_key_page" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/checkboxMangaLongClick"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/manga_long_click" />
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButtonGroup
