@@ -23,7 +23,7 @@ object ShortCuts {
         return ShortcutInfoCompat.Builder(context, "bookshelf")
             .setShortLabel(context.getString(R.string.bookshelf))
             .setLongLabel(context.getString(R.string.bookshelf))
-            .setIcon(IconCompat.createWithResource(context, R.drawable.icon_read_book))
+            .setIcon(IconCompat.createWithResource(context, R.drawable.ic_bottom_books_e))
             .setIntent(bookShelfIntent)
             .build()
     }
@@ -34,7 +34,7 @@ object ShortCuts {
         return ShortcutInfoCompat.Builder(context, "lastRead")
             .setShortLabel(context.getString(R.string.last_read))
             .setLongLabel(context.getString(R.string.last_read))
-            .setIcon(IconCompat.createWithResource(context, R.drawable.icon_read_book))
+            .setIcon(IconCompat.createWithResource(context, R.drawable.ic_restore))
             .setIntents(arrayOf(bookShelfIntent, readBookIntent))
             .build()
     }
@@ -45,7 +45,7 @@ object ShortCuts {
         return ShortcutInfoCompat.Builder(context, "readAloud")
             .setShortLabel(context.getString(R.string.read_aloud))
             .setLongLabel(context.getString(R.string.read_aloud))
-            .setIcon(IconCompat.createWithResource(context, R.drawable.icon_read_book))
+            .setIcon(IconCompat.createWithResource(context, R.drawable.ic_read_aloud))
             .setIntent(readAloudIntent)
             .build()
     }
