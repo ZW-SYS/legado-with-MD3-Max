@@ -74,6 +74,7 @@ class ExploreFragment() : VMBaseFragment<ExploreViewModel>(R.layout.fragment_exp
     private val groups = linkedSetOf<String>()
     private var exploreFlowJob: Job? = null
     private var groupsMenu: SubMenu? = null
+    private var currentSearchKey: String? = null
 
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
         setSupportToolbar(binding.topBar)
@@ -89,12 +90,18 @@ class ExploreFragment() : VMBaseFragment<ExploreViewModel>(R.layout.fragment_exp
     }
 
     private fun initSearchView() {
+        searchView.setupWithSearchBar(searchBar)
         searchView.hint = getString(R.string.screen_find)
-
         searchBar.setOnClickListener {
             searchView.show()
             if (searchView.text.isEmpty()) {
                 searchView.hint = getString(R.string.screen_find)
+            }
+        }
+
+        searchView.addTransitionListener { _, _, newState ->
+            if (newState == SearchView.TransitionState.HIDDEN) {
+                searchBar.setText(searchView.text)
             }
         }
 
@@ -114,7 +121,6 @@ class ExploreFragment() : VMBaseFragment<ExploreViewModel>(R.layout.fragment_exp
         searchView.editText.doAfterTextChanged { editable ->
             editable?.let {
                 upExploreData(it.toString())
-
                 if (it.isEmpty()) {
                     searchBar.hint = getString(R.string.screen_find)
                 }
