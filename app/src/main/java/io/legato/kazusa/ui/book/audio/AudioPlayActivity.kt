@@ -27,6 +27,7 @@ import com.google.android.material.color.DynamicColorsOptions
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.slider.Slider
 import com.google.android.material.transition.platform.MaterialContainerTransform
+import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
 import io.legato.kazusa.R
 import io.legato.kazusa.base.VMBaseActivity
 import io.legato.kazusa.constant.BookType
@@ -119,6 +120,8 @@ class AudioPlayActivity :
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setEnterSharedElementCallback(MaterialContainerTransformSharedElementCallback())
+        setExitSharedElementCallback(MaterialContainerTransformSharedElementCallback())
         val transform = MaterialContainerTransform().apply {
             addTarget(binding.root)
             scrimColor = Color.TRANSPARENT
