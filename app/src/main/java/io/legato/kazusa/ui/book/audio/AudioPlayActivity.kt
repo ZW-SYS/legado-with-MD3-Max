@@ -16,6 +16,7 @@ import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.scale
@@ -143,8 +144,9 @@ class AudioPlayActivity :
             com.google.android.material.R.attr.colorSecondaryContainer,
             -1
         )
+        setSupportActionBar(binding.toolBar)
+        binding.toolBar.setTitle(" ")
         binding.titleBar.setBackgroundResource(R.color.transparent)
-        binding.titleBar.title = ""
         AudioPlay.register(this)
         viewModel.titleData.observe(this) {
             binding.tvTitle.text = it
@@ -154,6 +156,13 @@ class AudioPlayActivity :
         }
         viewModel.initData(intent)
         initView()
+        onBackPressedDispatcher.addCallback(this){
+            if (savedInstanceState != null || !AudioPlay.inBookshelf) {
+                finish()
+            } else {
+                supportFinishAfterTransition()
+            }
+        }
     }
 
     override fun onCompatCreateOptionsMenu(menu: Menu): Boolean {
@@ -515,7 +524,7 @@ class AudioPlayActivity :
         primaryFinalColor = colorPrimary
         secondaryContainerFinalColor = colorSecondaryContainer
 
-        binding.titleBar.toolbar.setAllIconsColor(colorOnSurface)
+        binding.toolBar.setAllIconsColor(colorOnSurface)
         binding.progressLoading.setIndicatorColor(colorPrimary)
         binding.settingSlider.tickActiveTintList = ColorStateList.valueOf(colorSurface)
         binding.settingSlider.tickInactiveTintList = ColorStateList.valueOf(colorPrimary)

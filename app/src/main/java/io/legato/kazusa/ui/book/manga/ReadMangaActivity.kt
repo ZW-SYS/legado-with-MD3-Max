@@ -43,7 +43,6 @@ import io.legato.kazusa.help.storage.Backup
 import io.legato.kazusa.lib.dialogs.SelectItem
 import io.legato.kazusa.lib.dialogs.alert
 import io.legato.kazusa.lib.dialogs.selector
-import io.legato.kazusa.model.ReadBook
 import io.legato.kazusa.model.ReadManga
 import io.legato.kazusa.receiver.NetworkChangedListener
 import io.legato.kazusa.ui.book.changesource.ChangeBookSourceDialog
@@ -200,7 +199,7 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
                 ?: MangaFooterConfig()
 
         onBackPressedDispatcher.addCallback(this){
-            if (savedInstanceState != null || !ReadBook.inBookshelf) {
+            if (savedInstanceState != null || !ReadManga.inBookshelf) {
                 finish()
             } else {
                 supportFinishAfterTransition()

@@ -21,11 +21,19 @@
         android:alpha="0.80"
         android:background="?attr/colorSurfaceContainer" />
 
-    <io.legato.kazusa.ui.widget.TitleBar
+    <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/title_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:fitsSystemWindows="true"
+        app:layout_constraintTop_toTopOf="parent" >
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/tool_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:title=" "
+            app:navigationIcon="@drawable/ic_arrow_back"/>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cd_cover"
