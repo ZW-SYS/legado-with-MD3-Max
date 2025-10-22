@@ -1,6 +1,5 @@
 package io.legato.kazusa.help.update
 
-import android.util.Log
 import io.legato.kazusa.constant.AppConst
 import io.legato.kazusa.exception.NoStackTraceException
 import io.legato.kazusa.help.config.AppConfig
