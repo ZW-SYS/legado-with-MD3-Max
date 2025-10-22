@@ -11,7 +11,6 @@ import android.view.WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.FrameLayout
-import android.widget.LinearLayout
 import android.widget.SeekBar
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.graphics.ColorUtils
