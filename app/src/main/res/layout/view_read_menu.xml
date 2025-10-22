@@ -174,11 +174,11 @@
             android:id="@+id/bottom_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             app:overflowMode="menu"
             android:paddingVertical="8dp"
             android:paddingHorizontal="16dp"
-            android:background="?attr/colorSurfaceContainer"
-            android:orientation="horizontal"/>
+            android:background="?attr/colorSurfaceContainer" />
 
     </LinearLayout>
 

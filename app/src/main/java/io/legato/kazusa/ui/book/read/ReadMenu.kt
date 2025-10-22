@@ -11,6 +11,7 @@ import android.view.WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.SeekBar
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.graphics.ColorUtils
@@ -18,6 +19,7 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonGroup
+import com.google.android.material.overflow.OverflowLinearLayout
 import com.google.android.material.slider.Slider
 import io.legato.kazusa.R
 import io.legato.kazusa.constant.PreferKey
@@ -37,7 +39,6 @@ import io.legato.kazusa.utils.activity
 import io.legato.kazusa.utils.applyNavigationBarPadding
 import io.legato.kazusa.utils.dpToPx
 import io.legato.kazusa.utils.getPrefBoolean
-import io.legato.kazusa.utils.getPrefString
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.invisible
 import io.legato.kazusa.utils.loadAnimation
@@ -515,6 +516,7 @@ class ReadMenu @JvmOverloads constructor(
                 tooltipText = btn.description
                 strokeWidth = 0
                 iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
+                maxLines = 1
                 setOnClickListener { btn.onClick() }
                 btn.onLongClick?.let { longAction ->
                     setOnLongClickListener {
@@ -523,15 +525,12 @@ class ReadMenu @JvmOverloads constructor(
                     }
                 }
             }
-            group.addView(button,
-                MaterialButtonGroup.LayoutParams(
-                    LayoutParams.WRAP_CONTENT,
-                    LayoutParams.WRAP_CONTENT
-                ).apply {
-                    weight = 1f
-                }
+            group.addView(
+                button,
+                OverflowLinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1f)
             )
-            val lp = button.layoutParams as MaterialButtonGroup.LayoutParams
+            val lp =
+                button.layoutParams as MaterialButtonGroup.LayoutParams
             lp.overflowText = btn.description
             buttonMap[btn.id] = button
         }
@@ -587,6 +586,18 @@ class ReadMenu @JvmOverloads constructor(
                         if (AppConfig.isNightTheme) R.drawable.ic_daytime else R.drawable.ic_brightness
                     )
                 }
+            ),
+            ToolButton(
+                id = "prev_chapter",
+                iconRes = R.drawable.ic_previous,
+                description = context.getString(R.string.previous_chapter),
+                onClick = { ReadBook.moveToPrevChapter(upContent = true, toLast = false) }
+            ),
+            ToolButton(
+                id = "next_chapter",
+                iconRes = R.drawable.ic_next,
+                description = context.getString(R.string.next_chapter),
+                onClick = { ReadBook.moveToNextChapter(true) }
             )
         )
     }
