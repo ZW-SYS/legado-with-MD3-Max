@@ -1,5 +1,6 @@
 package io.legato.kazusa.help.update
 
+import android.os.Build
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 import io.legato.kazusa.exception.NoStackTraceException
@@ -39,16 +40,24 @@ data class GithubRelease(
     val createdAt: String?
 ) {
     fun gitReleaseToAppReleaseInfo(): List<AppReleaseInfo> {
-        val version = tagName // 直接用 release 的 tag_name 作为版本号
         assets ?: throw NoStackTraceException("获取新版本出错")
+
+        val version = tagName
+        val abi = Build.SUPPORTED_ABIS.firstOrNull() ?: ""
+        val abiSuffix = when {
+            abi.contains("arm64") -> "arm64-v8a"
+            abi.contains("armeabi") -> "armeabi-v7a"
+            else -> ""
+        }
 
         return assets
             .filter { it.isValid }
+            .filter { asset ->
+                abiSuffix.isEmpty() || asset.name.contains(abiSuffix, ignoreCase = true)
+            }
             .map { it.assetToAppReleaseInfo(isPreRelease, body, version) }
     }
-
 }
-
 
 @Keep
 data class Asset(
@@ -71,7 +80,6 @@ data class Asset(
     fun assetToAppReleaseInfo(preRelease: Boolean, note: String, version: String): AppReleaseInfo {
         val instant = Instant.parse(createdAt)
         val timestamp: Long = instant.toEpochMilli()
-
         val appVariant = if (preRelease) AppVariant.BETA_RELEASE else AppVariant.OFFICIAL
 
         return AppReleaseInfo(
@@ -81,8 +89,7 @@ data class Asset(
             name = name,
             downloadUrl = apkUrl,
             assetUrl = url,
-            versionName = version // 直接传入 tagName
+            versionName = version
         )
     }
-
 }

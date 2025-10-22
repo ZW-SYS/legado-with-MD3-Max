@@ -41,7 +41,6 @@ object AppUpdateGitHub : AppUpdate.AppUpdateInterface {
             releases.filter { it.isPreRelease }
                 .flatMap { it.gitReleaseToAppReleaseInfo() }
                 .sortedByDescending { it.createdAt }
-                .also { Log.d("AppUpdate", "filtered beta releases.size=${it.size}") }
         } else {
             val release = GSON.fromJsonObject<GithubRelease>(body)
                 .getOrElse { throw NoStackTraceException("获取新版本出错 ${it.localizedMessage}") }
@@ -131,4 +130,3 @@ object AppUpdateGitHub : AppUpdate.AppUpdateInterface {
         return SemVer.parse(this).compareTo(SemVer.parse(other))
     }
 }
-

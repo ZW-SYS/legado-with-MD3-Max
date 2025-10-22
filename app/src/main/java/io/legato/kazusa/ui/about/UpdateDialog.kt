@@ -69,28 +69,15 @@ class UpdateDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_update) {
         }
 
         binding.btnUpdate.setOnClickListener {
-            val urlPrefix = arguments?.getString("url")
-            val baseName = arguments?.getString("name")?.removeSuffix(".apk")
+            val url = arguments?.getString("url")
+            val fileName = arguments?.getString("name")
 
-            if (urlPrefix == null || baseName == null) {
+            if (url.isNullOrBlank() || fileName.isNullOrBlank()) {
                 toastOnUi("下载信息不完整")
                 return@setOnClickListener
             }
 
-            // 获取当前 ABI 后缀
-            val abi = Build.SUPPORTED_ABIS.firstOrNull() ?: ""
-            val abiSuffix = when {
-                abi.contains("arm64") -> "arm64-v8a"
-                abi.contains("armeabi") -> "armeabi-v7a"
-                else -> ""
-            }
-
-            // 拼接文件名和下载链接
-            val fileName = "${baseName}_$abiSuffix.apk"
-            val fullUrl = urlPrefix
-                .substringBeforeLast("/") + "/" + fileName
-
-            Download.start(requireContext(), fullUrl, fileName)
+            Download.start(requireContext(), url, fileName)
             toastOnUi("开始下载: $fileName")
         }
 
