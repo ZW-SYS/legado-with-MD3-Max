@@ -28,6 +28,15 @@
         app:iconSpaceReserved="false"
         app:isBottomBackground="true" />
 
+    <io.legato.kazusa.lib.prefs.NameListPreference
+        android:defaultValue="0"
+        android:entries="@array/read_slider_mode"
+        android:entryValues="@array/read_slider_mode_value"
+        android:key="read_slider_mode"
+        android:title="@string/read_slider_mode"
+        app:iconSpaceReserved="false"
+        app:isBottomBackground="true" />
+
     <io.legato.kazusa.lib.prefs.Preference
         android:key="menuAlpha"
         android:summary="@string/menu_alpha_sum"

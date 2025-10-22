@@ -120,7 +120,6 @@
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <!--章节设置-->
         <LinearLayout
             android:id="@+id/ll_slider"
             android:layout_width="match_parent"
@@ -144,6 +143,7 @@
                 tools:ignore="TouchTargetSizeCheck" />
 
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cd_slider"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -156,8 +156,6 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"/>
             </com.google.android.material.card.MaterialCardView>
-
-
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/tv_next"
@@ -172,16 +170,15 @@
                 tools:ignore="TouchTargetSizeCheck"/>
         </LinearLayout>
 
-            <com.google.android.material.button.MaterialButtonGroup
-                android:id="@+id/bottom_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:overflowMode="menu"
-                android:paddingVertical="8dp"
-                android:paddingHorizontal="16dp"
-                android:background="?attr/colorSurfaceContainer"
-                android:orientation="horizontal"/>
-
+        <com.google.android.material.button.MaterialButtonGroup
+            android:id="@+id/bottom_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:overflowMode="menu"
+            android:paddingVertical="8dp"
+            android:paddingHorizontal="16dp"
+            android:background="?attr/colorSurfaceContainer"
+            android:orientation="horizontal"/>
 
     </LinearLayout>
 

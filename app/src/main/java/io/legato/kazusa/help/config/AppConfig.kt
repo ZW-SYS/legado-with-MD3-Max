@@ -820,10 +820,16 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
             appCtx.putPrefString(PreferKey.labelVisibilityMode, value)
         }
 
-    var menuAlpha
+    var menuAlpha: Int
         get() = appCtx.getPrefInt(PreferKey.menuAlpha, 100)
         set(value) {
             appCtx.putPrefInt(PreferKey.menuAlpha, value)
+        }
+
+    var readSliderMode
+        get() = appCtx.getPrefString(PreferKey.readSliderMode, "0")
+        set(value) {
+            appCtx.putPrefString(PreferKey.readSliderMode, value)
         }
 }
 

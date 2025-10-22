@@ -53,6 +53,7 @@ object PreferKey {
     const val threadCount = "threadCount"
     const val webPort = "webPort"
     const val keepLight = "keep_light"
+    const val readSliderMode = "read_slider_mode"
     const val webService = "webService"
     const val webDavUrl = "web_dav_url"
     const val webDavAccount = "web_dav_account"

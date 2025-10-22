@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
 import android.view.animation.AlphaAnimation
@@ -36,6 +37,7 @@ import io.legato.kazusa.utils.activity
 import io.legato.kazusa.utils.applyNavigationBarPadding
 import io.legato.kazusa.utils.dpToPx
 import io.legato.kazusa.utils.getPrefBoolean
+import io.legato.kazusa.utils.getPrefString
 import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.invisible
 import io.legato.kazusa.utils.loadAnimation
@@ -172,7 +174,7 @@ class ReadMenu @JvmOverloads constructor(
 
     private fun initView() = binding.run {
         initAnimation()
-
+        updateSliderVisibility()
         binding.bottomView.post {
             val allButtons = getUserButtons()
             renderButtons(binding.bottomView, allButtons)
@@ -435,23 +437,62 @@ class ReadMenu @JvmOverloads constructor(
             }
         })
 
-
-        //替换
-        //fabReplaceRule.setOnClickListener { callBack.openReplaceRule() }
-
-        //夜间模式
-//        fabNightTheme.setOnClickListener {
-//            AppConfig.isNightTheme = !AppConfig.isNightTheme
-//            ThemeConfig.applyDayNight(context)
-//        }
-
         //上一章
         tvPre.setOnClickListener { ReadBook.moveToPrevChapter(upContent = true, toLast = false) }
 
         //下一章
         tvNext.setOnClickListener { ReadBook.moveToNextChapter(true) }
+    }
 
+    private fun updateSliderVisibility() {
+        when (AppConfig.readSliderMode) {
+            "0" -> {
+                binding.llSlider.gravity = Gravity.CENTER
+                binding.llSlider.isVisible = true
+                binding.cdSlider.isVisible = true
+                binding.tvPre.isVisible = true
+                binding.tvNext.isVisible = true
+            }
 
+            "1" -> {
+                binding.llSlider.gravity = Gravity.CENTER
+                binding.llSlider.isVisible = false
+                binding.cdSlider.isVisible = false
+                binding.tvPre.isVisible = false
+                binding.tvNext.isVisible = false
+            }
+
+            "2" -> {
+                binding.llSlider.gravity = Gravity.START
+                binding.llSlider.isVisible = true
+                binding.cdSlider.isVisible = false
+                binding.tvPre.isVisible = true
+                binding.tvNext.isVisible = true
+            }
+
+            "3" -> {
+                binding.llSlider.gravity = Gravity.END
+                binding.llSlider.isVisible = true
+                binding.cdSlider.isVisible = false
+                binding.tvPre.isVisible = true
+                binding.tvNext.isVisible = true
+            }
+
+            "4" -> {
+                binding.llSlider.gravity = Gravity.CENTER
+                binding.llSlider.isVisible = true
+                binding.cdSlider.isVisible = true
+                binding.tvPre.isVisible = false
+                binding.tvNext.isVisible = false
+            }
+
+            else -> {
+                binding.llSlider.isVisible = true
+                binding.cdSlider.isVisible = true
+                binding.tvPre.isVisible = true
+                binding.tvNext.isVisible = true
+            }
+        }
     }
 
     private val buttonMap = mutableMapOf<String, MaterialButton>()
