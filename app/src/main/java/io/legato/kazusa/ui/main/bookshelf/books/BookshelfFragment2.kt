@@ -170,11 +170,13 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
         allBooksFlowJob?.cancel()
         allBooksFlowJob = viewLifecycleOwner.lifecycleScope.launch {
             appDb.bookDao.flowAll().map { list ->
-                when (AppConfig.getBookSortByGroupId(BookGroup.Companion.IdRoot)) {
+                val sortType = BookGroup(BookGroup.Companion.IdRoot, "").getRealBookSort()
+                when (sortType) {
                     1 -> list.sortedByDescending { it.latestChapterTime }
                     2 -> list.sortedWith { o1, o2 -> o1.name.cnCompare(o2.name) }
                     3 -> list.sortedBy { it.order }
                     4 -> list.sortedByDescending { max(it.latestChapterTime, it.durChapterTime) }
+                    5 -> list.sortedWith { o1, o2 -> o1.author.cnCompare(o2.author) }
                     else -> list.sortedByDescending { it.durChapterTime }
                 }
             }.flowWithLifecycleAndDatabaseChangeFirst(
@@ -213,7 +215,8 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
                 //排序
                 val isDescending = AppConfig.bookshelfSortOrder == 1
 
-                when (AppConfig.getBookSortByGroupId(groupId)) {
+                val sortType = AppConfig.getBookSortByGroupId(groupId)
+                when (sortType) {
                     1 -> if (isDescending) list.sortedByDescending { it.latestChapterTime }
                     else list.sortedBy { it.latestChapterTime }
 
@@ -226,12 +229,8 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
                     else list.sortedBy { it.order }
 
                     4 -> if (isDescending) list.sortedByDescending {
-                        max(
-                            it.latestChapterTime,
-                            it.durChapterTime
-                        )
-                    }
-                    else list.sortedBy { max(it.latestChapterTime, it.durChapterTime) }
+                        max(it.latestChapterTime, it.durChapterTime)
+                    } else list.sortedBy { max(it.latestChapterTime, it.durChapterTime) }
 
                     5 -> if (isDescending)
                         list.sortedWith { o1, o2 -> o2.author.cnCompare(o1.author) }

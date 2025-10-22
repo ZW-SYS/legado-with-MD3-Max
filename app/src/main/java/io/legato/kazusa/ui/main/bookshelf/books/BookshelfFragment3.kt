@@ -109,7 +109,7 @@ class BookshelfFragment3() : BaseBookshelfFragment(R.layout.fragment_bookshelf3)
                 val position = it.position
                 val group = bookGroups.getOrNull(position) ?: return@forEach
                 it.setEnableRefresh(group.enableRefresh)
-                it.upBookSort()
+                it.upBookSort(group.getRealBookSort())
             }
         }
     }

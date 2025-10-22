@@ -83,22 +83,24 @@ class GroupEditDialog() : BaseBottomSheetDialogFragment(R.layout.dialog_book_gro
             }
             binding.cbEnableRefresh.isChecked = group.enableRefresh
 
-            selectedSortIndex = if (group.bookSort in sortOptions.indices) {
-                group.bookSort
+            selectedSortIndex = group.bookSort
+            val displayIndex = selectedSortIndex + 1
+            if (displayIndex in sortOptions.indices) {
+                binding.actvSortMenu.setText(sortOptions[displayIndex], false)
             } else {
-                0
+                binding.actvSortMenu.setText(sortOptions[0], false)
+                selectedSortIndex = -1
             }
-            binding.actvSortMenu.setText(sortOptions[selectedSortIndex], false)
 
         } ?: run {
             binding.btnDelete.gone()
             binding.ivCover.load()
-            selectedSortIndex = 0
-            binding.actvSortMenu.setText(sortOptions[selectedSortIndex], false)
+            selectedSortIndex = -1
+            binding.actvSortMenu.setText(sortOptions[0], false)
         }
 
         binding.actvSortMenu.setOnItemClickListener { _, _, position, _ ->
-            selectedSortIndex = position
+            selectedSortIndex = position - 1
         }
 
         binding.run {

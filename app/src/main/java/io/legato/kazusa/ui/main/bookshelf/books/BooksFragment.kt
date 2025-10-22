@@ -167,9 +167,12 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
         }
     }
 
-    fun upBookSort() {
-        bookSort = AppConfig.bookshelfSort
-        upRecyclerData()
+    fun upBookSort(sort: Int) {
+        binding.root.post {
+            arguments?.putInt("bookSort", sort)
+            bookSort = sort
+            upRecyclerData()
+        }
     }
 
     fun setEnableRefresh(enable: Boolean) {
