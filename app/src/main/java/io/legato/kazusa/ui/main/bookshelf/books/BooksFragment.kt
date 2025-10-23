@@ -129,8 +129,14 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
         upFastScrollerBar()
         //binding.refreshLayout.setColorSchemeColors(accentColor)
         binding.refreshLayout.setOnRefreshListener {
+            val books = booksAdapter.getItems()
+            val refreshList = if (AppConfig.bookshelfRefreshingLimit > 0) {
+                books.take(AppConfig.bookshelfRefreshingLimit)
+            } else {
+                books
+            }
             binding.refreshLayout.isRefreshing = false
-            activityViewModel.upToc(booksAdapter.getItems())
+            activityViewModel.upToc(refreshList)
         }
         binding.rvBookshelf.layoutManager = GridLayoutManager(context, bookshelfLayoutGrid)
         binding.rvBookshelf.setRecycledViewPool(activityViewModel.booksGridRecycledViewPool)

@@ -831,5 +831,11 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
         set(value) {
             appCtx.putPrefString(PreferKey.readSliderMode, value)
         }
+
+    var bookshelfRefreshingLimit: Int
+        get() = appCtx.getPrefInt(PreferKey.bookshelfRefreshingLimit, 0)
+        set(value) {
+            appCtx.putPrefInt(PreferKey.bookshelfRefreshingLimit, value)
+        }
 }
 

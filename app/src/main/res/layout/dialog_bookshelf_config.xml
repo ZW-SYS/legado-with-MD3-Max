@@ -47,30 +47,48 @@
                 android:id="@+id/sw_show_unread"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/show_unread"
-                tools:ignore="TouchTargetSizeCheck" />
+                android:text="@string/show_unread" />
 
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/sw_show_last_update_time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/show_last_update_time"
-                tools:ignore="TouchTargetSizeCheck" />
+                android:text="@string/show_last_update_time" />
 
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/sw_show_wait_up_books"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/show_wait_up_count"
-                tools:ignore="TouchTargetSizeCheck" />
+                android:text="@string/show_wait_up_count" />
 
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/sw_show_bookshelf_fast_scroller"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/show_bookshelf_fast_scroller"
-                tools:ignore="TouchTargetSizeCheck" />
+                android:text="@string/show_bookshelf_fast_scroller" />
 
+            <LinearLayout
+                android:id="@+id/layout_refresh_limit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="2dp"
+                android:orientation="horizontal"
+                android:clickable="true"
+                android:background="?attr/selectableItemBackground">
+
+                <TextView
+                    android:id="@+id/tv_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingVertical="16dp"
+                    android:text="@string/bookshelf_update_limit" />
+
+                <TextView
+                    android:id="@+id/tv_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
@@ -142,24 +160,14 @@
                     android:text="@string/cover_grid" />
             </com.google.android.material.chip.ChipGroup>
 
-            <TextView
-                android:id="@+id/slider_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:text="@string/number_rows_columns"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <com.google.android.material.slider.Slider
+            <io.legato.kazusa.ui.widget.DetailSeekBar
                 android:id="@+id/slider_grid_count"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingVertical="8dp"
+                app:title="@string/number_rows_columns"
                 android:stepSize="1"
-                android:value="3"
-                android:valueFrom="1"
-                android:valueTo="9" />
+                app:max="9"
+                app:min="1"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -188,17 +196,20 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chip_asc"
-                        android:layout_width="wrap_content"
+                        android:layout_width="34dp"
                         android:layout_height="wrap_content"
                         android:checkable="true"
-                        android:text="@string/ascending_order" />
+                        android:clickable="true"
+                        app:chipIcon="@drawable/ic_arrow_up" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chip_desc"
-                        android:layout_width="wrap_content"
+                        android:layout_width="34dp"
                         android:layout_height="wrap_content"
                         android:checkable="true"
-                        android:text="@string/descending_order" />
+                        android:clickable="true"
+                        app:chipIcon="@drawable/ic_arrow_down" />
+
                 </com.google.android.material.chip.ChipGroup>
             </LinearLayout>
 

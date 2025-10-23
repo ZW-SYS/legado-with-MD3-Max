@@ -11,6 +11,7 @@ import io.legato.kazusa.constant.EventBus
 import io.legato.kazusa.databinding.DialogBookshelfConfigBinding
 import io.legato.kazusa.help.config.AppConfig
 import io.legato.kazusa.ui.main.MainViewModel
+import io.legato.kazusa.ui.widget.number.NumberPickerDialog
 import io.legato.kazusa.utils.bookshelfLayoutGrid
 import io.legato.kazusa.utils.postEvent
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
@@ -37,7 +38,6 @@ class BookshelfConfigBottomSheet : BaseBottomSheetDialogFragment(R.layout.dialog
         val isListCompact = bookshelfLayout == 4
 
         val columnCount = requireContext().bookshelfLayoutGrid.takeIf { it > 0 } ?: 1
-
 
         val bookshelfSort = AppConfig.bookshelfSort
 
@@ -79,8 +79,22 @@ class BookshelfConfigBottomSheet : BaseBottomSheetDialogFragment(R.layout.dialog
             chipGrid.isChecked = isGrid
             chipGridCompact.isChecked = isGridCompact
             chipGridCover.isChecked = isGridCover
-            sliderGridCount.value = columnCount.toFloat()
+            sliderGridCount.progress = columnCount
 
+            binding.tvValue.text = if (AppConfig.bookshelfRefreshingLimit <= 0) "无限制"
+                                    else "${AppConfig.bookshelfRefreshingLimit} 本"
+
+            binding.layoutRefreshLimit.setOnClickListener {
+                NumberPickerDialog(requireContext())
+                    .setTitle("书架更新数量限制")
+                    .setMinValue(0) // 0 表示无限制
+                    .setMaxValue(500) // 可根据需求设定最大值
+                    .setValue(AppConfig.bookshelfRefreshingLimit)
+                    .show { selected ->
+                        AppConfig.bookshelfRefreshingLimit = selected
+                        tvValue.text = if (selected <= 0) "无限制" else "$selected 本"
+                    }
+            }
 
             when (AppConfig.bookshelfSortOrder) {
                 0 -> binding.chipGroupOrder.check(binding.chipAsc.id)
@@ -120,7 +134,7 @@ class BookshelfConfigBottomSheet : BaseBottomSheetDialogFragment(R.layout.dialog
                     (requireParentFragment() as? BaseBookshelfFragment)?.upSort()
                 }
 
-                val selectedColumn = sliderGridCount.value.toInt()
+                val selectedColumn = sliderGridCount.progress
                 val newLayout = when {
                     chipList.isChecked -> 0
                     chipGrid.isChecked -> 1

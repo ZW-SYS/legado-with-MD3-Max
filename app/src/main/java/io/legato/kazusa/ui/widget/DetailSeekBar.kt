@@ -61,6 +61,7 @@ class DetailSeekBar @JvmOverloads constructor(
             TooltipCompat.setTooltipText(this, title)
         }
 
+        binding.slider.valueFrom = typedArray.getInteger(R.styleable.DetailSeekBar_min, 0).toFloat()
         binding.slider.valueTo = typedArray.getInteger(R.styleable.DetailSeekBar_max, 0).toFloat()
         typedArray.recycle()
 

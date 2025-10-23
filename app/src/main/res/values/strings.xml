@@ -1305,4 +1305,5 @@
     <string name="manga_long_click">长按保存图片</string>
     <string name="read_type_long">长按设置为全局默认模式</string>
     <string name="read_slider_mode">滑动条显示样式</string>
+    <string name="bookshelf_update_limit">书架更新数量限制</string>
 </resources>

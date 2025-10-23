@@ -121,10 +121,21 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
         initBooksData()
     }
 
+    @Suppress("UNCHECKED_CAST")
+    fun BaseBooksAdapter<*>.getBookItems(): List<Book> {
+        return getItems() as List<Book>
+    }
+
     private fun initRecyclerView() {
         binding.refreshLayout.setOnRefreshListener {
+            val books = booksAdapter.getBookItems()
+            val refreshList = if (AppConfig.bookshelfRefreshingLimit > 0) {
+                books.take(AppConfig.bookshelfRefreshingLimit)
+            } else {
+                books
+            }
             binding.refreshLayout.isRefreshing = false
-            activityViewModel.upToc(books)
+            activityViewModel.upToc(refreshList)
         }
 
         binding.rvBookshelf.layoutManager = GridLayoutManager(context, bookshelfLayoutGrid)

@@ -206,4 +206,5 @@ object PreferKey {
     const val labelVisibilityMode = "labelVisibilityMode"
     const val menuAlpha = "menuAlpha"
     const val colorImage = "colorImage"
+    const val bookshelfRefreshingLimit = "bookshelfRefreshingLimit"
 }
