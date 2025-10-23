@@ -11,6 +11,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import io.legato.kazusa.R
 import io.legato.kazusa.base.VMBaseFragment
 import io.legato.kazusa.constant.AppLog
@@ -50,6 +51,7 @@ class RssArticlesFragment() : VMBaseFragment<RssArticlesViewModel>(R.layout.frag
         when (activityViewModel.rssSource?.articleStyle) {
             1 -> RssArticlesAdapter1(requireContext(), this@RssArticlesFragment)
             2 -> RssArticlesAdapter2(requireContext(), this@RssArticlesFragment)
+            3 -> RssArticlesAdapter3(requireContext(), this@RssArticlesFragment)
             else -> RssArticlesAdapter(requireContext(), this@RssArticlesFragment)
         }
     }
@@ -75,13 +77,15 @@ class RssArticlesFragment() : VMBaseFragment<RssArticlesViewModel>(R.layout.frag
                 scrollToBottom(true)
             }
         }
-        recyclerView.layoutManager = if (activityViewModel.isGridLayout) {
-            recyclerView.setPadding(8, 0, 8, 0)
+        val layoutManager = if (activityViewModel.isWaterLayout) {
+            recyclerView.itemAnimator = null
+            StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+        } else if (activityViewModel.isGridLayout) {
             GridLayoutManager(requireContext(), 2)
         } else {
-            recyclerView.addItemDecoration(VerticalDivider(requireContext()))
             LinearLayoutManager(requireContext())
         }
+        recyclerView.layoutManager = layoutManager
         recyclerView.adapter = adapter
         adapter.addFooterView {
             ViewLoadMoreBinding.bind(loadMoreView)

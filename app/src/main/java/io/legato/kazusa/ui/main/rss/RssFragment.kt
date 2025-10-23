@@ -136,10 +136,8 @@ class RssFragment() : VMBaseFragment<RssViewModel>(R.layout.fragment_rss),
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 val query = searchView.text.toString()
                 upRssFlowJob(query)
-                searchBar.hint = if (query.isEmpty()) {
+                searchBar.hint = query.ifEmpty {
                     getString(R.string.search_rss_source)
-                } else {
-                    query
                 }
                 searchView.hide()
                 return@setOnEditorActionListener true
