@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ArrayAdapter
 import androidx.activity.viewModels
 import androidx.core.view.WindowInsetsCompat
 import io.legato.kazusa.R
@@ -46,6 +47,9 @@ class BookInfoEditActivity :
     override val binding by viewBinding(ActivityBookInfoEditBinding::inflate)
     override val viewModel by viewModels<BookInfoEditViewModel>()
 
+    // 从资源获取书籍类型数组
+    private val bookTypes = arrayOf("文本", "音频", "图片")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.bookData.observe(this) { upView(it) }
@@ -77,6 +81,24 @@ class BookInfoEditActivity :
             view.bottomPadding = insets.bottom
             windowInsets
         }
+        initAutoCompleteTextView()
+    }
+
+    private fun initAutoCompleteTextView() = binding.run {
+        // 创建适配器
+        val adapter = ArrayAdapter(
+            this@BookInfoEditActivity,
+            android.R.layout.simple_dropdown_item_1line, bookTypes
+        )
+        actvType.setAdapter(adapter)
+        actvType.setOnClickListener {
+            actvType.showDropDown()
+        }
+        actvType.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                actvType.showDropDown()
+            }
+        }
     }
 
     private fun initEvent() = binding.run {
@@ -99,13 +121,12 @@ class BookInfoEditActivity :
     private fun upView(book: Book) = binding.run {
         tieBookName.setText(book.name)
         tieBookAuthor.setText(book.author)
-        spType.setSelection(
-            when {
-                book.isImage -> 2
-                book.isAudio -> 1
-                else -> 0
-            }
-        )
+        val selectedType = when {
+            book.isImage -> 2
+            book.isAudio -> 1
+            else -> 0
+        }
+        actvType.setText(bookTypes.getOrNull(selectedType) ?: bookTypes[0], false)
         tieCoverUrl.setText(book.getDisplayCover())
         tieBookIntro.setText(book.getDisplayIntro())
         upCover()
@@ -123,9 +144,10 @@ class BookInfoEditActivity :
         book.name = tieBookName.text?.toString() ?: ""
         book.author = tieBookAuthor.text?.toString() ?: ""
         val local = if (book.isLocal) BookType.local else 0
-        val bookType = when (spType.selectedItemPosition) {
-            2 -> BookType.image or local
-            1 -> BookType.audio or local
+        val selectedType = actvType.text.toString()
+        val bookType = when (selectedType) {
+            bookTypes[2] -> BookType.image or local
+            bookTypes[1] -> BookType.audio or local
             else -> BookType.text or local
         }
         book.removeType(BookType.local, BookType.image, BookType.audio, BookType.text)
@@ -167,5 +189,4 @@ class BookInfoEditActivity :
             }
         }
     }
-
 }

@@ -36,15 +36,20 @@ data class BookGroup(
         const val IdError = -11L
     }
 
-    fun getManageName(context: Context): String {
+    data class GroupNameInfo(
+        val groupName: String,
+        val suffix: String? = null
+    )
+
+    fun getManageName(context: Context): GroupNameInfo {
         return when (groupId) {
-            IdAll -> "$groupName(${context.getString(R.string.all)})"
-            IdAudio -> "$groupName(${context.getString(R.string.audio)})"
-            IdLocal -> "$groupName(${context.getString(R.string.local)})"
-            IdNetNone -> "$groupName(${context.getString(R.string.net_no_group)})"
-            IdLocalNone -> "$groupName(${context.getString(R.string.local_no_group)})"
-            IdError -> "$groupName(${context.getString(R.string.update_book_fail)})"
-            else -> groupName
+            IdAll -> GroupNameInfo(groupName, context.getString(R.string.all))
+            IdAudio -> GroupNameInfo(groupName, context.getString(R.string.audio))
+            IdLocal -> GroupNameInfo(groupName, context.getString(R.string.local))
+            IdNetNone -> GroupNameInfo(groupName, context.getString(R.string.net_no_group))
+            IdLocalNone -> GroupNameInfo(groupName, context.getString(R.string.local_no_group))
+            IdError -> GroupNameInfo(groupName, context.getString(R.string.update_book_fail))
+            else -> GroupNameInfo(groupName)
         }
     }
 

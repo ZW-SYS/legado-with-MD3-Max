@@ -26,6 +26,7 @@ import io.legato.kazusa.databinding.ItemBookGroupManageBinding
 import io.legato.kazusa.ui.widget.recycler.ItemTouchCallback
 import io.legato.kazusa.ui.widget.recycler.VerticalDivider
 import io.legato.kazusa.utils.applyTint
+import io.legato.kazusa.utils.gone
 import io.legato.kazusa.utils.showDialogFragment
 import io.legato.kazusa.utils.toastOnUi
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
@@ -61,7 +62,6 @@ class GroupManageDialog : BaseBottomSheetDialogFragment(R.layout.dialog_recycler
 
     private fun initView() {
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerView.addItemDecoration(VerticalDivider(requireContext()))
         binding.recyclerView.adapter = adapter
         val itemTouchCallback = ItemTouchCallback(adapter)
         itemTouchCallback.isCanDrag = true
@@ -119,8 +119,16 @@ class GroupManageDialog : BaseBottomSheetDialogFragment(R.layout.dialog_recycler
             payloads: MutableList<Any>
         ) {
             binding.run {
-                //root.setBackgroundColor(context.backgroundColor)
-                tvGroup.text = item.getManageName(context)
+                val nameInfo = item.getManageName(context)
+                tvGroup.text = nameInfo.groupName
+
+                if (nameInfo.suffix != null) {
+                    tvSuffix.visible()
+                    tvSuffix.text = nameInfo.suffix
+                } else {
+                    tvSuffix.gone()
+                }
+
                 swShow.isChecked = item.show
             }
         }
@@ -158,6 +166,10 @@ class GroupManageDialog : BaseBottomSheetDialogFragment(R.layout.dialog_recycler
                 viewModel.upGroup(*getItems().toTypedArray())
             }
             isMoved = false
+            val position = viewHolder.layoutPosition
+            if (position != RecyclerView.NO_POSITION) {
+                notifyItemChanged(position)
+            }
         }
     }
 
