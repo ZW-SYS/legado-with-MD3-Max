@@ -443,23 +443,23 @@ class AudioPlayService : BaseService(),
      * 更新媒体状态
      */
     private fun upMediaSessionPlaybackState(state: Int) {
-        mediaSessionCompat?.setPlaybackState(
-            PlaybackStateCompat.Builder()
-                .setActions(MEDIA_SESSION_ACTIONS)
-                .setState(state, exoPlayer.currentPosition, 1f)
-                .setBufferedPosition(exoPlayer.bufferedPosition)
-                .addCustomAction(
-                    APP_ACTION_STOP,
-                    getString(R.string.stop),
-                    R.drawable.ic_stop_black_24dp
-                )
-                .addCustomAction(
-                    APP_ACTION_TIMER,
-                    getString(R.string.set_timer),
-                    R.drawable.ic_time_add_24dp
-                )
-                .build()
-        )
+//        mediaSessionCompat?.setPlaybackState(
+//            PlaybackStateCompat.Builder()
+//                .setActions(MEDIA_SESSION_ACTIONS)
+//                .setState(state, exoPlayer.currentPosition, 1f)
+//                .setBufferedPosition(exoPlayer.bufferedPosition)
+//                .addCustomAction(
+//                    APP_ACTION_STOP,
+//                    getString(R.string.stop),
+//                    R.drawable.ic_stop_black_24dp
+//                )
+//                .addCustomAction(
+//                    APP_ACTION_TIMER,
+//                    getString(R.string.set_timer),
+//                    R.drawable.ic_time_add_24dp
+//                )
+//                .build()
+//        )
     }
 
     /**
