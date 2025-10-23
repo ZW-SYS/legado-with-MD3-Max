@@ -265,14 +265,19 @@ data class Book(
 
     // startDate 的 setter 和 getter
     fun setStartDate(startDate: LocalDate?) {
-        config.startDate = startDate
+        config.startDate = startDate?.toString()
     }
 
     fun getStartDate(): LocalDate? {
         if (!config.readSimulating || config.startDate == null) {
             return LocalDate.now()
         }
-        return config.startDate
+        return try {
+            LocalDate.parse(config.startDate)
+        } catch (e: Exception) {
+            println("解析日期失败: ${config.startDate}, 错误: ${e.message}")
+            LocalDate.now()
+        }
     }
 
     // startChapter 的 setter 和 getter
@@ -400,7 +405,7 @@ data class Book(
         var ttsEngine: String? = null,
         var splitLongChapter: Boolean = true,
         var readSimulating: Boolean = false,
-        var startDate: LocalDate? = null,
+        var startDate: String? = null,
         var startChapter: Int? = null,     // 用户设置的起始章节
         var dailyChapters: Int = 3,    // 用户设置的每日更新章节数
 

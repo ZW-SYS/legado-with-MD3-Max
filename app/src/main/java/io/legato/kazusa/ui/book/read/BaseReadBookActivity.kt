@@ -1,7 +1,6 @@
 package io.legato.kazusa.ui.book.read
 
 import android.annotation.SuppressLint
-import android.app.DatePickerDialog
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
@@ -10,10 +9,12 @@ import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnDetach
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
+import com.google.android.material.datepicker.MaterialDatePicker
 import io.legato.kazusa.R
 import io.legato.kazusa.base.VMBaseActivity
 import io.legato.kazusa.constant.AppConst.charsets
@@ -27,7 +28,6 @@ import io.legato.kazusa.help.config.LocalConfig
 import io.legato.kazusa.help.config.ReadBookConfig
 import io.legato.kazusa.lib.dialogs.alert
 import io.legato.kazusa.lib.dialogs.selector
-//import io.legado.app.lib.theme.bottomBackground
 import io.legato.kazusa.model.CacheBook
 import io.legato.kazusa.model.ReadBook
 import io.legato.kazusa.ui.book.read.config.BgTextConfigDialog
@@ -47,7 +47,9 @@ import io.legato.kazusa.utils.setOnApplyWindowInsetsListenerCompat
 import io.legato.kazusa.utils.showDialogFragment
 import io.legato.kazusa.utils.themeColor
 import io.legato.kazusa.utils.viewbindingdelegate.viewBinding
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 /**
@@ -288,46 +290,57 @@ abstract class BaseReadBookActivity :
     fun showSimulatedReading() {
         val book = ReadBook.book ?: return
         val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
         val alertBinding = DialogSimulatedReadingBinding.inflate(layoutInflater).apply {
             srEnabled.isChecked = book.getReadSimulating()
             editStart.setText(book.getStartChapter().toString())
             editNum.setText(book.getDailyChapters().toString())
-            startDate.setText(book.getStartDate()?.format(dateFormatter))
-            startDate.isFocusable = false // 设置为false，不允许获得焦点
-            startDate.isCursorVisible = false // 不显示光标
+
+            // 安全地设置初始日期
+            val safeDate = book.getStartDate() ?: LocalDate.now()
+            startDate.setText(safeDate.format(dateFormatter))
+
+            // 让 EditText 不可直接编辑，只能通过选择器
+            startDate.isFocusable = false
+            startDate.isCursorVisible = false
+
             startDate.setOnClickListener {
-                // 获取当前日期
-                val localStartDate = LocalDate.parse(startDate.text)
-                // 创建 DatePickerDialog
-                val datePickerDialog = DatePickerDialog(
-                    root.context,
-                    { _, yy, mm, dayOfMonth ->
-                        // 使用Java 8的日期和时间API来格式化日期
-                        val date = LocalDate.of(yy, mm + 1, dayOfMonth) // Java 8的LocalDate，月份从1开始
-                        val formattedDate = date.format(dateFormatter)
-                        startDate.setText(formattedDate)
-                    }, localStartDate.year,
-                    localStartDate.monthValue - 1,
-                    localStartDate.dayOfMonth
-                )
-                datePickerDialog.show()
+                val currentDate = try {
+                    LocalDate.parse(startDate.text.toString(), dateFormatter)
+                } catch (e: Exception) {
+                    LocalDate.now()
+                }
+                val initialSelection = currentDate
+                    .atStartOfDay(ZoneId.systemDefault())
+                    .toInstant()
+                    .toEpochMilli()
+                val picker = MaterialDatePicker.Builder.datePicker()
+                    .setTitleText("选择开始日期")
+                    .setSelection(initialSelection)
+                    .build()
+                picker.addOnPositiveButtonClickListener { selection ->
+                    val date = Instant.ofEpochMilli(selection)
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate()
+                    startDate.setText(date.format(dateFormatter))
+                }
+                picker.show((root.context as AppCompatActivity).supportFragmentManager, "md3_date_picker")
             }
         }
         alert(titleResource = R.string.simulated_reading) {
             customView { alertBinding.root }
             okButton {
                 alertBinding.run {
-                    val start = editStart.text!!.toString().let {
-                        if (it.isEmpty()) 0 else it.toInt()
-                    }
-                    val num = editNum.text!!.toString().let {
-                        if (it.isEmpty()) book.totalChapterNum else it.toInt()
-                    }
+                    val start = editStart.text.toString().toIntOrNull() ?: 0
+                    val num = editNum.text.toString().toIntOrNull() ?: book.totalChapterNum
                     val enabled = srEnabled.isChecked
-                    val date = startDate.text!!.toString().let {
-                        if (it.isEmpty()) LocalDate.now()
-                        else LocalDate.parse(it, dateFormatter)
+
+                    val date = try {
+                        LocalDate.parse(startDate.text.toString(), dateFormatter)
+                    } catch (e: Exception) {
+                        LocalDate.now()
                     }
+
                     book.setStartDate(date)
                     book.setDailyChapters(num)
                     book.setStartChapter(start)

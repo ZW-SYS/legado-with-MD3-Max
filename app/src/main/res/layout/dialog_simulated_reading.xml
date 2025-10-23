@@ -1,159 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/ll_content"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center"
-    android:padding="16dp"
+    android:padding="24dp"
     android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="start"
+        android:layout_gravity="center_vertical"
         android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="16dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginRight="2dp"
-            android:text="@string/switch_on"
-            android:textSize="16sp"
-            tools:ignore="RtlHardcoded"
-            android:minWidth="88dp" />
+            style="@style/Widget.Material3.TextInputLayout.FilledBox.Dense">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="date"
+                android:ems="10"
+                android:id="@+id/start_date"
+                android:hint="@string/start_from"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:textSize="16sp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.materialswitch.MaterialSwitch
-            android:layout_height="wrap_content"
-            android:id="@+id/sr_enabled"
-            android:gravity="start|center_vertical"
-            android:layout_width="wrap_content" />
-
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="65dp"
-        android:orientation="horizontal"
-        android:gravity="start|center_vertical">
-
-        <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="@string/start_from"
-            android:textSize="16sp"
-            android:gravity="center_vertical"
-            android:minWidth="100dp" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="49dp"
-            android:inputType="none"
-            android:ems="10"
-            android:id="@+id/start_date"
-            android:hint="Select date"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:textSize="16sp"
-            android:layout_marginRight="68dp" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_height="match_parent"
+            android:id="@+id/sr_enabled" />
 
     </LinearLayout>
 
     <LinearLayout
+        android:baselineAligned="false"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
         android:gravity="start">
 
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="100dp"
-            android:layout_height="match_parent"
-            android:minWidth="100dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginRight="2dp"
-                android:text="@string/start_chapter"
-                android:textSize="16sp"
-                tools:ignore="RtlHardcoded" />
-
-        </LinearLayout>
-
-        <EditText
-            android:id="@+id/edit_start"
-            android:layout_width="47dp"
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@drawable/bg_edit"
-            android:hint="@string/start"
-            android:importantForAutofill="no"
-            android:inputType="number"
-            android:lines="1"
-            android:maxLength="5"
-            android:minWidth="60dp"
-            android:paddingLeft="5dp"
-            android:paddingTop="4dp"
-            android:paddingRight="5dp"
-            android:paddingBottom="4dp"
-            android:textSize="14sp"
-            tools:ignore="TouchTargetSizeCheck,TextContrastCheck" />
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="end">
-
-            <TextView
-                android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="32dp"
+            style="@style/Widget.Material3.TextInputLayout.FilledBox.Dense">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_start"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="5dp"
-                android:text="@string/daily_chapters"
-                android:textSize="16sp" />
-
-            <EditText
-                android:id="@+id/edit_num"
-                android:layout_width="42dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:background="@drawable/bg_edit"
-                android:hint="3"
+                android:hint="@string/start_chapter"
                 android:importantForAutofill="no"
                 android:inputType="number"
                 android:lines="1"
-                android:maxLength="5"
-                android:minWidth="60dp"
-                android:paddingLeft="5dp"
-                android:paddingTop="4dp"
-                android:paddingRight="5dp"
-                android:paddingBottom="4dp"
-                android:textSize="14sp"
-                tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck,TextContrastCheck"
-                android:textAlignment="center" />
-        </LinearLayout>
+                android:maxLength="5" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            style="@style/Widget.Material3.TextInputLayout.FilledBox.Dense">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_num"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/daily_chapters"
+                android:importantForAutofill="no"
+                android:inputType="number"
+                android:lines="1"
+                android:maxLength="5" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+
 
     </LinearLayout>
 

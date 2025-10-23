@@ -28,7 +28,7 @@ import io.legato.kazusa.utils.toastOnUi
 import splitties.init.appCtx
 import java.io.File
 import java.time.LocalDate
-import java.time.Period.between
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
 import kotlin.math.min
@@ -353,7 +353,17 @@ fun Book.getExportFileName(
 fun Book.simulatedTotalChapterNum(): Int {
     return if (readSimulating()) {
         val currentDate = LocalDate.now()
-        val daysPassed = between(config.startDate, currentDate).days + 1
+        val daysPassed = if (config.startDate != null) {
+            try {
+                val startDate = LocalDate.parse(config.startDate)
+                ChronoUnit.DAYS.between(startDate, currentDate).toInt() + 1
+            } catch (e: Exception) {
+                println("解析起始日期失败: ${config.startDate}, 错误: ${e.message}")
+                1 // 解析失败时返回默认值1
+            }
+        } else {
+            1 // 没有设置起始日期时返回默认值1
+        }
         // 计算当前应该解锁到哪一章
         val chaptersToUnlock =
             max(0, (config.startChapter ?: 0) + (daysPassed * config.dailyChapters))
