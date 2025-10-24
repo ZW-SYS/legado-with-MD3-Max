@@ -442,11 +442,11 @@ abstract class BaseReadAloudService : BaseService(),
      * 更新媒体状态
      */
     private fun upMediaSessionPlaybackState(state: Int) {
-//        mediaSessionCompat.setPlaybackState(
-//            PlaybackStateCompat.Builder()
-//                .setActions(MediaHelp.MEDIA_SESSION_ACTIONS)
-//                .setState(state, nowSpeak.toLong(), 1f)
-//                // 为系统媒体控件添加定时按钮
+        mediaSessionCompat.setPlaybackState(
+            PlaybackStateCompat.Builder()
+                .setActions(MediaHelp.MEDIA_SESSION_ACTIONS)
+                .setState(state, nowSpeak.toLong(), 1f)
+                // 为系统媒体控件添加定时按钮
 //                .addCustomAction(
 //                    PlaybackStateCompat.CustomAction.Builder(
 //                        "ACTION_ADD_TIMER",
@@ -454,8 +454,8 @@ abstract class BaseReadAloudService : BaseService(),
 //                        R.drawable.ic_time_add_24dp
 //                    ).build()
 //                )
-//                .build()
-//        )
+                .build()
+        )
     }
 
     /**

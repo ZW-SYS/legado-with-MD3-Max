@@ -443,11 +443,11 @@ class AudioPlayService : BaseService(),
      * 更新媒体状态
      */
     private fun upMediaSessionPlaybackState(state: Int) {
-//        mediaSessionCompat?.setPlaybackState(
-//            PlaybackStateCompat.Builder()
-//                .setActions(MEDIA_SESSION_ACTIONS)
-//                .setState(state, exoPlayer.currentPosition, 1f)
-//                .setBufferedPosition(exoPlayer.bufferedPosition)
+        mediaSessionCompat?.setPlaybackState(
+            PlaybackStateCompat.Builder()
+                .setActions(MEDIA_SESSION_ACTIONS)
+                .setState(state, exoPlayer.currentPosition, 1f)
+                .setBufferedPosition(exoPlayer.bufferedPosition)
 //                .addCustomAction(
 //                    APP_ACTION_STOP,
 //                    getString(R.string.stop),
@@ -458,8 +458,8 @@ class AudioPlayService : BaseService(),
 //                    getString(R.string.set_timer),
 //                    R.drawable.ic_time_add_24dp
 //                )
-//                .build()
-//        )
+                .build()
+        )
     }
 
     /**
