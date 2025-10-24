@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View.VISIBLE
@@ -206,18 +207,20 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
         searchView.editText.hint = getString(R.string.search_book_key)
         searchView.editText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                val key = searchView.text.toString().trim()
-                if (key.isNotEmpty()) {
-                    isManualStopSearch = false
-                    viewModel.saveSearchKey(key)
-                    viewModel.searchKey = ""
-                    viewModel.search(key)
-                    visibleInputHelp()
-                    searchView.hide()
-                    return@setOnEditorActionListener true
-                }
+                doSearch()
+                true
+            } else {
+                false
             }
-            false
+        }
+
+        searchView.editText.setOnKeyListener { _, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
+                doSearch()
+                true
+            } else {
+                false
+            }
         }
 
         searchView.editText.doAfterTextChanged {
@@ -239,6 +242,18 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
         }
 
         visibleInputHelp()
+    }
+
+    private fun doSearch() {
+        val key = searchView.text.toString().trim()
+        if (key.isNotEmpty()) {
+            isManualStopSearch = false
+            viewModel.saveSearchKey(key)
+            viewModel.searchKey = ""
+            viewModel.search(key)
+            visibleInputHelp()
+            searchView.hide()
+        }
     }
 
     private fun updateSelectedGroup() {
