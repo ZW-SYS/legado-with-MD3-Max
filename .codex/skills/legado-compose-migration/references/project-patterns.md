@@ -11,6 +11,7 @@
 - Main navigation: `ui/main/MainActivity.kt`, using Navigation3 `NavKey`, `rememberNavBackStack`, `entryProvider`, and `NavDisplay`, plus legacy route extras such as `EXTRA_START_ROUTE`.
 - Base Compose host: `base/BaseComposeActivity.kt`, which wraps `Content()` in `AppTheme`, configures system bars, locale/font, background image, and LiveBus recreation events.
 - Compose dependencies are already enabled in `app/build.gradle.kts`; do not add new UI libraries unless the target screen truly requires one.
+- `kotlinx.collections.immutable` is available for Compose-facing screen state. Prefer `ImmutableList`, `ImmutableSet`, and `ImmutableMap` at `UiState` boundaries when collection state is passed to composables and changes often.
 
 ## Files to Inspect Before Migrating
 
@@ -79,6 +80,8 @@ ViewModel rules:
 - Use `_uiState.update { it.copy(...) }` for state changes.
 - Emit one-shot work through effects, not booleans in state.
 - Keep cached current entities private in the ViewModel when existing project behavior needs mutation or incremental sync, but publish immutable render state.
+- For collection-heavy `UiState`, convert DAO/repository `List`/`Set`/`Map` values to `kotlinx.collections.immutable` at the ViewModel/UI-state boundary with `toImmutableList()`, `toImmutableSet()`, or `toImmutableMap()`. Do not force repository, DAO, or domain APIs to use persistent collections unless the domain contract truly benefits.
+- Keep internal flow pipelines free to use normal Kotlin collections for sorting, grouping, and persistence work; the immutable collection rule is primarily for values exposed to Compose.
 - Use existing `BaseViewModel.execute { ... }.onSuccess { ... }.onError { ... }` when the surrounding ViewModel already uses that pattern.
 
 Activity rules:
@@ -102,9 +105,20 @@ Screen rules:
 
 - Make `FeatureScreen(state, onIntent, ...)` stateless for business state.
 - Use `remember` and `rememberSaveable` only for local UI affordances such as menu expansion, scroll state, transient animation state, and text field drafts when committing through an intent.
+- Use `rememberSaveable` for user-driven transient targets that should survive recreation, such as a delete-confirmation item ID or URL. Store only the stable ID in saved state and resolve the current entity from `UiState`.
 - Use `BackHandler` to route back actions through `FeatureIntent.BackPressed` when ViewModel decisions matter.
 - Keep expensive derived values in `remember(key)` or ViewModel state when they depend on repository data.
-- Prefer `LazyColumn`, `LazyRow`, stable keys, and existing fast-scroller/list components for adapter migrations.
+- Prefer `LazyColumn`, `LazyRow`, stable keys, and existing fast-scroller/list components for adapter migrations. For heterogeneous lazy lists or grids, provide `contentType` in addition to `key`.
+- In long-lived `LaunchedEffect` collectors, wrap changing callbacks, `Context`-dependent operations, or lambdas from parents with `rememberUpdatedState` when the effect should not restart.
+- Hoist state only to the lowest common owner that reads and writes it. Move branch-only ViewModel lookup and Flow collection into the branch or a small child composable instead of collecting at a high-level route.
+- Avoid UI-state feedback loops such as `LaunchedEffect(uiState.items) { viewModel.pruneSelection(...) }`. Prefer deriving consistency inside the ViewModel with `combine(...)`, or reduce the state as part of the flow that produces the data.
+
+## Current Compose Performance Notes
+
+- Kotlin 2.x enables strong skipping by default, but ordinary Kotlin `List`, `Set`, and `Map` are still unstable to Compose. This means high-frequency screen state with normal collections can still widen recomposition work.
+- Use immutable collections for render state that crosses into Compose. Do not mechanically replace every temporary collection, Room query result, or internal mutable accumulator.
+- If data entities come from modules where the Compose compiler does not run, consider a stable UI model wrapper when the entity is passed deeply through composables and causes measurable recomposition cost.
+- Treat `SnapshotStateList` / `SnapshotStateMap` as UI-owned mutable state, not as a default ViewModel `UiState` transport type.
 
 ## Clean Architecture Boundaries
 

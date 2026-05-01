@@ -9,7 +9,7 @@ description: Guide Legado Android UI migration from XML/View/RecyclerView/Dialog
 
 Migrate one UI surface at a time, or create one new Compose destination at a time. Preserve behavior first for migrations; for newly created screens, prefer standard modern Android architecture over mixed legacy patterns. Use the project's existing `MainActivity` navigation, `BaseComposeActivity` compatibility hosts, `*Screen`, `*Contract`, `*ViewModel`, `StateFlow`, `SharedFlow`, Koin, theme, and widget patterns.
 
-Before editing, inspect the target View implementation if one exists, `MainActivity` navigation when adding a destination, and at least two nearby migrated Compose screens. For concrete project patterns, read `references/project-patterns.md`.
+Before editing, inspect the target View implementation if one exists, `MainActivity` navigation when adding a destination, and at least two nearby migrated Compose screens. For concrete project patterns, including current Compose state/performance rules, read `references/project-patterns.md`.
 
 ## Workflow
 
