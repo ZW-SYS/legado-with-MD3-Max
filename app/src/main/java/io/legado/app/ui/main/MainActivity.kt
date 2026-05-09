@@ -61,8 +61,11 @@ import io.legado.app.ui.config.backupConfig.BackupConfigScreen
 import io.legado.app.ui.config.coverConfig.CoverConfigScreen
 import io.legado.app.ui.config.mainConfig.MainConfig
 import io.legado.app.ui.config.otherConfig.OtherConfigScreen
+import io.legado.app.ui.config.personalizationConfig.FontSelectScreen
+import io.legado.app.ui.config.customTheme.CustomThemeScreen
 import io.legado.app.ui.config.readConfig.ReadConfigScreen
 import io.legado.app.ui.config.themeConfig.ThemeConfigScreen
+import io.legado.app.ui.config.themePack.ThemePackScreen
 import io.legado.app.ui.rss.article.MainRouteRssSort
 import io.legado.app.ui.rss.article.RssSortRouteScreen
 import io.legado.app.ui.rss.read.MainRouteRssRead
@@ -97,6 +100,7 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
         private const val ROUTE_SETTINGS_COVER = "settings/cover"
         private const val ROUTE_SETTINGS_THEME = "settings/theme"
         private const val ROUTE_SETTINGS_BACKUP = "settings/backup"
+        private const val ROUTE_SETTINGS_CUSTOM_THEME = "settings/custom_theme"
         private const val ROUTE_IMPORT_LOCAL = "import/local"
         private const val ROUTE_IMPORT_REMOTE = "import/remote"
         private const val ROUTE_CACHE = "cache"
@@ -277,6 +281,12 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
 
     @Serializable
     private data object MainRouteSettingsBackup : MainRoute
+
+    @Serializable
+    private data object MainRouteSettingsCustomTheme : MainRoute
+
+    @Serializable
+    private data object MainRouteSettingsThemePack : MainRoute
 
     @Serializable
     private data object MainRouteImportLocal : MainRoute
@@ -543,11 +553,25 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
                 }
 
                 entry<MainRouteSettingsTheme> {
-                    ThemeConfigScreen(onBackClick = { navigateBack(backStack) })
+                    ThemeConfigScreen(
+                        onBackClick = { navigateBack(backStack) },
+                        onNavigateToCustomTheme = { backStack.add(MainRouteSettingsCustomTheme) }
+                    )
                 }
 
                 entry<MainRouteSettingsBackup> {
                     BackupConfigScreen(onBackClick = { navigateBack(backStack) })
+                }
+
+                entry<MainRouteSettingsCustomTheme> {
+                    CustomThemeScreen(
+                        onBackClick = { navigateBack(backStack) },
+                        onNavigateToThemePack = { backStack.add(MainRouteSettingsThemePack) }
+                    )
+                }
+
+                entry<MainRouteSettingsThemePack> {
+                    ThemePackScreen(onBackClick = { navigateBack(backStack) })
                 }
 
                 entry<MainRouteImportLocal> {
@@ -599,7 +623,6 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
                     }
 
                     DisposableEffect(lifecycleOwner, searchViewModel) {
-                        searchViewModel.onIntent(SearchIntent.ResumeEngine)
                         val observer = LifecycleEventObserver { _, event ->
                             when (event) {
                                 Lifecycle.Event.ON_RESUME -> {
@@ -616,7 +639,6 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
                         lifecycleOwner.lifecycle.addObserver(observer)
                         onDispose {
                             lifecycleOwner.lifecycle.removeObserver(observer)
-                            searchViewModel.onIntent(SearchIntent.PauseEngine)
                         }
                     }
 
@@ -645,15 +667,25 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
                         initialSortUrl = route.sortUrl,
                         onBackClick = { navigateBack(backStack) },
                         onOpenRead = { title, origin, link, openUrl ->
-                            navigateToRoute(
-                                backStack,
-                                MainRouteRssRead(
-                                    title = title,
-                                    origin = origin,
-                                    link = link,
-                                    openUrl = openUrl
+                            if (link?.contains("@js:") == true) {
+                                navigateToRoute(
+                                    backStack,
+                                    MainRouteRssSort(
+                                        sourceUrl = origin,
+                                        sortUrl = link
+                                    )
                                 )
-                            )
+                            } else {
+                                navigateToRoute(
+                                    backStack,
+                                    MainRouteRssRead(
+                                        title = title,
+                                        origin = origin,
+                                        link = link,
+                                        openUrl = openUrl
+                                    )
+                                )
+                            }
                         }
                     )
                 }
@@ -668,7 +700,18 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
                     )
                 }
 
-                entry<MainRouteBookInfo> { route ->
+                entry<MainRouteBookInfo>(
+                    metadata = NavDisplay.transitionSpec {
+                        fadeIn(animationSpec = tween(300)) togetherWith
+                            fadeOut(animationSpec = tween(300))
+                    } + NavDisplay.popTransitionSpec {
+                        fadeIn(animationSpec = tween(300)) togetherWith
+                            fadeOut(animationSpec = tween(300))
+                    } + NavDisplay.predictivePopTransitionSpec { _ ->
+                        fadeIn(animationSpec = tween(300)) togetherWith
+                            fadeOut(animationSpec = tween(300))
+                    }
+                ) { route ->
                     val bookInfoViewModel = koinViewModel<BookInfoViewModel>()
                     BookInfoRouteScreen(
                         bookUrl = route.bookUrl,
@@ -734,7 +777,9 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
             MainRouteSettingsRead,
             MainRouteSettingsCover,
             MainRouteSettingsTheme,
-            MainRouteSettingsBackup -> {
+            MainRouteSettingsBackup,
+            MainRouteSettingsCustomTheme,
+            MainRouteSettingsThemePack -> {
                 backStack.clear()
                 backStack.add(MainRouteHome)
                 backStack.add(MainRouteSettings)
@@ -969,6 +1014,16 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
 
     private fun resolveStartRoute(route: String?): MainRoute {
         return when (route) {
+            "main" -> MainRouteHome
+            "settings" -> MainRouteSettings
+            "settings/other" -> MainRouteSettingsOther
+            "settings/read" -> MainRouteSettingsRead
+            "settings/cover" -> MainRouteSettingsCover
+            "settings/theme" -> MainRouteSettingsTheme
+            "settings/backup" -> MainRouteSettingsBackup
+            "settings/custom_theme" -> MainRouteSettingsCustomTheme
+            "import/local" -> MainRouteImportLocal
+            "import/remote" -> MainRouteImportRemote
             ROUTE_MAIN -> MainRouteHome
             ROUTE_SETTINGS -> MainRouteSettings
             ROUTE_SETTINGS_OTHER -> MainRouteSettingsOther
