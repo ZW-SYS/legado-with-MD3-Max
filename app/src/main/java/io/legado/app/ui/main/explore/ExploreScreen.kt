@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.legado.app.R
 import io.legado.app.data.entities.BookSourcePart
+import io.legado.app.help.source.getExploreInfoMap
 import io.legado.app.ui.widget.components.explore.ExploreKindUiUseCase
 import io.legado.app.ui.book.search.SearchActivity
 import io.legado.app.ui.book.search.SearchScope
@@ -77,8 +78,10 @@ import io.legado.app.ui.widget.components.menuItem.RoundDropdownMenu
 import io.legado.app.ui.widget.components.menuItem.RoundDropdownMenuItem
 import io.legado.app.ui.widget.components.text.AppText
 import io.legado.app.utils.startActivity
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import top.yukonga.miuix.kmp.theme.MiuixTheme
@@ -104,13 +107,17 @@ fun ExploreScreen(
         viewModel.effects.collect { effect ->
             when (effect) {
                 is ExploreEffect.ExecuteKindAction -> {
-                    exploreKindUseCase.executeAction(
-                        action = effect.kind.action,
-                        title = effect.kind.title,
-                        sourceUrl = effect.sourceUrl,
-                        activity = activity,
-                        onRefreshKinds = { viewModel.refreshExploreKinds(effect.sourceUrl) }
-                    )
+                    withContext(Dispatchers.IO) {
+                        val infoMap = getExploreInfoMap(effect.sourceUrl)
+                        exploreKindUseCase.executeAction(
+                            action = effect.kind.action,
+                            title = effect.kind.title,
+                            sourceUrl = effect.sourceUrl,
+                            infoMap = infoMap,
+                            activity = activity,
+                            onRefreshKinds = { viewModel.refreshExploreKinds(effect.sourceUrl) }
+                        )
+                    }
                 }
             }
         }
@@ -201,13 +208,7 @@ fun ExploreScreen(
             ) {
                 items(
                     items = uiState.listItems,
-                    key = { it.key },
-                    contentType = {
-                        when (it) {
-                            is ExploreListItem.Header -> "source-header"
-                            is ExploreListItem.KindRow -> "kind-row"
-                        }
-                    }
+                    key = { it.key }
                 ) { listItem ->
                     when (listItem) {
                         is ExploreListItem.Header -> {
