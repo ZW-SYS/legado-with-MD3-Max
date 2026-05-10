@@ -968,8 +968,11 @@ private fun BookshelfOverlays(
         onDismissRequest = { viewModel.dismissOverlay() }
     )
 
+    val groups by viewModel.allGroupsFlow.collectAsStateWithLifecycle()
+
     GroupSelectSheet(
         show = activeOverlay == BookshelfOverlay.GroupSelectSheet,
+        groups = groups,
         currentGroupId = 0L,
         onDismissRequest = { viewModel.dismissOverlay() },
         onConfirm = { groupId ->

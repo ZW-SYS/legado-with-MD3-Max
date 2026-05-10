@@ -39,6 +39,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -103,7 +104,7 @@ fun SearchScreen(
     val listState = rememberLazyListState()
     val lifecycleOwner = LocalLifecycleOwner.current
     var queryInput by rememberSaveable { mutableStateOf(state.query) }
-    var scopeSheetTab by rememberSaveable { mutableStateOf(0) }
+    var scopeSheetTab by rememberSaveable { mutableIntStateOf(0) }
     var ignoreNextDebouncedQuery by rememberSaveable { mutableStateOf<String?>(null) }
     val showSuggestionPanel = state.showSuggestions
     val latestQuery by rememberUpdatedState(state.query)
@@ -259,6 +260,13 @@ fun SearchScreen(
                         )
                     },
                     actions = {
+                        TopBarActionButton(
+                            onClick = {
+                                viewModel.onIntent(SearchIntent.OpenSourceManage)
+                            },
+                            imageVector = AppIcons.Settings,
+                            contentDescription = stringResource(R.string.book_source_manage)
+                        )
                         TopBarAnimatedActionButton(
                             checked = state.isPrecisionSearch,
                             onCheckedChange = { checked ->
@@ -288,13 +296,6 @@ fun SearchScreen(
                             iconUnchecked = AppIcons.Filter,
                             activeText = stringResource(R.string.screen),
                             inactiveText = stringResource(R.string.screen),
-                        )
-                        TopBarActionButton(
-                            onClick = {
-                                viewModel.onIntent(SearchIntent.OpenSourceManage)
-                            },
-                            imageVector = AppIcons.Settings,
-                            contentDescription = stringResource(R.string.book_source_manage)
                         )
                     },
                     scrollBehavior = scrollBehavior

@@ -69,6 +69,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import io.legado.app.R
@@ -282,12 +283,16 @@ private fun BookInfoScreenContent(
             onDismissRequest = { onIntent(BookInfoIntent.DismissSheet) },
             onSelect = { onIntent(BookInfoIntent.SelectCover(it)) },
         )
-        BookInfoSheet.GroupPicker -> GroupSelectSheet(
-            show = currentSheet == BookInfoSheet.GroupPicker,
-            currentGroupId = state.book?.group ?: 0L,
-            onDismissRequest = { onIntent(BookInfoIntent.DismissSheet) },
-            onConfirm = { onIntent(BookInfoIntent.SelectGroup(it)) },
-        )
+        BookInfoSheet.GroupPicker -> {
+            val groups by koinInject<io.legado.app.data.repository.BookGroupRepository>().flowSelect().collectAsStateWithLifecycle(initialValue = emptyList())
+            GroupSelectSheet(
+                show = currentSheet == BookInfoSheet.GroupPicker,
+                groups = groups,
+                currentGroupId = state.book?.group ?: 0L,
+                onDismissRequest = { onIntent(BookInfoIntent.DismissSheet) },
+                onConfirm = { onIntent(BookInfoIntent.SelectGroup(it)) },
+            )
+        }
         BookInfoSheet.SourcePicker -> state.book?.let { book ->
             ChangeSourceSheet(
                 show = currentSheet == BookInfoSheet.SourcePicker,

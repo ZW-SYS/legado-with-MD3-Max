@@ -20,6 +20,7 @@ import io.legado.app.domain.usecase.ChangeBookSourceUseCase
 import io.legado.app.domain.usecase.ChangeSourceMigrationOptions
 import io.legado.app.data.repository.ReadRecordRepository
 import io.legado.app.data.repository.RemoteBookRepository
+import io.legado.app.data.repository.BookGroupRepository
 import io.legado.app.domain.usecase.ClearBookCacheUseCase
 import io.legado.app.exception.NoBooksDirException
 import io.legado.app.exception.NoStackTraceException
@@ -68,8 +69,11 @@ class BookInfoViewModel(
     private val remoteBookRepository: RemoteBookRepository,
     private val readRecordRepository: ReadRecordRepository,
     private val changeBookSourceUseCase: ChangeBookSourceUseCase,
-    private val clearBookCacheUseCase: ClearBookCacheUseCase
+    private val clearBookCacheUseCase: ClearBookCacheUseCase,
+    private val bookGroupRepository: BookGroupRepository,
 ) : BaseViewModel(application) {
+
+    val allGroups = bookGroupRepository.flowAll()
 
     private val _uiState = MutableStateFlow(BookInfoUiState())
     val uiState = _uiState.asStateFlow()
