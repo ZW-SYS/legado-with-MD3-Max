@@ -76,7 +76,9 @@ class ExploreKindUiUseCase(
                 override fun reUiView() = onRefreshKinds()
             }
         )
-        evalButtonClick(actionText, source, effectiveInfoMap, title, sourceJsExtensions)
+        withContext(IO) {
+            evalButtonClick(actionText, source, effectiveInfoMap, title, sourceJsExtensions)
+        }
     }
 
     private fun parseLiteralViewName(viewName: String?): String? {

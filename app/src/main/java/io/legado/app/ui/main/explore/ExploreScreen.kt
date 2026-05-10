@@ -78,10 +78,8 @@ import io.legado.app.ui.widget.components.menuItem.RoundDropdownMenu
 import io.legado.app.ui.widget.components.menuItem.RoundDropdownMenuItem
 import io.legado.app.ui.widget.components.text.AppText
 import io.legado.app.utils.startActivity
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import top.yukonga.miuix.kmp.theme.MiuixTheme
@@ -107,17 +105,15 @@ fun ExploreScreen(
         viewModel.effects.collect { effect ->
             when (effect) {
                 is ExploreEffect.ExecuteKindAction -> {
-                    withContext(Dispatchers.IO) {
-                        val infoMap = getExploreInfoMap(effect.sourceUrl)
-                        exploreKindUseCase.executeAction(
-                            action = effect.kind.action,
-                            title = effect.kind.title,
-                            sourceUrl = effect.sourceUrl,
-                            infoMap = infoMap,
-                            activity = activity,
-                            onRefreshKinds = { viewModel.refreshExploreKinds(effect.sourceUrl) }
-                        )
-                    }
+                    val infoMap = getExploreInfoMap(effect.sourceUrl)
+                    exploreKindUseCase.executeAction(
+                        action = effect.kind.action,
+                        title = effect.kind.title,
+                        sourceUrl = effect.sourceUrl,
+                        infoMap = infoMap,
+                        activity = activity,
+                        onRefreshKinds = { viewModel.refreshExploreKinds(effect.sourceUrl) }
+                    )
                 }
             }
         }
