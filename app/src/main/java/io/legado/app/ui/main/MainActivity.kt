@@ -609,18 +609,7 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
                     )
                 }
 
-                entry<MainRouteSearch>(
-                    metadata = NavDisplay.transitionSpec {
-                        fadeIn(animationSpec = tween(300)) togetherWith
-                                fadeOut(animationSpec = tween(300))
-                    } + NavDisplay.popTransitionSpec {
-                        fadeIn(animationSpec = tween(300)) togetherWith
-                                fadeOut(animationSpec = tween(300))
-                    } + NavDisplay.predictivePopTransitionSpec { _ ->
-                        fadeIn(animationSpec = tween(300)) togetherWith
-                                fadeOut(animationSpec = tween(300))
-                    }
-                ) { route ->
+                entry<MainRouteSearch> { route ->
                     val searchViewModel = koinViewModel<SearchViewModel>()
 
                     LaunchedEffect(route.key, route.scopeRaw, searchViewModel) {
@@ -697,19 +686,28 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
 
                 entry<MainRouteBookInfo>(
                     metadata = NavDisplay.transitionSpec {
-                        if (initialState.key is MainRouteExploreShow) {
+                        val from = initialState.key
+                        val fromStr = from.toString()
+                        if (from is MainRouteHome || from is MainRouteExploreShow || from is MainRouteSearch ||
+                            fromStr.startsWith("MainRouteHome") || fromStr.startsWith("MainRouteExploreShow") || fromStr.startsWith("MainRouteSearch")) {
                             fadeIn(animationSpec = tween(300)) togetherWith
-                                fadeOut(animationSpec = tween(300))
+                                    fadeOut(animationSpec = tween(300))
                         } else null
                     } + NavDisplay.popTransitionSpec {
-                        if (targetState.key is MainRouteExploreShow) {
+                        val to = targetState.key
+                        val toStr = to.toString()
+                        if (to is MainRouteHome || to is MainRouteExploreShow || to is MainRouteSearch ||
+                            toStr.startsWith("MainRouteHome") || toStr.startsWith("MainRouteExploreShow") || toStr.startsWith("MainRouteSearch")) {
                             fadeIn(animationSpec = tween(300)) togetherWith
-                                fadeOut(animationSpec = tween(300))
+                                    fadeOut(animationSpec = tween(300))
                         } else null
                     } + NavDisplay.predictivePopTransitionSpec { _ ->
-                        if (targetState.key is MainRouteExploreShow) {
+                        val to = targetState.key
+                        val toStr = to.toString()
+                        if (to is MainRouteHome || to is MainRouteExploreShow || to is MainRouteSearch ||
+                            toStr.startsWith("MainRouteHome") || toStr.startsWith("MainRouteExploreShow") || toStr.startsWith("MainRouteSearch")) {
                             fadeIn(animationSpec = tween(300)) togetherWith
-                                fadeOut(animationSpec = tween(300))
+                                    fadeOut(animationSpec = tween(300))
                         } else null
                     }
                 ) { route ->
@@ -731,18 +729,7 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
                     )
                 }
 
-                entry<MainRouteExploreShow>(
-                    metadata = NavDisplay.transitionSpec {
-                        fadeIn(animationSpec = tween(300)) togetherWith
-                                fadeOut(animationSpec = tween(300))
-                    } + NavDisplay.popTransitionSpec {
-                        fadeIn(animationSpec = tween(300)) togetherWith
-                                fadeOut(animationSpec = tween(300))
-                    } + NavDisplay.predictivePopTransitionSpec { _ ->
-                        fadeIn(animationSpec = tween(300)) togetherWith
-                                fadeOut(animationSpec = tween(300))
-                    }
-                ) { route ->
+                entry<MainRouteExploreShow> { route ->
                     ExploreShowScreen(
                         title = route.title ?: "探索",
                         sourceUrl = route.sourceUrl,
