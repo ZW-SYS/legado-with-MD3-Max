@@ -136,8 +136,8 @@ fun GroupSelectSheet(
     onDismissRequest: () -> Unit,
     onConfirm: (Long) -> Unit,
 ) {
-    var selectedGroupId by remember(currentGroupId) { mutableLongStateOf(currentGroupId) }
-    var editingGroup by remember { mutableStateOf<BookGroup?>(null) }
+    var selectedGroupId by remember(currentGroupId, show) { mutableLongStateOf(currentGroupId) }
+    var editingGroup by remember(show) { mutableStateOf<BookGroup?>(null) }
 
     AppModalBottomSheet(
         show = show,

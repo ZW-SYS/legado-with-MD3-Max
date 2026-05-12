@@ -86,6 +86,7 @@ import io.legado.app.ui.book.changesource.ChangeSourceMigrationOptionsSheet
 import io.legado.app.ui.book.info.ChangeSourceSheet
 import io.legado.app.ui.book.info.GroupSelectSheet
 import io.legado.app.ui.theme.LegadoTheme
+import io.legado.app.ui.theme.adaptiveContentPadding
 import io.legado.app.ui.widget.components.AppLinearProgressIndicator
 import io.legado.app.ui.widget.components.AppTextField
 import io.legado.app.ui.widget.components.alert.AppAlertDialog
@@ -668,11 +669,9 @@ private fun BookshelfManageScreen(
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(
-                start = 12.dp,
-                end = 12.dp,
+            contentPadding = adaptiveContentPadding(
                 top = paddingValues.calculateTopPadding(),
-                bottom = paddingValues.calculateBottomPadding() + 80.dp
+                bottom = paddingValues.calculateBottomPadding()
             ),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -1057,7 +1056,7 @@ private fun BookshelfManageScreen(
 
     GroupSelectSheet(
         show = showGroupSelectSheet,
-        groups = state.groupList,
+        groups = userGroups,
         currentGroupId = groupPickerCurrentGroupId,
         onDismissRequest = { showGroupSelectSheet = false },
         onConfirm = { groupId ->
