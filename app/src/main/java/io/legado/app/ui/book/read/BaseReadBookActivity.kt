@@ -10,7 +10,7 @@ import android.view.WindowInsets
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.doOnDetach
+import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -92,7 +92,7 @@ abstract class BaseReadBookActivity :
         setOrientation()
         upLayoutInDisplayCutoutMode()
         super.onCreate(savedInstanceState)
-        binding.navigationBar.doOnDetach {
+        binding.navigationBar.doOnAttach {
             binding.navigationBar.setOnApplyWindowInsetsListenerCompat { view, windowInsets ->
                 val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
                 view.updateLayoutParams {
@@ -243,13 +243,14 @@ abstract class BaseReadBookActivity :
 
     fun upNavigationBarColor() {
         upNavigationBar()
-        when {
-            binding.readMenu.isVisible -> window.setNavigationBarColorAuto(themeColor(com.google.android.material.R.attr.colorSurfaceContainer))
-            binding.searchMenu.bottomMenuVisible -> window.setNavigationBarColorAuto(themeColor(com.google.android.material.R.attr.colorSurface))
-            bottomDialog > 0 -> window.setNavigationBarColorAuto(themeColor(com.google.android.material.R.attr.colorSurface))
-            //!AppConfig.immNavigationBar -> super.upNavigationBarColor()
-            else -> window.setNavigationBarColorAuto(ReadBookConfig.bgMeanColor)
+        val navColor = when {
+            binding.readMenu.isVisible -> themeColor(com.google.android.material.R.attr.colorSurfaceContainer)
+            binding.searchMenu.bottomMenuVisible -> themeColor(com.google.android.material.R.attr.colorSurface)
+            bottomDialog > 0 -> themeColor(com.google.android.material.R.attr.colorSurface)
+            else -> ReadBookConfig.bgMeanColor
         }
+        window.setNavigationBarColorAuto(navColor)
+        binding.navigationBar.setBackgroundColor(navColor)
     }
 
     @SuppressLint("RtlHardcoded")
