@@ -68,6 +68,8 @@ import androidx.compose.ui.zIndex
 import cn.hutool.core.date.DateUtil
 import io.legado.app.data.entities.readRecord.ReadRecord
 import io.legado.app.data.entities.readRecord.ReadRecordDetail
+import io.legado.app.data.entities.readRecord.ReadRecordSession
+import io.legado.app.ui.book.readRecord.component.*
 import io.legado.app.ui.theme.LegadoTheme
 import io.legado.app.ui.theme.adaptiveContentPaddingOnlyVertical
 import io.legado.app.ui.theme.adaptiveHorizontalPadding
@@ -110,12 +112,18 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Date
 
+data class TimelineItem(
+    val session: ReadRecordSession,
+    val showHeader: Boolean
+)
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ReadRecordScreen(
     viewModel: ReadRecordViewModel = koinViewModel(),
     onBackClick: () -> Unit,
-    onBookClick: (String, String) -> Unit
+    onBookClick: (String, String) -> Unit,
+    onSummaryClick: () -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -283,7 +291,7 @@ fun ReadRecordScreen(
                             )
                         ) {
                             item(key = "summary_card") {
-                                SummarySection(state, viewModel)
+                                SummarySection(state, viewModel, onSummaryClick)
                             }
                             renderListByMode(
                                 displayMode = displayMode,
@@ -446,7 +454,8 @@ fun ReadRecordScreen(
 @Composable
 fun SummarySection(
     state: ReadRecordUiState,
-    viewModel: ReadRecordViewModel
+    viewModel: ReadRecordViewModel,
+    onSummaryClick: () -> Unit
 ) {
     val selectedDate = state.selectedDate
 
@@ -464,7 +473,7 @@ fun SummarySection(
                 totalTimeMillis = dailyTime,
                 bookNamesForCover = distinctBooks.take(3),
                 viewModel = viewModel,
-                onClick = { }
+                onClick = onSummaryClick
             )
         }
     } else {
@@ -478,7 +487,7 @@ fun SummarySection(
                 totalTimeMillis = totalTime,
                 bookNamesForCover = state.latestRecords.take(5).map { it.bookName to it.bookAuthor },
                 viewModel = viewModel,
-                onClick = {  }
+                onClick = onSummaryClick
             )
         }
     }

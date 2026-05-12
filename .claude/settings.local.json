@@ -50,7 +50,12 @@
       "Bash(npx skills *)",
       "Bash(npx *)",
       "PowerShell(.\\\\gradlew.bat :app:compileAppDebugKotlin 2>&1 | Select-Object -Last 20)",
-      "Bash(cmd /c \"gradlew.bat :app:compileAppDebugKotlin\")"
+      "Bash(cmd /c \"gradlew.bat :app:compileAppDebugKotlin\")",
+      "Bash(cmd /c \"gradlew.bat :app:compileAppDebugKotlin 2>&1\")",
+      "PowerShell(.\\\\gradlew.bat :app:compileAppDebugKotlin 2>&1 | Select-Object -Last 40)",
+      "PowerShell(.\\\\gradlew.bat :app:compileAppDebugKotlin 2>&1 | Select-Object -Last 100)",
+      "PowerShell(.\\\\gradlew.bat :app:compileAppDebugKotlin 2>&1 | Select-Object -Last 50)",
+      "Bash(python3 *)"
     ]
   }
 }

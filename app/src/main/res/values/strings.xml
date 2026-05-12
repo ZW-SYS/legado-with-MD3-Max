@@ -804,7 +804,12 @@
     <string name="auto_page_speed">Auto scroll speed</string>
     <string name="sort_by_url">Sort by URL</string>
     <string name="backup_summary">Backup the local and WebDAV simultaneously</string>
-    <string name="restore_summary">Restore from WebDAV first, Restore form the local backup on long click</string>
+    <string name="backup_sync_mode">Auto Backup Sync</string>
+    <string name="backup_sync_mode_summary">Choose sync behavior for automatic backup</string>
+    <string name="backup_to_local_and_network">Backup to Local &amp; Network</string>
+    <string name="backup_to_local">Backup to Local</string>
+    <string name="backup_to_network">Backup to Network</string>
+    <string name="restore_summary">Choose to restore from local or network backup</string>
     <string name="import_old_summary">Select a legacy backup folder</string>
     <string name="enabled">Enabled</string>
     <string name="disabled">Disabled</string>

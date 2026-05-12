@@ -7,7 +7,7 @@ import io.legado.app.constant.PreferKey
 import io.legado.app.constant.EventBus
 import io.legado.app.domain.usecase.AppStartupMaintenanceUseCase
 import io.legado.app.domain.usecase.WebDavBackupUseCase
-import io.legado.app.ui.config.mainConfig.MainConfig
+import io.legado.app.ui.config.themeConfig.ThemeConfig
 import io.legado.app.ui.main.my.PrefClickEvent
 import io.legado.app.utils.defaultSharedPreferences
 import io.legado.app.utils.eventBus.FlowEventBus
@@ -87,7 +87,7 @@ class MainViewModel(
     fun setNavExtended(expanded: Boolean) {
         if (_uiState.value.navExtended == expanded) return
         _uiState.update { it.copy(navExtended = expanded) }
-        MainConfig.navExtended = expanded
+        ThemeConfig.navExtended = expanded
     }
 
     fun onPrefClickEvent(event: PrefClickEvent) {
@@ -112,6 +112,8 @@ class MainViewModel(
 
             PrefClickEvent.ExitApp -> _effects.tryEmit(MainEffect.ExitApp)
 
+            PrefClickEvent.OpenReadRecord -> _effects.tryEmit(MainEffect.NavigateToReadRecord)
+
             else -> Unit
         }
     }
@@ -128,6 +130,7 @@ sealed interface MainEffect {
     ) : MainEffect
 
     data object ExitApp : MainEffect
+    data object NavigateToReadRecord : MainEffect
 }
 
 data class MainUiState(

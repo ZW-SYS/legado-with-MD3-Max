@@ -47,7 +47,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.legado.app.R
 import io.legado.app.ui.about.AboutActivity
 import io.legado.app.ui.book.bookmark.AllBookmarkActivity
-import io.legado.app.ui.book.readRecord.ReadRecordActivity
 import io.legado.app.ui.book.source.manage.BookSourceActivity
 import io.legado.app.ui.book.toc.rule.TxtTocRuleActivity
 import io.legado.app.ui.dict.rule.DictRuleActivity
@@ -186,7 +185,7 @@ fun MyScreen(
                     title = stringResource(R.string.read_record),
                     imageVector = Icons.Default.History,
                     onClick = {
-                        onNavigate(PrefClickEvent.StartActivity(ReadRecordActivity::class.java))
+                        onNavigate(PrefClickEvent.OpenReadRecord)
                     }
                 )
                 ClickableSettingItem(

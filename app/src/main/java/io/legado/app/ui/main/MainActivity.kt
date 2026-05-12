@@ -52,6 +52,9 @@ import io.legado.app.ui.book.import.remote.RemoteBookScreen
 import io.legado.app.ui.book.search.SearchIntent
 import io.legado.app.ui.book.search.SearchScreen
 import io.legado.app.ui.book.search.SearchViewModel
+import io.legado.app.ui.book.readRecord.ReadRecordOverviewScreen
+import io.legado.app.ui.book.readRecord.ReadRecordScreen
+import io.legado.app.ui.book.readRecord.ReadRecordViewModel
 import io.legado.app.ui.book.source.manage.BookSourceActivity
 import io.legado.app.ui.book.manage.BookshelfManageRouteScreen
 import io.legado.app.ui.book.read.ReadBookActivity
@@ -59,13 +62,13 @@ import io.legado.app.ui.config.ConfigNavScreen
 import io.legado.app.ui.config.ConfigTag
 import io.legado.app.ui.config.backupConfig.BackupConfigScreen
 import io.legado.app.ui.config.coverConfig.CoverConfigScreen
-import io.legado.app.ui.config.mainConfig.MainConfig
+import io.legado.app.ui.config.themeConfig.ThemeConfig
 import io.legado.app.ui.config.otherConfig.OtherConfigScreen
 import io.legado.app.ui.config.personalizationConfig.FontSelectScreen
 import io.legado.app.ui.config.customTheme.CustomThemeScreen
 import io.legado.app.ui.config.readConfig.ReadConfigScreen
 import io.legado.app.ui.config.themeConfig.ThemeConfigScreen
-import io.legado.app.ui.config.themePack.ThemePackScreen
+import io.legado.app.ui.config.themeManage.ThemeManageScreen
 import io.legado.app.ui.rss.article.MainRouteRssSort
 import io.legado.app.ui.rss.article.RssSortRouteScreen
 import io.legado.app.ui.rss.read.MainRouteRssRead
@@ -76,6 +79,7 @@ import io.legado.app.ui.widget.dialog.VariableDialog
 import io.legado.app.utils.getPrefBoolean
 import io.legado.app.utils.showDialogFragment
 import io.legado.app.utils.startActivity
+import io.legado.app.utils.startActivityForBook
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -110,6 +114,8 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
         private const val ROUTE_EXPLORE_SHOW = "explore/show"
         private const val ROUTE_RSS_SORT = "rss/sort"
         private const val ROUTE_RSS_READ = "rss/read"
+        private const val ROUTE_READ_RECORD = "read_record"
+        private const val ROUTE_READ_RECORD_OVERVIEW = "read_record_overview"
         private const val EXTRA_CACHE_GROUP_ID = "extra_cache_group_id"
         private const val EXTRA_SEARCH_KEY = "extra_search_key"
         private const val EXTRA_SEARCH_SCOPE = "extra_search_scope"
@@ -286,13 +292,19 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
     private data object MainRouteSettingsCustomTheme : MainRoute
 
     @Serializable
-    private data object MainRouteSettingsThemePack : MainRoute
+    private data object MainRouteSettingsThemeManage : MainRoute
 
     @Serializable
     private data object MainRouteImportLocal : MainRoute
 
     @Serializable
     private data object MainRouteImportRemote : MainRoute
+
+    @Serializable
+    private data object MainRouteReadRecord : MainRoute
+
+    @Serializable
+    private data object MainRouteReadRecordOverview : MainRoute
 
     @Serializable
     private data class MainRouteCache(val groupId: Long) : MainRoute
@@ -358,7 +370,7 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
     override fun Content() {
         val orientation = resources.configuration.orientation
         val smallestWidthDp = resources.configuration.smallestScreenWidthDp
-        val tabletInterface = MainConfig.tabletInterface
+        val tabletInterface = ThemeConfig.tabletInterface
 
         val useRail = when (tabletInterface) {
             "always" -> true
@@ -524,6 +536,9 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
                                 )
                             )
                         },
+                        onNavigateToReadRecord = {
+                            navigateToRoute(backStack, MainRouteReadRecord)
+                        },
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = LocalNavAnimatedContentScope.current,
                     )
@@ -555,7 +570,8 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
                 entry<MainRouteSettingsTheme> {
                     ThemeConfigScreen(
                         onBackClick = { navigateBack(backStack) },
-                        onNavigateToCustomTheme = { backStack.add(MainRouteSettingsCustomTheme) }
+                        onNavigateToCustomTheme = { backStack.add(MainRouteSettingsCustomTheme) },
+                        onNavigateToThemeManage = { backStack.add(MainRouteSettingsThemeManage) }
                     )
                 }
 
@@ -565,13 +581,12 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
 
                 entry<MainRouteSettingsCustomTheme> {
                     CustomThemeScreen(
-                        onBackClick = { navigateBack(backStack) },
-                        onNavigateToThemePack = { backStack.add(MainRouteSettingsThemePack) }
+                        onBackClick = { navigateBack(backStack) }
                     )
                 }
 
-                entry<MainRouteSettingsThemePack> {
-                    ThemePackScreen(onBackClick = { navigateBack(backStack) })
+                entry<MainRouteSettingsThemeManage> {
+                    ThemeManageScreen(onBackClick = { navigateBack(backStack) })
                 }
 
                 entry<MainRouteImportLocal> {
@@ -684,6 +699,43 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
                     )
                 }
 
+                entry<MainRouteReadRecord> {
+                    ReadRecordScreen(
+                        onBackClick = { navigateBack(backStack) },
+                        onBookClick = { name, author ->
+                            lifecycleScope.launch {
+                                val book = withContext(IO) {
+                                    io.legado.app.data.appDb.bookDao.getBook(name, author)
+                                }
+                                if (book != null) this@MainActivity.startActivityForBook(book)
+                                else {
+                                    navigateToRoute(backStack, MainRouteSearch(key = name))
+                                }
+                            }
+                        },
+                        onSummaryClick = {
+                            navigateToRoute(backStack, MainRouteReadRecordOverview)
+                        }
+                    )
+                }
+
+                entry<MainRouteReadRecordOverview> {
+                    ReadRecordOverviewScreen(
+                        onBackClick = { navigateBack(backStack) },
+                        onBookClick = { name, author ->
+                            lifecycleScope.launch {
+                                val book = withContext(IO) {
+                                    io.legado.app.data.appDb.bookDao.getBook(name, author)
+                                }
+                                if (book != null) this@MainActivity.startActivityForBook(book)
+                                else {
+                                    navigateToRoute(backStack, MainRouteSearch(key = name))
+                                }
+                            }
+                        }
+                    )
+                }
+
                 entry<MainRouteBookInfo>(
                     metadata = NavDisplay.transitionSpec {
                         val from = initialState.key
@@ -780,7 +832,7 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
             MainRouteSettingsTheme,
             MainRouteSettingsBackup,
             MainRouteSettingsCustomTheme,
-            MainRouteSettingsThemePack -> {
+            MainRouteSettingsThemeManage -> {
                 backStack.clear()
                 backStack.add(MainRouteHome)
                 backStack.add(MainRouteSettings)
@@ -846,6 +898,26 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
 
             is MainRouteRssRead -> {
                 if (currentRoute == MainRouteHome || currentRoute is MainRouteRssSort) {
+                    backStack.add(route)
+                } else {
+                    backStack.clear()
+                    backStack.add(MainRouteHome)
+                    backStack.add(route)
+                }
+            }
+
+            MainRouteReadRecord -> {
+                if (currentRoute == MainRouteHome) {
+                    backStack.add(route)
+                } else {
+                    backStack.clear()
+                    backStack.add(MainRouteHome)
+                    backStack.add(route)
+                }
+            }
+
+            MainRouteReadRecordOverview -> {
+                if (currentRoute == MainRouteHome || currentRoute == MainRouteReadRecord) {
                     backStack.add(route)
                 } else {
                     backStack.clear()

@@ -262,6 +262,7 @@ fun CompactClickableSettingItem(
     imageVector: ImageVector? = null,
     color: Color? = MaterialTheme.colorScheme.surface,
     shape: Shape = MaterialTheme.shapes.small,
+    trailingContent: (@Composable () -> Unit)? = null,
     onClick: () -> Unit
 ) {
     if (ThemeResolver.isMiuixEngine(composeEngine)) {
@@ -278,7 +279,7 @@ fun CompactClickableSettingItem(
             imageVector = imageVector,
             color = color,
             shape = shape,
-            trailingContent = {
+            trailingContent = trailingContent ?: {
                 Icon(
                     imageVector = Icons.Default.ChevronRight,
                     contentDescription = null,

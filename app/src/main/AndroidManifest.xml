@@ -291,12 +291,6 @@
             android:configChanges="orientation|screenSize"
             android:hardwareAccelerated="true"
             android:theme="@style/AppTheme.Transparent" />
-        <!-- 阅读记录 -->
-        <activity
-            android:name=".ui.book.readRecord.ReadRecordActivity"
-            android:enableOnBackInvokedCallback="true"
-            android:configChanges="orientation|screenSize"
-            android:hardwareAccelerated="true" />
         <!-- 字典管理 -->
         <activity
             android:name=".ui.dict.rule.DictRuleActivity"
