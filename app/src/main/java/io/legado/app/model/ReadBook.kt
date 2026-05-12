@@ -1108,10 +1108,13 @@ object ReadBook : CoroutineScope by MainScope(), KoinComponent {
         preDownloadTask?.cancel()
         downloadScope.coroutineContext.cancelChildren()
         coroutineContext.cancelChildren()
-        ImageProvider.clear()
         clearExpiredChapterLoadingJob(true)
-        if (!CacheBookService.isRun) {
-            CacheBook.close()
+        // Move expensive cleanup off the main thread
+        CoroutineScope(SupervisorJob() + IO).launch {
+            ImageProvider.clear()
+            if (!CacheBookService.isRun) {
+                CacheBook.close()
+            }
         }
     }
 

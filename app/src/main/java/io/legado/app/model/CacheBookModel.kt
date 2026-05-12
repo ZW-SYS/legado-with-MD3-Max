@@ -63,6 +63,7 @@ class CacheBookModel(
     private var isLoading = false
     private var isPaused = false
 
+    @Synchronized
     private fun notifyDownloadSetChanged() {
         host.emitDownloadingIndices(book.bookUrl, onDownloadSet.toSet())
         if (host.cacheBookMap[book.bookUrl] === this) {
@@ -75,6 +76,7 @@ class CacheBookModel(
         }
     }
 
+    @Synchronized
     private fun notifyErrorChanged() {
         val errors = host.errorIndices(book.bookUrl)
         host.emitDownloadError(book.bookUrl, errors)
@@ -260,41 +262,43 @@ class CacheBookModel(
         addDownload(index, index)
     }
 
-    @Synchronized
     private fun onSuccess(chapter: BookChapter) {
-        onDownloadSet.remove(chapter.index)
-        chapterTasks.remove(chapter.index)
-        host.incrementSuccessCount()
-        retryCountMap.remove(chapter.index)
-        host.stateStore.markSuccess(book.bookUrl, chapter.index)
+        synchronized(this) {
+            onDownloadSet.remove(chapter.index)
+            chapterTasks.remove(chapter.index)
+            host.incrementSuccessCount()
+            retryCountMap.remove(chapter.index)
+            host.stateStore.markSuccess(book.bookUrl, chapter.index)
+        }
         notifyDownloadSetChanged()
         notifyErrorChanged()
         host.emitChapterCached(chapter)
     }
 
-    @Synchronized
     private fun onPreError(chapter: BookChapter, error: Throwable) {
-        waitingRetry = true
-        if (error !is ConcurrentException) {
-            retryCountMap[chapter.index] = (retryCountMap[chapter.index] ?: 0) + 1
-            host.stateStore.markFailed(book.bookUrl, chapter.index)
+        synchronized(this) {
+            waitingRetry = true
+            if (error !is ConcurrentException) {
+                retryCountMap[chapter.index] = (retryCountMap[chapter.index] ?: 0) + 1
+                host.stateStore.markFailed(book.bookUrl, chapter.index)
+            }
+            onDownloadSet.remove(chapter.index)
+            chapterTasks.remove(chapter.index)
         }
-        onDownloadSet.remove(chapter.index)
-        chapterTasks.remove(chapter.index)
     }
 
-    @Synchronized
     private fun onPostError(chapter: BookChapter, error: Throwable) {
-        val retryCount = retryCountMap[chapter.index] ?: 0
-        if (retryCount < 3 && !isStopped) {
-            queue.enqueue(ChapterSelection.Single(chapter.index))
-        } else {
-            AppLog.put("下载${book.name}-${chapter.title}失败\n${error.localizedMessage}", error)
+        synchronized(this) {
+            val retryCount = retryCountMap[chapter.index] ?: 0
+            if (retryCount < 3 && !isStopped) {
+                queue.enqueue(ChapterSelection.Single(chapter.index))
+            } else {
+                AppLog.put("下载${book.name}-${chapter.title}失败\n${error.localizedMessage}", error)
+            }
+            waitingRetry = false
         }
-        waitingRetry = false
     }
 
-    @Synchronized
     private fun onError(chapter: BookChapter, error: Throwable) {
         onPreError(chapter, error)
         onPostError(chapter, error)
@@ -302,21 +306,25 @@ class CacheBookModel(
         notifyErrorChanged()
     }
 
-    @Synchronized
     private fun onCancel(index: Int, requeue: Boolean = true) {
-        onDownloadSet.remove(index)
-        chapterTasks.remove(index)
-        val wasCanceled = canceledDownloadSet.remove(index)
-        if (requeue && !isStopped && !wasCanceled) {
-            queue.enqueue(ChapterSelection.Single(index))
+        synchronized(this) {
+            onDownloadSet.remove(index)
+            chapterTasks.remove(index)
+            val wasCanceled = canceledDownloadSet.remove(index)
+            if (requeue && !isStopped && !wasCanceled) {
+                queue.enqueue(ChapterSelection.Single(index))
+            }
         }
         notifyDownloadSetChanged()
     }
 
-    @Synchronized
     private fun onFinally() {
+        val shouldRemove: Boolean
         val bookUrl = book.bookUrl
-        if (queue.waitingCount() == 0 && onDownloadSet.isEmpty() && pausedChapterSet.isEmpty()) {
+        synchronized(this) {
+            shouldRemove = queue.waitingCount() == 0 && onDownloadSet.isEmpty() && pausedChapterSet.isEmpty()
+        }
+        if (shouldRemove) {
             host.onTaskRemoved(bookUrl)
         } else {
             host.onTaskQueuesChanged(bookUrl)

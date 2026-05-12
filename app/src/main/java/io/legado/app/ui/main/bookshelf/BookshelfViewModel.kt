@@ -212,8 +212,15 @@ class BookshelfViewModel(
             }
             combine(flows) { it.toMap() }
         }
-    }.flowOn(Dispatchers.Default)
+    }.distinctUntilChanged()
+        .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
+
+    private val allGroupBooksImmutableFlow: StateFlow<ImmutableMap<Long, ImmutableList<BookShelfItem>>> =
+        allGroupBooksFlow.map { map ->
+            map.mapValues { it.value.toImmutableList() }.toImmutableMap()
+        }.flowOn(Dispatchers.Default)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentMapOf())
 
     private val visibleBooksFlow = combine(
         booksFlow,
@@ -366,7 +373,7 @@ class BookshelfViewModel(
         ) { books, groups, allGroups, previews, internal ->
             BookshelfDataCore(books, groups, allGroups, previews, internal)
         },
-        allGroupBooksFlow
+        allGroupBooksImmutableFlow
     ) { core, allGroupBooks ->
         BookshelfDataState(
             books = core.books,
@@ -392,7 +399,7 @@ class BookshelfViewModel(
         val allGroups: List<BookGroupUi>,
         val previews: GroupPreviewState,
         val internal: InternalState,
-        val allGroupBooks: Map<Long, List<BookShelfItem>>
+        val allGroupBooks: ImmutableMap<Long, ImmutableList<BookShelfItem>>
     )
 
     val uiState: StateFlow<BookshelfUiState> = combine(
@@ -453,7 +460,7 @@ class BookshelfViewModel(
             currentGroupName = currentGroupName,
             draggingBooks = interaction.draggingBooks?.toImmutableList(),
             pendingSavedBooks = interaction.pendingSavedBooks?.toImmutableList(),
-            allGroupBooks = data.allGroupBooks.mapValues { it.value.toImmutableList() }.toImmutableMap()
+            allGroupBooks = data.allGroupBooks
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), BookshelfUiState())
 
