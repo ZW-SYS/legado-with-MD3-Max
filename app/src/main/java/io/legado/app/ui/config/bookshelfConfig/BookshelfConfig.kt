@@ -59,6 +59,16 @@ object BookshelfConfig {
     var showBookIntro by prefDelegate(PreferKey.showBookIntro, false)
 
     /**
+     * 是否显示简介
+     */
+    var bookshelfShowIntro by prefDelegate(PreferKey.bookshelfShowIntro, true)
+
+    /**
+     * 是否显示标签
+     */
+    var bookshelfShowTag by prefDelegate(PreferKey.bookshelfShowTag, true)
+
+    /**
      * 列表模式下简介显示行数 (0为显示全部)
      */
     var bookshelfIntroMaxLines by prefDelegate(PreferKey.bookshelfIntroMaxLines, 0)
@@ -154,6 +164,16 @@ object BookshelfConfig {
     var bookshelfCardColor by prefDelegate(PreferKey.bookshelfCardColor, 0) {
         postEvent(EventBus.NOTIFY_MAIN, false)
     }
+
+    /**
+     * 文件夹在列表模式下的样式: 0: 默认, 1: 横排封面
+     */
+    var bookshelfGroupListStyle by prefDelegate(PreferKey.bookshelfGroupListStyle, 0)
+
+    /**
+     * 文件夹在列表模式下横排封面的数量
+     */
+    var bookshelfGroupCoverCount by prefDelegate(PreferKey.bookshelfGroupCoverCount, 4)
 
     /**
      * 书架搜索按钮是否直接跳转搜索页

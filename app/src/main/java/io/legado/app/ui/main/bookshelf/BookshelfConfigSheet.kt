@@ -109,6 +109,31 @@ fun BookshelfConfigSheet(
             )
 
             AnimatedVisibility(
+                visible = BookshelfConfig.bookGroupStyle == 2 && layoutMode == 0
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    CompactDropdownSettingItem(
+                        title = "文件夹列表样式",
+                        selectedValue = BookshelfConfig.bookshelfGroupListStyle.toString(),
+                        displayEntries = arrayOf("默认", "紧凑", "横排封面"),
+                        entryValues = arrayOf("0", "1", "2"),
+                        onValueChange = { BookshelfConfig.bookshelfGroupListStyle = it.toInt() }
+                    )
+                    AnimatedVisibility(visible = BookshelfConfig.bookshelfGroupListStyle == 2) {
+                        CompactSliderSettingItem(
+                            title = "横排封面数量",
+                            value = BookshelfConfig.bookshelfGroupCoverCount.toFloat(),
+                            valueRange = 1f..10f,
+                            steps = 9,
+                            onValueChange = { BookshelfConfig.bookshelfGroupCoverCount = it.toInt() }
+                        )
+                    }
+                }
+            }
+
+            AnimatedVisibility(
                 visible = layoutMode == 1
             ) {
                 Column(
@@ -155,78 +180,109 @@ fun BookshelfConfigSheet(
             AnimatedVisibility(
                 visible = layoutMode != 1
             ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    CompactSwitchSettingItem(
-                        title = stringResource(R.string.compact_mode),
-                        checked = BookshelfConfig.bookshelfLayoutCompact,
-                        color = LegadoTheme.colorScheme.surface,
-                        onCheckedChange = { BookshelfConfig.bookshelfLayoutCompact = it }
-                    )
+                val isHorizontalCovers = BookshelfConfig.bookGroupStyle == 2 && BookshelfConfig.bookshelfGroupListStyle == 2
 
-                    CompactSwitchSettingItem(
-                        title = stringResource(R.string.show_divider_line),
-                        checked = BookshelfConfig.bookshelfShowDivider,
-                        color = LegadoTheme.colorScheme.surface,
-                        onCheckedChange = { BookshelfConfig.bookshelfShowDivider = it }
-                    )
-
-                    val listColCount =
-                        if (isLandscape) BookshelfConfig.bookshelfLayoutListLandscape else BookshelfConfig.bookshelfLayoutListPortrait
-                    CompactSliderSettingItem(
-                        title = stringResource(R.string.number_rows_columns),
-                        value = listColCount.toFloat(),
-                        valueRange = 1f..5f,
-                        steps = 4,
-                        onValueChange = {
-                            if (isLandscape) BookshelfConfig.bookshelfLayoutListLandscape =
-                                it.toInt()
-                            else BookshelfConfig.bookshelfLayoutListPortrait = it.toInt()
-                        }
-                    )
-
-                    CompactClickableSettingItem(
-                        title = "卡片背景颜色",
-                        color = LegadoTheme.colorScheme.surface,
-                        onClick = { showColorPicker = true }
-                    )
-
-                    CompactSwitchSettingItem(
-                        title = "显示更多信息",
-                        checked = BookshelfConfig.showBookIntro,
-                        color = LegadoTheme.colorScheme.surface,
-                        onCheckedChange = { BookshelfConfig.showBookIntro = it }
-                    )
-
-                    AnimatedVisibility(visible = BookshelfConfig.showBookIntro) {
+                    AnimatedVisibility(visible = !isHorizontalCovers) {
                         Column(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            CompactSliderSettingItem(
-                                title = "简介行数",
-                                description = if (BookshelfConfig.bookshelfIntroMaxLines == 0) "显示全部简介" else "显示 ${BookshelfConfig.bookshelfIntroMaxLines} 行简介",
-                                value = BookshelfConfig.bookshelfIntroMaxLines.toFloat(),
-                                valueRange = 0f..10f,
-                                steps = 10,
-                                onValueChange = { BookshelfConfig.bookshelfIntroMaxLines = it.toInt() }
-                            )
-                            CompactSwitchSettingItem(
-                                title = "自定义标签颜色",
-                                checked = ThemeConfig.enableCustomTagColors,
-                                color = LegadoTheme.colorScheme.surface,
-                                onCheckedChange = { ThemeConfig.enableCustomTagColors = it }
-                            )
-                            AnimatedVisibility(visible = ThemeConfig.enableCustomTagColors) {
-                                CompactClickableSettingItem(
-                                    title = "管理标签颜色",
+                            if (BookshelfConfig.bookGroupStyle != 2) {
+                                CompactSwitchSettingItem(
+                                    title = stringResource(R.string.compact_mode),
+                                    checked = BookshelfConfig.bookshelfLayoutCompact,
                                     color = LegadoTheme.colorScheme.surface,
-                                    onClick = { showLabelColorManage = true }
+                                    onCheckedChange = { BookshelfConfig.bookshelfLayoutCompact = it }
                                 )
+                            }
+
+                            CompactSwitchSettingItem(
+                                title = stringResource(R.string.show_divider_line),
+                                checked = BookshelfConfig.bookshelfShowDivider,
+                                color = LegadoTheme.colorScheme.surface,
+                                onCheckedChange = { BookshelfConfig.bookshelfShowDivider = it }
+                            )
+
+                            val listColCount =
+                                if (isLandscape) BookshelfConfig.bookshelfLayoutListLandscape else BookshelfConfig.bookshelfLayoutListPortrait
+                            CompactSliderSettingItem(
+                                title = stringResource(R.string.number_rows_columns),
+                                value = listColCount.toFloat(),
+                                valueRange = 1f..5f,
+                                steps = 4,
+                                onValueChange = {
+                                    if (isLandscape) BookshelfConfig.bookshelfLayoutListLandscape =
+                                        it.toInt()
+                                    else BookshelfConfig.bookshelfLayoutListPortrait = it.toInt()
+                                }
+                            )
+
+                            CompactClickableSettingItem(
+                                title = "卡片背景颜色",
+                                color = LegadoTheme.colorScheme.surface,
+                                onClick = { showColorPicker = true }
+                            )
+
+                            CompactSwitchSettingItem(
+                                title = "显示更多信息",
+                                checked = BookshelfConfig.showBookIntro,
+                                color = LegadoTheme.colorScheme.surface,
+                                onCheckedChange = { BookshelfConfig.showBookIntro = it }
+                            )
+
+                            AnimatedVisibility(visible = BookshelfConfig.showBookIntro) {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    CompactSwitchSettingItem(
+                                        title = "显示简介",
+                                        checked = BookshelfConfig.bookshelfShowIntro,
+                                        color = LegadoTheme.colorScheme.surface,
+                                        onCheckedChange = { BookshelfConfig.bookshelfShowIntro = it }
+                                    )
+                                    AnimatedVisibility(
+                                        visible = BookshelfConfig.bookshelfShowIntro
+                                    ) {
+                                        CompactSliderSettingItem(
+                                            title = "简介行数",
+                                            description = if (BookshelfConfig.bookshelfIntroMaxLines == 0) "显示全部简介" else "显示 ${BookshelfConfig.bookshelfIntroMaxLines} 行简介",
+                                            value = BookshelfConfig.bookshelfIntroMaxLines.toFloat(),
+                                            valueRange = 0f..10f,
+                                            steps = 10,
+                                            onValueChange = { BookshelfConfig.bookshelfIntroMaxLines = it.toInt() }
+                                        )
+                                    }
+                                    CompactSwitchSettingItem(
+                                        title = "显示标签",
+                                        checked = BookshelfConfig.bookshelfShowTag,
+                                        color = LegadoTheme.colorScheme.surface,
+                                        onCheckedChange = { BookshelfConfig.bookshelfShowTag = it }
+                                    )
+                                    AnimatedVisibility(
+                                        visible = BookshelfConfig.bookshelfShowTag
+                                    ) {
+                                        Column(
+                                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            CompactSwitchSettingItem(
+                                                title = "自定义标签颜色",
+                                                checked = ThemeConfig.enableCustomTagColors,
+                                                color = LegadoTheme.colorScheme.surface,
+                                                onCheckedChange = { ThemeConfig.enableCustomTagColors = it }
+                                            )
+                                            AnimatedVisibility(visible = ThemeConfig.enableCustomTagColors) {
+                                                CompactClickableSettingItem(
+                                                    title = "管理标签颜色",
+                                                    color = LegadoTheme.colorScheme.surface,
+                                                    onClick = { showLabelColorManage = true }
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
-                }
+
             }
 
             CompactSliderSettingItem(
