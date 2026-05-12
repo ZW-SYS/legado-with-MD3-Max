@@ -150,11 +150,6 @@ object ThemeImportExport {
 
             // 容器设置
             containerOpacity = ThemeConfig.containerOpacity,
-            enableContainerBorder = ThemeConfig.enableContainerBorder,
-            containerBorderWidth = ThemeConfig.containerBorderWidth,
-            containerBorderStyle = ThemeConfig.containerBorderStyle,
-            containerBorderColor = ThemeConfig.containerBorderColor,
-            containerBorderDashWidth = ThemeConfig.containerBorderDashWidth,
 
             // 分割线设置
             enableItemDivider = ThemeConfig.enableItemDivider,
@@ -238,11 +233,6 @@ object ThemeImportExport {
 
         // 容器设置
         ThemeConfig.containerOpacity = data.containerOpacity
-        ThemeConfig.enableContainerBorder = data.enableContainerBorder
-        ThemeConfig.containerBorderWidth = data.containerBorderWidth
-        ThemeConfig.containerBorderStyle = data.containerBorderStyle
-        ThemeConfig.containerBorderColor = data.containerBorderColor
-        ThemeConfig.containerBorderDashWidth = data.containerBorderDashWidth
 
         // 分割线设置
         ThemeConfig.enableItemDivider = data.enableItemDivider
@@ -379,11 +369,6 @@ data class ThemeExportData(
 
     // 容器设置
     val containerOpacity: Int = 100,
-    val enableContainerBorder: Boolean = false,
-    val containerBorderWidth: Float = 1f,
-    val containerBorderStyle: String = "solid",
-    val containerBorderColor: Int = 0,
-    val containerBorderDashWidth: Float = 4f,
 
     // 分割线设置
     val enableItemDivider: Boolean = false,

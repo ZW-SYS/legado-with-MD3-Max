@@ -2,9 +2,7 @@ package io.legado.app.ui.widget.components.explore
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -320,17 +318,7 @@ private fun ExploreKindCompactTextField(
     isMiuix: Boolean
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val isFocused by interactionSource.collectIsFocusedAsState()
     val shape = RoundedCornerShape(10.dp)
-    val enableBorder = ThemeConfig.enableDeepPersonalization && ThemeConfig.enableContainerBorder
-    val borderWidth = ThemeConfig.containerBorderWidth.dp
-    val borderColor = if (ThemeConfig.containerBorderColor != 0) {
-        Color(ThemeConfig.containerBorderColor)
-    } else if (isFocused) {
-        LegadoTheme.colorScheme.primary
-    } else {
-        Color.Transparent
-    }
 
     BasicTextField(
         value = value,
@@ -342,8 +330,7 @@ private fun ExploreKindCompactTextField(
         modifier = modifier
             .height(34.dp)
             .clip(shape)
-            .background(backgroundColor)
-            .border(width = borderWidth, color = borderColor, shape = shape),
+            .background(backgroundColor),
         decorationBox = { innerTextField ->
             Box(
                 modifier = Modifier

@@ -98,16 +98,6 @@ object ThemeConfig {
 
     var labelContainerColor by prefDelegate(PreferKey.labelContainerColor, 0)
 
-    var enableContainerBorder by prefDelegate(PreferKey.enableContainerBorder, false)
-
-    var containerBorderWidth by prefDelegate(PreferKey.containerBorderWidth, 1f)
-
-    var containerBorderStyle by prefDelegate(PreferKey.containerBorderStyle, "solid")
-
-    var containerBorderColor by prefDelegate(PreferKey.containerBorderColor, 0)
-
-    var containerBorderDashWidth by prefDelegate(PreferKey.containerBorderDashWidth, 4f)
-
     var enableItemDivider by prefDelegate(PreferKey.enableItemDivider, false)
 
     var itemDividerWidth by prefDelegate(PreferKey.itemDividerWidth, 1f)
