@@ -1483,4 +1483,12 @@
     <string name="search_source_progress"> · 进度 %1$d/%2$d</string>
     <string name="search_empty_scope_disable_precision">%1$s分组搜索结果为空，是否关闭精准搜索？</string>
     <string name="search_empty_scope_switch_all">%1$s分组搜索结果为空，是否切换到全部分组？</string>
+    <string name="download_cache_config">下载与缓存</string>
+    <string name="http_cache">HTTP缓存</string>
+    <string name="cover_cache">封面缓存</string>
+    <string name="manga_cache">漫画缓存</string>
+    <string name="cache_size_mb">%1$.1f MB</string>
+    <string name="download_setting">下载</string>
+    <string name="image_cache">图片缓存</string>
+    <string name="network">网络</string>
 </resources>

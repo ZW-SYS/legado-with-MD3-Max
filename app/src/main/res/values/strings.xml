@@ -1527,4 +1527,12 @@
     <string name="search_source_progress"> · Progress %1$d/%2$d</string>
     <string name="search_empty_scope_disable_precision">%1$s group search returned no results. Disable precise search?</string>
     <string name="search_empty_scope_switch_all">%1$s group search returned no results. Switch to all groups?</string>
+    <string name="download_cache_config">Download &amp; Cache</string>
+    <string name="http_cache">HTTP Cache</string>
+    <string name="cover_cache">Cover Cache</string>
+    <string name="manga_cache">Manga Cache</string>
+    <string name="cache_size_mb">%1$.1f MB</string>
+    <string name="download_setting">Download</string>
+    <string name="image_cache">Image Cache</string>
+    <string name="network">Network</string>
 </resources>

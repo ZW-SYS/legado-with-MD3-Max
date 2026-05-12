@@ -276,11 +276,6 @@ fun EditThemeSheet(
                 valueRange = 0f..100f,
                 onValueChange = { data = data.copy(containerOpacity = it.toInt()) }
             )
-            CompactSwitchSettingItem(
-                title = "容器边框",
-                checked = data.enableContainerBorder,
-                onCheckedChange = { data = data.copy(enableContainerBorder = it) }
-            )
 
             Spacer(modifier = Modifier.height(8.dp))
 

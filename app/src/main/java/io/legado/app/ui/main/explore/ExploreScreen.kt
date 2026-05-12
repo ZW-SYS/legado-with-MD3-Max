@@ -5,7 +5,6 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -285,22 +284,12 @@ fun ExploreScreen(
                     .align(Alignment.TopStart)
                     .padding(top = paddingValues.calculateTopPadding() + 4.dp, start = 8.dp)
             ) { item ->
-                val enableBorder = ThemeConfig.enableDeepPersonalization && ThemeConfig.enableContainerBorder
-                val borderWidth = ThemeConfig.containerBorderWidth.dp
-                val borderColor = if (ThemeConfig.containerBorderColor != 0) {
-                    Color(ThemeConfig.containerBorderColor)
-                } else {
-                    LegadoTheme.colorScheme.outline
-                }
                 TextCard(
                     text = item.bookSourceName,
                     textStyle = LegadoTheme.typography.labelMediumEmphasized,
                     cornerRadius = 12.dp,
                     horizontalPadding = 12.dp,
                     verticalPadding = 8.dp,
-                    border = if (enableBorder) {
-                        BorderStroke(borderWidth, borderColor)
-                    } else null,
                     onClick = {
                         scope.launch {
                             val index =
@@ -371,23 +360,12 @@ fun ExploreSourceHeader(
         label = "CardColor"
     )
 
-    val enableBorder = ThemeConfig.enableDeepPersonalization && ThemeConfig.enableContainerBorder
-    val borderWidth = ThemeConfig.containerBorderWidth.dp
-    val borderColor = if (ThemeConfig.containerBorderColor != 0) {
-        Color(ThemeConfig.containerBorderColor)
-    } else {
-        LegadoTheme.colorScheme.outline
-    }
-
     GlassCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         cornerRadius = 12.dp,
         containerColor = containerColor,
-        border = if (enableBorder) {
-            BorderStroke(borderWidth, borderColor)
-        } else null
     ) {
         ListItem(
             modifier = Modifier

@@ -55,7 +55,16 @@
       "PowerShell(.\\\\gradlew.bat :app:compileAppDebugKotlin 2>&1 | Select-Object -Last 40)",
       "PowerShell(.\\\\gradlew.bat :app:compileAppDebugKotlin 2>&1 | Select-Object -Last 100)",
       "PowerShell(.\\\\gradlew.bat :app:compileAppDebugKotlin 2>&1 | Select-Object -Last 50)",
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(xargs -I{} jar -tf {})",
+      "Bash(gh api *)",
+      "Bash(rustup show *)",
+      "PowerShell(rustup show *)",
+      "PowerShell(npm *)",
+      "PowerShell(gcc *)",
+      "Bash(gh repo *)",
+      "Bash(Test-Path *)"
     ]
   }
 }

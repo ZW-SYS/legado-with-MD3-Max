@@ -210,11 +210,6 @@ object PreferKey {
     const val secondaryTextColor = "colorMD3OnPrimaryContainer"
     const val themeBackgroundColor = "colorMD3Background"
     const val labelContainerColor = "colorMD3SurfaceContainerLow"
-    const val enableContainerBorder = "enableContainerBorder"
-    const val containerBorderWidth = "containerBorderWidth"
-    const val containerBorderStyle = "containerBorderStyle"
-    const val containerBorderColor = "containerBorderColor"
-    const val containerBorderDashWidth = "containerBorderDashWidth"
     // 中间单线间隔设置
     const val enableItemDivider = "enableItemDivider"
     const val itemDividerWidth = "itemDividerWidth"
