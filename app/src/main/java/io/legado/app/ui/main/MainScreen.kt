@@ -67,7 +67,6 @@ import dev.chrisbanes.haze.hazeSource
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import io.legado.app.R
-import io.legado.app.ui.config.mainConfig.MainConfig
 import io.legado.app.ui.config.themeConfig.ThemeConfig
 import io.legado.app.ui.main.bookshelf.BookshelfScreen
 import io.legado.app.ui.main.bookshelf.BookshelfViewModel
@@ -114,6 +113,7 @@ fun MainScreen(
     onNavigateToExploreShow: (title: String?, sourceUrl: String, exploreUrl: String?) -> Unit,
     onNavigateToRssSort: (sourceUrl: String, sortUrl: String?, key: String?) -> Unit,
     onNavigateToRssRead: (title: String?, origin: String, link: String?, openUrl: String?) -> Unit,
+    onNavigateToReadRecord: () -> Unit,
     sharedTransitionScope: SharedTransitionScope? = null,
     animatedVisibilityScope: AnimatedVisibilityScope? = null,
 ) {
@@ -150,6 +150,7 @@ fun MainScreen(
                 }
 
                 MainEffect.ExitApp -> (context as? ComponentActivity)?.finish()
+                MainEffect.NavigateToReadRecord -> onNavigateToReadRecord()
             }
         }
     }
@@ -281,10 +282,10 @@ fun MainScreen(
                         },
                         label = if (labelVisibilityMode != "unlabeled") {
                             val hasCustomIcon = when (destination) {
-                                MainDestination.Bookshelf -> MainConfig.navIconBookshelf.isNotEmpty()
-                                MainDestination.Explore -> MainConfig.navIconExplore.isNotEmpty()
-                                MainDestination.Rss -> MainConfig.navIconRss.isNotEmpty()
-                                MainDestination.My -> MainConfig.navIconMy.isNotEmpty()
+                                MainDestination.Bookshelf -> ThemeConfig.navIconBookshelf.isNotEmpty()
+                                MainDestination.Explore -> ThemeConfig.navIconExplore.isNotEmpty()
+                                MainDestination.Rss -> ThemeConfig.navIconRss.isNotEmpty()
+                                MainDestination.My -> ThemeConfig.navIconMy.isNotEmpty()
                             }
                             if (hasCustomIcon) null else {{ AppText(stringResource(destination.labelId)) }}
                         } else null
@@ -301,10 +302,10 @@ fun MainScreen(
                         destinations.forEachIndexed { index, destination ->
                             val selected = pagerState.targetPage == index
                             val customIconPath = when (destination) {
-                                MainDestination.Bookshelf -> MainConfig.navIconBookshelf
-                                MainDestination.Explore -> MainConfig.navIconExplore
-                                MainDestination.Rss -> MainConfig.navIconRss
-                                MainDestination.My -> MainConfig.navIconMy
+                                MainDestination.Bookshelf -> ThemeConfig.navIconBookshelf
+                                MainDestination.Explore -> ThemeConfig.navIconExplore
+                                MainDestination.Rss -> ThemeConfig.navIconRss
+                                MainDestination.My -> ThemeConfig.navIconMy
                             }
                             AppNavigationBarItem(
                                 selected = selected,
@@ -390,10 +391,10 @@ fun MainScreen(
                             MainDestination.My -> MyScreen(
                                 onOpenSettings = onOpenSettings,
                                 onNavigate = { event ->
-                                    if (event == PrefClickEvent.OpenBookCacheManage) {
-                                        onNavigateToBookCacheManage()
-                                    } else {
-                                        viewModel.onPrefClickEvent(event)
+                                    when (event) {
+                                        PrefClickEvent.OpenBookCacheManage -> onNavigateToBookCacheManage()
+                                        PrefClickEvent.OpenReadRecord -> onNavigateToReadRecord()
+                                        else -> viewModel.onPrefClickEvent(event)
                                     }
                                 }
                             )
@@ -432,20 +433,20 @@ fun MainScreen(
                             isBlurEnabled = useLiquidGlass,
                             hasCustomIcons = destinations.any { dest ->
                                 when (dest) {
-                                    MainDestination.Bookshelf -> MainConfig.navIconBookshelf.isNotEmpty()
-                                    MainDestination.Explore -> MainConfig.navIconExplore.isNotEmpty()
-                                    MainDestination.Rss -> MainConfig.navIconRss.isNotEmpty()
-                                    MainDestination.My -> MainConfig.navIconMy.isNotEmpty()
+                                    MainDestination.Bookshelf -> ThemeConfig.navIconBookshelf.isNotEmpty()
+                                    MainDestination.Explore -> ThemeConfig.navIconExplore.isNotEmpty()
+                                    MainDestination.Rss -> ThemeConfig.navIconRss.isNotEmpty()
+                                    MainDestination.My -> ThemeConfig.navIconMy.isNotEmpty()
                                 }
                             }
                         ) {
                             destinations.forEachIndexed { index, destination ->
                                 val selected = pagerState.targetPage == index
                                 val hasCustomIcon = when (destination) {
-                                    MainDestination.Bookshelf -> MainConfig.navIconBookshelf.isNotEmpty()
-                                    MainDestination.Explore -> MainConfig.navIconExplore.isNotEmpty()
-                                    MainDestination.Rss -> MainConfig.navIconRss.isNotEmpty()
-                                    MainDestination.My -> MainConfig.navIconMy.isNotEmpty()
+                                    MainDestination.Bookshelf -> ThemeConfig.navIconBookshelf.isNotEmpty()
+                                    MainDestination.Explore -> ThemeConfig.navIconExplore.isNotEmpty()
+                                    MainDestination.Rss -> ThemeConfig.navIconRss.isNotEmpty()
+                                    MainDestination.My -> ThemeConfig.navIconMy.isNotEmpty()
                                 }
                                 FloatingBottomBarItem(
                                     onClick = {
@@ -522,10 +523,10 @@ private fun NavigationIcon(
     modifier: Modifier = Modifier
 ) {
     val customIconPath = when (destination) {
-        MainDestination.Bookshelf -> MainConfig.navIconBookshelf
-        MainDestination.Explore -> MainConfig.navIconExplore
-        MainDestination.Rss -> MainConfig.navIconRss
-        MainDestination.My -> MainConfig.navIconMy
+        MainDestination.Bookshelf -> ThemeConfig.navIconBookshelf
+        MainDestination.Explore -> ThemeConfig.navIconExplore
+        MainDestination.Rss -> ThemeConfig.navIconRss
+        MainDestination.My -> ThemeConfig.navIconMy
     }
     if (customIconPath.isNotEmpty()) {
         val context = LocalContext.current

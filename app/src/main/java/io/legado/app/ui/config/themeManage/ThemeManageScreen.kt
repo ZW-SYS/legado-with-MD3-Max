@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -68,6 +69,7 @@ fun ThemeManageScreen(
     var deleteTarget by remember { mutableStateOf<SavedTheme?>(null) }
     var applyTarget by remember { mutableStateOf<SavedTheme?>(null) }
     var exportTarget by remember { mutableStateOf<SavedTheme?>(null) }
+    var editTarget by remember { mutableStateOf<SavedTheme?>(null) }
     var showRestartDialog by remember { mutableStateOf(false) }
     var savedThemesVersion by remember { mutableIntStateOf(0) }
     val savedThemes = remember(savedThemesVersion) { ThemeImportExport.savedThemes.toList() }
@@ -166,6 +168,7 @@ fun ThemeManageScreen(
                     SavedThemeItem(
                         theme = theme,
                         onApply = { applyTarget = theme },
+                        onEdit = { editTarget = theme },
                         onExport = {
                             exportTarget = theme
                             exportLauncher.launch("${theme.name}.json")
@@ -257,12 +260,29 @@ fun ThemeManageScreen(
         onDismiss = { deleteTarget = null },
         text = "确定删除主题「${deleteTarget?.name}」？此操作不可恢复。"
     )
+
+    // Edit theme sheet
+    EditThemeSheet(
+        show = editTarget != null,
+        themeData = editTarget?.data,
+        themeName = editTarget?.name ?: "",
+        onDismissRequest = { editTarget = null },
+        onSave = { newName, newData ->
+            editTarget?.let { old ->
+                ThemeImportExport.deleteSavedTheme(old)
+            }
+            ThemeImportExport.saveCurrentAsTheme(newName, newData)
+            savedThemesVersion++
+            editTarget = null
+        }
+    )
 }
 
 @Composable
 private fun SavedThemeItem(
     theme: SavedTheme,
     onApply: () -> Unit,
+    onEdit: () -> Unit,
     onExport: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -320,6 +340,13 @@ private fun SavedThemeItem(
                 )
             }
 
+            IconButton(onClick = onEdit) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "编辑",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
             IconButton(onClick = onExport) {
                 Icon(
                     imageVector = Icons.Default.Share,

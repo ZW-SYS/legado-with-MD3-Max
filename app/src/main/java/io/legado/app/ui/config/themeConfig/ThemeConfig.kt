@@ -172,6 +172,22 @@ object ThemeConfig {
 
     var defaultHomePage by prefDelegate(PreferKey.defaultHomePage, "bookshelf")
 
+    var navExtended by prefDelegate("navExtended", false)
+
+    var webServiceAutoStart by prefDelegate(PreferKey.webServiceAutoStart, false)
+
+    var autoRefreshBook by prefDelegate(PreferKey.autoRefresh, false)
+
+    var autoCheckNewBackup by prefDelegate(PreferKey.autoCheckNewBackup, true)
+
+    var navIconBookshelf by prefDelegate(PreferKey.navIconBookshelf, "")
+
+    var navIconExplore by prefDelegate(PreferKey.navIconExplore, "")
+
+    var navIconRss by prefDelegate(PreferKey.navIconRss, "")
+
+    var navIconMy by prefDelegate(PreferKey.navIconMy, "")
+
     fun hasImageBg(isDark: Boolean): Boolean =
         !(if (isDark) bgImageDark else bgImageLight).isNullOrBlank()
 

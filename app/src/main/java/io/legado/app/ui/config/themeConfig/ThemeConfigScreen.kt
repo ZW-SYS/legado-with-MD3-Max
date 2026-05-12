@@ -79,7 +79,6 @@ import com.google.android.material.color.DynamicColorsOptions
 import io.legado.app.R
 import io.legado.app.base.AppContextWrapper
 import io.legado.app.constant.PreferKey
-import io.legado.app.ui.config.mainConfig.MainConfig
 import io.legado.app.constant.EventBus
 import io.legado.app.help.LauncherIconHelp
 import io.legado.app.help.loadFontFiles
@@ -124,6 +123,7 @@ import top.yukonga.miuix.kmp.basic.Text as MiuixText
 fun ThemeConfigScreen(
     onBackClick: () -> Unit,
     onNavigateToCustomTheme: () -> Unit,
+    onNavigateToThemeManage: () -> Unit,
     viewModel: ThemeConfigViewModel = koinViewModel()
 ) {
     val scrollBehavior = GlassTopAppBarDefaults.defaultScrollBehavior()
@@ -412,7 +412,7 @@ fun ThemeConfigScreen(
                     )
                     AnimatedVisibility(visible = ThemeConfig.useFloatingBottomBar) {
                         Column(
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
                             SwitchSettingItem(
                                 title = stringResource(R.string.floating_bottom_bar_liquid_glass),
@@ -716,15 +716,26 @@ fun ThemeConfigScreen(
             item {
                 SplicedColumnGroup(title = "导航栏图标设置") {
                     val customCount = listOf(
-                        MainConfig.navIconBookshelf,
-                        MainConfig.navIconExplore,
-                        MainConfig.navIconRss,
-                        MainConfig.navIconMy
+                        ThemeConfig.navIconBookshelf,
+                        ThemeConfig.navIconExplore,
+                        ThemeConfig.navIconRss,
+                        ThemeConfig.navIconMy
                     ).count { it.isNotEmpty() }
                     ClickableSettingItem(
                         title = "导航栏图标",
                         description = if (customCount > 0) "已设置 $customCount 个自定义图标" else "使用默认图标",
                         onClick = { showNavIconSheet = true }
+                    )
+                }
+            }
+
+            // Theme management
+            item {
+                SplicedColumnGroup(title = "主题管理") {
+                    ClickableSettingItem(
+                        title = "主题管理",
+                        description = "保存、导入、导出主题配置",
+                        onClick = onNavigateToThemeManage
                     )
                 }
             }

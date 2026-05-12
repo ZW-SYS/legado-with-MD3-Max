@@ -58,6 +58,17 @@ object ThemeImportExport {
      */
     fun saveCurrentAsTheme(name: String): SavedTheme {
         val data = exportFromCurrent()
+        return saveThemeData(name, data)
+    }
+
+    /**
+     * 保存指定数据为新主题
+     */
+    fun saveCurrentAsTheme(name: String, data: ThemeExportData): SavedTheme {
+        return saveThemeData(name, data)
+    }
+
+    private fun saveThemeData(name: String, data: ThemeExportData): SavedTheme {
         val file = File(baseDir, "$name.json")
         baseDir.mkdirs()
         file.writeText(EXPORT_GSON.toJson(data))
