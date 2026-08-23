@@ -234,6 +234,11 @@
     <string name="audio_play_open_credits">Intro</string>
     <string name="audio_play_close_credits">Outro</string>
     <string name="audio_play_gain">Audio gain</string>
+    <string name="audio_play_cover_ratio">Cover ratio</string>
+    <string name="cover_ratio_square">Square</string>
+    <string name="cover_ratio_circle">Circle</string>
+    <string name="cover_ratio_book">Book ratio</string>
+    <string name="cover_ratio_unrestricted">Unrestricted</string>
     <string name="seconds_m">%d s</string>
     <string name="more">More</string>
     <string name="book_add_failed">Failed to add book</string>
