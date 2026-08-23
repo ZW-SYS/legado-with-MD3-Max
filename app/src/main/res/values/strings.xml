@@ -2690,7 +2690,6 @@
     <string name="total_read_books">Books read</string>
     <string name="finished_books">Finished books</string>
     <string name="reading_books">Reading books</string>
-    <string name="reading_words">Words read</string>
     <string name="reading_data">Reading data</string>
     <string name="reading_heatmap">Reading heatmap</string>
     <string name="reading_time_ranking">Reading time ranking</string>

@@ -2685,7 +2685,6 @@
     <string name="total_read_books">累计读过</string>
     <string name="finished_books">读完书籍</string>
     <string name="reading_books">在读书籍</string>
-    <string name="reading_words">阅读字数</string>
     <string name="reading_data">阅读数据</string>
     <string name="reading_heatmap">阅读热力图</string>
     <string name="reading_time_ranking">阅读时长榜</string>
