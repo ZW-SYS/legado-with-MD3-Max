@@ -212,7 +212,7 @@ private fun readSettingsMappingSamples(): List<ReadSettings> {
         base.copy(autoChangeSource = false),
         base.copy(autoSuggestDayNight = true),
         base.copy(readingAnchorEnabled = false),
-        base.copy(readAloudDetachReminderEnabled = false),
+        base.copy(readAloudDetachReminderEnabled = true),
         base.copy(selectText = false),
         base.copy(noAnimScrollPage = true),
         base.copy(optimizeRender = true),

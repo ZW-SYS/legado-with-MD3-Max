@@ -2543,7 +2543,7 @@
     <string name="reading_anchor">Reading anchor</string>
     <string name="reading_anchor_summary">Show a floating button to return to the original reading position after jumping chapters twice or more</string>
     <string name="read_aloud_detach_reminder">Read-aloud detach reminder</string>
-    <string name="read_aloud_detach_reminder_summary">Show a floating bar to return to the speaking position when the page leaves it</string>
+    <string name="read_aloud_detach_reminder_summary">When enabled, shows a button to return to the speaking position after the page leaves it; when disabled, read-aloud follows manual page turns</string>
     <string name="switch_to_dark_mode_tip">Ambient light is low. Switch to dark mode?</string>
     <string name="switch_to_light_mode_tip">Ambient light is bright. Switch to light mode?</string>
     <string name="switch_to_dark_mode_action">Switch to dark mode</string>

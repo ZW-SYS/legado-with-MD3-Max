@@ -2538,7 +2538,7 @@
     <string name="reading_anchor">阅读锚点</string>
     <string name="reading_anchor_summary">跳转章节两次及以上后，显示返回原阅读位置的悬浮按钮</string>
     <string name="read_aloud_detach_reminder">朗读脱离提示</string>
-    <string name="read_aloud_detach_reminder_summary">朗读位置离开当前页时，显示"回到朗读位置"悬浮按钮</string>
+    <string name="read_aloud_detach_reminder_summary">开启时朗读位置离开当前页会显示"回到朗读位置"悬浮按钮；关闭时手动翻页后朗读跟随新页面</string>
     <string name="switch_to_dark_mode_tip">当前环境光较暗，是否切换至深色模式？</string>
     <string name="switch_to_light_mode_tip">当前环境光较亮，是否切换至浅色模式？</string>
     <string name="switch_to_dark_mode_action">切换到深色模式</string>
