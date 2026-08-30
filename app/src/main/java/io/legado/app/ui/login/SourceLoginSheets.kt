@@ -245,7 +245,7 @@ private fun SourceLoginRow(
 
 private fun LoginRowLayoutUi.textAlign(): TextAlign = when (justify) {
     "flex_start" -> TextAlign.Start
-    "flex_end", "right" -> TextAlign.End
+    "flex_end" -> TextAlign.End
     else -> TextAlign.Center
 }
 
