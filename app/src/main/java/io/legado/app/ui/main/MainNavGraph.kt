@@ -954,10 +954,10 @@ fun MainActivity.mainEntryProvider(
             openUrl = route.openUrl,
             startPage = route.startPage,
             onBackClick = { onNavigateBack() },
-            onOpenArticles = { sortUrl ->
+            onOpenArticles = { sortUrl, targetOrigin ->
                 onNavigateToRoute(
                     MainRouteRssSort(
-                        sourceUrl = route.origin,
+                        sourceUrl = targetOrigin ?: route.origin,
                         sortUrl = sortUrl
                     )
                 )
