@@ -674,7 +674,7 @@ open class MainActivity : BaseComposeActivity(), AudioPlay.CallBack,
     }
 
     override fun upLyric(lyric: String?) {
-        // 歌词暂不在界面展示
+        activeAudioPlayViewModel?.onLyricChanged()
     }
 
     override fun upLyricP(position: Int) {
