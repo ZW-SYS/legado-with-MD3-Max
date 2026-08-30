@@ -194,6 +194,12 @@ fun MainActivity.mainEntryProvider(
     entry<MainRouteSourceLogin>(
         metadata = ModalOverlaySceneStrategy.modalOverlay(),
     ) { route ->
+        DisposableEffect(route) {
+            MainActivity.hasActiveSourceLoginRoute = true
+            onDispose {
+                MainActivity.hasActiveSourceLoginRoute = false
+            }
+        }
         val viewModel = koinViewModel<SourceLoginViewModel>(
             key = "SourceLogin:${route.type}:${route.sourceKey}:${route.bookUrl}",
         )

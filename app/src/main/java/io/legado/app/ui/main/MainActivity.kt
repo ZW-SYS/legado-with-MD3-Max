@@ -100,6 +100,9 @@ open class MainActivity : BaseComposeActivity(), AudioPlay.CallBack,
         @Volatile
         var hasActiveAudioPlayRoute: Boolean = false
 
+        @Volatile
+        var hasActiveSourceLoginRoute: Boolean = false
+
         fun createLauncherIntent(context: Context): Intent =
             MainIntent.createLauncherIntent(context)
 
