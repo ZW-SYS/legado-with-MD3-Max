@@ -83,6 +83,11 @@ import kotlin.coroutines.suspendCoroutine
 open class MainActivity : BaseComposeActivity(), AudioPlay.CallBack,
     ChangeBookSourceDialog.CallBack {
 
+    private data class RouteEvent(
+        val route: NavKey,
+        val resetToHome: Boolean,
+    )
+
     /** 当前激活的有声书播放器 ViewModel（由有声书路由在生命周期内设置/清理） */
     internal var activeAudioPlayViewModel: AudioPlayViewModel? = null
 
@@ -187,6 +192,9 @@ open class MainActivity : BaseComposeActivity(), AudioPlay.CallBack,
             chapterChanged = chapterChanged,
         )
 
+        fun createReadBookMediaControlIntent(context: Context): Intent =
+            MainIntent.createReadBookMediaControlIntent(context)
+
         fun createReadMangaIntent(
             context: Context,
             bookUrl: String? = null,
@@ -275,7 +283,7 @@ open class MainActivity : BaseComposeActivity(), AudioPlay.CallBack,
     private val otherSettingsGateway by inject<OtherSettingsGateway>()
     private val mangaSettingsGateway by inject<MangaSettingsGateway>()
     private val backupSettingsGateway by inject<BackupSettingsGateway>()
-    private val routeEvents = MutableSharedFlow<NavKey>(extraBufferCapacity = 1)
+    private val routeEvents = MutableSharedFlow<RouteEvent>(extraBufferCapacity = 1)
     private var shouldApplyDefaultToRead = true
     private var restoredReadBookRoute: MainRouteReadBook? = null
     private var latestBackStack: List<NavKey> = emptyList()
@@ -321,7 +329,12 @@ open class MainActivity : BaseComposeActivity(), AudioPlay.CallBack,
         super.onNewIntent(intent)
         setIntent(intent)
         if (!intent.hasExplicitStartRoute()) return
-        routeEvents.tryEmit(MainNavigator.resolveStartRoute(intent))
+        routeEvents.tryEmit(
+            RouteEvent(
+                route = MainNavigator.resolveStartRoute(intent),
+                resetToHome = MainIntent.shouldOpenRouteWithHomeParent(intent),
+            )
+        )
     }
 
     @OptIn(ExperimentalSharedTransitionApi::class)
@@ -355,6 +368,13 @@ open class MainActivity : BaseComposeActivity(), AudioPlay.CallBack,
             val resolved = MainNavigator.resolveStartRoute(intent)
             val hasExplicitStartRoute = intent?.hasExplicitStartRoute() == true
             when {
+                MainIntent.shouldOpenRouteWithHomeParent(intent) -> {
+                    if (resolved == MainRouteHome) {
+                        arrayOf(MainRouteHome)
+                    } else {
+                        arrayOf(MainRouteHome, resolved)
+                    }
+                }
                 !hasExplicitStartRoute && restoredReadBookRoute != null -> {
                     arrayOf(MainRouteHome, restoredReadBookRoute!!)
                 }
@@ -379,8 +399,12 @@ open class MainActivity : BaseComposeActivity(), AudioPlay.CallBack,
         }
 
         LaunchedEffect(backStack) {
-            routeEvents.collect { route ->
-                MainNavigator.navigateToRoute(backStack, route)
+            routeEvents.collect { event ->
+                MainNavigator.navigateToRoute(
+                    backStack = backStack,
+                    route = event.route,
+                    resetToHome = event.resetToHome,
+                )
             }
         }
 
