@@ -6,7 +6,7 @@ import kotlinx.collections.immutable.ImmutableList
 
 /**
  * 欢迎引导流程（隐私 → WebDav → 书籍文件夹 → 主题）的 Compose 契约。
- * 页面文案沿用旧 WelcomeActivity 的中文硬编码文案。
+ * 页面文案见 strings.xml 的 onboarding_* 资源。
  */
 @Stable
 data class OnboardingUiState(

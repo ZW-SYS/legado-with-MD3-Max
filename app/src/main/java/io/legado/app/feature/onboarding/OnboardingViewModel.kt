@@ -92,7 +92,12 @@ class OnboardingViewModel(
                 runCatching { webDavBackupUseCase.test() }
                     .onFailure {
                         AppLog.put("WebDav测试连接出错\n${it.localizedMessage}", it)
-                        appCtx.toastOnUi("WebDavError\n${it.localizedMessage}")
+                        appCtx.toastOnUi(
+                            appCtx.getString(
+                                R.string.onboarding_webdav_test_error,
+                                it.localizedMessage ?: ""
+                            )
+                        )
                     }
             }
             OnboardingIntent.FetchBackups -> fetchBackups()
@@ -170,7 +175,7 @@ class OnboardingViewModel(
                 webDavBackupUseCase.refreshConfig()
                 val names = webDavBackupUseCase.getBackupNames()
                 if (webDavBackupUseCase.isJianGuoYun && names.size > 700) {
-                    appCtx.toastOnUi("由于坚果云限制列出文件数量，部分备份可能未显示，请及时清理旧备份")
+                    appCtx.toastOnUi(R.string.onboarding_jianguoyun_limit)
                 }
                 if (names.isEmpty()) {
                     throw NoStackTraceException("Web dav no back up file")
@@ -186,7 +191,10 @@ class OnboardingViewModel(
                 _uiState.update {
                     it.copy(
                         busyText = null,
-                        restoreErrorMessage = "WebDavError\n${e.localizedMessage}\n将从本地备份恢复。",
+                        restoreErrorMessage = appCtx.getString(
+                            R.string.onboarding_restore_error_dialog,
+                            e.localizedMessage ?: ""
+                        ),
                     )
                 }
             }
@@ -196,14 +204,24 @@ class OnboardingViewModel(
     private fun restoreWebDav(name: String) {
         busyJob?.cancel()
         busyJob = viewModelScope.launch {
-            _uiState.update { it.copy(backupNames = null, busyText = "恢复中…") }
+            _uiState.update {
+                it.copy(
+                    backupNames = null,
+                    busyText = appCtx.getString(R.string.onboarding_restoring)
+                )
+            }
             try {
                 webDavBackupUseCase.restore(name)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 AppLog.put("WebDav恢复出错\n${e.localizedMessage}", e)
-                appCtx.toastOnUi("WebDav恢复出错\n${e.localizedMessage}")
+                appCtx.toastOnUi(
+                    appCtx.getString(
+                        R.string.onboarding_webdav_restore_error,
+                        e.localizedMessage ?: ""
+                    )
+                )
             } finally {
                 _uiState.update { it.copy(busyText = null) }
             }
@@ -213,14 +231,21 @@ class OnboardingViewModel(
     private fun restoreLocal(uriString: String) {
         busyJob?.cancel()
         busyJob = viewModelScope.launch {
-            _uiState.update { it.copy(busyText = "恢复中…") }
+            _uiState.update {
+                it.copy(busyText = appCtx.getString(R.string.onboarding_restoring))
+            }
             try {
                 Restore.restore(appCtx, uriString.toUri())
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 AppLog.put("本地恢复出错\n${e.localizedMessage}", e)
-                appCtx.toastOnUi("本地恢复出错\n${e.localizedMessage}")
+                appCtx.toastOnUi(
+                    appCtx.getString(
+                        R.string.onboarding_local_restore_error,
+                        e.localizedMessage ?: ""
+                    )
+                )
             } finally {
                 _uiState.update { it.copy(busyText = null) }
             }

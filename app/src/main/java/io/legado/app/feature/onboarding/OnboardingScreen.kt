@@ -372,22 +372,31 @@ private fun ThemePage(state: OnboardingUiState, onIntent: (OnboardingIntent) -> 
     }
 }
 
-private fun pageTitle(page: Int): String = when (page) {
-    0 -> "欢迎！"
-    1 -> "备份与恢复"
-    2 -> "书籍文件夹"
-    else -> "主题样式"
-}
+@Composable
+private fun pageTitle(page: Int): String = stringResource(
+    when (page) {
+        0 -> R.string.onboarding_title_welcome
+        1 -> R.string.onboarding_title_backup
+        2 -> R.string.onboarding_title_book_folder
+        else -> R.string.onboarding_title_theme
+    }
+)
 
-private fun pageSummary(page: Int): String = when (page) {
-    0 -> "请先阅读应用的服务条款与用户协议。"
-    1 -> "此处可设置云同步与恢复应用备份。"
-    2 -> "请选择保存本地书籍的文件夹。"
-    else -> "在这里设置您喜爱的样式。"
-}
+@Composable
+private fun pageSummary(page: Int): String = stringResource(
+    when (page) {
+        0 -> R.string.onboarding_summary_welcome
+        1 -> R.string.onboarding_summary_backup
+        2 -> R.string.onboarding_summary_book_folder
+        else -> R.string.onboarding_summary_theme
+    }
+)
 
-private fun nextButtonText(page: Int, pageCount: Int): String = when {
-    page == 0 -> "阅读并同意"
-    page == pageCount - 1 -> "完成"
-    else -> "下一步"
-}
+@Composable
+private fun nextButtonText(page: Int, pageCount: Int): String = stringResource(
+    when {
+        page == 0 -> R.string.onboarding_next_agree
+        page == pageCount - 1 -> R.string.onboarding_next_done
+        else -> R.string.onboarding_next_step
+    }
+)
