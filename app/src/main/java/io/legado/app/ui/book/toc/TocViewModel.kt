@@ -519,6 +519,7 @@ class TocViewModel(
     val useReplace get() = tocPreferences.value.useReplace
     val showWordCount get() = tocPreferences.value.showWordCount
 
+    @Suppress("OVERRIDE_DEPRECATION")
     override fun filterData(data: List<TocDomainItem>, key: String): List<TocDomainItem> {
         val collapsed = _collapsedVolumes.value
         val isSearch = key.isNotBlank()

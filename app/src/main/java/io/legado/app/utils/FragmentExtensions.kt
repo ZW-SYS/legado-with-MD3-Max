@@ -17,9 +17,13 @@ import io.legado.app.data.entities.Book
 import io.legado.app.help.book.isAudio
 import io.legado.app.help.book.isImage
 import io.legado.app.help.book.isLocal
-import io.legado.app.ui.config.readMangaConfig.ReadMangaConfig
+import io.legado.app.domain.gateway.MangaSettingsGateway
 import io.legado.app.ui.main.MainActivity
 import io.legado.app.ui.widget.dialog.TextDialog
+import org.koin.core.context.GlobalContext
+
+private val mangaSettingsGateway
+    get() = GlobalContext.get().get<MangaSettingsGateway>()
 
 inline fun <reified T : DialogFragment> Fragment.showDialogFragment(
     arguments: Bundle.() -> Unit = {}
@@ -55,13 +59,13 @@ fun Fragment.startActivityForBook(
 ) {
     val intent = when {
         book.isAudio -> MainActivity.createAudioPlayIntent(requireActivity(), book.bookUrl)
-        !book.isLocal && book.isImage && ReadMangaConfig.showMangaUi ->
+        !book.isLocal && book.isImage && mangaSettingsGateway.currentSettings.showMangaUi ->
             MainActivity.createReadMangaIntent(requireActivity(), book.bookUrl)
 
         else -> MainActivity.createReadBookIntent(requireActivity(), book.bookUrl)
     }
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    if (book.isAudio || (!book.isLocal && book.isImage && ReadMangaConfig.showMangaUi)) {
+    if (book.isAudio || (!book.isLocal && book.isImage && mangaSettingsGateway.currentSettings.showMangaUi)) {
         intent.putExtra("bookUrl", book.bookUrl)
     }
     intent.apply(configIntent)

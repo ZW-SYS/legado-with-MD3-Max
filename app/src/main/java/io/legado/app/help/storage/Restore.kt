@@ -51,7 +51,6 @@ import io.legado.app.help.config.SettingsWriter
 import io.legado.app.help.config.ThemeConfigStore
 import io.legado.app.model.BookCover
 import io.legado.app.model.localBook.LocalBook
-import io.legado.app.ui.config.otherConfig.OtherConfig
 import io.legado.app.utils.ACache
 import io.legado.app.utils.FileUtils
 import io.legado.app.utils.GSON
@@ -382,7 +381,7 @@ object Restore : KoinComponent {
         appCtx.toastOnUi(R.string.restore_success)
         withContext(Main) {
             delay(100)
-            get<AppLocaleGateway>().setLanguage(OtherConfig.language)
+            get<AppLocaleGateway>().apply { setLanguage(currentLanguage) }
             if (!BuildConfig.DEBUG) {
                 LauncherIconHelp.changeIcon(appCtx.getPrefString(PreferKey.launcherIcon))
             }

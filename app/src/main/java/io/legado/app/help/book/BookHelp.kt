@@ -15,8 +15,8 @@ import io.legado.app.data.entities.BookSource
 import io.legado.app.model.analyzeRule.AnalyzeUrl
 import io.legado.app.model.localBook.LocalBook
 import io.legado.app.model.localBook.TextFile
-import io.legado.app.ui.config.otherConfig.OtherConfig
-import io.legado.app.ui.config.readConfig.ReadConfig
+import io.legado.app.domain.gateway.DownloadCacheSettingsGateway
+import io.legado.app.domain.gateway.ReadSettingsGateway
 import io.legado.app.utils.ArchiveUtils
 import io.legado.app.utils.FileUtils
 import io.legado.app.utils.ImageUtils
@@ -46,6 +46,7 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.apache.commons.text.similarity.JaccardSimilarity
+import org.koin.core.context.GlobalContext
 import splitties.init.appCtx
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -61,6 +62,9 @@ import kotlin.math.min
 
 @Suppress("unused", "ConstPropertyName")
 object BookHelp {
+    private val readGateway by lazy { GlobalContext.get().get<ReadSettingsGateway>() }
+    private val cacheGateway by lazy { GlobalContext.get().get<DownloadCacheSettingsGateway>() }
+
     private const val CACHED_CONTENT_PREFIX_LENGTH = 1_024
     private val downloadDir: File = appCtx.externalFiles
     private const val cacheFolderName = "book_cache"
@@ -136,12 +140,12 @@ object BookHelp {
     private fun clearComicCache(book: Book) {
         //只处理漫画
         //为0的时候，不清除已缓存数据
-        if (!book.isImage || ReadConfig.imageRetainNum == 0) {
+        if (!book.isImage || cacheGateway.currentSettings.imageRetainNum == 0) {
             return
         }
         //向前保留设定数量，向后保留预下载数量
-        val startIndex = book.durChapterIndex - ReadConfig.imageRetainNum
-        val endIndex = book.durChapterIndex + ReadConfig.preDownloadNum
+        val startIndex = book.durChapterIndex - cacheGateway.currentSettings.imageRetainNum
+        val endIndex = book.durChapterIndex + readGateway.currentSettings.preDownloadNum
         val chapterList = appDb.bookChapterDao.getChapterList(book.bookUrl, startIndex, endIndex)
         val imgNames = hashSetOf<String>()
         //获取需要保留章节的图片信息
@@ -204,7 +208,7 @@ object BookHelp {
             book.getFolderName(),
             bookChapter.getFileName(),
         ).writeText(content)
-        if (book.isOnLineTxt && ReadConfig.tocCountWords) {
+        if (book.isOnLineTxt && readGateway.currentSettings.tocCountWords) {
             val wordCount = StringUtils.wordCountFormat(content.length)
             bookChapter.wordCount = wordCount
             appDb.bookChapterDao.update(bookChapter)
@@ -302,7 +306,7 @@ object BookHelp {
         book: Book,
         bookChapter: BookChapter,
         content: String,
-        concurrency: Int = OtherConfig.threadCount,
+        concurrency: Int = cacheGateway.currentSettings.threadCount,
         onProgress: (suspend (completed: Int, total: Int) -> Unit)? = null,
     ): Int = coroutineScope {
         val imageUrls = flowImages(bookChapter, content).toList()

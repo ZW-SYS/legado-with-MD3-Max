@@ -66,7 +66,6 @@ import io.legado.app.receiver.NetworkChangedListener
 import io.legado.app.receiver.TimeBatteryReceiver
 import io.legado.app.service.BaseReadAloudService
 import io.legado.app.ui.book.read.page.entities.PageDirection
-import io.legado.app.ui.config.readConfig.ReadConfig
 import io.legado.app.ui.login.SourceLoginJsExtensions
 import io.legado.app.ui.association.OpenUrlConfirmActivity
 import io.legado.app.ui.widget.PopupAction
@@ -115,6 +114,9 @@ class ReadBookController(
 ) : ReadBookRouteHost,
     ReadBookInputHandler,
     ReadBook.ReaderRenderCallback {
+
+    private val readSettingsGateway get() = org.koin.core.context.GlobalContext.get().get<io.legado.app.domain.gateway.ReadSettingsGateway>()
+    private val aloudSettingsGateway get() = org.koin.core.context.GlobalContext.get().get<io.legado.app.domain.gateway.ReadAloudSettingsGateway>()
 
     internal val layoutController = ReaderLayoutCoordinator(
         updateLayoutSize = { _, _ -> },
@@ -467,7 +469,7 @@ class ReadBookController(
         val debounce = now - composeImageClickAt < 300L
         composeImageClickAt = now
         composeImageDoubleClick = if (debounce) !composeImageDoubleClick else false
-        return when (ReadConfig.clickImgWay) {
+        return when (readSettingsGateway.currentSettings.clickImgWay) {
             "1" -> { viewModel.onIntent(ReadBookIntent.ShowSheet(ReadBookSheet.Photo(image.source))); true }
             "2" -> if (!debounce && ReadBook.book?.isOnLineTxt == true) {
                 image.action?.takeIf(String::isNotBlank)?.let { clickImg(it, image.source); true }
@@ -1279,7 +1281,7 @@ class ReadBookController(
                         .setClassName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name)
                     
                     val title = resolveInfo.loadLabel(pm).toString()
-                    val icon = if (ReadConfig.showSelectMenuIcon) {
+                    val icon = if (readSettingsGateway.currentSettings.showSelectMenuIcon) {
                         runCatching { resolveInfo.loadIcon(pm) }.getOrNull()
                     } else null
 
@@ -1288,7 +1290,7 @@ class ReadBookController(
             }
 
             val allItems = items + thirdPartyItems
-            val configStr = ReadConfig.textSelectMenuConfig
+            val configStr = readSettingsGateway.currentSettings.textSelectMenuConfig
             val result = if (configStr.isEmpty()) {
                 allItems
             } else {
@@ -1829,17 +1831,17 @@ class ReadBookController(
     }
 
     override fun mouseWheelPage(direction: PageDirection) {
-        if (menuLayoutIsVisible || !ReadConfig.mouseWheelPage) {
+        if (menuLayoutIsVisible || !readSettingsGateway.currentSettings.mouseWheelPage) {
             return
         }
         keyPageDebounce(direction, mouseWheel = true, longPress = false)
     }
 
     private fun volumeKeyPage(direction: PageDirection, longPress: Boolean): Boolean {
-        if (!ReadConfig.volumeKeyPage) {
+        if (!readSettingsGateway.currentSettings.volumeKeyPage) {
             return false
         }
-        if (!ReadConfig.volumeKeyPageOnPlay && BaseReadAloudService.isPlay()) {
+        if (!readSettingsGateway.currentSettings.volumeKeyPageOnPlay && BaseReadAloudService.isPlay()) {
             return false
         }
         handleKeyPage(direction, longPress)
@@ -1847,7 +1849,7 @@ class ReadBookController(
     }
 
     override fun handleKeyPage(direction: PageDirection, longPress: Boolean) {
-        if (ReadConfig.keyPageOnLongPress || direction == PageDirection.NONE) {
+        if (readSettingsGateway.currentSettings.keyPageOnLongPress || direction == PageDirection.NONE) {
             keyPage(direction)
         } else {
             keyPageDebounce(direction, longPress = longPress)
@@ -1946,7 +1948,7 @@ class ReadBookController(
     }
 
     private fun upScreenTimeOut() {
-        val keepLightPrefer = ReadConfig.keepLight.toLongOrNull() ?: 0L
+        val keepLightPrefer = readSettingsGateway.currentSettings.keepLight.toLongOrNull() ?: 0L
         screenTimeOut = keepLightPrefer * 1000L
         screenOffTimerStartInternal()
     }
@@ -2030,7 +2032,7 @@ class ReadBookController(
     }
 
     fun setOrientation() {
-        when (ReadConfig.screenOrientation) {
+        when (readSettingsGateway.currentSettings.screenOrientation) {
             "0" -> activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             "1" -> activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             "2" -> activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE

@@ -776,7 +776,8 @@ val appModule = module {
             changeBookSourceUseCase = get(),
             clearBookCacheUseCase = get(),
             deleteBooksUseCase = get(),
-            updateBooksGroupUseCase = get()
+            updateBooksGroupUseCase = get(),
+            downloadCacheSettingsGateway = get()
         )
     }
 

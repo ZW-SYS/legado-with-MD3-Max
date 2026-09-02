@@ -18,7 +18,6 @@ import io.legado.app.base.adapter.ItemViewHolder
 import io.legado.app.base.adapter.RecyclerAdapter
 import io.legado.app.databinding.DialogRecyclerViewBinding
 import io.legado.app.databinding.Item1lineTextBinding
-import io.legado.app.help.config.AppConfig
 //import io.legado.app.lib.theme.primaryColor
 import io.legado.app.ui.widget.dialog.TextDialog
 import io.legado.app.utils.FileDoc
@@ -112,7 +111,7 @@ class CrashLogsDialog : BaseBottomSheetDialogFragment(R.layout.dialog_recycler_v
                     ?.forEach {
                         list.add(FileDoc.fromFile(it))
                     }
-                val backupPath = AppConfig.backupPath
+                val backupPath = org.koin.core.context.GlobalContext.get().get<io.legado.app.domain.gateway.BackupSettingsGateway>().currentSettings.backupPath
                 if (!backupPath.isNullOrEmpty()) {
                     val uri = Uri.parse(backupPath)
                     FileDoc.fromUri(uri, true)
@@ -146,7 +145,7 @@ class CrashLogsDialog : BaseBottomSheetDialogFragment(R.layout.dialog_recycler_v
                     ?.let {
                         FileUtils.delete(it, false)
                     }
-                val backupPath = AppConfig.backupPath
+                val backupPath = org.koin.core.context.GlobalContext.get().get<io.legado.app.domain.gateway.BackupSettingsGateway>().currentSettings.backupPath
                 if (!backupPath.isNullOrEmpty()) {
                     val uri = Uri.parse(backupPath)
                     FileDoc.fromUri(uri, true)

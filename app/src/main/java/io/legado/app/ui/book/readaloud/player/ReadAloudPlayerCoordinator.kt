@@ -14,7 +14,6 @@ import io.legado.app.model.ReadAloudSessionStore
 import io.legado.app.model.ReadBook
 import io.legado.app.service.BaseReadAloudService
 import io.legado.app.ui.book.read.ReadConfigUpdateBus
-import io.legado.app.ui.config.readConfig.ReadConfig
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -92,7 +91,7 @@ class ReadAloudPlayerCoordinator(
             engineName = playback.engineName,
             speakerName = playback.characterName.ifBlank { playback.roleType.storageValue },
             isPaused = session.status != ReadAloudSessionStatus.Playing,
-            speed = ReadConfig.ttsSpeechRate,
+            speed = readAloudSettingsGateway.currentSettings.ttsSpeechRate,
             timerMinutes = session.timerMinutes,
             finishCurrentChapterAfterTimer = settings.finishCurrentChapterAfterTimer,
         )
@@ -119,7 +118,7 @@ class ReadAloudPlayerCoordinator(
             engineName = playback.engineName,
             speakerName = playback.characterName.ifBlank { playback.roleType.storageValue },
             isPaused = session.status != ReadAloudSessionStatus.Playing,
-            speed = ReadConfig.ttsSpeechRate,
+            speed = readAloudSettingsGateway.currentSettings.ttsSpeechRate,
             timerMinutes = session.timerMinutes,
             finishCurrentChapterAfterTimer =
                 readAloudSettingsGateway.currentSettings.finishCurrentChapterAfterTimer,

@@ -25,6 +25,8 @@ class ChangeBookSourceAdapter(
     val callBack: CallBack
 ) : DiffRecyclerAdapter<SearchBook, ItemChangeSourceBinding>(context) {
 
+    private val changeSourceSettingsGateway get() = org.koin.core.context.GlobalContext.get().get<io.legado.app.domain.gateway.ChangeSourceSettingsGateway>()
+
     override val diffItemCallback = object : DiffUtil.ItemCallback<SearchBook>() {
         override fun areItemsTheSame(oldItem: SearchBook, newItem: SearchBook): Boolean {
             return oldItem.bookUrl == newItem.bookUrl
@@ -90,13 +92,13 @@ class ChangeBookSourceAdapter(
                 binding.ivGood.setImageResource(R.drawable.ic_praise)
             }
 
-            if (ChangeSourceConfig.loadWordCount && !item.chapterWordCountText.isNullOrBlank()) {
+            if (changeSourceSettingsGateway.currentSettings.loadWordCount && !item.chapterWordCountText.isNullOrBlank()) {
                 tvCurrentChapterWordCount.visible()
             } else {
                 tvCurrentChapterWordCount.gone()
             }
 
-            if (ChangeSourceConfig.loadWordCount && item.respondTime >= 0) {
+            if (changeSourceSettingsGateway.currentSettings.loadWordCount && item.respondTime >= 0) {
                 tvRespondTime.visible()
             } else {
                 tvRespondTime.gone()

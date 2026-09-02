@@ -39,7 +39,10 @@ import io.legado.app.di.appModule
 import io.legado.app.domain.gateway.AppLocaleGateway
 import io.legado.app.domain.gateway.AppShellSettingsGateway
 import io.legado.app.domain.gateway.BackupSettingsGateway
+import io.legado.app.domain.gateway.OtherSettingsGateway
+import io.legado.app.domain.gateway.ReadSettingsGateway
 import io.legado.app.domain.gateway.ReadStyleGateway
+import io.legado.app.domain.gateway.ThemeSettingsGateway
 import io.legado.app.help.AppFreezeMonitor
 import io.legado.app.help.AppWebDav
 import io.legado.app.help.CrashHandler
@@ -48,8 +51,8 @@ import io.legado.app.help.DispatchersMonitor
 import io.legado.app.help.LifecycleHelp
 import io.legado.app.help.RuleBigDataHelp
 import io.legado.app.help.book.BookHelp
-import io.legado.app.help.config.AppConfig
 import io.legado.app.help.config.AppConfigStore
+import io.legado.app.help.config.AppConfig
 import io.legado.app.help.config.LocalConfig
 import io.legado.app.help.config.ReadBookConfig
 import io.legado.app.help.config.ThemeConfigStore
@@ -87,6 +90,11 @@ import java.util.logging.Level
 
 class App : Application(), SingletonImageLoader.Factory {
 
+    private val themeGateway get() = get<ThemeSettingsGateway>()
+    private val otherGateway get() = get<OtherSettingsGateway>()
+    private val backupGateway get() = get<BackupSettingsGateway>()
+    private val readGateway get() = get<ReadSettingsGateway>()
+
     override fun newImageLoader(context: Context): ImageLoader {
         return get()
     }
@@ -107,6 +115,7 @@ class App : Application(), SingletonImageLoader.Factory {
             androidContext(this@App)
             modules(appDatabaseModule, appModule)
         }
+        @Suppress("DEPRECATION")
         AppConfig.initialize(
             shellGateway = get(),
             themeGateway = get(),
@@ -129,7 +138,7 @@ class App : Application(), SingletonImageLoader.Factory {
         }
         applyDayNightInit(this)
         if (getPrefString("app_theme", "0") == "12") {
-            if (AppConfig.customMode == "accent")
+            if (themeGateway.currentSettings.customMode == "accent")
                 setTheme(R.style.ThemeOverlay_WhiteBackground)
 
             val colorImagePath = getPrefString(PreferKey.colorImage)
@@ -196,7 +205,7 @@ class App : Application(), SingletonImageLoader.Factory {
             LiveEventBus.config()
                 .lifecycleObserverAlwaysActive(true)
                 .autoClear(false)
-                .enableLogger(BuildConfig.DEBUG || AppConfig.recordLog)
+                .enableLogger(BuildConfig.DEBUG || otherGateway.currentSettings.recordLog)
                 .setLogger(EventLogger())
             DefaultData.upVersion()
             AppFreezeMonitor.init(this@App)
@@ -218,7 +227,7 @@ class App : Application(), SingletonImageLoader.Factory {
             get<ReadStyleGateway>().clearUnusedBackgrounds()
             ThemeConfigStore.clearBg()
             //初始化简繁转换引擎
-            when (AppConfig.chineseConverterType) {
+            when (readGateway.currentSettings.chineseConverterType) {
                 1 -> {
                     ChineseUtils.fixT2sDict()
                     ChineseUtils.preLoad(true, TransType.TRADITIONAL_TO_SIMPLE)
@@ -229,7 +238,7 @@ class App : Application(), SingletonImageLoader.Factory {
             //调整排序序号
             SourceHelp.adjustSortNumber()
             //同步阅读记录
-            if (AppConfig.syncBookProgress) {
+            if (backupGateway.currentSettings.syncBookProgress) {
                 AppWebDav.upConfig()
                 AppWebDav.downloadAllBookProgress()
             }
@@ -329,6 +338,7 @@ class App : Application(), SingletonImageLoader.Factory {
     }
 
     private fun initRhino() {
+        @Suppress("UNUSED_EXPRESSION")
         RhinoScriptEngine
         RhinoWrapFactory.register(BookSource::class.java, NativeBaseSource.factory)
         RhinoWrapFactory.register(RssSource::class.java, NativeBaseSource.factory)

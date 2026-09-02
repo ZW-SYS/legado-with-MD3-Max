@@ -2,7 +2,6 @@ package io.legado.app.help.http
 
 import io.legado.app.constant.AppConst
 import io.legado.app.help.CacheManager
-import io.legado.app.help.config.AppConfig
 import io.legado.app.help.glide.progress.ProgressManager.LISTENER
 import io.legado.app.help.glide.progress.ProgressResponseBody
 import io.legado.app.help.http.CookieManager.cookieJarHeader
@@ -29,6 +28,8 @@ import java.util.concurrent.TimeUnit
 private val proxyClientCache: ConcurrentHashMap<String, OkHttpClient> by lazy {
     ConcurrentHashMap()
 }
+
+private val cacheSettingsGateway get() = org.koin.core.context.GlobalContext.get().get<io.legado.app.domain.gateway.DownloadCacheSettingsGateway>()
 
 val cookieJar by lazy {
     object : CookieJar {
@@ -96,7 +97,7 @@ val okHttpClient: OkHttpClient by lazy {
             val request = chain.request()
             val builder = request.newBuilder()
             if (request.header(AppConst.UA_NAME) == null) {
-                builder.addHeader(AppConst.UA_NAME, AppConfig.userAgent)
+                builder.addHeader(AppConst.UA_NAME, cacheSettingsGateway.currentSettings.userAgent)
             } else if (request.header(AppConst.UA_NAME) == "null") {
                 builder.removeHeader(AppConst.UA_NAME)
             }
@@ -122,7 +123,7 @@ val okHttpClient: OkHttpClient by lazy {
             }
             networkResponse
         }
-    if (AppConfig.isCronet) {
+    if (cacheSettingsGateway.currentSettings.cronetEnabled) {
         if (Cronet.loader?.install() == true) {
             Cronet.interceptor?.let {
                 builder.addInterceptor(it)

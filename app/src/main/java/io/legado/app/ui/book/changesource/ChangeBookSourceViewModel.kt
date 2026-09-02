@@ -23,7 +23,8 @@ import io.legado.app.help.book.releaseHtmlData
 import io.legado.app.help.config.SourceConfig
 import io.legado.app.help.coroutine.Coroutine
 import io.legado.app.model.webBook.WebBook
-import io.legado.app.ui.config.otherConfig.OtherConfig
+import io.legado.app.domain.gateway.ChangeSourceSettingsGateway
+import io.legado.app.domain.gateway.DownloadCacheSettingsGateway
 import io.legado.app.utils.internString
 import io.legado.app.utils.mapParallel
 import io.legado.app.utils.mapParallelSafe
@@ -60,8 +61,10 @@ open class ChangeBookSourceViewModel(
     application: Application,
     private val searchRepository: SearchRepository,
     private val bookSourceRepository: BookSourceRepository,
+    private val downloadCacheSettingsGateway: DownloadCacheSettingsGateway,
+    private val changeSourceSettingsGateway: ChangeSourceSettingsGateway,
 ) : BaseViewModel(application) {
-    private val threadCount = OtherConfig.threadCount
+    private val threadCount = downloadCacheSettingsGateway.currentSettings.threadCount
     private var searchPool: ExecutorCoroutineDispatcher? = null
     val searchStateData = MutableLiveData<Boolean>()
     private val _isSearching = MutableStateFlow(false)
@@ -140,7 +143,7 @@ open class ChangeBookSourceViewModel(
         }
     }.map {
         kotlin.runCatching {
-            val comparator = if (ChangeSourceConfig.loadWordCount) {
+            val comparator = if (changeSourceSettingsGateway.currentSettings.loadWordCount) {
                 wordCountComparator
             } else {
                 defaultComparator
@@ -213,7 +216,7 @@ open class ChangeBookSourceViewModel(
             bookMap.clear()
             tocMapChapterCount = 0
             _changeSourceProgress.value = 0 to ""
-            bookSourceParts.addAll(io.legado.app.ui.book.search.SearchScope(ChangeSourceConfig.searchScope).getBookSourceParts())
+            bookSourceParts.addAll(io.legado.app.ui.book.search.SearchScope(changeSourceSettingsGateway.currentSettings.searchScope).getBookSourceParts())
             initSearchPool()
             search()
         }
@@ -272,10 +275,10 @@ open class ChangeBookSourceViewModel(
     }
 
     private suspend fun search(source: BookSource) {
-        val checkAuthor = ChangeSourceConfig.checkAuthor
-        val loadInfo = ChangeSourceConfig.loadInfo
-        val loadToc = ChangeSourceConfig.loadToc
-        val loadWordCount = ChangeSourceConfig.loadWordCount
+        val checkAuthor = changeSourceSettingsGateway.currentSettings.checkAuthor
+        val loadInfo = changeSourceSettingsGateway.currentSettings.loadInfo
+        val loadToc = changeSourceSettingsGateway.currentSettings.loadToc
+        val loadWordCount = changeSourceSettingsGateway.currentSettings.loadWordCount
         val resultBooks = WebBook.searchBookAwait(
             source, name,
             filter = { fName, fAuthor, _ ->
@@ -298,7 +301,7 @@ open class ChangeBookSourceViewModel(
         if (book.tocUrl.isEmpty()) {
             WebBook.getBookInfoAwait(source, book)
         }
-        if (ChangeSourceConfig.loadToc || ChangeSourceConfig.loadWordCount) {
+        if (changeSourceSettingsGateway.currentSettings.loadToc || changeSourceSettingsGateway.currentSettings.loadWordCount) {
             loadBookToc(source, book)
         } else {
             //从详情页里获取最新章节
@@ -318,7 +321,7 @@ open class ChangeBookSourceViewModel(
         }
         bookMap[book.primaryStr()] = book
         book.releaseHtmlData()
-        if (ChangeSourceConfig.loadWordCount) {
+        if (changeSourceSettingsGateway.currentSettings.loadWordCount) {
             loadBookWordCount(source, book, chapters)
         } else {
             val searchBook = book.toSearchBook()
@@ -414,13 +417,13 @@ open class ChangeBookSourceViewModel(
 
     private suspend fun getDbSearchBooks(): List<SearchBook> {
         val searchScope = io.legado.app.ui.book.search.SearchScope(
-            ChangeSourceConfig.searchScope
+            changeSourceSettingsGateway.currentSettings.searchScope
         )
         val group = when {
             searchScope.isAll() || searchScope.isSource() -> ""
             else -> searchScope.displayNames.firstOrNull() ?: ""
         }
-        val bookAuthor = if (ChangeSourceConfig.checkAuthor) author else ""
+        val bookAuthor = if (changeSourceSettingsGateway.currentSettings.checkAuthor) author else ""
         return searchRepository.findChangeSourceBooks(name, bookAuthor, screenKey, group)
     }
 

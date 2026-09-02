@@ -11,7 +11,6 @@ import android.text.StaticLayout
 import android.util.AttributeSet
 import androidx.annotation.ColorInt
 import androidx.appcompat.widget.AppCompatTextView
-import io.legado.app.ui.config.readConfig.ReadConfig
 import io.legado.app.utils.canvasrecorder.CanvasRecorderFactory
 import io.legado.app.utils.canvasrecorder.recordIfNeededThenDraw
 import io.legado.app.utils.dpToPx
@@ -20,6 +19,7 @@ class BatteryViewOrgin @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ) : AppCompatTextView(context, attrs) {
+    private val readSettingsGateway get() = org.koin.core.context.GlobalContext.get().get<io.legado.app.domain.gateway.ReadSettingsGateway>()
     private val batteryTypeface by lazy {
         Typeface.createFromAsset(context.assets, "font/number.ttf")
     }
@@ -75,7 +75,7 @@ class BatteryViewOrgin @JvmOverloads constructor(
     }
 
     override fun onDraw(canvas: Canvas) {
-        if (ReadConfig.optimizeRender) {
+        if (readSettingsGateway.currentSettings.optimizeRender) {
             canvasRecorder.recordIfNeededThenDraw(canvas, width, height) {
                 super.onDraw(this)
                 drawBattery(this)

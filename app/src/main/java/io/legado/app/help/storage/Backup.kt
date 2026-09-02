@@ -7,12 +7,12 @@ import androidx.documentfile.provider.DocumentFile
 import io.legado.app.constant.AppLog
 import io.legado.app.constant.PreferKey
 import io.legado.app.data.appDb
+import io.legado.app.domain.gateway.BackupSettingsGateway
 import io.legado.app.domain.gateway.ReadStyleGateway
 import io.legado.app.exception.NoStackTraceException
 import io.legado.app.help.AppWebDav
 import io.legado.app.help.DirectLinkUpload
 import io.legado.app.help.book.isLocal
-import io.legado.app.help.config.AppConfig
 import io.legado.app.help.config.AppConfigStore
 import io.legado.app.help.config.LocalConfig
 import io.legado.app.help.config.ReadBookConfig
@@ -51,6 +51,9 @@ import java.util.concurrent.TimeUnit
 object Backup {
 
     private val readStyleGateway: ReadStyleGateway
+        get() = GlobalContext.get().get()
+
+    private val backupSettingsGateway: BackupSettingsGateway
         get() = GlobalContext.get().get()
 
     val backupPath: String by lazy {
@@ -96,8 +99,8 @@ object Backup {
     private fun getNowZipFileName(): String {
         val backupDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             .format(Date(System.currentTimeMillis()))
-        val deviceName = AppConfig.webDavDeviceName
-        return if (deviceName?.isNotBlank() == true) {
+        val deviceName = backupSettingsGateway.currentSettings.webDavDeviceName
+        return if (deviceName.isNotBlank()) {
             "backup${backupDate}-${deviceName}.zip"
         } else {
             "backup${backupDate}.zip"
@@ -116,7 +119,7 @@ object Backup {
                     if (shouldBackup()) {
                         val backupZipFileName = getNowZipFileName()
                         if (!AppWebDav.hasBackUp(backupZipFileName)) {
-                            backup(context, AppConfig.backupPath)
+                            backup(context, backupSettingsGateway.currentSettings.backupPath)
                         } else {
                             LocalConfig.lastBackup = System.currentTimeMillis()
                         }
@@ -276,7 +279,7 @@ object Backup {
             .map(File::getAbsolutePath)
         FileUtils.delete(zipFilePath)
         FileUtils.delete(zipFilePath.replace("tmp_", ""))
-        val backupFileName = if (AppConfig.onlyLatestBackup) {
+        val backupFileName = if (backupSettingsGateway.currentSettings.onlyLatestBackup) {
             "backup.zip"
         } else {
             zipFileName

@@ -15,7 +15,6 @@ import io.legado.app.lib.dialogs.SelectItem
 import io.legado.app.service.BaseReadAloudService
 import io.legado.app.service.HttpReadAloudService
 import io.legado.app.service.TTSReadAloudService
-import io.legado.app.ui.config.readConfig.ReadConfig
 import io.legado.app.utils.GSON
 import io.legado.app.utils.LogUtils
 import io.legado.app.utils.StringUtils
@@ -27,8 +26,9 @@ import kotlinx.coroutines.runBlocking
 import splitties.init.appCtx
 
 object ReadAloud {
+    private val aloudSettingsGateway get() = org.koin.core.context.GlobalContext.get().get<io.legado.app.domain.gateway.ReadAloudSettingsGateway>()
     private var aloudClass: Class<*> = getReadAloudClass()
-    val ttsEngine get() = ReadBook.book?.getTtsEngine() ?: ReadConfig.ttsEngine
+    val ttsEngine get() = ReadBook.book?.getTtsEngine() ?: aloudSettingsGateway.currentSettings.ttsEngine
     var httpTTS: HttpTTS? = null
     var coordinatorDefaultEngineType: String = ReadAloudVoice.ENGINE_SYSTEM
         private set
@@ -83,7 +83,7 @@ object ReadAloud {
     }
 
     private fun findCoordinatorHttpSeed(): HttpTTS? {
-        if (!ReadConfig.useMultiSpeaker) return null
+        if (!aloudSettingsGateway.currentSettings.useMultiSpeaker) return null
         return runCatching {
             val bookUrl = ReadBook.book?.bookUrl ?: return@runCatching null
             val boundVoices = runBlocking {

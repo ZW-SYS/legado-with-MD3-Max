@@ -39,7 +39,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Payment
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.SwapHoriz
-import androidx.compose.material.icons.filled.Toc
+import androidx.compose.material.icons.automirrored.filled.Toc
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -840,7 +840,7 @@ private fun MenuTitleBarMergedGlassButton(
                 // TXT directory rule
                 if (state.isLocalTxt) {
                     MergedGlassIconButton(
-                        icon = Icons.Default.Toc,
+                        icon = Icons.AutoMirrored.Filled.Toc,
                         tint = tint,
                         contentDescription = stringResource(R.string.txt_toc_rule),
                         onClick = { onIntent(ReadBookIntent.MenuTocRegex) },
@@ -1005,7 +1005,7 @@ private fun TxtTocRuleActionButton(
 ) {
     MenuTitleGlassButton(
         onClick = { onIntent(ReadBookIntent.MenuTocRegex) },
-        icon = Icons.Default.Toc,
+        icon = Icons.AutoMirrored.Filled.Toc,
         contentDescription = stringResource(R.string.txt_toc_rule),
         state = state,
         colors = colors,

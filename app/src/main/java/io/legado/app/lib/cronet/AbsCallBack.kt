@@ -432,7 +432,7 @@ abstract class AbsCallBack(
 
     inner class CronetBodySource : Source {
 
-        private var buffer = ByteBuffer.allocateDirect(32 * 1024)
+        private var buffer: ByteBuffer? = ByteBuffer.allocateDirect(32 * 1024)
         private var closed = false
         private val timeout = readTimeoutMillis.toLong()
 
@@ -460,8 +460,8 @@ abstract class AbsCallBack(
                 return -1
             }
 
-            if (byteCount < buffer.limit()) {
-                buffer.limit(byteCount.toInt())
+            if (byteCount < buffer!!.limit()) {
+                buffer!!.limit(byteCount.toInt())
             }
 
             request?.read(buffer)

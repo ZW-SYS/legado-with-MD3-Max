@@ -513,7 +513,7 @@ fun BookSourceScreen(
                 showExportSheet = true
             },
         ),
-        onDeleteSelected = { deleteIds = it as Set<String> },
+        onDeleteSelected = { deleteIds = @Suppress("UNCHECKED_CAST") (it as Set<String>) },
         dropDownMenuContent = { dismiss ->
             RoundDropdownMenuItem(
                 text = stringResource(R.string.group_manage),

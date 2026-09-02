@@ -32,7 +32,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material.icons.filled.Toc
+import androidx.compose.material.icons.automirrored.filled.Toc
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.HorizontalDivider
@@ -301,7 +301,7 @@ private fun moreActionSpecs(
         applicable = !state.isLocalBook,
         onClick = { onIntent(ReadBookIntent.ShowSheet(ReadBookSheet.Download)) }),
     MoreActionSpec(
-        "toc_rule", stringResource(R.string.txt_toc_rule), Icons.Default.Toc,
+        "toc_rule", stringResource(R.string.txt_toc_rule), Icons.AutoMirrored.Filled.Toc,
         applicable = state.isLocalTxt, onClick = { dispatch(ReadBookIntent.MenuTocRegex) }),
     MoreActionSpec(
         "charset", stringResource(R.string.set_charset), Icons.Default.Translate,
@@ -323,7 +323,7 @@ private fun moreActionSpecs(
         "reverse_content", stringResource(R.string.reverse_content), Icons.Default.SwapVert,
         onClick = { dispatch(ReadBookIntent.MenuReverseContent) }),
     MoreActionSpec(
-        "re_segment", stringResource(R.string.re_segment), Icons.Default.Toc,
+        "re_segment", stringResource(R.string.re_segment), Icons.AutoMirrored.Filled.Toc,
         selected = state.reSegment, onClick = { onIntent(ReadBookIntent.MenuReSegment) }),
     MoreActionSpec(
         "del_ruby", stringResource(R.string.del_ruby_tag), Icons.Default.CleanHands,

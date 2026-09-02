@@ -6,7 +6,6 @@ import androidx.core.view.isVisible
 import io.legado.app.base.adapter.ItemViewHolder
 import io.legado.app.base.adapter.RecyclerAdapter
 import io.legado.app.databinding.ItemSearchListBinding
-import io.legado.app.help.config.AppConfig
 import io.legado.app.utils.themeColor
 
 
@@ -16,6 +15,7 @@ class SearchContentAdapter(context: Context, val callback: Callback) :
     private val textColorInt = context.themeColor(com.google.android.material.R.attr.colorOnSurface)
     private val accentColorInt = context.themeColor(androidx.appcompat.R.attr.colorPrimary)
     private val bgColorInt = context.themeColor(com.google.android.material.R.attr.colorSecondaryContainer)
+    private val isEInkMode get() = org.koin.core.context.GlobalContext.get().get<io.legado.app.domain.gateway.ThemeSettingsGateway>().currentSettings.appTheme == "4"
 
     override fun getViewBinding(parent: ViewGroup): ItemSearchListBinding {
         return ItemSearchListBinding.inflate(inflater, parent, false)
@@ -30,12 +30,12 @@ class SearchContentAdapter(context: Context, val callback: Callback) :
         binding.run {
             val isDur = callback.durChapterIndex() == item.chapterIndex
             if (payloads.isEmpty()) {
-                tvTitle.text = item.getTitleSpannable(textColorInt, AppConfig.isEInkMode)
+                tvTitle.text = item.getTitleSpannable(textColorInt, isEInkMode)
                 tvContent.text = item.getContentSpannable(
                     textColorInt,
                     accentColorInt,
                     bgColorInt,
-                    AppConfig.isEInkMode,
+                    isEInkMode,
                 )
 
                 if (item.progressPercent > 0) {

@@ -372,13 +372,6 @@ fun SearchHistoryList(
                         modifier = Modifier
                             .clickable { onHistoryClick(item) }
                             .animateItem(),
-                        headlineContent = {
-                            AppText(
-                                text = item.query,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        },
                         leadingContent = {
                             Icon(Icons.Default.History, contentDescription = null)
                         },
@@ -393,7 +386,13 @@ fun SearchHistoryList(
                             containerColor = LegadoTheme.colorScheme.surface,
                             contentColor = LegadoTheme.colorScheme.onSurface
                         )
-                    )
+                    ) {
+                        AppText(
+                            text = item.query,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
                 item {
                     Box(
