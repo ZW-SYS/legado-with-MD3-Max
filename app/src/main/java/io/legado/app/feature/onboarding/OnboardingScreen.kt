@@ -2,6 +2,7 @@ package io.legado.app.feature.onboarding
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,29 +11,31 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.legado.app.R
-import io.legado.app.ui.config.themeConfig.ThemeCard
 import io.legado.app.ui.config.themeConfig.ThemeColorSelector
 import io.legado.app.ui.config.themeConfig.ThemeModeSelector
 import io.legado.app.ui.theme.LegadoTheme
@@ -43,6 +46,7 @@ import io.legado.app.ui.widget.components.card.GlassCard
 import io.legado.app.ui.widget.components.progressIndicator.AppCircularProgressIndicator
 import io.legado.app.ui.widget.components.progressIndicator.AppLinearProgressIndicator
 import io.legado.app.ui.widget.components.text.AppText
+import io.legado.app.ui.widget.components.text.MarkdownBlock
 
 @Composable
 fun OnboardingScreen(
@@ -58,24 +62,36 @@ fun OnboardingScreen(
             .fillMaxSize()
             .windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
-        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-            Icon(
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
                 painter = painterResource(R.drawable.ic_launcher_foreground),
                 contentDescription = null,
-                tint = LegadoTheme.colorScheme.primary,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .padding(top = 16.dp)
-                    .size(56.dp)
+                    .height(96.dp)
+                    .width(128.dp)
             )
             AppText(
                 text = pageTitle(state.page),
                 style = LegadoTheme.typography.headlineLargeEmphasized,
-                modifier = Modifier.padding(top = 8.dp)
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
             )
             AppText(
                 text = pageSummary(state.page),
                 style = LegadoTheme.typography.bodyLargeEmphasized,
-                modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp, bottom = 12.dp)
             )
             AppLinearProgressIndicator(
                 progress = state.page * 1f / state.pageCount,
@@ -90,11 +106,19 @@ fun OnboardingScreen(
                 .fillMaxWidth()
                 .weight(1f)
         ) { page ->
-            when (page) {
-                0 -> PrivacyPage(state)
-                1 -> WebDavPage(state, onIntent)
-                2 -> BookFolderPage(state, onIntent)
-                else -> ThemePage(state, onIntent)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                GlassCard(modifier = Modifier.fillMaxWidth()) {
+                    when (page) {
+                        0 -> PrivacyPage(state)
+                        1 -> WebDavPage(state, onIntent)
+                        2 -> BookFolderPage(state, onIntent)
+                        else -> ThemePage(state, onIntent)
+                    }
+                }
             }
         }
 
@@ -181,9 +205,8 @@ private fun RestoreErrorDialog(state: OnboardingUiState, onIntent: (OnboardingIn
 private fun PrivacyPage(state: OnboardingUiState) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(16.dp)
     ) {
         AppText(
             text = stringResource(R.string.privacy_policy),
@@ -191,10 +214,11 @@ private fun PrivacyPage(state: OnboardingUiState) {
             color = LegadoTheme.colorScheme.secondary,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-        AppText(
-            text = state.privacyPolicy,
-            style = LegadoTheme.typography.bodyMedium,
-            modifier = Modifier.padding(bottom = 16.dp)
+        MarkdownBlock(
+            content = state.privacyPolicy,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
         )
         AppText(
             text = stringResource(R.string.disclaimer),
@@ -202,59 +226,38 @@ private fun PrivacyPage(state: OnboardingUiState) {
             color = LegadoTheme.colorScheme.secondary,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-        AppText(
-            text = state.disclaimer,
-            style = LegadoTheme.typography.bodyMedium
+        MarkdownBlock(
+            content = state.disclaimer,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
 
 @Composable
 private fun WebDavPage(state: OnboardingUiState, onIntent: (OnboardingIntent) -> Unit) {
-    val presets = remember {
-        listOf(
-            "https://dav.jianguoyun.com/dav/",
-            "https://webdav.aliyundrive.com/",
-            "https://soya.infini-cloud.net/dav/"
-        )
-    }
     Column(
         modifier = Modifier
-            .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         AppTextField(
             value = state.webDavUrl,
             onValueChange = { onIntent(OnboardingIntent.UpdateWebDavUrl(it)) },
-            label = stringResource(R.string.web_dav_url)
+            label = stringResource(R.string.web_dav_url),
+            modifier = Modifier.fillMaxWidth()
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            presets.forEach { preset ->
-                GlassCard(
-                    onClick = { onIntent(OnboardingIntent.UpdateWebDavUrl(preset)) },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    AppText(
-                        text = preset.removePrefix("https://").removeSuffix("/"),
-                        style = LegadoTheme.typography.labelSmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)
-                    )
-                }
-            }
-        }
         AppTextField(
             value = state.webDavAccount,
             onValueChange = { onIntent(OnboardingIntent.UpdateWebDavAccount(it)) },
-            label = stringResource(R.string.web_dav_account)
+            label = stringResource(R.string.web_dav_account),
+            modifier = Modifier.fillMaxWidth()
         )
         AppTextField(
             value = state.webDavPassword,
             onValueChange = { onIntent(OnboardingIntent.UpdateWebDavPassword(it)) },
-            label = stringResource(R.string.web_dav_pw)
+            label = stringResource(R.string.web_dav_pw),
+            modifier = Modifier.fillMaxWidth()
         )
         Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -279,7 +282,8 @@ private fun WebDavPage(state: OnboardingUiState, onIntent: (OnboardingIntent) ->
         AppTextField(
             value = state.appAccessPassword,
             onValueChange = { onIntent(OnboardingIntent.UpdateAppAccessPassword(it)) },
-            label = stringResource(R.string.set_local_password)
+            label = stringResource(R.string.set_local_password),
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
@@ -288,41 +292,33 @@ private fun WebDavPage(state: OnboardingUiState, onIntent: (OnboardingIntent) ->
 private fun BookFolderPage(state: OnboardingUiState, onIntent: (OnboardingIntent) -> Unit) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(16.dp)
     ) {
         AppText(
             text = stringResource(R.string.welcome_book_folder_tip),
             style = LegadoTheme.typography.bodySmall,
             color = LegadoTheme.colorScheme.onSurfaceVariant
         )
-        GlassCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 12.dp)
-        ) {
-            Column(modifier = Modifier.padding(14.dp)) {
-                AppText(
-                    text = stringResource(R.string.select_book_folder),
-                    style = LegadoTheme.typography.titleMedium
-                )
-                AppText(
-                    text = state.bookFolderUri
-                        ?: stringResource(R.string.welcome_book_folder_not_selected),
-                    style = LegadoTheme.typography.bodySmall,
-                    color = LegadoTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-                MediumTonalButton(
-                    onClick = { onIntent(OnboardingIntent.SelectFolder) },
-                    text = stringResource(R.string.select_folder),
-                    modifier = Modifier.padding(top = 12.dp)
-                )
-            }
-        }
+        AppText(
+            text = stringResource(R.string.select_book_folder),
+            style = LegadoTheme.typography.titleMedium,
+            modifier = Modifier.padding(top = 12.dp)
+        )
+        AppText(
+            text = state.bookFolderUri
+                ?: stringResource(R.string.welcome_book_folder_not_selected),
+            style = LegadoTheme.typography.bodySmall,
+            color = LegadoTheme.colorScheme.onSurfaceVariant,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+        MediumTonalButton(
+            onClick = { onIntent(OnboardingIntent.SelectFolder) },
+            text = stringResource(R.string.select_folder),
+            modifier = Modifier.padding(top = 12.dp)
+        )
     }
 }
 
@@ -337,20 +333,10 @@ private fun ThemePage(state: OnboardingUiState, onIntent: (OnboardingIntent) -> 
     }
     Column(
         modifier = Modifier
-            .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(16.dp)
     ) {
-        ThemeCard(
-            context = context,
-            value = state.theme.appTheme,
-            isDark = isDark,
-            isAmoled = state.theme.isPureBlack,
-            paletteStyle = state.theme.paletteStyle,
-            customLightSeedColor = state.theme.customPrimary,
-            customNightSeedColor = state.theme.customNightPrimary
-        )
-        Box(modifier = Modifier.padding(top = 16.dp)) {
+        Box {
             ThemeModeSelector(
                 selectedMode = state.themeMode,
                 onModeSelected = { onIntent(OnboardingIntent.SetThemeMode(it)) }

@@ -1729,7 +1729,7 @@
     <string name="first_read">Please read the Terms of Service and User Agreement first.</string>
     <string name="welcome_book_folder_tip">Set where local books are stored. You can change it later in Settings.</string>
     <string name="welcome_book_folder_not_selected">No folder selected</string>
-    <string name="onboarding_title_welcome">Welcome!</string>
+    <string name="onboarding_title_welcome">Welcome</string>
     <string name="onboarding_title_backup">Backup &amp; Restore</string>
     <string name="onboarding_title_book_folder">Book Folder</string>
     <string name="onboarding_title_theme">Theme Style</string>

@@ -1674,7 +1674,7 @@
     <string name="first_read">请先阅读应用的服务条款与用户协议。</string>
     <string name="welcome_book_folder_tip">设置本地书籍保存目录，后续也可在设置中修改。</string>
     <string name="welcome_book_folder_not_selected">未选择文件夹</string>
-    <string name="onboarding_title_welcome">欢迎！</string>
+    <string name="onboarding_title_welcome">欢迎</string>
     <string name="onboarding_title_backup">备份与恢复</string>
     <string name="onboarding_title_book_folder">书籍文件夹</string>
     <string name="onboarding_title_theme">主题样式</string>
