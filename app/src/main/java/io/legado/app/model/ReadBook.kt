@@ -280,10 +280,17 @@ object ReadBook : CoroutineScope by MainScope(), KoinComponent {
         publishSnapshot()
     }
 
-    /** 更新当前章节内的阅读位置。 */
-    fun updateReadingPosition(position: Int) {
+    /**
+     * 更新当前章节内的阅读位置。
+     *
+     * @param publish 滚动/点按翻页热路径传 false：只写字段不发布快照。快照里的
+     * chapterPos 没有 UI 消费方（进度显示走 composePagePosition，持久化读字段），
+     * 每次跨页发布的唯一效果是一次全量 UiState 重建落在翻页动画帧上；快照位置随
+     * 下一次结构性发布（切章/换书，重建时读字段）自然刷新。
+     */
+    fun updateReadingPosition(position: Int, publish: Boolean = true) {
         durChapterPos = position
-        publishSnapshot()
+        if (publish) publishSnapshot()
     }
 
     // endregion
@@ -596,6 +603,21 @@ object ReadBook : CoroutineScope by MainScope(), KoinComponent {
             )
         }
         publishSnapshot()
+        resumeReadAloudWaitingForChapter(snapshots)
+    }
+
+    /**
+     * 朗读换章恢复：curPageChanged 在正文加载完成时机触发朗读重启，但 Compose 渲染
+     * 的章节分页快照要等渲染层排版批次落地才可用（换章时还会先 clearReaderPagination），
+     * newReadAloud 会在"章节分页未完成"处静默放弃且无重试，表现为换章后朗读停止。
+     * 分页快照落地是目标章节就绪的可靠信号：服务仍停在旧章节时在此补一次重启。
+     * 服务章节与当前章节一致的同章重排不受影响。
+     */
+    private fun resumeReadAloudWaitingForChapter(snapshots: List<ReaderChapterPaginationSnapshot>) {
+        if (!BaseReadAloudService.isRun) return
+        if (snapshots.none { it.chapterIndex == durChapterIndex }) return
+        if (BaseReadAloudService.currentChapterIndex == durChapterIndex) return
+        readAloud(play = !BaseReadAloudService.pause)
     }
 
     fun publishReaderPaginationEnvironment(

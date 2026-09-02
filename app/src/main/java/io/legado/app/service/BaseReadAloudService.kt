@@ -225,6 +225,12 @@ abstract class BaseReadAloudService : BaseService(),
     protected fun paragraphChapterPositionAt(index: Int): Int? =
         readerReadAloudChapter?.paragraphs(readAloudByPage)?.getOrNull(index)?.chapterPosition
     protected open val useSpeechPlaybackQueue: Boolean = false
+
+    /**
+     * newReadAloud 整体替换本章播放状态(队列/游标/段落)后回调,
+     * 引擎实现用它作废旧章节发言的迟到回调
+     */
+    protected open fun onPlaybackStateReplaced() {}
     protected val hasSpeechPlaybackQueue: Boolean
         get() = useSpeechPlaybackQueue && !playbackQueue.isEmpty
 
@@ -445,6 +451,7 @@ abstract class BaseReadAloudService : BaseService(),
             readAloudNumber = preparedReadAloudNumber
             paragraphStartPos = preparedParagraphStartPos
             updateReadAloudProgressSnapshot(preparedReadAloudNumber + 1)
+            onPlaybackStateReplaced()
             if (moveToLast) toLast = false
             preparedPlaybackCursor?.takeIf { hasSpeechPlaybackQueue }?.let(::publishPlaybackInfo)
             launch(Main) {

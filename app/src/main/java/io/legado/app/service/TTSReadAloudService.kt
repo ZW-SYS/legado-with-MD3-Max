@@ -58,6 +58,10 @@ class TTSReadAloudService : BaseReadAloudService(), KoinComponent {
     private var activeVoiceName = ""
     private var defaultVoiceName = ""
     private var initGeneration = 0
+
+    /** 播放会话号: 每次真正发声、停止、暂停、清理或整体换章时递增, 用于拒收旧会话的回调 */
+    @Volatile
+    private var speakSession = 0
     private val TAG = "TTSReadAloudService"
 
     override fun onCreate() {
@@ -103,6 +107,7 @@ class TTSReadAloudService : BaseReadAloudService(), KoinComponent {
         activeVoiceName = ""
         defaultVoiceName = ""
         initGeneration++
+        speakSession++
     }
 
     private fun onTtsInitialized(status: Int, generation: Int) {
@@ -160,8 +165,9 @@ class TTSReadAloudService : BaseReadAloudService(), KoinComponent {
                     AppLog.putDebug("TTS延迟结束，准备播放")
                 }
                 ensureActive()
-                
+
                 LogUtils.d(TAG, "朗读列表大小 ${contentList.size}")
+                val session = ++speakSession
                 val tts = textToSpeech ?: throw NoStackTraceException("tts is null")
                 var text = contentList[nowSpeak]
                 if (paragraphStartPos > 0) {
@@ -169,12 +175,12 @@ class TTSReadAloudService : BaseReadAloudService(), KoinComponent {
                 }
                 if (text.matches(AppPattern.notReadAloudRegex)) {
                     AppLog.putDebug("TTS段落全标点跳过: nowSpeak=$nowSpeak")
-                    ttsUtteranceListener.onDone(AppConst.APP_TAG + nowSpeak)
+                    ttsUtteranceListener.onDone(ttsUtteranceId(AppConst.APP_TAG, session, nowSpeak))
                     return@execute
                 }
                 AppLog.putDebug("TTS开始Speak: $text")
                 val result = tts.runCatching {
-                    speak(text, TextToSpeech.QUEUE_FLUSH, null, AppConst.APP_TAG + nowSpeak)
+                    speak(text, TextToSpeech.QUEUE_FLUSH, null, ttsUtteranceId(AppConst.APP_TAG, session, nowSpeak))
                 }.getOrElse {
                     AppLog.put("tts出错\n${it.localizedMessage}", it, true)
                     TextToSpeech.ERROR
@@ -190,6 +196,7 @@ class TTSReadAloudService : BaseReadAloudService(), KoinComponent {
                 // 无间隔模式：保持原有的队列式连续播放，确保无缝衔接
                 LogUtils.d(TAG, "朗读列表大小 ${contentList.size}")
                 LogUtils.d(TAG, "朗读页数 ${readerReadAloudChapter?.pageCount}")
+                val session = ++speakSession
                 val tts = textToSpeech ?: throw NoStackTraceException("tts is null")
                 val contentList = contentList
                 var isAddedText = false
@@ -204,7 +211,7 @@ class TTSReadAloudService : BaseReadAloudService(), KoinComponent {
                     }
                     if (!isAddedText) {
                         val result = tts.runCatching {
-                            speak(text, TextToSpeech.QUEUE_FLUSH, null, AppConst.APP_TAG + i)
+                            speak(text, TextToSpeech.QUEUE_FLUSH, null, ttsUtteranceId(AppConst.APP_TAG, session, i))
                         }.getOrElse {
                             AppLog.put("tts出错\n${it.localizedMessage}", it, true)
                             TextToSpeech.ERROR
@@ -217,7 +224,7 @@ class TTSReadAloudService : BaseReadAloudService(), KoinComponent {
                         }
                     } else {
                         val result = tts.runCatching {
-                            speak(text, TextToSpeech.QUEUE_ADD, null, AppConst.APP_TAG + i)
+                            speak(text, TextToSpeech.QUEUE_ADD, null, ttsUtteranceId(AppConst.APP_TAG, session, i))
                         }.getOrElse {
                             AppLog.put("tts出错\n${it.localizedMessage}", it, true)
                             TextToSpeech.ERROR
@@ -290,6 +297,7 @@ class TTSReadAloudService : BaseReadAloudService(), KoinComponent {
     }
 
     override fun playStop() {
+        speakSession++
         textToSpeech?.runCatching {
             stop()
         }
@@ -319,6 +327,7 @@ class TTSReadAloudService : BaseReadAloudService(), KoinComponent {
      */
     override fun pauseReadAloud(abandonFocus: Boolean) {
         super.pauseReadAloud(abandonFocus)
+        speakSession++
         speakJob?.cancel()
         textToSpeech?.runCatching {
             stop()
@@ -331,6 +340,11 @@ class TTSReadAloudService : BaseReadAloudService(), KoinComponent {
     override fun resumeReadAloud() {
         super.resumeReadAloud()
         play()
+    }
+
+    override fun onPlaybackStateReplaced() {
+        // 换章/重新定位后, 旧章节发言的迟到回调不得再改新队列状态
+        speakSession++
     }
 
     /**
@@ -365,8 +379,13 @@ class TTSReadAloudService : BaseReadAloudService(), KoinComponent {
         override fun onDone(s: String) {
             if (!isCurrentUtterance(s)) return
             LogUtils.d(TAG, "onDone utteranceId:$s")
-            nextParagraph(naturalCompletion = true)
-            if (!pause && (hasSpeechPlaybackQueue || ReadConfig.ttsParagraphInterval > 0)) {
+            // 章节自然完结时本章播放状态已作废, 恢复播放由换章后的 newReadAloud 负责;
+            // 若此处仍用旧队列 play(), 会把本章最后一段反复重新入队
+            val paragraphAdvanced = nextParagraph(naturalCompletion = true)
+            if (paragraphAdvanced &&
+                !pause &&
+                (hasSpeechPlaybackQueue || ReadConfig.ttsParagraphInterval > 0)
+            ) {
                 needParagraphInterval = ReadConfig.ttsParagraphInterval > 0
                 play()
             }
@@ -393,23 +412,27 @@ class TTSReadAloudService : BaseReadAloudService(), KoinComponent {
                 TAG,
                 "onError nowSpeak:$nowSpeak pageIndex:$pageIndex utteranceId:$utteranceId errorCode:$errorCode"
             )
-            nextParagraph(naturalCompletion = true)
-            if (!pause && (hasSpeechPlaybackQueue || ReadConfig.ttsParagraphInterval > 0)) {
+            val paragraphAdvanced = nextParagraph(naturalCompletion = true)
+            if (paragraphAdvanced &&
+                !pause &&
+                (hasSpeechPlaybackQueue || ReadConfig.ttsParagraphInterval > 0)
+            ) {
                 needParagraphInterval = ReadConfig.ttsParagraphInterval > 0
                 play()
             }
         }
 
-        private fun nextParagraph(naturalCompletion: Boolean = false) {
+        private fun nextParagraph(naturalCompletion: Boolean = false): Boolean {
             if (hasSpeechPlaybackQueue) {
                 val current = playbackCursor
                     ?: ReadAloudPlaybackCursor(nowSpeak, paragraphStartPos)
-                playbackQueue.next(current)?.let(::moveToPlaybackCursor) ?: if (naturalCompletion) {
-                    completeCurrentChapter()
-                } else {
-                    nextChapter()
+                val next = playbackQueue.next(current)
+                if (next != null) {
+                    moveToPlaybackCursor(next)
+                    return true
                 }
-                return
+                if (naturalCompletion) completeCurrentChapter() else nextChapter()
+                return false
             }
             //跳过全标点段落
             do {
@@ -422,26 +445,31 @@ class TTSReadAloudService : BaseReadAloudService(), KoinComponent {
                 nowSpeak++
                 if (nowSpeak >= contentList.size) {
                     if (naturalCompletion) completeCurrentChapter() else nextChapter()
-                    return
+                    return false
                 }
             } while (contentList[nowSpeak].matches(AppPattern.notReadAloudRegex))
             // 页内切段不引入换行符，累加会漂移，用段落绝对位置重算
             paragraphChapterPositionAt(nowSpeak)?.let { readAloudNumber = it }
+            return true
         }
 
         @Deprecated("Deprecated in Java")
         override fun onError(s: String) {
             if (!isCurrentUtterance(s)) return
             LogUtils.d(TAG, "onError nowSpeak:$nowSpeak pageIndex:$pageIndex s:$s")
-            nextParagraph(naturalCompletion = true)
-            if (!pause && (hasSpeechPlaybackQueue || ReadConfig.ttsParagraphInterval > 0)) {
+            val paragraphAdvanced = nextParagraph(naturalCompletion = true)
+            if (paragraphAdvanced &&
+                !pause &&
+                (hasSpeechPlaybackQueue || ReadConfig.ttsParagraphInterval > 0)
+            ) {
                 needParagraphInterval = ReadConfig.ttsParagraphInterval > 0
                 play()
             }
         }
 
         private fun isCurrentUtterance(utteranceId: String?): Boolean =
-            !hasSpeechPlaybackQueue || utteranceId == AppConst.APP_TAG + nowSpeak
+            utteranceId != null &&
+                utteranceId == ttsUtteranceId(AppConst.APP_TAG, speakSession, nowSpeak)
 
     }
 
@@ -461,3 +489,10 @@ internal fun currentRangePosition(
     utteranceStartPosition: Int,
     rangeStart: Int,
 ): Int = utteranceStartPosition + rangeStart
+
+/**
+ * TTS 回调只回传 utteranceId, 播放会话号必须编码进 id,
+ * 否则旧会话(暂停/停止/换章后迟到)的回调无法与当前队列区分
+ */
+internal fun ttsUtteranceId(appTag: String, session: Int, index: Int): String =
+    "$appTag$session:$index"
