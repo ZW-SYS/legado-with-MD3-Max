@@ -104,6 +104,8 @@ import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+private const val READER_SYNC_MIN_INTERVAL_MS = 250L
+
 /**
  * 阅读界面 ViewModel — MVI/UDF 架构
  *
@@ -158,6 +160,8 @@ class ReadBookViewModel(
     val effects = _effects.asSharedFlow()
     private var composePagePosition: ReaderChapterPagePosition? = null
     @Volatile private var composePageContext: ReaderPageContext? = null
+    private var composeProgressJob: Job? = null
+    private var readBookSyncJob: Job? = null
     private val _readAloudProgress = MutableStateFlow(
         activeReadAloudProgress(
             isPlaying = BaseReadAloudService.isPlay(),
@@ -671,10 +675,20 @@ class ReadBookViewModel(
      * 收集在 mutator 返回之后异步触发，故 syncFromReadBook 读到的 ReadBook 字段已是最终态。
      */
     private fun collectReaderSession() {
+        // 快照同步一律尾随合并：syncFromReadBook 全量重建 UiState（含 ReadMenuConfig
+        // 等 50+ 字段）并整屏重组，不能落在滚动/翻页动画的帧上。热路径（跨页进度）
+        // 已不发布快照，剩余发布主要是切章/换书等结构变化，延迟一个间隔无感。
         viewModelScope.launch {
-            readerSession.state.collect {
-                _uiState.update { state -> syncFromReadBook(state) }
-            }
+            readerSession.state.collect { scheduleReadBookSync() }
+        }
+    }
+
+    /** 合并高频快照/事件刷新：连续发布只保留最后一次，同步永远离帧 250ms。 */
+    private fun scheduleReadBookSync() {
+        readBookSyncJob?.cancel()
+        readBookSyncJob = viewModelScope.launch {
+            delay(READER_SYNC_MIN_INTERVAL_MS)
+            _uiState.update { syncFromReadBook(it) }
         }
     }
 
@@ -690,7 +704,9 @@ class ReadBookViewModel(
             readerSession.events.collect { event ->
                 when (event) {
                     is ReaderSessionEvent.StateInvalidated -> {
-                        _uiState.update { syncFromReadBook(it) }
+                        // 切章等结构性变化也走尾随合并：发布点多在翻页帧上
+                        // （如 moveToNextChapter 的 upMenuView），立即重组会掉帧。
+                        scheduleReadBookSync()
                     }
 
                     is ReaderSessionEvent.ChapterListRequested -> loadChapterList(event.book)
@@ -2431,6 +2447,17 @@ class ReadBookViewModel(
         composePagePosition = position
         composePageContext = pageContext
         if (position == null || position.chapterIndex != ReadBook.durChapterIndex) return
+        // 滚动热路径每次跨页都会调用；进度 UI(_uiState) 是整屏重组源，延迟到节拍
+        // 间隙发布。composePagePosition/Context 已同步更新，直读字段的路径不受影响。
+        composeProgressJob?.cancel()
+        composeProgressJob = viewModelScope.launch {
+            delay(250L)
+            publishComposeProgress()
+        }
+    }
+
+    private fun publishComposeProgress() {
+        val position = composePagePosition?.takeIf { it.chapterIndex == ReadBook.durChapterIndex } ?: return
         _uiState.update { state ->
             state.copy(
                 durPageIndex = position.pageIndex,

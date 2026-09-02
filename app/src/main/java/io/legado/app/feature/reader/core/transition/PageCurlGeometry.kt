@@ -38,10 +38,15 @@ data class PageCurlFrame(
     ).all(CurlPoint::isFinite)
 }
 
+/**
+ * 折页三道阴影的峰值颜色。渐变结构与色相沿用原版 GradientDrawable
+ * （0xFF111111 / 0x80111111 / 0xB0333333），峰值 alpha 整体按约六成调轻：
+ * 全不透明的折缝黑边是"阴影偏重"观感的主要来源。
+ */
 object ReaderCurlVisualPolicy {
-    val backShadowDarkArgb: Int = 0xFF111111.toInt()
-    val frontShadowDarkArgb: Int = 0x80111111.toInt()
-    val folderShadowDarkArgb: Int = 0xB0333333.toInt()
+    val backShadowDarkArgb: Int = 0x99111111.toInt()
+    val frontShadowDarkArgb: Int = 0x4D111111.toInt()
+    val folderShadowDarkArgb: Int = 0x73333333.toInt()
 }
 
 object ReaderCurlTouchPolicy {
@@ -123,7 +128,13 @@ object PageCurlGeometry {
             if (inputX <= width / 2f) 0f else width,
             if (inputY <= height / 2f) 0f else height,
         )
-        var touch = CurlPoint(inputX.coerceIn(.1f, width - .1f), inputY.coerceIn(.1f, height - .1f))
+        // 收尾动画把触点送出页外让折页连同阴影滑出屏幕；页外触点保持原值走原始
+        // 贝塞尔计算（对照原版 calcPoints 仅在触点页内时做收拢修正），页内仍收敛
+        // 到 .1f 边界避免 0 值退化。
+        var touch = CurlPoint(
+            if (inputX < 0f || inputX > width) inputX else inputX.coerceIn(.1f, width - .1f),
+            inputY.coerceIn(.1f, height - .1f),
+        )
         fun controls(point: CurlPoint): Pair<CurlPoint, CurlPoint> {
             val middleX = (point.x + corner.x) / 2f
             val middleY = (point.y + corner.y) / 2f

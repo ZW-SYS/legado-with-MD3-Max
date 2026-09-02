@@ -36,9 +36,13 @@ import io.legado.app.feature.reader.legacy.paginateLegacyReaderChapterSafely
 import io.legado.app.feature.reader.legacy.LegacyReaderPageDecorationFactory
 import io.legado.app.feature.reader.legacy.LegacyReaderPaginationStyleFactory
 import io.legado.app.feature.reader.platform.ReaderAndroidPaginationStyle
+import io.legado.app.feature.reader.core.navigation.ReaderPageContext
 import io.legado.app.feature.reader.core.navigation.ReaderPageNavigator
 import io.legado.app.feature.reader.core.model.ReaderElement
+import io.legado.app.feature.reader.core.model.ReaderPage
+import io.legado.app.feature.reader.core.model.ReaderRect
 import io.legado.app.feature.reader.core.model.ReaderImageCachePolicy
+import io.legado.app.feature.reader.core.model.ReaderPageId
 import io.legado.app.feature.reader.core.model.ReaderThemeColorChange
 import io.legado.app.feature.reader.core.model.remapThemeColors
 import io.legado.app.feature.reader.core.selection.ReaderSelection
@@ -258,6 +262,20 @@ class ReadBookController(
     private var directReaderLayoutJob: Job? = null
     private var directReaderLayoutKey: String? = null
     private var directReaderPages = emptyList<io.legado.app.feature.reader.core.model.ReaderPage>()
+
+    /**
+     * 页上下文缓存：跨页热路径（书签检查×3 + 进度上报 + 进度提交）每次跨页要取
+     * 5 次 pageContext，每次 O(元素数) 遍历 + groupBy + anchorText 拼接，落在拖拽
+     * 跨页帧上就是掉帧。按页 id 记忆，重排后失效（重排会重算位置与 endPosition）。
+     */
+    private val directReaderPageContexts = HashMap<ReaderPageId, ReaderPageContext>()
+
+    private fun directReaderPageContext(index: Int): ReaderPageContext? {
+        val page = directReaderPages.getOrNull(index) ?: return null
+        return directReaderPageContexts.getOrPut(page.id) {
+            ReaderPageNavigator.pageContext(directReaderPages, index) ?: return null
+        }
+    }
     private var directReaderChapterPageCounts = emptyMap<Int, Int>()
     private var directReaderPageIndex: Int? = null
     private val menuMutex = Mutex()
@@ -346,9 +364,10 @@ class ReadBookController(
         ))
     }
 
-    private fun updateReaderPageWindow(value: ReaderPageWindow) {
+    private fun updateReaderPageWindow(value: ReaderPageWindow): ReaderPageWindow {
         _readerPageWindow.value = value
         readerSessionViewModel.submitPageWindow(value)
+        return value
     }
 
     private fun updateReaderPaginationError(value: String?) {
@@ -608,6 +627,7 @@ class ReadBookController(
             previous = highlight(window.previous, index - 1),
             current = highlight(window.current, index),
             next = highlight(window.next, index + 1),
+            nextPlus = highlight(window.nextPlus, index + 2),
         )
     }
 
@@ -615,7 +635,7 @@ class ReadBookController(
 
     private fun hasBookmarkOnComposePage(index: Int): Boolean {
         val book = ReadBook.book ?: return false
-        val page = ReaderPageNavigator.pageContext(directReaderPages, index) ?: return false
+        val page = directReaderPageContext(index) ?: return false
         return io.legado.app.model.ReaderBookmarkState.hasBookmarkInRange(
             bookName = book.name,
             bookAuthor = book.author,
@@ -625,23 +645,54 @@ class ReadBookController(
         )
     }
 
-    private fun publishDirectReaderWindow(index: Int) {
-        if (directReaderPages.isEmpty()) return
-        val boundedIndex = index.coerceIn(directReaderPages.indices)
+    /** 同步平移页窗口并发布；返回发布的窗口，供滚动渲染层当帧折算使用。 */
+    private fun publishDirectReaderWindow(index: Int): ReaderPageWindow? {
+        if (directReaderPages.isEmpty()) return null
+        val boundedIndex = ensureBoundaryPlaceholderPages(index.coerceIn(directReaderPages.indices))
         directReaderPageIndex = boundedIndex
         viewModel.updateComposeReaderPage(
             position = ReaderPageNavigator.chapterPosition(directReaderPages, boundedIndex),
-            pageContext = ReaderPageNavigator.pageContext(directReaderPages, boundedIndex),
+            pageContext = directReaderPageContext(boundedIndex),
         )
-        updateReaderPageWindow(directReaderWindow(boundedIndex))
+        return updateReaderPageWindow(directReaderWindow(boundedIndex))
+    }
+
+    /**
+     * 邻章未分页时预置"加载中"占位页（对照 shutiao 的占位页滚动继续语义）：
+     * 预置后手势层的 window.next/previous 不再为空，拖拽、点按、滚动都能自然
+     * 越过章节边界，装载完成后分页批次以同 id 真实页替换。返回当前页在插入后
+     * 的列表中的新下标（前侧插入会使既有下标整体后移）。
+     */
+    private fun ensureBoundaryPlaceholderPages(index: Int): Int {
+        val pages = directReaderPages
+        val page = pages.getOrNull(index) ?: return index
+        val missingChapters = ReaderPageNavigator.missingAdjacentChapters(
+            pages,
+            index,
+            chapterCount = ReadBook.simulatedChapterSize,
+        )
+        if (missingChapters.isEmpty()) return index
+        val updated = pages.toMutableList()
+        var added = 0
+        missingChapters.forEach { chapterIndex ->
+            placeholderReaderPage(chapterIndex)?.let {
+                updated.add(it)
+                added++
+            }
+        }
+        if (added == 0) return index
+        updated.sortWith(compareBy({ it.id.chapterIndex }, { it.id.pageIndex }))
+        directReaderPages = updated
+        return updated.indexOfFirst { it === page }.coerceAtLeast(0)
     }
 
     private fun commitManualReaderPage(index: Int) {
         val page = directReaderPages.getOrNull(index) ?: return
-        val chapterPosition = ReaderPageNavigator.pageContext(directReaderPages, index)
+        val chapterPosition = directReaderPageContext(index)
             ?.contentStartPosition
             ?: ReaderPageNavigator.pageStart(page)
-        ReadBook.updateReadingPosition(chapterPosition)
+        // 热路径安静更新：不发布快照（否则每次跨页触发一次全量 UiState 重建落在动画帧上）。
+        ReadBook.updateReadingPosition(chapterPosition, publish = false)
         if (BaseReadAloudService.isRun) {
             readAloudPosition = page.id.chapterIndex to chapterPosition
             ReadBook.readAloud(
@@ -885,6 +936,8 @@ class ReadBookController(
                 page.copy(layoutRevision = previous.layoutRevision)
             } ?: page
         }.sortedWith(compareBy({ it.id.chapterIndex }, { it.id.pageIndex }))
+        // 重排可能改变元素位置与页 endPosition，页上下文缓存全部失效。
+        directReaderPageContexts.clear()
         directReaderChapterPageCounts = directReaderPages.groupingBy { it.id.chapterIndex }.eachCount()
         directReaderPageIndex = directReaderPages.takeIf { it.isNotEmpty() }?.let {
             ReaderPageNavigator.locate(
@@ -1874,40 +1927,123 @@ class ReadBookController(
         }
     }
 
-    /** Completes a transition already animated by the Compose renderer. */
-    fun completeComposePageTurn(direction: PageDirection): Boolean {
-        if (directReaderPages.isNotEmpty()) {
-            val currentIndex = directReaderPageIndex ?: 0
-            val delta = when (direction) {
-                PageDirection.PREV -> -1
-                PageDirection.NEXT -> 1
-                PageDirection.NONE -> 0
-            }
-            val navigation = ReaderPageNavigator.move(directReaderPages, currentIndex, delta)
-            if (!navigation.hitBoundary && delta != 0) {
-                val oldChapterIndex = directReaderPages[currentIndex].id.chapterIndex
-                val newChapterIndex = navigation.window.current?.id?.chapterIndex ?: oldChapterIndex
-                val chapterChanged = when {
-                    newChapterIndex > oldChapterIndex -> ReadBook.moveToNextChapter(
-                        upContent = false,
-                        upContentInPlace = false,
-                    )
-                    newChapterIndex < oldChapterIndex -> ReadBook.moveToPrevChapter(
-                        upContent = false,
-                        toLast = true,
-                        upContentInPlace = false,
-                    )
-                    else -> true
-                }
-                if (!chapterChanged) return false
-                commitManualReaderPage(navigation.pageIndex)
-                publishDirectReaderWindow(navigation.pageIndex)
-                pageChanged = true
-                viewModel.startBackupJob()
-                return true
-            }
+    /**
+     * Completes a transition already animated by the Compose renderer.
+     * 返回翻页后发布的页窗口（同步）；null 表示翻页被拒绝（边界/无内容）。
+     * 滚动模式依赖这个同步返回在跨页帧内完成窗口替换与偏移折算，不走 StateFlow 往返。
+     */
+    fun completeComposePageTurn(direction: PageDirection): ReaderPageWindow? {
+        if (directReaderPages.isEmpty()) return null
+        val currentIndex = directReaderPageIndex ?: 0
+        val delta = when (direction) {
+            PageDirection.PREV -> -1
+            PageDirection.NEXT -> 1
+            PageDirection.NONE -> 0
         }
-        return false
+        val navigation = ReaderPageNavigator.move(directReaderPages, currentIndex, delta)
+        if (delta == 0) return null
+        if (navigation.hitBoundary) {
+            return crossComposeChapterBoundary(currentIndex, delta)
+        }
+        val oldChapterIndex = directReaderPages[currentIndex].id.chapterIndex
+        val newChapterIndex = navigation.window.current?.id?.chapterIndex ?: oldChapterIndex
+        val chapterChanged = when {
+            newChapterIndex > oldChapterIndex -> ReadBook.moveToNextChapter(
+                upContent = false,
+                upContentInPlace = false,
+            )
+            newChapterIndex < oldChapterIndex -> ReadBook.moveToPrevChapter(
+                upContent = false,
+                toLast = true,
+                upContentInPlace = false,
+            )
+            else -> true
+        }
+        if (!chapterChanged) return null
+        // 占位页没有真实章内位置：moveToNextChapter/PrevChapter 已把 durChapterPos
+        // 设为目标章落点（首页 0 / 上一章末页 lastPageStart），提交会把它覆盖成 0。
+        if (!directReaderPages[navigation.pageIndex].isPlaceholder) {
+            commitManualReaderPage(navigation.pageIndex)
+        }
+        val window = publishDirectReaderWindow(navigation.pageIndex)
+        pageChanged = true
+        viewModel.startBackupJob()
+        return window
+    }
+
+    /**
+     * 章节边界而邻章未分页：滚入"加载中"占位页并触发装载（对照 shutiao 的占位页
+     * 滚动继续语义）。占位页插入 directReaderPages 并正常发布——装载期间页码、
+     * 反向跨页、进度保持一致；分页批次落地时同 id 真实页替换，重建后占位页自然
+     * 消失，locate 按 durChapterPos 落到目标章（下一章首页/上一章末页）。
+     */
+    private fun crossComposeChapterBoundary(currentIndex: Int, delta: Int): ReaderPageWindow? {
+        val fromChapterIndex = directReaderPages[currentIndex].id.chapterIndex
+        val targetChapterIndex = fromChapterIndex + delta
+        // 已处于该章占位/装载状态：不重复切章。
+        if (ReadBook.durChapterIndex == targetChapterIndex) return null
+        // 占位页是死端：邻章装载完成前不允许从占位页继续向更远处串章
+        // （正常路径下占位页已由 ensureBoundaryPlaceholderPages 预置，不会走到这里）。
+        if (directReaderPages[currentIndex].isPlaceholder) return null
+        val moved = if (delta > 0) {
+            ReadBook.moveToNextChapter(upContent = false, upContentInPlace = false)
+        } else {
+            ReadBook.moveToPrevChapter(upContent = false, toLast = true, upContentInPlace = false)
+        }
+        if (!moved) return null
+        val placeholder = placeholderReaderPage(targetChapterIndex) ?: return null
+        val pages = directReaderPages.toMutableList()
+        pages.add(placeholder)
+        pages.sortWith(compareBy({ it.id.chapterIndex }, { it.id.pageIndex }))
+        directReaderPages = pages
+        // 不提交进度：moveToNextChapter/PrevChapter 已把 durChapterPos 设为
+        // 目标章的落点（首页 0 / 末页 lastPageStart），commit 会覆盖上一章的取值。
+        val placeholderIndex = pages.indexOfFirst { it === placeholder }
+        directReaderPageIndex = placeholderIndex
+        val window = publishDirectReaderWindow(placeholderIndex)
+        pageChanged = true
+        viewModel.startBackupJob()
+        return window
+    }
+
+    /** 未装载章节的占位页：一屏居中的"加载中"文字，几何与普通页一致以保持滚动连续。 */
+    private fun placeholderReaderPage(chapterIndex: Int): ReaderPage? {
+        val viewport = layoutController.viewport.value ?: return null
+        val paginationStyle = LegacyReaderPaginationStyleFactory.create()
+        val contentTop = viewport.contentPadding.top.toFloat()
+        val contentBottom = (viewport.heightPx - viewport.contentPadding.bottom).toFloat()
+        if (contentBottom - contentTop <= 0f) return null
+        val paint = paginationStyle.bodyPaint
+        val text = activity.getString(R.string.loading)
+        val textWidth = paint.measureText(text)
+        val left = viewport.contentPadding.left.toFloat()
+        val width = viewport.contentWidthPx.toFloat()
+        val x = left + ((width - textWidth) / 2f).coerceAtLeast(0f)
+        val y = contentTop + ((contentBottom - contentTop - paginationStyle.bodyTextHeightPx) / 2f)
+            .coerceAtLeast(0f)
+        val element = ReaderElement.Text(
+            bounds = ReaderRect(x, y, x + textWidth, y + paginationStyle.bodyTextHeightPx),
+            baselinePx = y + paginationStyle.bodyBaselineOffsetPx,
+            value = text,
+            style = paginationStyle.bodyStyle,
+            selected = false,
+            emphasized = true,
+            chapterPosition = 0,
+            paragraphIndex = -1,
+        )
+        return ReaderPage(
+            id = ReaderPageId(chapterIndex, 0),
+            chapterTitle = "",
+            text = text,
+            widthPx = viewport.widthPx,
+            heightPx = viewport.heightPx,
+            contentTopPx = contentTop,
+            contentBottomPx = contentBottom,
+            elements = listOf(element),
+            revision = 1L,
+            scrollExtentPx = contentBottom - contentTop,
+            isPlaceholder = true,
+        )
     }
 
     private fun keyPageDebounce(

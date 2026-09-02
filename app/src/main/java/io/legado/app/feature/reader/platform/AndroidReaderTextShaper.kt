@@ -15,6 +15,9 @@ import java.io.File
 import splitties.init.appCtx
 
 object ReaderAndroidPaintFactory {
+    /** 进程级字体缓存：同一 path/weight/italic/family 只做一次磁盘读取与解析。 */
+    private val typefaceCache = java.util.concurrent.ConcurrentHashMap<String, Typeface>()
+
     fun create(style: ReaderTextStyle): Paint =
         Paint(Paint.ANTI_ALIAS_FLAG or Paint.SUBPIXEL_TEXT_FLAG).apply {
             color = style.colorArgb
@@ -37,6 +40,8 @@ object ReaderAndroidPaintFactory {
     fun baselineOffset(paint: Paint): Float = paint.fontMetrics.let { it.leading - it.ascent }
 
     fun loadTypeface(path: String, weight: Int, italic: Boolean, family: String = "sans-serif"): Typeface {
+        val key = "$path|$weight|$italic|$family"
+        typefaceCache[key]?.let { return it }
         val base = runCatching {
             when {
                 path.startsWith("content://", ignoreCase = true) ->
@@ -47,16 +52,19 @@ object ReaderAndroidPaintFactory {
                 else -> null
             }
         }.getOrNull() ?: Typeface.create(family, Typeface.NORMAL)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            return Typeface.create(base, weight.coerceIn(1, 1000), italic)
+        val typeface = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            Typeface.create(base, weight.coerceIn(1, 1000), italic)
+        } else {
+            val typefaceStyle = when {
+                weight >= 600 && italic -> Typeface.BOLD_ITALIC
+                weight >= 600 -> Typeface.BOLD
+                italic -> Typeface.ITALIC
+                else -> Typeface.NORMAL
+            }
+            Typeface.create(base, typefaceStyle)
         }
-        val typefaceStyle = when {
-            weight >= 600 && italic -> Typeface.BOLD_ITALIC
-            weight >= 600 -> Typeface.BOLD
-            italic -> Typeface.ITALIC
-            else -> Typeface.NORMAL
-        }
-        return Typeface.create(base, typefaceStyle)
+        typefaceCache[key] = typeface
+        return typeface
     }
 }
 

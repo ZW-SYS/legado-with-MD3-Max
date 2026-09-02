@@ -9,6 +9,7 @@ import android.hardware.SensorManager
 import android.os.SystemClock
 import android.view.KeyEvent
 import android.view.View
+import android.view.ViewTreeObserver
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.BackHandler
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,6 +19,7 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -25,10 +27,9 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -42,12 +43,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -78,12 +84,14 @@ import io.legado.app.ui.book.read.sheet.TextSelectMenuConfigSheet
 import io.legado.app.ui.book.searchContent.SearchContentResult
 import io.legado.app.ui.book.toc.TocActivityResult
 import io.legado.app.ui.login.SourceLoginType
+import io.legado.app.ui.main.AndroidPlatformCapabilities
 import io.legado.app.ui.main.MainActivity
 import io.legado.app.ui.replace.ReplaceEditRoute
 import io.legado.app.ui.replace.ReplaceRuleActivity
 import io.legado.app.ui.theme.LocalAppUiConfiguration
 import io.legado.app.ui.theme.LegadoTheme
 import io.legado.app.ui.widget.components.text.AppText
+import io.legado.app.ui.widget.components.image.cover.sharedCoverSourceRadius
 import io.legado.app.utils.StartActivityContract
 import io.legado.app.utils.takePersistablePermissionSafely
 import io.legado.app.utils.toastOnUi
@@ -154,13 +162,15 @@ fun ReadBookRouteScreen(
     val readerBackground = readerRenderState.background
     val localDensity = LocalDensity.current
     val density = localDensity.density
-    val layoutDirection = LocalLayoutDirection.current
-    val safeDrawingInsets = WindowInsets.safeDrawing
-    val readerContentPadding = ReaderPadding(
-        left = safeDrawingInsets.getLeft(localDensity, layoutDirection),
-        top = safeDrawingInsets.getTop(localDensity),
-        right = safeDrawingInsets.getRight(localDensity, layoutDirection),
-        bottom = safeDrawingInsets.getBottom(localDensity),
+    // 正文避让是配置驱动的（ReaderContentAvoidancePolicy，对照原版 PageView 占位 View）：
+    // 菜单开关翻转系统栏可见性时，本 padding 保持恒定，正文不随 overlay 重排。
+    val readerSystemBarInsets = rememberReaderSystemBarInsets()
+    val readerContentPadding = ReaderContentAvoidancePolicy.padding(
+        insets = readerSystemBarInsets,
+        hideStatusBar = readPreferences.hideStatusBar,
+        hideNavigationBar = readPreferences.hideNavigationBar,
+        paddingDisplayCutouts = readPreferences.paddingDisplayCutouts,
+        inMultiWindow = controller.isInMultiWindowModeCompat,
     )
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -601,10 +611,21 @@ fun ReadBookRouteScreen(
     }
     LaunchedEffect(sharedCoverKey, animatedVisibilityScope) {
         if (!readerContentRevealAllowed) {
-            delay(300)
+            delay(240)
             readerContentRevealAllowed = true
         }
     }
+    // 阅读页 sharedBounds 的裁剪圆角动画：从封面源圆角渐变到设备屏幕圆角，
+    // 转场收尾时正文页与物理圆角贴合（Compose 不会自动插值两端 clip，需自行驱动）。
+    val platformCapabilities = remember(controller) { AndroidPlatformCapabilities(controller.activity) }
+    val displayConfiguration = LocalConfiguration.current
+    val displayCornerRadiusPx = remember(displayConfiguration) { platformCapabilities.displayCornerRadiusPx }
+    val readerClipRadiusDp = rememberReaderSharedClipRadiusDp(
+        sharedCoverKey = sharedCoverKey,
+        animatedVisibilityScope = animatedVisibilityScope,
+        targetRadiusPx = displayCornerRadiusPx,
+        density = density,
+    )
     Box(
         Modifier
             .fillMaxSize()
@@ -612,13 +633,17 @@ fun ReadBookRouteScreen(
                 with(sharedTransitionScope) {
                     if (this != null &&
                         animatedVisibilityScope != null &&
-                        sharedCoverKey != null
+                        sharedCoverKey != null &&
+                        readerClipRadiusDp != null
                     ) {
                         Modifier.sharedBounds(
                             sharedContentState = rememberSharedContentState(sharedCoverKey),
                             animatedVisibilityScope = animatedVisibilityScope,
                             enter = fadeIn(animationSpec = tween(600)),
                             exit = fadeOut(animationSpec = tween(600)),
+                            clipInOverlayDuringTransition = OverlayClip(
+                                RoundedCornerShape(readerClipRadiusDp)
+                            ),
                         )
                     } else {
                         Modifier
@@ -647,11 +672,11 @@ fun ReadBookRouteScreen(
             )
             AnimatedVisibility(
                 visible = readerContentRevealAllowed && hasReadablePage,
-                enter = fadeIn(animationSpec = tween(450)),
+                enter = fadeIn(animationSpec = tween(400)),
                 exit = fadeOut(animationSpec = tween(450)),
             ) {
                 ReaderCanvasSurface(
-                pages = readerPageWindow,
+                hostPages = readerPageWindow,
                 transitionMode = ReaderTransitionMode.fromPageAnim(controller.pageAnim),
                 backgroundColor = readerSurfaceColor,
                 backgroundImage = readerBackground.drawable,
@@ -889,6 +914,70 @@ fun ReadBookRouteScreen(
             )
         }
     }
+}
+
+/**
+ * 采样系统栏与刘海的原始尺寸（px），供 [ReaderContentAvoidancePolicy] 做配置驱动避让。
+ * 状态栏/导航栏走 getInsetsIgnoringVisibility——系统栏隐藏或显隐动画期间同样返回真实
+ * 高度（对照 shutiao 的事件化采样），菜单开关不改变采样值；刘海取当前 dispatch 值。
+ * GlobalLayout 采样 + data class 去重：稳态零重组，仅屏幕形状/配置变化写回。
+ */
+@Composable
+private fun rememberReaderSystemBarInsets(): ReaderContentAvoidancePolicy.SystemBarInsets {
+    val view = LocalView.current
+    val configuration = LocalConfiguration.current
+    var barInsets by remember(configuration) {
+        mutableStateOf(sampleReaderSystemBarInsets(view))
+    }
+    DisposableEffect(view, configuration) {
+        val observer = ViewTreeObserver.OnGlobalLayoutListener {
+            barInsets = sampleReaderSystemBarInsets(view)
+        }
+        view.viewTreeObserver.addOnGlobalLayoutListener(observer)
+        onDispose { view.viewTreeObserver.removeOnGlobalLayoutListener(observer) }
+    }
+    return barInsets
+}
+
+private fun sampleReaderSystemBarInsets(
+    view: View,
+): ReaderContentAvoidancePolicy.SystemBarInsets {
+    val rootInsets = ViewCompat.getRootWindowInsets(view)
+    val cutout = rootInsets?.getInsets(WindowInsetsCompat.Type.displayCutout())
+    return ReaderContentAvoidancePolicy.SystemBarInsets(
+        statusBarTopPx = rootInsets
+            ?.getInsetsIgnoringVisibility(WindowInsetsCompat.Type.statusBars())?.top ?: 0,
+        navigationBarBottomPx = rootInsets
+            ?.getInsetsIgnoringVisibility(WindowInsetsCompat.Type.navigationBars())?.bottom ?: 0,
+        cutoutLeftPx = cutout?.left ?: 0,
+        cutoutTopPx = cutout?.top ?: 0,
+        cutoutRightPx = cutout?.right ?: 0,
+        cutoutBottomPx = cutout?.bottom ?: 0,
+    )
+}
+
+/**
+ * 阅读页 sharedBounds 转场期的裁剪圆角：起点 = 封面在源页面的圆角
+ * （sharedCoverSourceRadius，与封面端动画同源），终点 = 设备屏幕圆角；
+ * 非转场返回 null，不参与裁剪。镜像 CoilBookCover.rememberSharedCoverTransitionRadius。
+ */
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+private fun rememberReaderSharedClipRadiusDp(
+    sharedCoverKey: String?,
+    animatedVisibilityScope: AnimatedVisibilityScope?,
+    targetRadiusPx: Float,
+    density: Float,
+): Dp? {
+    if (sharedCoverKey == null || animatedVisibilityScope == null) return null
+    val targetRadius = (targetRadiusPx / density).dp
+    val startRadius = sharedCoverSourceRadius(sharedCoverKey) ?: targetRadius
+    val animatedRadius by animatedVisibilityScope.transition.animateFloat(
+        label = "reader-clip-corner-radius",
+    ) { state ->
+        if (state == EnterExitState.Visible) targetRadius.value else startRadius.value
+    }
+    return animatedRadius.dp
 }
 
 @Composable

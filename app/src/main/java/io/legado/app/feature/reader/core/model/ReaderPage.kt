@@ -162,6 +162,8 @@ data class ReaderPage(
     val decoration: ReaderPageDecoration = ReaderPageDecoration(),
     val inlineImagesPreserveScrollLine: Boolean = true,
     val emphasisUnderlineStyle: ReaderEmphasisUnderline? = null,
+    /** 邻章未装载时预置的"加载中"占位页，分页批次落地后被同 id 真实页替换。 */
+    val isPlaceholder: Boolean = false,
 ) {
     fun elementAt(x: Float, y: Float): ReaderElement? =
         elements.firstOrNull { it.bounds.contains(x, y) }
@@ -182,6 +184,8 @@ data class ReaderPageWindow(
     val previous: ReaderPage? = null,
     val current: ReaderPage? = null,
     val next: ReaderPage? = null,
+    /** 下下页：不参与绘制，供滚动渲染层提前预热绘制数据（对照 shutiao 的四页流）。 */
+    val nextPlus: ReaderPage? = null,
 )
 
 enum class ReaderTipAlignment { START, CENTER, END }

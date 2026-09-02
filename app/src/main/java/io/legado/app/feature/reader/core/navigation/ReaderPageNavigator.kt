@@ -43,7 +43,25 @@ object ReaderPageNavigator {
             previous = pages.getOrNull(index - 1),
             current = pages[index],
             next = pages.getOrNull(index + 1),
+            nextPlus = pages.getOrNull(index + 2),
         )
+    }
+
+    /**
+     * 章节边界占位语义（对照 shutiao 的"正在加载中"页）：当前真实页的邻章在书中
+     * 存在但尚未分页进 [pages] 时，需要预置占位页，让手势层在邻章未装载时也能把
+     * 页面拖/滚进"加载中"。占位页本身不再扩展（装载完成前是死端）。
+     */
+    fun missingAdjacentChapters(
+        pages: List<ReaderPage>,
+        pageIndex: Int,
+        chapterCount: Int,
+    ): List<Int> {
+        val page = pages.getOrNull(pageIndex) ?: return emptyList()
+        if (page.isPlaceholder) return emptyList()
+        return listOf(page.id.chapterIndex - 1, page.id.chapterIndex + 1).filter { chapter ->
+            chapter in 0 until chapterCount && pages.none { it.id.chapterIndex == chapter }
+        }
     }
 
     fun move(pages: List<ReaderPage>, pageIndex: Int, delta: Int): ReaderNavigationResult {

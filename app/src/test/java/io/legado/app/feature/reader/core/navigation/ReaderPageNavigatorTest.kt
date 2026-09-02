@@ -143,4 +143,46 @@ class ReaderPageNavigatorTest {
         assertNull(ReaderPageNavigator.pageContext(listOf(titleOnly), 0)?.contentStartPosition)
         assertNull(ReaderPageNavigator.bodyParagraphAt(listOf(titleOnly), 4, 50))
     }
+
+    @Test
+    fun placeholderIsRequestedOnlyForExistingUnloadedAdjacentChapters() {
+        // 邻章在书中存在但未分页: 上一章 3、下一章 5 都缺
+        val pages = listOf(page(0, 0), page(1, 20))
+        assertEquals(
+            listOf(3, 5),
+            ReaderPageNavigator.missingAdjacentChapters(pages, pageIndex = 0, chapterCount = 6),
+        )
+        // 邻章已分页或不存在: 不需要占位
+        assertEquals(
+            listOf(3),
+            ReaderPageNavigator.missingAdjacentChapters(pages, pageIndex = 0, chapterCount = 5),
+        )
+        // 上一章已分页、下一章超出书末: 不需要占位
+        val withPrevChapter = pages + page(index = 0, start = 0, chapterIndex = 3)
+        assertEquals(
+            emptyList<Int>(),
+            ReaderPageNavigator.missingAdjacentChapters(
+                withPrevChapter, pageIndex = 0, chapterCount = 5,
+            ),
+        )
+        val withNextChapter = pages + page(index = 0, start = 0, chapterIndex = 5)
+        assertEquals(
+            listOf(3),
+            ReaderPageNavigator.missingAdjacentChapters(
+                withNextChapter, pageIndex = 0, chapterCount = 6,
+            ),
+        )
+    }
+
+    @Test
+    fun placeholderPageNeverExtendsFurtherPlaceholders() {
+        // 占位页是死端: 装载完成前不再向更远处串章
+        val placeholder = page(0, 0, chapterIndex = 5).copy(isPlaceholder = true)
+        assertEquals(
+            emptyList<Int>(),
+            ReaderPageNavigator.missingAdjacentChapters(
+                listOf(placeholder), pageIndex = 0, chapterCount = 8,
+            ),
+        )
+    }
 }

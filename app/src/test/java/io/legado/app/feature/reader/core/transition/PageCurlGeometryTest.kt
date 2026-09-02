@@ -6,10 +6,12 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PageCurlGeometryTest {
-    @Test fun curlShadowColorsMatchLegacyGradientDrawables() {
-        assertEquals(0xFF111111.toInt(), ReaderCurlVisualPolicy.backShadowDarkArgb)
-        assertEquals(0x80111111.toInt(), ReaderCurlVisualPolicy.frontShadowDarkArgb)
-        assertEquals(0xB0333333.toInt(), ReaderCurlVisualPolicy.folderShadowDarkArgb)
+    @Test fun curlShadowColorsSoftenTheLegacyGradientDrawables() {
+        // 刻意偏离原版峰值（0xFF/0x80/0xB0）：折缝全不透明黑边观感偏重，
+        // 峰值 alpha 按约六成调轻，色相与渐变结构不变。
+        assertEquals(0x99111111.toInt(), ReaderCurlVisualPolicy.backShadowDarkArgb)
+        assertEquals(0x4D111111.toInt(), ReaderCurlVisualPolicy.frontShadowDarkArgb)
+        assertEquals(0x73333333.toInt(), ReaderCurlVisualPolicy.folderShadowDarkArgb)
     }
 
     @Test fun choosesTouchedCornerAndProducesFiniteBezierFrame() {
@@ -57,6 +59,25 @@ class PageCurlGeometryTest {
         assertEquals(-1000f, ReaderCurlTouchPolicy.settledX(ReaderTurnDirection.PREVIOUS, false, 1000f))
         assertEquals(-1000f, ReaderCurlTouchPolicy.settledX(ReaderTurnDirection.NEXT, true, 1000f))
         assertEquals(1000f, ReaderCurlTouchPolicy.settledX(ReaderTurnDirection.NEXT, false, 1000f))
+    }
+
+    @Test fun curlGeometryFollowsTouchBeyondTheLeftEdgeUntilTheFoldLeavesThePage() {
+        val corner = CurlPoint(1080f, 1920f)
+        val near = PageCurlGeometry.calculate(1080f, 1920f, -270f, 1919f, corner)!!
+        val beyond = PageCurlGeometry.calculate(1080f, 1920f, -540f, 1919f, corner)!!
+        // 收尾动画把触点送出页外后，几何必须继续跟随原始触点滑动，
+        // 折页边缘随之滑出左缘，而不是收敛在页内冻结到结束帧。
+        assertEquals(-540f, beyond.touch.x, .001f)
+        assertTrue(beyond.isValid)
+        assertTrue(beyond.start1.x < near.start1.x)
+        assertTrue(beyond.start1.x < 0f)
+    }
+
+    @Test fun curlGeometryKeepsTheInPageTouchGuardWhileReleasingOffPageTouches() {
+        assertEquals(.1f, PageCurlGeometry.calculate(1080f, 1920f, 0f, 1919f, CurlPoint(1080f, 1920f))!!.touch.x, .001f)
+        val topExit = PageCurlGeometry.calculate(1080f, 1920f, -540f, 1f, CurlPoint(1080f, 0f))!!
+        assertTrue(topExit.isValid)
+        assertTrue(topExit.start1.x < 0f)
     }
 
     @Test fun simulationSettleDurationUsesItsFullLegacyCurlTravel() {

@@ -8,6 +8,8 @@ import android.graphics.Shader
 import android.os.SystemClock
 import android.graphics.drawable.Drawable
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.AnimatedVisibility
@@ -88,6 +90,7 @@ import io.legado.app.feature.reader.core.selection.ReaderSelectionLifecyclePolic
 import io.legado.app.feature.reader.core.selection.ReaderSelectionMenuAnchor
 import io.legado.app.feature.reader.core.selection.ReaderSelectionPolicy
 import io.legado.app.feature.reader.core.selection.mergeSelectionBounds
+import io.legado.app.feature.reader.core.style.mergeBackgroundBounds
 import io.legado.app.feature.reader.core.gesture.ReaderPageViewportLayout
 import io.legado.app.feature.reader.platform.ReaderAndroidPaintFactory
 import io.legado.app.feature.reader.platform.ReaderPageDecorationDrawCache
@@ -117,7 +120,7 @@ private val SelectionHandleStrokeWidth = 2.dp
 
 @Composable
 fun ReaderCanvasSurface(
-    pages: ReaderPageWindow,
+    hostPages: ReaderPageWindow,
     transitionMode: ReaderTransitionMode,
     backgroundColor: Color,
     backgroundImage: Drawable?,
@@ -127,8 +130,8 @@ fun ReaderCanvasSurface(
     textAccentColor: Color,
     autoPageIndicatorColor: Color,
     modifier: Modifier = Modifier,
-    onPreviousPage: () -> Unit,
-    onNextPage: () -> Unit,
+    onPreviousPage: () -> ReaderPageWindow?,
+    onNextPage: () -> ReaderPageWindow?,
     onToggleMenu: () -> Unit,
     onToggleBookmark: () -> Unit,
     swipeToBookmarkEnabled: Boolean,
@@ -154,6 +157,19 @@ fun ReaderCanvasSurface(
     externalPageTurns: Flow<ReaderTurnDirection>,
     externalSelectionCancels: Flow<Unit>,
 ) {
+    // 滚动跨页同步换窗：跨页帧内宿主回调直接返回新窗口，先写入 pending 供绘制与
+    // 手势立即使用；宿主 StateFlow 回声（同一实例）或外部窗口变化会将其清除。
+    // 对照旧 View 版 ContentTextView.scroll 的同步折算语义。
+    var scrollPendingWindow by remember { mutableStateOf<ReaderPageWindow?>(null) }
+    var scrollPendingBase by remember { mutableStateOf<ReaderPageWindow?>(null) }
+    val pendingWindow = scrollPendingWindow
+    val pages = when {
+        pendingWindow == null -> hostPages
+        hostPages === scrollPendingBase || hostPages === pendingWindow -> pendingWindow
+        else -> hostPages
+    }
+    /** 输入/绘制热路径读取的窗口：pending 未清时优先（含跨页当帧）。 */
+    fun currentPageWindow(): ReaderPageWindow = scrollPendingWindow ?: pages
     val current = pages.current ?: return
     val pageBackgroundImage = remember(backgroundImage, backgroundRevision) {
         backgroundImage?.isolatedCopy()
@@ -186,8 +202,9 @@ fun ReaderCanvasSurface(
     val latestSwipeToBookmarkEnabled by rememberUpdatedState(swipeToBookmarkEnabled)
     val latestHasBookmark by rememberUpdatedState(hasBookmarkOnCurrentPage)
     val latestToggleBookmark by rememberUpdatedState(onToggleBookmark)
-    DisposableEffect(transitionMode, current.widthPx, current.heightPx, current.layoutRevision) {
+    DisposableEffect(transitionMode) {
         onDispose {
+            // 模式切换时滚动惯性对换页模式已无意义，必须中止所有页运动动画并复位。
             pageMotionJob?.cancel()
             pendingTurn = null
             pendingTurnOrigin = null
@@ -198,11 +215,25 @@ fun ReaderCanvasSurface(
             bookmarkArmed = false
         }
     }
+    DisposableEffect(current.widthPx, current.heightPx, current.layoutRevision) {
+        val wasScrollMode = transitionMode == ReaderTransitionMode.SCROLL
+        onDispose {
+            // 滚动模式的跨页换窗也会更换 current（含跨章 layoutRevision 变化）；
+            // fling/点击步进动画每帧重读窗口尺寸，必须跨页延续。只有换页类动画
+            // 才在换页/视口变化时中止。
+            if (!wasScrollMode) pageMotionJob?.cancel()
+        }
+    }
     var curlTouchY by remember { mutableFloatStateOf(1f) }
     var curlTouchX by remember { mutableFloatStateOf(0f) }
-    var curlCornerY by remember { mutableFloatStateOf(0f) }
-    var scrollOffset by remember { mutableFloatStateOf(0f) }
-    var scrollCarryTarget by remember { mutableStateOf<ReaderPageId?>(null) }
+    var curlCornerY by remember { mutableStateOf(0f) }
+    // 滚动偏移只在 graphicsLayer 块（layer 属性期）读取：拖拽/fling 帧只更新层变换、
+    // 零重组零重绘（对照 shutiao 的 contentOffset 语义）。
+    val scrollOffsetState = remember { mutableFloatStateOf(0f) }
+    var scrollOffset by scrollOffsetState
+    // 滚动跨页折算标志：applyScrollResult 完成一次同步换窗后置位，由 current.id
+    // 效应消费——据此区分"自己跨页"与"外部换窗"，后者才把滚动偏移归零。
+    var scrollOwnCrossing by remember { mutableStateOf(false) }
     var autoRevealPx by remember { mutableFloatStateOf(0f) }
     var autoPageRemainingMillis by remember(current.id, autoReadSpeedSeconds) {
         mutableLongStateOf(ReaderAutoPagePolicy.pageDurationMillis(autoReadSpeedSeconds))
@@ -222,14 +253,14 @@ fun ReaderCanvasSurface(
     ) {
         // Paged modes do not compose the adjacent page until a gesture starts. Warm its images
         // while the window is idle so the first animation frame never falls back to placeholders.
-        listOfNotNull(pages.next, pages.previous, pages.current)
+        listOfNotNull(pages.nextPlus, pages.next, pages.previous, pages.current)
             .asSequence()
             .flatMap { page -> page.elements.asSequence().filterIsInstance<ReaderElement.Image>() }
             .distinctBy { element -> element.source to element.bounds }
             .forEach { element -> launch { loadImage(element) } }
     }
     val transforms = transition.copy(offsetPx = displayOffset).transforms(transitionMode)
-    fun pageViewportLayout(window: ReaderPageWindow = latestPages): ReaderPageViewportLayout =
+    fun pageViewportLayout(window: ReaderPageWindow = currentPageWindow()): ReaderPageViewportLayout =
         if (transitionMode == ReaderTransitionMode.SCROLL) {
             ReaderPageViewportLayout.scroll(window, scrollOffset)
         } else {
@@ -302,10 +333,17 @@ fun ReaderCanvasSurface(
             curlCornerY,
             latestPages.current?.heightPx?.toFloat() ?: 0f,
         )
+        // 仿真收尾用匀速：折页滑出屏幕是收尾的主体动作，减速收尾会让它
+        // 在结束帧前停滞（对照原版 delegate 的 LinearEasing）。
+        val settleEasing = if (transitionMode == ReaderTransitionMode.SIMULATION) {
+            LinearEasing
+        } else {
+            FastOutSlowInEasing
+        }
         pageMotionJob = animationScope.launch {
             Animatable(startOffset).animateTo(
                 decision.targetOffsetPx,
-                tween(durationMillis),
+                tween(durationMillis, easing = settleEasing),
             ) {
                 displayOffset = value
                 if (transitionMode == ReaderTransitionMode.SIMULATION) {
@@ -339,27 +377,35 @@ fun ReaderCanvasSurface(
         settlePageTurn(ReaderTransitionDecision(target, commit = true))
     }
     fun applyScrollResult(result: ReaderScrollResult, window: ReaderPageWindow) {
-        if (!ReaderScrollPolicy.canApplyDelta(scrollCarryTarget)) return
         scrollOffset = result.offsetPx
+        // 跨页换窗同步完成：宿主回调当帧返回新窗口，写入 pending 供本帧之后的
+        // 绘制与手势直接使用（宿主 StateFlow 回声随后到达，仅确认不等待）。
+        // 对照旧 View 版 ContentTextView.scroll 的同步折算语义。
         when (result.crossing) {
-            ReaderScrollCrossing.PREVIOUS -> {
-                scrollCarryTarget = window.previous?.id
-                latestPreviousPage()
+            ReaderScrollCrossing.PREVIOUS -> latestPreviousPage()?.let { newWindow ->
+                scrollOwnCrossing = true
+                scrollPendingBase = window
+                scrollPendingWindow = newWindow
             }
-            ReaderScrollCrossing.NEXT -> {
-                scrollCarryTarget = window.next?.id
-                latestNextPage()
+            ReaderScrollCrossing.NEXT -> latestNextPage()?.let { newWindow ->
+                scrollOwnCrossing = true
+                scrollPendingBase = window
+                scrollPendingWindow = newWindow
             }
             null -> Unit
         }
     }
     fun tapScrollPage(direction: ReaderTurnDirection) {
-        val page = latestPages.current ?: return
-        val distance = ReaderScrollPolicy.pageStep(page, scrollOffset, direction)
+        val window = currentPageWindow()
+        val page = window.current ?: return
+        // “保留一行”步距基于三页合成可视内容：页底露出的下一页行也是目标行候选。
+        val distance = ReaderScrollPolicy.pageStep(
+            page, scrollOffset, direction, window.previous, window.next,
+        )
         pageMotionJob?.cancel()
         val steps = ReaderGestureSettingsPolicy.scrollPageAnimationSteps(latestNoAnimationScrollPage)
         if (steps == 1) {
-            val window = latestPages
+            val window = currentPageWindow()
             val currentPage = window.current ?: return
             applyScrollResult(
                 ReaderScrollPolicy.apply(
@@ -377,7 +423,7 @@ fun ReaderCanvasSurface(
         }
         pageMotionJob = animationScope.launch {
             repeat(steps) {
-                val window = latestPages
+                val window = currentPageWindow()
                 val currentPage = window.current ?: return@launch
                 val result = ReaderScrollPolicy.apply(
                     scrollOffset,
@@ -390,7 +436,8 @@ fun ReaderCanvasSurface(
                 )
                 applyScrollResult(result, window)
                 if (result.hitBoundary) return@launch
-                delay(16)
+                // 按帧驱动步进：跟随合成器节拍，掉帧时步长自动摊平，不与显示帧脱节。
+                withFrameNanos { }
             }
         }
     }
@@ -443,13 +490,21 @@ fun ReaderCanvasSurface(
             selectionMenuVisible = false
         }
     }
+    LaunchedEffect(hostPages) {
+        // pending 窗口的收尾：宿主回声（与 pending 同实例）到达后解除；外部换窗
+        // （其他实例，如跳转/重排）直接丢弃 pending。偏移归零由下方 current.id
+        // 效应依据 scrollOwnCrossing 决定，避免两个效应间执行顺序影响结果。
+        if (scrollPendingWindow != null && hostPages !== scrollPendingBase) {
+            scrollPendingWindow = null
+            scrollPendingBase = null
+        }
+    }
     LaunchedEffect(current.id, current.layoutRevision, transitionMode) {
-        if (transitionMode == ReaderTransitionMode.SCROLL) {
-            scrollOffset = ReaderScrollPolicy.offsetAfterPageChange(
-                scrollOffset, scrollCarryTarget, current.id,
-            )
-        } else scrollOffset = 0f
-        scrollCarryTarget = null
+        val ownCrossing = scrollOwnCrossing
+        scrollOwnCrossing = false
+        if (transitionMode != ReaderTransitionMode.SCROLL || !ownCrossing) {
+            scrollOffset = 0f
+        }
         if (pendingTurnOrigin != null && pendingTurnOrigin != current.id) {
             pageMotionJob?.cancel()
             pendingTurn = null
@@ -519,7 +574,7 @@ fun ReaderCanvasSurface(
             val elapsedMs = (frame - previousFrame) / 1_000_000f
             previousFrame = frame
             if (transitionMode == ReaderTransitionMode.SCROLL) {
-                val window = latestPages
+                val window = currentPageWindow()
                 val page = window.current ?: continue
                 val viewport = page.scrollViewportExtentPx()
                 val delta = viewport /
@@ -784,7 +839,7 @@ fun ReaderCanvasSurface(
                         displayOffset = transition.offsetPx
                         change.consume()
                     } else if (scrollDrag) {
-                        val window = latestPages
+                        val window = currentPageWindow()
                         val page = window.current
                         if (page != null) {
                             val result = ReaderScrollPolicy.apply(scrollOffset, change.positionChange().y, window.previous?.scrollExtentPx ?: 0f, page.scrollExtentPx, page.scrollViewportExtentPx(), window.previous != null, window.next != null)
@@ -839,23 +894,19 @@ fun ReaderCanvasSurface(
                         Animatable(0f).animateDecay(velocity, scrollDecay) {
                             val delta = value - lastValue
                             lastValue = value
-                            // A page crossing publishes a new window asynchronously. Do not send
-                            // the same crossing more than once while that window is arriving.
-                            if (scrollCarryTarget == null) {
-                                val window = latestPages
-                                val page = window.current ?: return@animateDecay
-                                val result = ReaderScrollPolicy.apply(
-                                    scrollOffset,
-                                    delta,
-                                    window.previous?.scrollExtentPx ?: 0f,
-                                    page.scrollExtentPx,
-                                    page.scrollViewportExtentPx(),
-                                    window.previous != null,
-                                    window.next != null,
-                                )
-                                applyScrollResult(result, window)
-                                if (result.hitBoundary) throw ReaderScrollBoundaryReached()
-                            }
+                            val window = currentPageWindow()
+                            val page = window.current ?: return@animateDecay
+                            val result = ReaderScrollPolicy.apply(
+                                scrollOffset,
+                                delta,
+                                window.previous?.scrollExtentPx ?: 0f,
+                                page.scrollExtentPx,
+                                page.scrollViewportExtentPx(),
+                                window.previous != null,
+                                window.next != null,
+                            )
+                            applyScrollResult(result, window)
+                            if (result.hitBoundary) throw ReaderScrollBoundaryReached()
                         }
                     } catch (_: ReaderScrollBoundaryReached) {
                         // Reaching the first/last content boundary ends the fling immediately.
@@ -901,7 +952,15 @@ fun ReaderCanvasSurface(
                     this@drawWithContent.drawContent()
                 }
             }) {
-                ScrollPageStack(pages, scrollOffset, backgroundColor, pageBackgroundImage, backgroundImageAlpha, selectionColor, textAccentColor, textSelection, cachedImage, loadImage)
+                ScrollPageStack(
+                    windowProvider = { currentPageWindow() },
+                    offsetYState = scrollOffsetState,
+                    selection = selectionColor,
+                    readAloud = textAccentColor,
+                    selectionProvider = { textSelection },
+                    cachedImage = cachedImage,
+                    loadImage = loadImage,
+                )
             }
         } else if (transitionMode == ReaderTransitionMode.SIMULATION && transition.direction != null) {
             SimulationPageStack(pages, transition.direction!!, curlTouchX, curlTouchY, curlCornerY, backgroundColor, pageBackgroundImage, backgroundImageAlpha, selectionColor, textAccentColor, textSelection, cachedImage, loadImage)
@@ -1040,29 +1099,154 @@ private fun ReaderPage.scrollViewportExtentPx(): Float =
 
 @Composable
 private fun ScrollPageStack(
-    pages: ReaderPageWindow,
-    offsetY: Float,
-    background: Color,
-    backgroundImage: Drawable?,
-    backgroundImageAlpha: Float,
+    windowProvider: () -> ReaderPageWindow,
+    offsetYState: androidx.compose.runtime.MutableFloatState,
     selection: Color,
     readAloud: Color,
-    activeSelection: ReaderSelection?,
+    selectionProvider: () -> ReaderSelection?,
     cachedImage: (ReaderElement.Image) -> Bitmap?,
     loadImage: suspend (ReaderElement.Image) -> Bitmap?,
 ) {
-    val current = pages.current ?: return
-    val density = LocalDensity.current
-    fun Modifier.pageExtent(page: ReaderPage) = fillMaxWidth().height(with(density) {
-        maxOf(page.heightPx.toFloat(), page.contentTopPx + page.scrollExtentPx).toDp()
-    })
-    pages.previous?.let { previous ->
-        ReaderPageCanvas(previous, background, backgroundImage, backgroundImageAlpha, selection, readAloud, Modifier.pageExtent(previous).offset { IntOffset(0, (offsetY - previous.scrollExtentPx).roundToInt()) }.graphicsLayer { }, activeSelection, cachedImage, loadImage, drawBackground = false, drawDecoration = false)
+    val cache = remember { ScrollPageDrawCache() }
+    // 窗口变化（含跨页同步换窗）：effect 期为三页构建绘制数据并加载位图，正常情况下
+    // 跨页时新进入窗口的页在此处预热；draw 期 miss 时同步兜底，保正确性不缺字
+    // （对照 shutiao 的组合期 ensureTextLayoutCache + 绘制期兜底）。
+    LaunchedEffect(windowProvider()) {
+        val pageWindow = windowProvider()
+        // 预热含下下页：跨页后新进入窗口的 next 页就是上一窗口的 nextPlus，绘制数据
+        // 早已就绪。数据构建放 Default 线程——跨页帧主线程对页数据零构建，只有重绘
+        // （对照 shutiao 的四页流预热；miss 时的 draw 期同步构建仍是兜底）。
+        listOfNotNull(
+            pageWindow.previous,
+            pageWindow.current,
+            pageWindow.next,
+            pageWindow.nextPlus,
+        ).forEach { page ->
+            val data = cache.peek(page)
+                ?: withContext(Dispatchers.Default) { ScrollPageDrawData(page) }
+                    .also { cache.put(page, it) }
+            val sources = data.textBackgrounds.map { it.image.source }.distinct()
+            val cachedSources = sources.mapNotNull { source ->
+                ReaderTextBackgroundLoader.cached(source)?.let { source to it }
+            }.toMap()
+            if (cachedSources.isNotEmpty()) data.textBackgroundBitmaps.value = cachedSources
+            val loadedSources = withContext(Dispatchers.IO) {
+                sources.mapNotNull { source ->
+                    ReaderTextBackgroundLoader.load(source)?.let { source to it }
+                }.toMap()
+            }
+            if (loadedSources.isNotEmpty()) data.textBackgroundBitmaps.value = loadedSources
+            page.elements.filterIsInstance<ReaderElement.Image>().forEach { element ->
+                val bitmap = (cachedImage(element) ?: loadImage(element))
+                    ?.takeUnless(Bitmap::isRecycled)
+                    ?: return@forEach
+                if (data.images.value[element] !== bitmap) {
+                    data.images.value = data.images.value + (element to bitmap)
+                }
+            }
+        }
     }
-    ReaderPageCanvas(current, background, backgroundImage, backgroundImageAlpha, selection, readAloud, Modifier.pageExtent(current).offset { IntOffset(0, offsetY.roundToInt()) }.graphicsLayer { }, activeSelection, cachedImage, loadImage, drawBackground = false, drawDecoration = false)
-    pages.next?.let { next ->
-        ReaderPageCanvas(next, background, backgroundImage, backgroundImageAlpha, selection, readAloud, Modifier.pageExtent(next).offset { IntOffset(0, (offsetY + current.scrollExtentPx).roundToInt()) }.graphicsLayer { }, activeSelection, cachedImage, loadImage, drawBackground = false, drawDecoration = false)
+    Canvas(
+        modifier = Modifier
+            .fillMaxSize()
+            .graphicsLayer { translationY = offsetYState.floatValue },
+    ) {
+        // draw 期快照读：页窗口（同步换窗的 pending）变化只重绘不重组；拖拽平移只更新
+        // graphicsLayer 变换，draw 块不执行。三页连排的 y 是栈坐标，整画布随层平移偏移。
+        val window = windowProvider()
+        val current = window.current ?: return@Canvas
+        val activeSelection = selectionProvider()
+        fun drawOne(page: ReaderPage, stackOffsetY: Float) {
+            val data = cache.ensure(page)
+            val selectedBounds = if (activeSelection != null || data.hasSelectedElements) {
+                data.textElements
+                    .filter { it.selected || activeSelection?.contains(it) == true }
+                    .map(ReaderElement.Text::bounds)
+                    .mergeSelectionBounds()
+            } else emptyList()
+            withTransform({ translate(0f, stackOffsetY) }) {
+                drawScrollPageContent(page, data, selection, readAloud, activeSelection, selectedBounds)
+            }
+        }
+        window.previous?.let { drawOne(it, -it.scrollExtentPx) }
+        drawOne(current, 0f)
+        window.next?.let { drawOne(it, current.scrollExtentPx) }
     }
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawScrollPageContent(
+    page: ReaderPage,
+    data: ScrollPageDrawData,
+    selection: Color,
+    readAloud: Color,
+    activeSelection: ReaderSelection?,
+    selectedBounds: List<ReaderRect>,
+) {
+    val native = drawContext.canvas.nativeCanvas
+    val bitmaps = data.textBackgroundBitmaps.value
+    data.textBackgrounds.forEach { run ->
+        bitmaps[run.image.source]?.let { bitmap ->
+            drawTextBackground(native, bitmap, run, data.textBackgroundPaint)
+        }
+    }
+    data.textElements.mergeBackgroundBounds().forEach { band ->
+        drawRect(
+            Color(band.colorArgb),
+            Offset(band.bounds.left, band.bounds.top),
+            Size(band.bounds.width, band.bounds.height),
+        )
+    }
+    selectedBounds.forEach { rect ->
+        drawRect(selection, Offset(rect.left, rect.top), Size(rect.width, rect.height))
+    }
+    val images = data.images.value
+    page.elements.forEach { e -> when (e) {
+        is ReaderElement.Text -> {
+            val paint = data.paints.getValue(e.style)
+            paint.color = e.resolvedColorArgb(readAloud.toArgb())
+            paint.isUnderlineText = e.style.nativeUnderline || e.drawsLinkUnderline
+            native.drawText(e.value, e.bounds.left, e.baselinePx, paint)
+        }
+        is ReaderElement.Image -> images[e]?.let { bitmap ->
+            ReaderImageDrawLayout.fitCenter(e.bounds, bitmap.width, bitmap.height)?.let { layout ->
+                drawImage(
+                    image = bitmap.asImageBitmap(),
+                    dstOffset = IntOffset(layout.leftPx.roundToInt(), layout.topPx.roundToInt()),
+                    dstSize = IntSize(
+                        layout.widthPx.roundToInt().coerceAtLeast(1),
+                        layout.heightPx.roundToInt().coerceAtLeast(1),
+                    ),
+                )
+            }
+        } ?: drawRect(Color.Gray.copy(alpha = .18f), Offset(e.bounds.left, e.bounds.top), Size(e.bounds.width, e.bounds.height))
+        is ReaderElement.Review -> if (e.count > 0) drawReview(native, e, data.paints.values.firstOrNull()?.color ?: android.graphics.Color.GRAY)
+        is ReaderElement.Action -> Unit
+        is ReaderElement.Spacer -> Unit
+        is ReaderElement.ParagraphMarker -> {
+            if (e.circular) {
+                drawCircle(Color(e.colorArgb), e.strokeWidthPx / 2f, Offset(e.bounds.left, e.bounds.top))
+            } else {
+                drawLine(
+                    Color(e.colorArgb),
+                    Offset(e.bounds.left, e.bounds.top),
+                    Offset(e.bounds.right, e.bounds.bottom),
+                    e.strokeWidthPx,
+                )
+            }
+        }
+        is ReaderElement.Rule -> Unit
+    } }
+    data.emphasisUnderlines.forEach { run ->
+        drawLine(
+            color = Color(run.style.colorArgb),
+            start = Offset(run.startPx, run.yPx),
+            end = Offset(run.endPx, run.yPx),
+            strokeWidth = run.style.widthPx,
+        )
+    }
+    data.decorationDrawCache.contentRules.forEach { it.draw(native) }
+    data.decorationDrawCache.styledUnderlines.forEach { it.draw(native) }
+    data.decorationDrawCache.overlayRules.forEach { it.draw(native) }
 }
 
 @Composable
@@ -1327,14 +1511,12 @@ private fun ReaderPageCanvas(
                 drawTextBackground(native, bitmap, run, textBackgroundPaint)
             }
         }
-        textElements.forEach { element ->
-            element.style.backgroundArgb?.let { color ->
-                drawRect(
-                    Color(color),
-                    Offset(element.bounds.left, element.bounds.top),
-                    Size(element.bounds.width, element.bounds.height),
-                )
-            }
+        textElements.mergeBackgroundBounds().forEach { band ->
+            drawRect(
+                Color(band.colorArgb),
+                Offset(band.bounds.left, band.bounds.top),
+                Size(band.bounds.width, band.bounds.height),
+            )
         }
         selectedTextBounds.forEach { rect ->
             drawRect(selection, Offset(rect.left, rect.top), Size(rect.width, rect.height))
@@ -1401,7 +1583,7 @@ fun ReaderBackgroundSurface(
     val targetAlpha = if (isolatedBackgroundImage == null) 0f else backgroundImageAlpha
     val animatedAlpha by animateFloatAsState(
         targetValue = targetAlpha,
-        animationSpec = if (animateAppearance) tween(450) else snap(),
+        animationSpec = if (animateAppearance) tween(400) else snap(),
         label = "readerBackgroundAlpha",
     )
     Canvas(modifier) {
