@@ -615,6 +615,8 @@ object ReadBook : CoroutineScope by MainScope(), KoinComponent {
      */
     private fun resumeReadAloudWaitingForChapter(snapshots: List<ReaderChapterPaginationSnapshot>) {
         if (!BaseReadAloudService.isRun) return
+        // 脱离后朗读位置归用户：分页批次落地不代表朗读要跟到页面所在章节
+        if (!readAloudSessionStore.state.value.followReadAloudPosition) return
         if (snapshots.none { it.chapterIndex == durChapterIndex }) return
         if (BaseReadAloudService.currentChapterIndex == durChapterIndex) return
         readAloud(play = !BaseReadAloudService.pause)
@@ -983,12 +985,26 @@ object ReadBook : CoroutineScope by MainScope(), KoinComponent {
     }
 
     /**
-     * 手动导航后：脱离提示关闭时，朗读从新页面重新开始（跟随页面）；开启时保持脱离状态，不重启朗读。
+     * 手动导航后：脱离提示关闭时，朗读从新页面重新开始（跟随页面）并返回 true；
+     * 开启时保持脱离状态，不重启朗读，返回 false。
      */
-    private fun followReadAloudAfterManualNavigation() {
-        if (!BaseReadAloudService.isRun || BaseReadAloudService.speechDrivingNavigation) return
-        if (ReadBookConfig.readAloudDetachReminderEnabled) return
+    private fun followReadAloudAfterManualNavigation(): Boolean {
+        if (!BaseReadAloudService.isRun || BaseReadAloudService.speechDrivingNavigation) return false
+        if (ReadBookConfig.readAloudDetachReminderEnabled) return false
         readAloud(play = !BaseReadAloudService.pause)
+        return true
+    }
+
+    /**
+     * Compose 手动翻页提交后的朗读联动（对照 moveToNextPage 的 prepare/follow 对）。
+     * commitManualReaderPage 曾无条件重启朗读并复位跟随，脱离提示永不出现；
+     * 这里统一走脱离状态机：脱离/翻回朗读位置/跟随重启都在同一处判定。
+     * 返回是否跟随页面重启了朗读，调用方据此锚定朗读高亮。
+     */
+    fun onComposeManualPageTurn(): Boolean {
+        prepareManualNavigation()
+        restoreReadAloudFollowIfBackOnPosition()
+        return followReadAloudAfterManualNavigation()
     }
 
     fun moveToNextPage(): Boolean {

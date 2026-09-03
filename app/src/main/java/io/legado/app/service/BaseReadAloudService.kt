@@ -772,7 +772,11 @@ abstract class BaseReadAloudService : BaseService(),
                         if (timeMinute == PlaybackTimer.MIN_MINUTES &&
                             ReadConfig.finishCurrentChapterAfterTimer
                         ) {
-                            finishChapterAtIndex = ReadBook.durChapterIndex
+                            // 臂标锚定正在朗读的章节：脱离（手动翻到后章）时 durChapterIndex
+                            // 已领先，"读完本章"指正在读的这章，不是页面停留的章节
+                            finishChapterAtIndex = BaseReadAloudService.currentChapterIndex
+                                .takeIf { it >= 0 }
+                                ?: ReadBook.durChapterIndex
                             finishChapterAtIndex != NO_FINISH_CHAPTER
                         } else {
                             false
@@ -1478,6 +1482,10 @@ internal data class ChapterCompletionDecision(
 /**
  * Decides what a natural chapter boundary should do against the "finish current
  * chapter after timer" state. Pure and thread-free so it can be unit tested.
+ *
+ * SKIP 只保留给"章已推进且臂标不属于已读完章节"的双重触发竞态（臂标消费后为
+ * NO_FINISH，自然落入该分支）。臂标锚定的章节自然读完时必须 STOP：
+ * 脱离浏览（durChapterIndex 领先于朗读章节）不算章节已推进。
  */
 internal fun decideChapterCompletion(
     durChapterIndex: Int,
@@ -1485,11 +1493,13 @@ internal fun decideChapterCompletion(
     finishChapterAtIndex: Int,
     finishChapterSettingEnabled: Boolean,
 ): ChapterCompletionDecision {
-    if (durChapterIndex != finishedChapterIndex) {
-        // The chapter already advanced (race) — only clear a stale arm for the finished chapter.
+    if (durChapterIndex != finishedChapterIndex &&
+        finishChapterAtIndex != finishedChapterIndex
+    ) {
+        // The chapter already advanced concurrently (race) — leave any foreign arm alone.
         return ChapterCompletionDecision(
             action = ChapterCompletionAction.SKIP,
-            clearTimer = finishChapterAtIndex == finishedChapterIndex,
+            clearTimer = false,
         )
     }
     return when {

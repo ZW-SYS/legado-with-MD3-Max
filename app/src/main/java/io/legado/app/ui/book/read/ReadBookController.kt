@@ -688,17 +688,14 @@ class ReadBookController(
 
     private fun commitManualReaderPage(index: Int) {
         val page = directReaderPages.getOrNull(index) ?: return
-        val chapterPosition = directReaderPageContext(index)
-            ?.contentStartPosition
-            ?: ReaderPageNavigator.pageStart(page)
+        // 提交页边界偏移而非首段 chapterPosition：段落跨页时首段起点落在上一页，
+        // 会把持久化进度、朗读定位与 locate 全部拖回上一页末段。pageStart 与
+        // 分页快照的 pageStarts 同源（对照 moveToNextPage 的 nextPageStart 语义）。
+        val chapterPosition = ReaderPageNavigator.pageStart(page)
         // 热路径安静更新：不发布快照（否则每次跨页触发一次全量 UiState 重建落在动画帧上）。
         ReadBook.updateReadingPosition(chapterPosition, publish = false)
-        if (BaseReadAloudService.isRun) {
+        if (BaseReadAloudService.isRun && ReadBook.onComposeManualPageTurn()) {
             readAloudPosition = page.id.chapterIndex to chapterPosition
-            ReadBook.readAloud(
-                play = !BaseReadAloudService.pause,
-                chapterPosition = chapterPosition,
-            )
         }
     }
 
@@ -771,7 +768,13 @@ class ReadBookController(
     ): Boolean {
         val contentPadding = layoutController.viewport.value?.contentPadding ?: ReaderPadding()
         val inputWindow = ReadBook.readerChapterInputWindow
-        val chapter = inputWindow.current ?: return false
+        val chapter = inputWindow.current ?: run {
+            // 内容未装载（进入书籍/目录跳转装载中）：发布"加载中"占位页窗口，让
+            // 阅读画布保持组合、点击分区与菜单照常可用，装载完成后由分页批次
+            // 整窗替换（对照 shutiao 的加载占位页正文渲染）。
+            publishLoadingReaderWindow()
+            return false
+        }
         val chapters = listOf(
             inputWindow.previous,
             chapter,
@@ -840,12 +843,14 @@ class ReadBookController(
             append('|').append(ReadBookConfig.durConfig.highlightRules.hashCode())
         }
         if (directReaderLayoutKey == key && directReaderPages.isNotEmpty()) {
-            val index = directReaderPageIndex?.coerceIn(directReaderPages.indices)
-                ?: ReaderPageNavigator.locate(
+            // upContent 语义是"按 durChapterPos 重新定位"（对照旧 View upContent 重绘）：
+            // 朗读跨页走 moveToNextPage → upContent，只有重定位页面才会前进；缓存下标
+            // 会让这类发布变成空操作，页面跟随朗读随之失效。
+            val index = ReaderPageNavigator.locate(
                 directReaderPages,
                 chapter.chapter.index,
                 ReadBook.durChapterPos,
-                ).also { directReaderPageIndex = it }
+            ).also { directReaderPageIndex = it }
             publishDirectReaderWindow(index)
             return true
         }
@@ -1752,16 +1757,15 @@ class ReadBookController(
 
     fun updateReadAloudProgress(chapterStart: Int) {
         if (!BaseReadAloudService.isPlay()) return
-        val chapterIndex = BaseReadAloudService.currentChapterIndex
-        readAloudPosition = chapterIndex to chapterStart
-        if (directReaderPages.isNotEmpty()) {
-            directReaderPageIndex = ReaderPageNavigator.locate(
-                directReaderPages,
-                chapterIndex,
-                chapterStart,
-            )
-            directReaderPageIndex?.let(::publishDirectReaderWindow)
-        }
+        // 只更新朗读高亮锚点。可见页的移动由朗读服务驱动（moveToReadAloudPage →
+        // moveToNextPage → upContent）与用户导航负责；这里若再按朗读位置 locate
+        // 回迁可见页，进入阅读器时会把页面先拉回朗读所在的上一段（跨页段落的
+        // locate 落在段落起始页），随后 curPageChanged 的跟随重启又跳回当前页。
+        val anchor = BaseReadAloudService.currentChapterIndex to chapterStart
+        if (readAloudPosition == anchor) return
+        readAloudPosition = anchor
+        // 高亮在窗口发布时才计算绘制（directReaderWindow），锚点变化后必须重发布
+        directReaderPageIndex?.let(::publishDirectReaderWindow)
     }
 
     // ── Key handling ──
@@ -2004,6 +2008,15 @@ class ReadBookController(
         pageChanged = true
         viewModel.startBackupJob()
         return window
+    }
+
+    /** 内容装载前的整窗占位：窗口里只有"加载中"占位页，点击/菜单走画布正常路径。 */
+    private fun publishLoadingReaderWindow() {
+        val current = _readerPageWindow.value.current
+        if (current?.isPlaceholder == true && current.id.chapterIndex == ReadBook.durChapterIndex) return
+        placeholderReaderPage(ReadBook.durChapterIndex)?.let { page ->
+            updateReaderPageWindow(ReaderPageWindow(current = page))
+        }
     }
 
     /** 未装载章节的占位页：一屏居中的"加载中"文字，几何与普通页一致以保持滚动连续。 */
