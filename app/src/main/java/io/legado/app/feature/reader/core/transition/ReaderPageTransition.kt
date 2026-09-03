@@ -90,7 +90,7 @@ object ReaderPageTransitionPolicy {
         currentOffsetPx: Float,
         targetOffsetPx: Float,
         pageExtentPx: Float,
-        baseDurationMillis: Int = 300,
+        baseDurationMillis: Int = 360,
     ): Int {
         if (pageExtentPx <= 0f || baseDurationMillis <= 0 || currentOffsetPx == targetOffsetPx) return 0
         // FadePageDelegate animates its normalized alpha for the full configured duration.

@@ -93,6 +93,8 @@ sealed interface ReaderElement {
         val paragraphIndex: Int = -1,
         val backgroundFrameTopPx: Float = 0f,
         val backgroundFrameBottomPx: Float = 0f,
+        /** 同一行内紧随同背景图元素之后（对照旧 View TextLine 的行内连续绘制）。 */
+        val continuesBackgroundRun: Boolean = false,
     ) : ReaderElement {
         /** HTML links keep the legacy reader's accent priority, including during read-aloud. */
         fun resolvedColorArgb(accentColorArgb: Int): Int =

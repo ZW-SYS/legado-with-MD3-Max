@@ -1,21 +1,20 @@
 package io.legado.app.feature.reader
 
-import android.graphics.Paint
-import io.legado.app.feature.reader.platform.ReaderBookmarkBadgeRenderer
 import android.graphics.Bitmap
 import android.graphics.BitmapShader
+import android.graphics.Paint
 import android.graphics.Shader
-import android.os.SystemClock
 import android.graphics.drawable.Drawable
+import android.os.SystemClock
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -24,94 +23,139 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.ClipOp
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.rememberGraphicsLayer
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.ScrollAxisRange
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.scrollBy
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.semantics.verticalScrollAxisRange
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.input.pointer.*
-import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import io.legado.app.R
+import io.legado.app.feature.reader.core.accessibility.ReaderAccessibilityPolicy
 import io.legado.app.feature.reader.core.gesture.PullBookmarkDefaults
 import io.legado.app.feature.reader.core.gesture.PullBookmarkGesture
+import io.legado.app.feature.reader.core.gesture.ReaderGestureSettingsPolicy
 import io.legado.app.feature.reader.core.gesture.ReaderMainAxisPolicy
+import io.legado.app.feature.reader.core.gesture.ReaderPageViewportLayout
 import io.legado.app.feature.reader.core.gesture.ReaderTapAction
 import io.legado.app.feature.reader.core.gesture.ReaderTapActionGrid
-import io.legado.app.feature.reader.core.gesture.ReaderGestureSettingsPolicy
-import io.legado.app.feature.reader.core.accessibility.ReaderAccessibilityPolicy
-import io.legado.app.feature.reader.core.model.*
-import io.legado.app.feature.reader.core.transition.*
+import io.legado.app.feature.reader.core.model.ReaderElement
+import io.legado.app.feature.reader.core.model.ReaderImageDrawLayout
+import io.legado.app.feature.reader.core.model.ReaderNineSliceLayout
+import io.legado.app.feature.reader.core.model.ReaderPage
+import io.legado.app.feature.reader.core.model.ReaderPageId
+import io.legado.app.feature.reader.core.model.ReaderPageTip
+import io.legado.app.feature.reader.core.model.ReaderPageWindow
+import io.legado.app.feature.reader.core.model.ReaderRect
+import io.legado.app.feature.reader.core.model.ReaderTextBackgroundImage
+import io.legado.app.feature.reader.core.model.ReaderTipAlignment
+import io.legado.app.feature.reader.core.model.ReaderTipRow
+import io.legado.app.feature.reader.core.model.ReaderTipRowLayout
+import io.legado.app.feature.reader.core.model.ReaderTipVisual
+import io.legado.app.feature.reader.core.model.emphasisUnderlineRuns
+import io.legado.app.feature.reader.core.model.textBackgroundRuns
+import io.legado.app.feature.reader.core.selection.ReaderPageChangeOrigin
 import io.legado.app.feature.reader.core.selection.ReaderSelection
 import io.legado.app.feature.reader.core.selection.ReaderSelectionEndpoint
-import io.legado.app.feature.reader.core.selection.ReaderPageChangeOrigin
 import io.legado.app.feature.reader.core.selection.ReaderSelectionLifecyclePolicy
 import io.legado.app.feature.reader.core.selection.ReaderSelectionMenuAnchor
 import io.legado.app.feature.reader.core.selection.ReaderSelectionPolicy
 import io.legado.app.feature.reader.core.selection.mergeSelectionBounds
 import io.legado.app.feature.reader.core.style.mergeBackgroundBounds
-import io.legado.app.feature.reader.core.gesture.ReaderPageViewportLayout
+import io.legado.app.feature.reader.core.transition.CurlPoint
+import io.legado.app.feature.reader.core.transition.PageCurlFrame
+import io.legado.app.feature.reader.core.transition.PageCurlGeometry
+import io.legado.app.feature.reader.core.transition.ReaderAutoPagePolicy
+import io.legado.app.feature.reader.core.transition.ReaderAutoPageVisualMode
+import io.legado.app.feature.reader.core.transition.ReaderCoverShadowPolicy
+import io.legado.app.feature.reader.core.transition.ReaderCurlTouchPolicy
+import io.legado.app.feature.reader.core.transition.ReaderCurlVisualPolicy
+import io.legado.app.feature.reader.core.transition.ReaderHorizontalDrag
+import io.legado.app.feature.reader.core.transition.ReaderPageTransform
+import io.legado.app.feature.reader.core.transition.ReaderPageTransition
+import io.legado.app.feature.reader.core.transition.ReaderPageTransitionPolicy
+import io.legado.app.feature.reader.core.transition.ReaderProgrammaticTurnPolicy
+import io.legado.app.feature.reader.core.transition.ReaderScrollCrossing
+import io.legado.app.feature.reader.core.transition.ReaderScrollPolicy
+import io.legado.app.feature.reader.core.transition.ReaderScrollResult
+import io.legado.app.feature.reader.core.transition.ReaderTransitionDecision
+import io.legado.app.feature.reader.core.transition.ReaderTransitionMode
+import io.legado.app.feature.reader.core.transition.ReaderTurnDirection
+import io.legado.app.feature.reader.core.transition.ReaderViewportLayerPolicy
+import io.legado.app.feature.reader.core.transition.transforms
 import io.legado.app.feature.reader.platform.ReaderAndroidPaintFactory
+import io.legado.app.feature.reader.platform.ReaderBookmarkBadgeRenderer
 import io.legado.app.feature.reader.platform.ReaderPageDecorationDrawCache
 import io.legado.app.feature.reader.platform.ReaderTextBackgroundLoader
-import io.legado.app.feature.reader.core.model.emphasisUnderlineRuns
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.math.PI
 import kotlin.math.abs
-import kotlin.math.hypot
 import kotlin.math.atan2
 import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.PI
+import kotlin.math.hypot
 import kotlin.math.roundToInt
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import io.legado.app.R
+import kotlin.math.sin
 
 /** Compose Canvas reader surface. Gesture arbitration and transforms are independent of ReadView. */
 // 把手圆挂在行底部下方、顶端圆周与竖线末端相切；圆区域在拖动命中时视作竖线的延伸。
@@ -168,8 +212,12 @@ fun ReaderCanvasSurface(
         hostPages === scrollPendingBase || hostPages === pendingWindow -> pendingWindow
         else -> hostPages
     }
+    // 手势协程长驻（pointerInput 只在 key 变化时重启），闭包捕获的组合期值会过期；
+    // 热路径窗口必须经 rememberUpdatedState 现读。对照旧 View 版每次事件现读
+    // curPage 字段、shutiao 版向长驻协程注入最新页源的语义。
+    val latestPages by rememberUpdatedState(pages)
     /** 输入/绘制热路径读取的窗口：pending 未清时优先（含跨页当帧）。 */
-    fun currentPageWindow(): ReaderPageWindow = scrollPendingWindow ?: pages
+    fun currentPageWindow(): ReaderPageWindow = scrollPendingWindow ?: latestPages
     val current = pages.current ?: return
     val pageBackgroundImage = remember(backgroundImage, backgroundRevision) {
         backgroundImage?.isolatedCopy()
@@ -242,7 +290,6 @@ fun ReaderCanvasSurface(
     val latestSelectionPausesAutoPage by rememberUpdatedState(textSelection != null)
     var selectionMenuVisible by remember { mutableStateOf(false) }
     var selectionLayoutRevision by remember { mutableLongStateOf(current.layoutRevision) }
-    val latestPages by rememberUpdatedState(pages)
     LaunchedEffect(
         pages.previous?.id,
         pages.previous?.revision,
@@ -285,14 +332,14 @@ fun ReaderCanvasSurface(
             dismissSelectionMenu()
         }
     }
-    fun completePendingTurn() {
+    fun completePendingTurn(): ReaderPageWindow? {
         val direction = pendingTurn.takeIf { pendingTurnOrigin == latestPages.current?.id }
         pendingTurn = null
         pendingTurnOrigin = null
-        when (direction) {
+        return when (direction) {
             ReaderTurnDirection.PREVIOUS -> latestPreviousPage()
             ReaderTurnDirection.NEXT -> latestNextPage()
-            null -> Unit
+            null -> null
         }
     }
     fun settlePageTurn(decision: ReaderTransitionDecision) {
@@ -603,342 +650,417 @@ fun ReaderCanvasSurface(
     val nextPageDescription = stringResource(io.legado.app.R.string.next_page)
     val menuDescription = stringResource(io.legado.app.R.string.menu)
     val accessibilityPage = ReaderAccessibilityPolicy.snapshot(pages)
-    Box(modifier.clearAndSetSemantics {
-        accessibilityPage?.let { page ->
-            text = AnnotatedString(page.text)
-            if (page.isBookmarked) stateDescription = bookmarkDescription
-            verticalScrollAxisRange = ScrollAxisRange(
-                value = { if (page.canGoPrevious) 1f else 0f },
-                maxValue = {
-                    (if (page.canGoPrevious) 1f else 0f) +
-                        (if (page.canGoNext) 1f else 0f)
-                },
-            )
-            onClick(label = menuDescription) {
-                showComposeAccessibilityMenu()
-                true
-            }
-            scrollBy { x, y ->
-                val amount = if (abs(y) >= abs(x)) y else x
-                when {
-                    amount > 0f && page.canGoNext -> {
-                        accessibilityPageTurn(ReaderTurnDirection.NEXT)
-                        true
+    Box(modifier
+        .clearAndSetSemantics {
+            accessibilityPage?.let { page ->
+                text = AnnotatedString(page.text)
+                if (page.isBookmarked) stateDescription = bookmarkDescription
+                verticalScrollAxisRange = ScrollAxisRange(
+                    value = { if (page.canGoPrevious) 1f else 0f },
+                    maxValue = {
+                        (if (page.canGoPrevious) 1f else 0f) +
+                                (if (page.canGoNext) 1f else 0f)
+                    },
+                )
+                onClick(label = menuDescription) {
+                    showComposeAccessibilityMenu()
+                    true
+                }
+                scrollBy { x, y ->
+                    val amount = if (abs(y) >= abs(x)) y else x
+                    when {
+                        amount > 0f && page.canGoNext -> {
+                            accessibilityPageTurn(ReaderTurnDirection.NEXT)
+                            true
+                        }
+
+                        amount < 0f && page.canGoPrevious -> {
+                            accessibilityPageTurn(ReaderTurnDirection.PREVIOUS)
+                            true
+                        }
+
+                        else -> false
                     }
-                    amount < 0f && page.canGoPrevious -> {
+                }
+                customActions = buildList {
+                    if (page.canGoPrevious) add(CustomAccessibilityAction(previousPageDescription) {
                         accessibilityPageTurn(ReaderTurnDirection.PREVIOUS)
                         true
-                    }
-                    else -> false
+                    })
+                    if (page.canGoNext) add(CustomAccessibilityAction(nextPageDescription) {
+                        accessibilityPageTurn(ReaderTurnDirection.NEXT)
+                        true
+                    })
                 }
-            }
-            customActions = buildList {
-                if (page.canGoPrevious) add(CustomAccessibilityAction(previousPageDescription) {
-                    accessibilityPageTurn(ReaderTurnDirection.PREVIOUS)
-                    true
-                })
-                if (page.canGoNext) add(CustomAccessibilityAction(nextPageDescription) {
-                    accessibilityPageTurn(ReaderTurnDirection.NEXT)
-                    true
-                })
             }
         }
-    }.clipToBounds().background(backgroundColor).pointerInput(transitionMode, current.widthPx, current.heightPx, configuredTouchSlopPx) {
-        val pageTouchSlop = ReaderGestureSettingsPolicy.touchSlopPx(
-            viewConfiguration.touchSlop,
-            configuredTouchSlopPx,
-        )
-        awaitEachGesture {
-            val down = awaitFirstDown(requireUnconsumed = false)
-            latestReaderInteraction()
-            pageMotionJob?.cancel()
-            completePendingTurn()
-            displayOffset = 0f
-            transition = ReaderPageTransition()
-            bookmarkReturnJob?.cancel()
-            bookmarkOffset = 0f
-            bookmarkArmed = false
-            bookmarkWillRemove = latestHasBookmark()
-            val bookmarkEnabled = latestSwipeToBookmarkEnabled && textSelection == null
-            curlTouchY = down.position.y
-            val velocityTracker = VelocityTracker().also { it.addPosition(down.uptimeMillis, down.position) }
-            var total = Offset.Zero
-            var lastHorizontalDelta = 0f
-            var horizontalTurn = false
-            var horizontalDrag: ReaderHorizontalDrag? = null
-            var horizontalCapturedY = down.position.y
-            var bookmarkDrag = false
-            var bookmarkReleased = false
-            var scrollDrag = false
-            var movedPastSlop = false
-            var longPressed = false
-            var grabbingStart = false
-            var grabbingEnd = false
-            var grabbedEndpoint: ReaderSelectionEndpoint? = null
-            var suppressTap = false
-            var pointerPosition = down.position
-            val downSelectionLayout = pageViewportLayout()
-            val downPlacement = downSelectionLayout.pageAt(down.position.x, down.position.y)
-            val downPage = downPlacement?.page ?: latestPages.current
-            val downPageY = downPlacement?.localY(down.position.y) ?: down.position.y
-            textSelection?.let { selection ->
-                val bounds = downSelectionLayout.selectionBounds(selection).map { it.bounds }
-                val handleRadius = 28f * density
-                val start = bounds.firstOrNull()
-                val end = bounds.lastOrNull()
-                grabbingStart = start != null && Offset(start.left, start.bottom).minus(down.position).getDistance() <= handleRadius
-                grabbingEnd = end != null && Offset(end.right, end.bottom).minus(down.position).getDistance() <= handleRadius
-                grabbedEndpoint = when {
-                    grabbingStart -> selection.visualStartEndpoint()
-                    grabbingEnd -> selection.visualEndEndpoint()
-                    else -> null
+        .clipToBounds()
+        .background(backgroundColor)
+        .pointerInput(transitionMode, current.widthPx, current.heightPx, configuredTouchSlopPx) {
+            val pageTouchSlop = ReaderGestureSettingsPolicy.touchSlopPx(
+                viewConfiguration.touchSlop,
+                configuredTouchSlopPx,
+            )
+            awaitEachGesture {
+                val down = awaitFirstDown(requireUnconsumed = false)
+                latestReaderInteraction()
+                pageMotionJob?.cancel()
+                // 翻页收尾被打断时在此同步提交；宿主当帧返回新窗口，但组合要等下一帧，
+                // 手势必须改用返回的窗口命中，否则长按会选中已不在屏幕上的旧页。
+                val turnedWindow = completePendingTurn()
+                displayOffset = 0f
+                transition = ReaderPageTransition()
+                bookmarkReturnJob?.cancel()
+                bookmarkOffset = 0f
+                bookmarkArmed = false
+                bookmarkWillRemove = latestHasBookmark()
+                val bookmarkEnabled = latestSwipeToBookmarkEnabled && textSelection == null
+                curlTouchY = down.position.y
+                val velocityTracker =
+                    VelocityTracker().also { it.addPosition(down.uptimeMillis, down.position) }
+                var total = Offset.Zero
+                var lastHorizontalDelta = 0f
+                var horizontalTurn = false
+                var horizontalDrag: ReaderHorizontalDrag? = null
+                var horizontalCapturedY = down.position.y
+                var bookmarkDrag = false
+                var bookmarkReleased = false
+                var scrollDrag = false
+                var movedPastSlop = false
+                var longPressed = false
+                var grabbingStart = false
+                var grabbingEnd = false
+                var grabbedEndpoint: ReaderSelectionEndpoint? = null
+                var suppressTap = false
+                var pointerPosition = down.position
+                val downWindow = turnedWindow ?: currentPageWindow()
+                val downSelectionLayout = pageViewportLayout(downWindow)
+                val downPlacement = downSelectionLayout.pageAt(down.position.x, down.position.y)
+                val downPage = downPlacement?.page ?: downWindow.current
+                val downPageY = downPlacement?.localY(down.position.y) ?: down.position.y
+                textSelection?.let { selection ->
+                    val bounds = downSelectionLayout.selectionBounds(selection).map { it.bounds }
+                    val handleRadius = 28f * density
+                    val start = bounds.firstOrNull()
+                    val end = bounds.lastOrNull()
+                    grabbingStart =
+                        start != null && Offset(start.left, start.bottom).minus(down.position)
+                            .getDistance() <= handleRadius
+                    grabbingEnd = end != null && Offset(end.right, end.bottom).minus(down.position)
+                        .getDistance() <= handleRadius
+                    grabbedEndpoint = when {
+                        grabbingStart -> selection.visualStartEndpoint()
+                        grabbingEnd -> selection.visualEndEndpoint()
+                        else -> null
+                    }
+                    if (!grabbingStart && !grabbingEnd) {
+                        textSelection = null
+                        dismissSelectionMenu()
+                        suppressTap = true
+                    } else dismissSelectionMenu()
                 }
-                if (!grabbingStart && !grabbingEnd) {
-                    textSelection = null
-                    dismissSelectionMenu()
-                    suppressTap = true
-                } else dismissSelectionMenu()
-            }
-            val longPressJob = animationScope.launch {
-                delay(viewConfiguration.longPressTimeoutMillis)
-                if (!movedPastSlop && !grabbingStart && !grabbingEnd) {
-                    downPage?.let { page ->
-                        val element = page.elementAt(down.position.x, downPageY)
-                        if (element != null && onElementLongPress(element, down.position.x, down.position.y)) {
-                            longPressed = true
-                        } else if (latestSelectionEnabled && !latestAutoPageActive) {
-                            ReaderSelectionPolicy.startWord(page, down.position.x, downPageY)?.let {
-                                textSelection = it
-                                if (latestSelectionHapticsEnabled) {
-                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                                }
+                val longPressJob = animationScope.launch {
+                    delay(viewConfiguration.longPressTimeoutMillis)
+                    if (!movedPastSlop && !grabbingStart && !grabbingEnd) {
+                        downPage?.let { page ->
+                            val element = page.elementAt(down.position.x, downPageY)
+                            if (element != null && onElementLongPress(
+                                    element,
+                                    down.position.x,
+                                    down.position.y
+                                )
+                            ) {
                                 longPressed = true
+                            } else if (latestSelectionEnabled && !latestAutoPageActive) {
+                                ReaderSelectionPolicy.startWord(page, down.position.x, downPageY)
+                                    ?.let {
+                                        textSelection = it
+                                        if (latestSelectionHapticsEnabled) {
+                                            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        }
+                                        longPressed = true
+                                    }
                             }
                         }
                     }
                 }
-            }
-            var released = false
-            try {
-                while (true) {
-                    val event = awaitPointerEvent(PointerEventPass.Main)
-                    val change = event.changes.firstOrNull { it.id == down.id } ?: break
-                    if (change.isConsumed) break
-                    pointerPosition = change.position
-                    if (!change.pressed) { released = true; break }
-                    total += change.positionChange()
-                    if (change.positionChange().x != 0f) lastHorizontalDelta = change.positionChange().x
-                    curlTouchY = change.position.y
-                    velocityTracker.addPosition(change.uptimeMillis, change.position)
-                    if (total.getDistance() >= pageTouchSlop) {
-                        movedPastSlop = true
-                        if (!longPressed && !grabbingStart && !grabbingEnd) longPressJob.cancel()
-                    }
-                    if (longPressed || grabbingStart || grabbingEnd) {
-                        val selection = textSelection
-                        val placement = pageViewportLayout().pageAt(change.position.x, change.position.y)
-                        if (placement != null && selection != null) {
-                            val page = placement.page
-                            // 圆把手视作竖线的延伸：手指落在把手圆区域内时按本行底边命中，
-                            // 避免圆与下一行之间的间隙把手柄拖动吸到下一行。
-                            var viewportY = change.position.y
-                            if (grabbedEndpoint != null) {
-                                val endpointBounds = pageViewportLayout().selectionBounds(selection).map { it.bounds }
-                                val anchorBound = if (grabbingStart) endpointBounds.firstOrNull() else endpointBounds.lastOrNull()
-                                if (anchorBound != null) {
-                                    val zoneBottom = anchorBound.bottom + 2 * SelectionHandleRadius.toPx()
-                                    if (viewportY > anchorBound.bottom && viewportY <= zoneBottom) {
-                                        viewportY = anchorBound.bottom
+                var released = false
+                try {
+                    while (true) {
+                        val event = awaitPointerEvent(PointerEventPass.Main)
+                        val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                        if (change.isConsumed) break
+                        pointerPosition = change.position
+                        if (!change.pressed) {
+                            released = true; break
+                        }
+                        total += change.positionChange()
+                        if (change.positionChange().x != 0f) lastHorizontalDelta =
+                            change.positionChange().x
+                        curlTouchY = change.position.y
+                        velocityTracker.addPosition(change.uptimeMillis, change.position)
+                        if (total.getDistance() >= pageTouchSlop) {
+                            movedPastSlop = true
+                            if (!longPressed && !grabbingStart && !grabbingEnd) longPressJob.cancel()
+                        }
+                        if (longPressed || grabbingStart || grabbingEnd) {
+                            val selection = textSelection
+                            val placement =
+                                pageViewportLayout().pageAt(change.position.x, change.position.y)
+                            if (placement != null && selection != null) {
+                                val page = placement.page
+                                // 圆把手视作竖线的延伸：手指落在把手圆区域内时按本行底边命中，
+                                // 避免圆与下一行之间的间隙把手柄拖动吸到下一行。
+                                var viewportY = change.position.y
+                                if (grabbedEndpoint != null) {
+                                    val endpointBounds =
+                                        pageViewportLayout().selectionBounds(selection)
+                                            .map { it.bounds }
+                                    val anchorBound =
+                                        if (grabbingStart) endpointBounds.firstOrNull() else endpointBounds.lastOrNull()
+                                    if (anchorBound != null) {
+                                        val zoneBottom =
+                                            anchorBound.bottom + 2 * SelectionHandleRadius.toPx()
+                                        if (viewportY > anchorBound.bottom && viewportY <= zoneBottom) {
+                                            viewportY = anchorBound.bottom
+                                        }
                                     }
                                 }
+                                val pageY = placement.localY(viewportY)
+                                val hit =
+                                    ReaderSelectionPolicy.start(page, change.position.x, pageY)
+                                        ?: if (grabbedEndpoint != null) {
+                                            ReaderSelectionPolicy.snapToText(
+                                                page,
+                                                change.position.x,
+                                                pageY
+                                            )?.let {
+                                                ReaderSelection(
+                                                    page.id.chapterIndex,
+                                                    it.chapterPosition,
+                                                    it.chapterPosition,
+                                                    it.emphasized
+                                                )
+                                            }
+                                        } else {
+                                            null
+                                        }
+                                if (hit != null && hit.chapterIndex == selection.chapterIndex) {
+                                    val updatedSelection = when {
+                                        grabbedEndpoint != null -> selection.moveEndpoint(
+                                            grabbedEndpoint,
+                                            hit.anchor,
+                                            hit.anchorIsTitle,
+                                        )
+
+                                        else -> ReaderSelectionPolicy.extend(
+                                            selection,
+                                            page,
+                                            change.position.x,
+                                            pageY
+                                        )
+                                    }
+                                    if (updatedSelection != selection) {
+                                        textSelection = updatedSelection
+                                        if (latestSelectionHapticsEnabled) {
+                                            hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                        }
+                                    }
+                                }
+                                change.consume()
                             }
-                            val pageY = placement.localY(viewportY)
-                            val hit = ReaderSelectionPolicy.start(page, change.position.x, pageY)
-                                ?: if (grabbedEndpoint != null) {
-                                    ReaderSelectionPolicy.snapToText(page, change.position.x, pageY)?.let {
-                                        ReaderSelection(page.id.chapterIndex, it.chapterPosition, it.chapterPosition, it.emphasized)
-                                    }
-                                } else {
-                                    null
-                                }
-                            if (hit != null && hit.chapterIndex == selection.chapterIndex) {
-                                val updatedSelection = when {
-                                    grabbedEndpoint != null -> selection.moveEndpoint(
-                                        grabbedEndpoint,
-                                        hit.anchor,
-                                        hit.anchorIsTitle,
-                                    )
-                                    else -> ReaderSelectionPolicy.extend(selection, page, change.position.x, pageY)
-                                }
-                                if (updatedSelection != selection) {
-                                    textSelection = updatedSelection
-                                    if (latestSelectionHapticsEnabled) {
-                                        hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                    }
-                                }
+                            continue
+                        }
+                        if (!horizontalTurn && !bookmarkDrag && !scrollDrag && total.getDistance() >= pageTouchSlop) {
+                            val pull = pullBookmark(
+                                total,
+                                size.height.toFloat(),
+                                density,
+                                transitionMode,
+                                bookmarkEnabled
+                            )
+                            if (!bookmarkReleased) {
+                                val claim = PullBookmarkGesture.claim(bookmarkReleased, pull)
+                                bookmarkDrag = claim.isDragging
+                                // Match the View reader: once the first post-slop sample is not a
+                                // pull candidate, this gesture belongs to page turning/scrolling and
+                                // must not be reclaimed by a later diagonal direction change.
+                                bookmarkReleased = claim.isReleased
                             }
-                            change.consume()
-                        }
-                        continue
-                    }
-                    if (!horizontalTurn && !bookmarkDrag && !scrollDrag && total.getDistance() >= pageTouchSlop) {
-                        val pull = pullBookmark(total, size.height.toFloat(), density, transitionMode, bookmarkEnabled)
-                        if (!bookmarkReleased) {
-                            val claim = PullBookmarkGesture.claim(bookmarkReleased, pull)
-                            bookmarkDrag = claim.isDragging
-                            // Match the View reader: once the first post-slop sample is not a
-                            // pull candidate, this gesture belongs to page turning/scrolling and
-                            // must not be reclaimed by a later diagonal direction change.
-                            bookmarkReleased = claim.isReleased
-                        }
-                        scrollDrag = transitionMode == ReaderTransitionMode.SCROLL &&
-                            ReaderMainAxisPolicy.isVerticalDominant(total.x, total.y)
-                        horizontalTurn = !bookmarkDrag && !scrollDrag &&
-                            ReaderMainAxisPolicy.isHorizontalDominant(total.x, total.y)
-                        if (horizontalTurn) {
-                            horizontalDrag = ReaderHorizontalDrag.capture(total.x)
-                            horizontalCapturedY = change.position.y
-                        }
-                    }
-                    if (bookmarkDrag) {
-                        val pull = pullBookmark(total, size.height.toFloat(), density, transitionMode, bookmarkEnabled)
-                        bookmarkOffset = pull.pageOffsetPx
-                        bookmarkArmed = pull.isArmed
-                        if (pull.isCandidate) {
-                            change.consume()
-                        } else {
-                            // Once handed to page turning, this gesture must never reclaim the pull.
-                            bookmarkDrag = false
-                            bookmarkReleased = true
-                            // The legacy reader restores curPage before forwarding MOVE to its
-                            // page delegate. Leaving this translation in place makes cover/slide
-                            // turns travel diagonally and can persist until the next DOWN.
-                            bookmarkArmed = false
-                            bookmarkOffset = 0f
-                            horizontalTurn = ReaderMainAxisPolicy.isHorizontalDominant(total.x, total.y)
+                            scrollDrag = transitionMode == ReaderTransitionMode.SCROLL &&
+                                    ReaderMainAxisPolicy.isVerticalDominant(total.x, total.y)
+                            horizontalTurn = !bookmarkDrag && !scrollDrag &&
+                                    ReaderMainAxisPolicy.isHorizontalDominant(total.x, total.y)
                             if (horizontalTurn) {
                                 horizontalDrag = ReaderHorizontalDrag.capture(total.x)
                                 horizontalCapturedY = change.position.y
                             }
                         }
-                    }
-                    if (horizontalTurn && transitionMode != ReaderTransitionMode.SCROLL) {
-                        transition = horizontalDrag?.transition(
-                            total.x, size.width.toFloat(),
-                            latestPages.previous != null, latestPages.next != null,
-                        ) ?: ReaderPageTransition(pageExtentPx = size.width.toFloat())
-                        transition.direction?.takeIf { transitionMode == ReaderTransitionMode.SIMULATION }?.let {
-                            curlTouchX = change.position.x
-                            curlCornerY = ReaderCurlTouchPolicy.cornerY(
-                                it, horizontalCapturedY, size.height.toFloat(),
+                        if (bookmarkDrag) {
+                            val pull = pullBookmark(
+                                total,
+                                size.height.toFloat(),
+                                density,
+                                transitionMode,
+                                bookmarkEnabled
                             )
-                            curlTouchY = ReaderCurlTouchPolicy.dragY(
-                                it, horizontalCapturedY, change.position.y, size.height.toFloat(),
-                            )
+                            bookmarkOffset = pull.pageOffsetPx
+                            bookmarkArmed = pull.isArmed
+                            if (pull.isCandidate) {
+                                change.consume()
+                            } else {
+                                // Once handed to page turning, this gesture must never reclaim the pull.
+                                bookmarkDrag = false
+                                bookmarkReleased = true
+                                // The legacy reader restores curPage before forwarding MOVE to its
+                                // page delegate. Leaving this translation in place makes cover/slide
+                                // turns travel diagonally and can persist until the next DOWN.
+                                bookmarkArmed = false
+                                bookmarkOffset = 0f
+                                horizontalTurn =
+                                    ReaderMainAxisPolicy.isHorizontalDominant(total.x, total.y)
+                                if (horizontalTurn) {
+                                    horizontalDrag = ReaderHorizontalDrag.capture(total.x)
+                                    horizontalCapturedY = change.position.y
+                                }
+                            }
                         }
-                        displayOffset = transition.offsetPx
-                        change.consume()
-                    } else if (scrollDrag) {
-                        val window = currentPageWindow()
-                        val page = window.current
-                        if (page != null) {
-                            val result = ReaderScrollPolicy.apply(scrollOffset, change.positionChange().y, window.previous?.scrollExtentPx ?: 0f, page.scrollExtentPx, page.scrollViewportExtentPx(), window.previous != null, window.next != null)
-                            applyScrollResult(result, window)
+                        if (horizontalTurn && transitionMode != ReaderTransitionMode.SCROLL) {
+                            transition = horizontalDrag?.transition(
+                                total.x, size.width.toFloat(),
+                                latestPages.previous != null, latestPages.next != null,
+                            ) ?: ReaderPageTransition(pageExtentPx = size.width.toFloat())
+                            transition.direction?.takeIf { transitionMode == ReaderTransitionMode.SIMULATION }
+                                ?.let {
+                                    curlTouchX = change.position.x
+                                    curlCornerY = ReaderCurlTouchPolicy.cornerY(
+                                        it, horizontalCapturedY, size.height.toFloat(),
+                                    )
+                                    curlTouchY = ReaderCurlTouchPolicy.dragY(
+                                        it,
+                                        horizontalCapturedY,
+                                        change.position.y,
+                                        size.height.toFloat(),
+                                    )
+                                }
+                            displayOffset = transition.offsetPx
                             change.consume()
-                        }
-                    }
-                }
-            } finally {
-                longPressJob.cancel()
-                if (!released) {
-                    bookmarkArmed = false
-                    bookmarkOffset = 0f
-                    displayOffset = 0f
-                    transition = ReaderPageTransition()
-                }
-            }
-            if (released) latestReaderInteraction()
-            if (longPressed || grabbingStart || grabbingEnd) {
-                val selection = textSelection
-                if (released && selection != null) {
-                    val window = latestPages
-                    showSelectionMenu(selection, window)
-                }
-                return@awaitEachGesture
-            }
-            if (bookmarkDrag) {
-                val releasePull = pullBookmark(
-                    pointerPosition - down.position,
-                    size.height.toFloat(),
-                    density,
-                    transitionMode,
-                    bookmarkEnabled,
-                )
-                if (released && releasePull.isCandidate) {
-                    bookmarkOffset = releasePull.pageOffsetPx
-                }
-                if (released && PullBookmarkGesture.shouldToggleOnRelease(bookmarkDrag, releasePull)) {
-                    latestToggleBookmark()
-                }
-                bookmarkArmed = false
-                bookmarkReturnJob = animationScope.launch {
-                    Animatable(bookmarkOffset).animateTo(
-                        0f, tween(PullBookmarkDefaults.RETURN_DURATION_MILLIS),
-                    ) { bookmarkOffset = value }
-                }
-            } else if (scrollDrag) {
-                val velocity = if (released) velocityTracker.calculateVelocity().y else 0f
-                pageMotionJob = animationScope.launch {
-                    var lastValue = 0f
-                    try {
-                        Animatable(0f).animateDecay(velocity, scrollDecay) {
-                            val delta = value - lastValue
-                            lastValue = value
+                        } else if (scrollDrag) {
                             val window = currentPageWindow()
-                            val page = window.current ?: return@animateDecay
-                            val result = ReaderScrollPolicy.apply(
-                                scrollOffset,
-                                delta,
-                                window.previous?.scrollExtentPx ?: 0f,
-                                page.scrollExtentPx,
-                                page.scrollViewportExtentPx(),
-                                window.previous != null,
-                                window.next != null,
-                            )
-                            applyScrollResult(result, window)
-                            if (result.hitBoundary) throw ReaderScrollBoundaryReached()
+                            val page = window.current
+                            if (page != null) {
+                                val result = ReaderScrollPolicy.apply(
+                                    scrollOffset,
+                                    change.positionChange().y,
+                                    window.previous?.scrollExtentPx ?: 0f,
+                                    page.scrollExtentPx,
+                                    page.scrollViewportExtentPx(),
+                                    window.previous != null,
+                                    window.next != null
+                                )
+                                applyScrollResult(result, window)
+                                change.consume()
+                            }
                         }
-                    } catch (_: ReaderScrollBoundaryReached) {
-                        // Reaching the first/last content boundary ends the fling immediately.
+                    }
+                } finally {
+                    longPressJob.cancel()
+                    if (!released) {
+                        bookmarkArmed = false
+                        bookmarkOffset = 0f
+                        displayOffset = 0f
+                        transition = ReaderPageTransition()
                     }
                 }
-            } else if (horizontalTurn && transition.dragging) {
-                val fade = transitionMode == ReaderTransitionMode.FADE
-                settlePageTurn(ReaderPageTransitionPolicy.release(
-                    transition,
-                    velocityPxPerSecond = if (fade) 0f else velocityTracker.calculateVelocity().x,
-                    commitProgress = if (fade) 0.1f else 0.35f,
-                    cancelled = !released,
-                    lastDragDeltaPx = if (fade) null else lastHorizontalDelta,
-                ))
-            } else if (released && !suppressTap && total.getDistance() < pageTouchSlop) {
-                val tapPlacement = pageViewportLayout().pageAt(down.position.x, down.position.y)
-                val elementHandled = tapPlacement?.page
-                    ?.elementAt(down.position.x, tapPlacement.localY(down.position.y))
-                    ?.let(onElementClick) == true
-                if (elementHandled) {
-                    // Element actions take precedence over reader tap zones.
-                } else dispatchTapAction(
-                    latestTapActionGrid.actionAt(
-                        down.position.x,
-                        down.position.y,
-                        size.width.toFloat(),
+                if (released) latestReaderInteraction()
+                if (longPressed || grabbingStart || grabbingEnd) {
+                    val selection = textSelection
+                    if (released && selection != null) {
+                        val window = latestPages
+                        showSelectionMenu(selection, window)
+                    }
+                    return@awaitEachGesture
+                }
+                if (bookmarkDrag) {
+                    val releasePull = pullBookmark(
+                        pointerPosition - down.position,
                         size.height.toFloat(),
+                        density,
+                        transitionMode,
+                        bookmarkEnabled,
                     )
-                )
+                    if (released && releasePull.isCandidate) {
+                        bookmarkOffset = releasePull.pageOffsetPx
+                    }
+                    if (released && PullBookmarkGesture.shouldToggleOnRelease(
+                            bookmarkDrag,
+                            releasePull
+                        )
+                    ) {
+                        latestToggleBookmark()
+                    }
+                    bookmarkArmed = false
+                    bookmarkReturnJob = animationScope.launch {
+                        Animatable(bookmarkOffset).animateTo(
+                            0f, tween(PullBookmarkDefaults.RETURN_DURATION_MILLIS),
+                        ) { bookmarkOffset = value }
+                    }
+                } else if (scrollDrag) {
+                    val velocity = if (released) velocityTracker.calculateVelocity().y else 0f
+                    pageMotionJob = animationScope.launch {
+                        var lastValue = 0f
+                        try {
+                            Animatable(0f).animateDecay(velocity, scrollDecay) {
+                                val delta = value - lastValue
+                                lastValue = value
+                                val window = currentPageWindow()
+                                val page = window.current ?: return@animateDecay
+                                val result = ReaderScrollPolicy.apply(
+                                    scrollOffset,
+                                    delta,
+                                    window.previous?.scrollExtentPx ?: 0f,
+                                    page.scrollExtentPx,
+                                    page.scrollViewportExtentPx(),
+                                    window.previous != null,
+                                    window.next != null,
+                                )
+                                applyScrollResult(result, window)
+                                if (result.hitBoundary) throw ReaderScrollBoundaryReached()
+                            }
+                        } catch (_: ReaderScrollBoundaryReached) {
+                            // Reaching the first/last content boundary ends the fling immediately.
+                        }
+                    }
+                } else if (horizontalTurn && transition.dragging) {
+                    val fade = transitionMode == ReaderTransitionMode.FADE
+                    settlePageTurn(
+                        ReaderPageTransitionPolicy.release(
+                            transition,
+                            velocityPxPerSecond = if (fade) 0f else velocityTracker.calculateVelocity().x,
+                            commitProgress = if (fade) 0.1f else 0.35f,
+                            cancelled = !released,
+                            lastDragDeltaPx = if (fade) null else lastHorizontalDelta,
+                        )
+                    )
+                } else if (released && !suppressTap && total.getDistance() < pageTouchSlop) {
+                    // 元素命中复用 DOWN 时刻的布局：与长按同一坐标系，且不被
+                    // 松手前可能发生的窗口替换干扰。
+                    val elementHandled = downPlacement?.page
+                        ?.elementAt(down.position.x, downPageY)
+                        ?.let(onElementClick) == true
+                    if (elementHandled) {
+                        // Element actions take precedence over reader tap zones.
+                    } else dispatchTapAction(
+                        latestTapActionGrid.actionAt(
+                            down.position.x,
+                            down.position.y,
+                            size.width.toFloat(),
+                            size.height.toFloat(),
+                        )
+                    )
+                }
             }
-        }
-    }) {
+        }) {
         if (ReaderViewportLayerPolicy.usesFixedBackground(transitionMode)) {
             ReaderBackgroundSurface(
                 pageBackgroundImage,
@@ -947,11 +1069,13 @@ fun ReaderCanvasSurface(
             )
         }
         if (transitionMode == ReaderTransitionMode.SCROLL) {
-            Box(Modifier.fillMaxSize().drawWithContent {
-                clipRect(top = current.contentTopPx, bottom = current.contentBottomPx) {
-                    this@drawWithContent.drawContent()
-                }
-            }) {
+            Box(Modifier
+                .fillMaxSize()
+                .drawWithContent {
+                    clipRect(top = current.contentTopPx, bottom = current.contentBottomPx) {
+                        this@drawWithContent.drawContent()
+                    }
+                }) {
                 ScrollPageStack(
                     windowProvider = { currentPageWindow() },
                     offsetYState = scrollOffsetState,
@@ -969,11 +1093,13 @@ fun ReaderCanvasSurface(
             fun PageLayer(page: ReaderPage, transform: ReaderPageTransform, offsetY: Float = 0f) {
                 ReaderPageCanvas(
                     page, backgroundColor, pageBackgroundImage, backgroundImageAlpha, selectionColor, textAccentColor,
-                    Modifier.fillMaxSize().graphicsLayer {
-                        translationX = transform.translationX
-                        translationY = offsetY + transform.translationY
-                        alpha = transform.alpha
-                    },
+                    Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            translationX = transform.translationX
+                            translationY = offsetY + transform.translationY
+                            alpha = transform.alpha
+                        },
                     textSelection,
                     cachedImage,
                     loadImage,
@@ -1007,9 +1133,11 @@ fun ReaderCanvasSurface(
         }
         if (transitionMode != ReaderTransitionMode.SCROLL && autoPageActive && autoRevealPx > 0f) {
             pages.next?.let { page ->
-                Box(Modifier.fillMaxSize().drawWithContent {
-                    clipRect(bottom = autoRevealPx.coerceAtMost(size.height)) { this@drawWithContent.drawContent() }
-                }) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .drawWithContent {
+                        clipRect(bottom = autoRevealPx.coerceAtMost(size.height)) { this@drawWithContent.drawContent() }
+                    }) {
                     ReaderPageCanvas(page, backgroundColor, pageBackgroundImage, backgroundImageAlpha, selectionColor, textAccentColor, Modifier.fillMaxSize(), textSelection, cachedImage, loadImage)
                 }
             }
@@ -1059,9 +1187,12 @@ fun ReaderCanvasSurface(
         }
         AnimatedVisibility(
             visible = bookmarkArmed,
-            modifier = Modifier.align(Alignment.TopCenter).offset {
-                IntOffset(0, current.contentTopPx.roundToInt())
-            }.padding(top = PullBookmarkDefaults.HINT_CONTENT_TOP_MARGIN_DP.dp),
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .offset {
+                    IntOffset(0, current.contentTopPx.roundToInt())
+                }
+                .padding(top = PullBookmarkDefaults.HINT_CONTENT_TOP_MARGIN_DP.dp),
             enter = fadeIn(tween(PullBookmarkDefaults.HINT_FADE_MILLIS)),
             exit = fadeOut(tween(0)),
         ) {
@@ -1071,10 +1202,11 @@ fun ReaderCanvasSurface(
                 } else R.string.bookmark_swipe_release_to_add),
                 color = Color.White,
                 fontSize = 14.sp,
-                modifier = Modifier.background(
-                    Color(0xA0000000),
-                    RoundedCornerShape(PullBookmarkDefaults.HINT_CORNER_RADIUS_DP.dp),
-                )
+                modifier = Modifier
+                    .background(
+                        Color(0xA0000000),
+                        RoundedCornerShape(PullBookmarkDefaults.HINT_CORNER_RADIUS_DP.dp),
+                    )
                     .padding(horizontal = 16.dp, vertical = 8.dp),
             )
         }
@@ -1290,18 +1422,24 @@ private fun SimulationPageStack(
         val pathNext = paths.reveal
         val pathBack = paths.back
         val baseLayer = rememberGraphicsLayer()
-        Box(Modifier.fillMaxSize().drawWithContent {
-            baseLayer.record { this@drawWithContent.drawContent() }
-            clipPath(path0, ClipOp.Difference) { drawLayer(baseLayer) }
-        }) {
+        Box(Modifier
+            .fillMaxSize()
+            .drawWithContent {
+                baseLayer.record { this@drawWithContent.drawContent() }
+                clipPath(path0, ClipOp.Difference) { drawLayer(baseLayer) }
+            }) {
             ReaderPageCanvas(basePage, background, backgroundImage, backgroundImageAlpha, selection, readAloud, Modifier.fillMaxSize(), activeSelection, cachedImage, loadImage)
         }
-        Box(Modifier.fillMaxSize().drawWithContent {
-            clipPath(path0) { clipPath(pathNext) {
-                this@drawWithContent.drawContent()
-                drawCurlBackShadow(frame)
-            } }
-        }) {
+        Box(Modifier
+            .fillMaxSize()
+            .drawWithContent {
+                clipPath(path0) {
+                    clipPath(pathNext) {
+                        this@drawWithContent.drawContent()
+                        drawCurlBackShadow(frame)
+                    }
+                }
+            }) {
             ReaderPageCanvas(revealPage, background, backgroundImage, backgroundImageAlpha, selection, readAloud, Modifier.fillMaxSize(), activeSelection, cachedImage, loadImage)
         }
         Canvas(Modifier.fillMaxSize()) {

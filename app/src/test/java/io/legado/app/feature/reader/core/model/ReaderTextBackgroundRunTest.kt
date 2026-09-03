@@ -7,6 +7,7 @@ class ReaderTextBackgroundRunTest {
 
     private val image = ReaderTextBackgroundImage("background.png", fit = 3, scale = 1f)
     private val style = ReaderTextStyle(0xFF000000.toInt(), 20f, backgroundImage = image)
+    private val plainStyle = ReaderTextStyle(0xFF000000.toInt(), 20f)
 
     @Test
     fun `merges adjacent text with the same background on one line`() {
@@ -16,6 +17,39 @@ class ReaderTextBackgroundRunTest {
         )
 
         assertEquals(listOf(ReaderRect(0f, 0f, 25f, 20f)), page.textBackgroundRuns().map { it.bounds })
+    }
+
+    @Test
+    fun `letter spacing gap continues the run when pagination marks it`() {
+        val page = page(
+            text(0f, 0f, 10f, 20f, style),
+            text(12f, 0f, 22f, 20f, style, continues = true),
+        )
+
+        assertEquals(
+            listOf(ReaderRect(0f, 0f, 22f, 20f)),
+            page.textBackgroundRuns().map { it.bounds })
+    }
+
+    @Test
+    fun `unmatched glyph between same image ranges breaks the run`() {
+        val page = page(
+            text(0f, 0f, 10f, 20f, style),
+            text(10f, 0f, 20f, 20f, plainStyle),
+            text(20f, 0f, 30f, 20f, style, continues = true),
+        )
+
+        assertEquals(2, page.textBackgroundRuns().size)
+    }
+
+    @Test
+    fun `flagged continuation does not cross rows`() {
+        val page = page(
+            text(0f, 0f, 10f, 20f, style),
+            text(12f, 20f, 22f, 40f, style, continues = true),
+        )
+
+        assertEquals(2, page.textBackgroundRuns().size)
     }
 
     @Test
@@ -58,16 +92,23 @@ class ReaderTextBackgroundRunTest {
         assertEquals(8f, resolved.contentInsetBottomPx, 0f)
     }
 
-    private fun text(left: Float, top: Float, right: Float, bottom: Float, textStyle: ReaderTextStyle) =
-        ReaderElement.Text(
-            bounds = ReaderRect(left, top, right, bottom),
-            baselinePx = bottom - 4f,
-            value = "字",
-            style = textStyle,
-            selected = false,
-            emphasized = false,
-            chapterPosition = 0,
-        )
+    private fun text(
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
+        textStyle: ReaderTextStyle,
+        continues: Boolean = false,
+    ) = ReaderElement.Text(
+        bounds = ReaderRect(left, top, right, bottom),
+        baselinePx = bottom - 4f,
+        value = "字",
+        style = textStyle,
+        selected = false,
+        emphasized = false,
+        chapterPosition = 0,
+        continuesBackgroundRun = continues,
+    )
 
     private fun page(vararg elements: ReaderElement) = ReaderPage(
         id = ReaderPageId(0, 0),

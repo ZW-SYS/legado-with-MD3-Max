@@ -1,9 +1,9 @@
 package io.legado.app.feature.reader.core.layout
 
 import io.legado.app.feature.reader.core.model.ReaderElement
-import io.legado.app.feature.reader.core.model.ReaderTextStyle
-import io.legado.app.feature.reader.core.model.ReaderTextBackgroundImage
 import io.legado.app.feature.reader.core.model.ReaderEmphasisUnderline
+import io.legado.app.feature.reader.core.model.ReaderTextBackgroundImage
+import io.legado.app.feature.reader.core.model.ReaderTextStyle
 import io.legado.app.feature.reader.core.model.textBackgroundRuns
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -515,5 +515,22 @@ class ReaderPaginatorTest {
         assertEquals(glyph.bounds.bottom, run.contentBounds.bottom, 0f)
         assertEquals(glyph.bounds.top - 10f / 3f, run.bounds.top, 0.001f)
         assertEquals(glyph.bounds.bottom + 5f, run.bounds.bottom, 0.001f)
+    }
+
+    @Test
+    fun letterSpacedBackgroundRowStaysOneRunInsteadOfPerGlyph() {
+        val bgStyle = style.copy(backgroundImage = ReaderTextBackgroundImage("bg.png", 1, 1f))
+        val paragraph = ReaderMeasuredParagraph(
+            "甲乙丙", listOf("甲", "乙", "丙"), List(3) { 10f }, bgStyle, 0,
+            letterSpacingPx = 2f,
+        )
+        val page = ReaderPaginator.paginate(listOf(paragraph), config).single()
+
+        val glyphs = page.elements.filterIsInstance<ReaderElement.Text>()
+        // 字间距在字形间留下 2f 间隙：旧实现按字拆 run，现在整行合并为一段
+        assertEquals(listOf(0f, 12f, 24f), glyphs.map { it.bounds.left })
+        val runs = page.textBackgroundRuns()
+        assertEquals(1, runs.size)
+        assertEquals(34f, runs.single().contentBounds.right, 0f)
     }
 }

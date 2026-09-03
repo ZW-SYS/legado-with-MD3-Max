@@ -15,10 +15,10 @@ import io.legado.app.feature.reader.core.layout.ReaderTextAlignment
 import io.legado.app.feature.reader.core.layout.ReaderTextShaperFactory
 import io.legado.app.feature.reader.core.model.ReaderPage
 import io.legado.app.feature.reader.core.source.ReaderChapterSource
-import io.legado.app.feature.reader.platform.AndroidReaderTextShaper
 import io.legado.app.feature.reader.platform.AndroidReaderHtmlSourceResolver
-import io.legado.app.feature.reader.platform.ReaderAndroidPaintFactory
+import io.legado.app.feature.reader.platform.AndroidReaderTextShaper
 import io.legado.app.feature.reader.platform.ReaderAndroidPaginationStyle
+import io.legado.app.feature.reader.platform.ReaderAndroidPaintFactory
 import io.legado.app.help.book.BookContent
 import io.legado.app.help.config.ReadBookConfig
 import io.legado.app.model.ImageProvider
@@ -219,6 +219,7 @@ object LegacyReaderChapterPaginator {
                 paragraphSpacingPx = paginationStyle.bodyTextHeightPx * paginationStyle.paragraphSpacing / 10f,
                 titleTopSpacingPx = paginationStyle.titleTopSpacingPx,
                 titleBottomSpacingPx = paginationStyle.titleBottomSpacingPx,
+                titlePageCenterVertical = chapter.isVolume || content.textList.isEmpty(),
                 titleParagraphSpacingPx = paginationStyle.titleTextHeightPx * paginationStyle.paragraphSpacing / 10f,
                 titleSegmentSpacingPx = paginationStyle.titleTextHeightPx * paginationStyle.titleLineSpacingSub,
                 letterSpacingPx = bodyPaint.letterSpacing * bodyPaint.textSize,

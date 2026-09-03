@@ -1,12 +1,12 @@
 package io.legado.app.feature.reader.core.layout
 
 import io.legado.app.feature.reader.core.model.ReaderElement
+import io.legado.app.feature.reader.core.model.ReaderEmphasisUnderline
 import io.legado.app.feature.reader.core.model.ReaderPage
 import io.legado.app.feature.reader.core.model.ReaderPageDecoration
 import io.legado.app.feature.reader.core.model.ReaderPageId
 import io.legado.app.feature.reader.core.model.ReaderRect
 import io.legado.app.feature.reader.core.model.ReaderTextStyle
-import io.legado.app.feature.reader.core.model.ReaderEmphasisUnderline
 import kotlin.math.max
 
 enum class ReaderTextAlignment { START, CENTER, END, JUSTIFY }
@@ -41,6 +41,8 @@ data class ReaderPaginationConfig(
     val titleBottomSpacingPx: Float = 0f,
     val titleParagraphSpacingPx: Float? = null,
     val titleSegmentSpacingPx: Float = 0f,
+    /** 卷/空正文章整页只有标题时，标题块在内容区内垂直居中（对照原版空章标题页）。 */
+    val titlePageCenterVertical: Boolean = false,
     val columnCount: Int = 1,
     val lineSpacingMultiplier: Float = 1f,
     val continuousScroll: Boolean = false,
@@ -330,6 +332,8 @@ object ReaderPaginator {
                         link = paragraph.link,
                         chapterPosition = paragraph.chapterPosition + characterOffset,
                         paragraphIndex = paragraphIndex,
+                        // 整段共用一个 style：同行内第二字起若带背景图，即与前一字同 run
+                        continuesBackgroundRun = paragraph.style.backgroundImage != null && clusterIndex > from,
                     )
                     pageText.append(value)
                     characterOffset += value.length
@@ -537,6 +541,8 @@ object ReaderPaginator {
                 }
                 lineItems.forEachIndexed { itemIndex, item ->
                     x += backgroundInsetBefore(itemIndex)
+                    val itemBackground = (item as? ReaderMeasuredInlineItem.Text)
+                        ?.style?.backgroundImage
                     when (item) {
                         is ReaderMeasuredInlineItem.Text -> {
                             val expandedWordSpace = if (item.value == " ") wordSpaceExtra else 0f
@@ -553,6 +559,11 @@ object ReaderPaginator {
                                 markingId = item.markingId,
                                 chapterPosition = item.chapterPosition,
                                 paragraphIndex = paragraphIndex,
+                                // 富文本逐项样式：与前一项同背景图才视作同一 run 的延续
+                                continuesBackgroundRun = itemBackground != null &&
+                                        itemIndex > 0 &&
+                                        (lineItems[itemIndex - 1] as? ReaderMeasuredInlineItem.Text)
+                                            ?.style?.backgroundImage == itemBackground,
                                 backgroundFrameTopPx = item.style.backgroundImage?.takeIf { it.fit == 3 }?.let { image ->
                                     val halfGap = ((paragraph.lineSpacingMultiplier - 1f).coerceAtLeast(0f) * actualLineHeight) / 2f
                                     val scale = (halfGap / maxOf(image.contentInsetTopPx, image.contentInsetBottomPx)
@@ -652,6 +663,22 @@ object ReaderPaginator {
             }
         }
         finishPage()
+        if (config.titlePageCenterVertical && pages.size == 1) {
+            // 卷页只有标题块：按字形实际占位整体下移到内容区垂直中点。布局期平移
+            // 保证命中测试、选区与进度映射共用同一几何。
+            val pageElements = pages[0]
+            val top = pageElements.minOf { it.bounds.top }
+            val bottom = pageElements.maxOf { it.bounds.bottom }
+            val available = config.contentBottomPx - config.paddingTopPx
+            if (bottom - top < available) {
+                val delta = config.paddingTopPx + (available - (bottom - top)) / 2f - top
+                if (delta != 0f) {
+                    for (elementIndex in pageElements.indices) {
+                        pageElements[elementIndex] = shiftElement(pageElements[elementIndex], delta)
+                    }
+                }
+            }
+        }
         return pages.mapIndexed { pageIndex, pageElements ->
             ReaderPage(
                 id = ReaderPageId(config.chapterIndex, pageIndex),
