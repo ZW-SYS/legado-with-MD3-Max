@@ -64,7 +64,7 @@ import io.legado.app.lib.dialogs.SelectItem
 import io.legado.app.lib.dialogs.selector
 import io.legado.app.model.analyzeRule.AnalyzeUrl
 import io.legado.app.ui.association.OnLineImportActivity
-import io.legado.app.ui.file.HandleFileContract
+import androidx.activity.result.contract.ActivityResultContracts
 import io.legado.app.utils.ACache
 import io.legado.app.utils.GSON
 import io.legado.app.utils.applyDayNight
@@ -136,12 +136,15 @@ class BottomWebViewDialog() : BottomSheetDialogFragment(R.layout.dialog_web_view
             else -> sysConfiguration.isNightMode
         }
     private var appliedDarkTheme: Boolean? = null
-    private val selectImageDir = registerForActivityResult(HandleFileContract()) {
-        it.uri?.let { uri ->
-            ACache.get().put(imagePathKey, uri.toString())
-            saveImage(it.value, uri)
+    private val selectImageDir =
+        registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+            if (uri != null) {
+                ACache.get().put(imagePathKey, uri.toString())
+                saveImage(pendingSaveImage, uri)
+            }
         }
-    }
+
+    private var pendingSaveImage: String? = null
 
     private lateinit var currentWebView: WebView
     private var source: BaseSource? = null
@@ -582,14 +585,18 @@ class BottomWebViewDialog() : BottomSheetDialogFragment(R.layout.dialog_web_view
     }
 
     private fun selectSaveFolder(webPic: String?) {
-        val default = arrayListOf<SelectItem<Int>>()
-        val path = ACache.get().getAsString(imagePathKey)
-        if (!path.isNullOrEmpty()) {
-            default.add(SelectItem(path, -1))
+        val lastPath = ACache.get().getAsString(imagePathKey)
+        val options = buildList {
+            if (!lastPath.isNullOrEmpty()) add(lastPath)
+            add(getString(R.string.sys_folder_picker))
         }
-        selectImageDir.launch {
-            otherActions = default
-            value = webPic
+        requireContext().selector(R.string.select_folder, options) { _, index ->
+            if (!lastPath.isNullOrEmpty() && index == 0) {
+                saveImage(webPic, lastPath.toUri())
+            } else {
+                pendingSaveImage = webPic
+                selectImageDir.launch(null)
+            }
         }
     }
 

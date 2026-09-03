@@ -59,7 +59,6 @@ import io.legado.app.ui.widget.components.lazylist.FastScrollLazyColumn
 import io.legado.app.ui.widget.components.menuItem.RoundDropdownMenuItem
 import io.legado.app.ui.widget.components.rules.RuleListScaffold
 import io.legado.app.ui.widget.components.tabRow.AppTabRow
-import io.legado.app.utils.showHelp
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -362,10 +361,6 @@ fun ReplaceRuleScreen(
             RoundDropdownMenuItem(
                 text = stringResource(R.string.group_management),
                 onClick = { showGroupManageSheet = true; dismiss() }
-            )
-            RoundDropdownMenuItem(
-                text = stringResource(R.string.help),
-                onClick = { dismiss(); (context as? AppCompatActivity)?.showHelp("replaceRuleHelp") }
             )
             PillDivider()
             RoundDropdownMenuItem(

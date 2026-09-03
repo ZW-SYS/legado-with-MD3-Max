@@ -14,7 +14,6 @@ import io.legado.app.constant.AppLog
 import io.legado.app.domain.gateway.BackupSettingsGateway
 import io.legado.app.domain.gateway.OtherSettingsGateway
 import io.legado.app.exception.NoStackTraceException
-import io.legado.app.help.config.LocalConfig
 import io.legado.app.model.ReadAloud
 import io.legado.app.utils.FileDoc
 import io.legado.app.utils.FileUtils
@@ -84,7 +83,6 @@ class CrashHandler(val context: Context) : Thread.UncaughtExceptionHandler {
      */
     private fun handleException(ex: Throwable?): Boolean {
         if (ex == null) return false
-        LocalConfig.appCrash = true
         //保存日志文件
         val crashFileName = saveCrashInfo2File(ex)
         if ((ex is OutOfMemoryError || ex.cause is OutOfMemoryError) &&
@@ -93,7 +91,6 @@ class CrashHandler(val context: Context) : Thread.UncaughtExceptionHandler {
             doHeapDump()
         }
         return if (startCrashReport(crashFileName)) {
-            LocalConfig.appCrash = false
             true
         } else {
             context.longToastOnUiLegacy(ex.stackTraceStr)

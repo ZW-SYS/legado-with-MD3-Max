@@ -81,7 +81,6 @@ abstract class BaseDialogFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (adaptationSoftKeyboard) {
-            view.findViewById<View>(R.id.vw_bg)?.setOnClickListener(null)
             view.setOnClickListener { dismiss() }
         } else if (themeGateway.currentSettings.appTheme != "4") {
             //view.setBackgroundColor(ThemeStore.backgroundColor())

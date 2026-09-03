@@ -19,7 +19,6 @@ import io.legado.app.help.book.isImage
 import io.legado.app.help.book.isLocal
 import io.legado.app.domain.gateway.MangaSettingsGateway
 import io.legado.app.ui.main.MainActivity
-import io.legado.app.ui.widget.dialog.TextDialog
 import org.koin.core.context.GlobalContext
 
 private val mangaSettingsGateway
@@ -70,11 +69,6 @@ fun Fragment.startActivityForBook(
     }
     intent.apply(configIntent)
     startActivity(intent)
-}
-
-fun Fragment.showHelp(fileName: String) {
-    val mdText = String(requireContext().assets.open("web/help/md/${fileName}.md").readBytes())
-    showDialogFragment(TextDialog(getString(R.string.help), mdText, TextDialog.Mode.MD))
 }
 
 val Fragment.isCreated

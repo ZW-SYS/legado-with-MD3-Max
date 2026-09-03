@@ -232,7 +232,6 @@ import io.legado.app.ui.book.bookmark.AllBookmarkViewModel
 import io.legado.app.ui.book.cache.manage.BookCacheManageViewModel
 import io.legado.app.ui.book.changecover.ChangeCoverViewModel
 import io.legado.app.ui.book.changesource.ChangeBookSourceComposeViewModel
-import io.legado.app.ui.book.changesource.ChangeBookSourceViewModel
 import io.legado.app.ui.book.changesource.ChangeChapterSourceViewModel
 import io.legado.app.ui.book.explore.ExploreShowViewModel
 import io.legado.app.ui.book.group.GroupViewModel
@@ -756,7 +755,6 @@ val appModule = module {
     }
     viewModelOf(::ChangeCoverViewModel)
     viewModelOf(::ChangeBookSourceComposeViewModel)
-    viewModelOf(::ChangeBookSourceViewModel)
     viewModelOf(::ChangeChapterSourceViewModel)
     viewModelOf(::ExploreViewModel)
     viewModelOf(::RssViewModel)

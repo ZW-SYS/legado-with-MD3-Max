@@ -50,7 +50,7 @@ import io.legado.app.ui.book.audio.AudioPlayIntent
 import io.legado.app.ui.book.audio.AudioPlayScreenContent
 import io.legado.app.ui.book.audio.AudioPlayViewModel
 import io.legado.app.ui.book.cache.manage.BookCacheManageRouteScreen
-import io.legado.app.ui.book.changesource.ChangeBookSourceDialog
+import io.legado.app.ui.widget.components.changeSource.ChangeSourceSheet
 import io.legado.app.ui.book.explore.ExploreShowIntent
 import io.legado.app.ui.book.explore.ExploreShowRouteScreen
 import io.legado.app.ui.book.explore.ExploreShowViewModel
@@ -772,6 +772,7 @@ fun MainActivity.mainEntryProvider(
         )
         val lifecycleOwner = LocalLifecycleOwner.current
         val uiState by audioPlayViewModel.uiState.collectAsStateWithLifecycle()
+        var showAudioChangeSource by remember { mutableStateOf(false) }
         val imageLoader: ImageLoader = koinInject()
         val sourceEditResult = rememberLauncherForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -831,9 +832,7 @@ fun MainActivity.mainEntryProvider(
         LaunchedEffect(audioPlayViewModel) {
             audioPlayViewModel.effects.collectLatest { effect ->
                 when (effect) {
-                    is AudioPlayEffect.OpenChangeSource -> showDialogFragment(
-                        ChangeBookSourceDialog(effect.bookName, effect.author)
-                    )
+                    is AudioPlayEffect.OpenChangeSource -> showAudioChangeSource = true
 
                     is AudioPlayEffect.OpenLogin -> startActivity(
                         MainActivity.createSourceLoginIntent(
@@ -884,6 +883,20 @@ fun MainActivity.mainEntryProvider(
                 state = uiState,
                 onIntent = audioPlayViewModel::onIntent,
                 onBack = { audioPlayViewModel.onIntent(AudioPlayIntent.BackPressed) },
+            )
+        }
+        val audioBook = AudioPlay.book
+        if (showAudioChangeSource && audioBook != null) {
+            ChangeSourceSheet(
+                show = true,
+                oldBook = audioBook,
+                onDismissRequest = { showAudioChangeSource = false },
+                onReplace = { source, book, toc, _ ->
+                    audioPlayViewModel.changeTo(source, book, toc)
+                },
+                onAddAsNew = { book, toc ->
+                    audioPlayViewModel.addToBookshelf(book, toc)
+                },
             )
         }
     }

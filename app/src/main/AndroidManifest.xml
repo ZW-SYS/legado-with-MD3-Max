@@ -290,13 +290,6 @@
             android:enableOnBackInvokedCallback="true"
             android:configChanges="locale|layoutDirection|uiMode|orientation|screenSize|screenLayout"
             android:hardwareAccelerated="true" />
-        <!-- 选择文件 -->
-        <activity
-            android:name=".ui.file.HandleFileActivity"
-            android:enableOnBackInvokedCallback="true"
-            android:configChanges="locale|layoutDirection|uiMode|orientation|screenSize|screenLayout"
-            android:hardwareAccelerated="true"
-            android:theme="@style/AppTheme.Transparent" />
         <!-- 文字处理 -->
         <activity
             android:name=".receiver.SharedReceiverActivity"
