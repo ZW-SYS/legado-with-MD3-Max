@@ -164,6 +164,11 @@ data class ReaderPage(
     val decoration: ReaderPageDecoration = ReaderPageDecoration(),
     val inlineImagesPreserveScrollLine: Boolean = true,
     val emphasisUnderlineStyle: ReaderEmphasisUnderline? = null,
+    /** Dynamic search range, kept separate from immutable layout elements for draw-cache reuse. */
+    val searchStart: Int? = null,
+    val searchEndInclusive: Int? = null,
+    /** Dynamic read-aloud paragraph, likewise independent of the pagination layout. */
+    val readAloudParagraphIndex: Int? = null,
     /** 邻章未装载时预置的"加载中"占位页，分页批次落地后被同 id 真实页替换。 */
     val isPlaceholder: Boolean = false,
 ) {

@@ -164,7 +164,7 @@ class ReadBookLoadDelegate(
         host.checkReadRecordAlias(book)
 
         if (!isSameBook) {
-            ReadBook.loadContent(resetPageOffset = true) {
+            ReadBook.loadInitialContent(resetPageOffset = true) {
                 ReadBook.bookSource?.let {
                     SourceCallBack.callBackBook(
                         SourceCallBack.START_READ,

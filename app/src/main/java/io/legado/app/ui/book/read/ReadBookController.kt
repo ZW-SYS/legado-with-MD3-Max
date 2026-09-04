@@ -4,15 +4,15 @@ import android.annotation.SuppressLint
 import android.app.SearchManager
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.os.Build
 import android.graphics.drawable.Drawable
+import android.os.Build
+import android.util.LruCache
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
-import android.util.LruCache
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
@@ -23,42 +23,41 @@ import io.legado.app.constant.AppLog
 import io.legado.app.constant.BookType
 import io.legado.app.data.appDb
 import io.legado.app.data.entities.BookProgress
-import io.legado.app.feature.reader.core.model.ReaderPageWindow
+import io.legado.app.data.repository.HighlightRuleRepository
 import io.legado.app.feature.reader.core.gesture.ReaderTapAction
+import io.legado.app.feature.reader.core.model.ReaderElement
+import io.legado.app.feature.reader.core.model.ReaderImageCachePolicy
+import io.legado.app.feature.reader.core.model.ReaderPage
+import io.legado.app.feature.reader.core.model.ReaderPageId
+import io.legado.app.feature.reader.core.model.ReaderPageWindow
+import io.legado.app.feature.reader.core.model.ReaderRect
+import io.legado.app.feature.reader.core.model.ReaderThemeColorChange
+import io.legado.app.feature.reader.core.model.remapThemeColors
 import io.legado.app.feature.reader.core.navigation.ReaderChapterPaginationSnapshot
-import io.legado.app.feature.reader.legacy.LegacyReaderChapterPaginator
+import io.legado.app.feature.reader.core.navigation.ReaderPageContext
+import io.legado.app.feature.reader.core.navigation.ReaderPageNavigator
+import io.legado.app.feature.reader.core.readaloud.ReaderVisibleTextPosition
+import io.legado.app.feature.reader.core.selection.ReaderSearchMatcher
+import io.legado.app.feature.reader.core.selection.ReaderSearchRequest
+import io.legado.app.feature.reader.core.selection.ReaderSelection
+import io.legado.app.feature.reader.core.selection.ReaderSelectionMenuAnchor
+import io.legado.app.feature.reader.core.transition.ReaderTurnDirection
 import io.legado.app.feature.reader.legacy.LegacyReaderChapterLayoutIdentity
-import io.legado.app.feature.reader.legacy.LegacyReaderChapterPaginationResult
+import io.legado.app.feature.reader.legacy.LegacyReaderChapterPaginator
+import io.legado.app.feature.reader.legacy.LegacyReaderPageDecorationFactory
 import io.legado.app.feature.reader.legacy.LegacyReaderPaginationBatch
+import io.legado.app.feature.reader.legacy.LegacyReaderPaginationStyleFactory
 import io.legado.app.feature.reader.legacy.collectLegacyReaderPaginationBatch
 import io.legado.app.feature.reader.legacy.failureReasonFor
 import io.legado.app.feature.reader.legacy.paginateLegacyReaderChapterSafely
-import io.legado.app.feature.reader.legacy.LegacyReaderPageDecorationFactory
-import io.legado.app.feature.reader.legacy.LegacyReaderPaginationStyleFactory
 import io.legado.app.feature.reader.platform.ReaderAndroidPaginationStyle
-import io.legado.app.feature.reader.core.navigation.ReaderPageContext
-import io.legado.app.feature.reader.core.navigation.ReaderPageNavigator
-import io.legado.app.feature.reader.core.model.ReaderElement
-import io.legado.app.feature.reader.core.model.ReaderPage
-import io.legado.app.feature.reader.core.model.ReaderRect
-import io.legado.app.feature.reader.core.model.ReaderImageCachePolicy
-import io.legado.app.feature.reader.core.model.ReaderPageId
-import io.legado.app.feature.reader.core.model.ReaderThemeColorChange
-import io.legado.app.feature.reader.core.model.remapThemeColors
-import io.legado.app.feature.reader.core.selection.ReaderSelection
-import io.legado.app.feature.reader.core.selection.ReaderSelectionMenuAnchor
-import io.legado.app.feature.reader.core.selection.ReaderSearchMatcher
-import io.legado.app.feature.reader.core.selection.ReaderSearchRequest
-import io.legado.app.feature.reader.core.transition.ReaderTurnDirection
-import io.legado.app.model.ImageProvider
-import io.legado.app.model.reader.ReaderChapterInput
 import io.legado.app.help.TTS
 import io.legado.app.help.book.isOnLineTxt
 import io.legado.app.help.config.ReadBookConfig
-import io.legado.app.data.repository.HighlightRuleRepository
 import io.legado.app.help.storage.Backup
 import io.legado.app.lib.dialogs.SelectItem
 import io.legado.app.model.CacheBook
+import io.legado.app.model.ImageProvider
 import io.legado.app.model.ReadAloud
 import io.legado.app.model.ReadBook
 import io.legado.app.model.ReadSessionState
@@ -66,12 +65,13 @@ import io.legado.app.model.analyzeRule.AnalyzeRule
 import io.legado.app.model.analyzeRule.AnalyzeRule.Companion.setChapter
 import io.legado.app.model.analyzeRule.AnalyzeRule.Companion.setCoroutineContext
 import io.legado.app.model.analyzeRule.AnalyzeUrl.Companion.paramPattern
+import io.legado.app.model.reader.ReaderChapterInput
 import io.legado.app.receiver.NetworkChangedListener
 import io.legado.app.receiver.TimeBatteryReceiver
 import io.legado.app.service.BaseReadAloudService
+import io.legado.app.ui.association.OpenUrlConfirmActivity
 import io.legado.app.ui.book.read.page.entities.PageDirection
 import io.legado.app.ui.login.SourceLoginJsExtensions
-import io.legado.app.ui.association.OpenUrlConfirmActivity
 import io.legado.app.ui.widget.PopupAction
 import io.legado.app.utils.ColorUtils
 import io.legado.app.utils.Debounce
@@ -79,7 +79,6 @@ import io.legado.app.utils.GSON
 import io.legado.app.utils.LogUtils
 import io.legado.app.utils.buildMainHandler
 import io.legado.app.utils.fromJsonObject
-import io.legado.app.utils.invisible
 import io.legado.app.utils.isAbsUrl
 import io.legado.app.utils.longToastOnUi
 import io.legado.app.utils.printOnDebug
@@ -89,18 +88,17 @@ import io.legado.app.utils.share
 import io.legado.app.utils.sysScreenOffTime
 import io.legado.app.utils.throttle
 import io.legado.app.utils.toastOnUi
-import io.legado.app.utils.visible
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.async
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -257,10 +255,14 @@ class ReadBookController(
     private var searchSelection: ReaderSelection? = null
     private var pendingSearchNavigation: ReadBookEffect.NavigateToSearchResult? = null
     private var readAloudPosition: Pair<Int, Int>? = null
+    private var composeVisibleBodyTextPositionProvider: (() -> ReaderVisibleTextPosition?)? = null
     private var composeImageClickAt = 0L
     private var composeImageDoubleClick = false
     private var directReaderLayoutJob: Job? = null
     private var directReaderLayoutKey: String? = null
+
+    /** Only chapter-window changes may reuse adjacent pages; a reflow invalidates their geometry. */
+    private var directReaderMayReuseAdjacentPages = false
     private var directReaderPages = emptyList<io.legado.app.feature.reader.core.model.ReaderPage>()
 
     /**
@@ -284,10 +286,8 @@ class ReadBookController(
 
     init {
         readerSessionViewModel.submitBackground(_readerBackground.value)
-        // Start image decoding before the shared-bounds destination gets its first measured frame.
-        // The measured viewport will replace this approximation if its dimensions differ.
-        val displayMetrics = activity.resources.displayMetrics
-        updateComposeReaderBackground(displayMetrics.widthPixels, displayMetrics.heightPixels)
+        // Background decoding waits for the first measured reading viewport. Decoding once with
+        // display metrics here was commonly cancelled by the real content bounds a frame later.
     }
 
     fun dismissTextActionMenu() {
@@ -522,6 +522,9 @@ class ReadBookController(
         )
         var viewportPaginationStyle: ReaderAndroidPaginationStyle? = null
         if (viewportChanged) {
+            // Width, height, density, or content insets participate in every page's geometry.
+            // Do not bridge this reflow with an adjacent page from the previous viewport.
+            directReaderMayReuseAdjacentPages = false
             updateComposeReaderBackground(widthPx, heightPx)
             val style = LegacyReaderPaginationStyleFactory.create()
             viewportPaginationStyle = style
@@ -565,6 +568,7 @@ class ReadBookController(
         directReaderLayoutJob?.cancel()
         directReaderLayoutJob = null
         directReaderLayoutKey = null
+        directReaderMayReuseAdjacentPages = false
         ReadBook.clearReaderPagination()
         updateReaderPaginationError(null)
         publishReaderPageWindow()
@@ -602,25 +606,15 @@ class ReadBookController(
             val pageHasSearchSelection = selection?.chapterIndex == source.id.chapterIndex
             val pageHasAloudParagraph = aloudPosition?.first == source.id.chapterIndex &&
                 aloudParagraphIndex != null
-            if (!pageHasSearchSelection && !pageHasAloudParagraph) return@let decorated
-            val emphasisUnderline = source.emphasisUnderlineStyle
             decorated.copy(
-                elements = decorated.elements.map { element ->
-                    if (element is ReaderElement.Text) {
-                        val isSearchResult = pageHasSearchSelection && selection.contains(element)
-                        val isReadAloud = pageHasAloudParagraph && !element.emphasized &&
-                            element.paragraphIndex == aloudParagraphIndex
-                        element.copy(
-                            selected = isSearchResult,
-                            searchResult = isSearchResult,
-                            readAloud = isReadAloud,
-                            emphasisUnderline = emphasisUnderline.takeIf { isSearchResult || isReadAloud },
-                        )
-                    } else element
-                },
+                // Search/read-aloud state must not clone every glyph in the visible window:
+                // scroll draw data is keyed by the immutable layout element list.  The Canvas
+                // resolves these compact dynamic ranges while drawing.
+                searchStart = selection?.anchor?.takeIf { pageHasSearchSelection },
+                searchEndInclusive = selection?.focus?.takeIf { pageHasSearchSelection },
+                readAloudParagraphIndex = aloudParagraphIndex.takeIf { pageHasAloudParagraph },
                 revision = decorated.revision xor (selection?.hashCode()?.toLong() ?: 0L) xor
-                    (aloudPosition?.hashCode()?.toLong() ?: 0L) xor
-                    (emphasisUnderline?.hashCode()?.toLong() ?: 0L),
+                        (aloudPosition?.hashCode()?.toLong() ?: 0L),
             )
         }
         return ReaderPageWindow(
@@ -936,11 +930,29 @@ class ReadBookController(
         }
         updateReaderPaginationError(batch.failureReasonFor(currentChapter.chapter.index))
         val previousPages = directReaderPages.associateBy { it.id }
-        directReaderPages = batch.pages.takeIf { batch.hasCurrentChapter }.orEmpty().map { page ->
+        val replacementChapterIndexes = batch.pages.mapTo(mutableSetOf()) { it.id.chapterIndex }
+        val retainedPages = if (directReaderMayReuseAdjacentPages) {
+            directReaderPages.filterNot { it.id.chapterIndex in replacementChapterIndexes }
+        } else {
+            emptyList()
+        }
+        val replacementPages =
+            batch.pages.takeIf { batch.hasCurrentChapter }.orEmpty().map { page ->
             previousPages[page.id]?.takeIf(page::hasSameGeometryAs)?.let { previous ->
                 page.copy(layoutRevision = previous.layoutRevision)
             } ?: page
-        }.sortedWith(compareBy({ it.id.chapterIndex }, { it.id.pageIndex }))
+            }
+        // Pagination deliberately publishes the current chapter before the adjacent chapters.
+        // Keep an already shaped adjacent page during that first batch: replacing the whole
+        // window here made every chapter turn recreate a "loading" placeholder even when the
+        // target page was still valid in memory.
+        directReaderPages = (retainedPages + replacementPages)
+            .sortedWith(compareBy({ it.id.chapterIndex }, { it.id.pageIndex }))
+        if (layoutComplete) {
+            // A complete batch establishes one shared pagination environment. Subsequent
+            // chapter-window changes may retain its already-shaped adjacent pages.
+            directReaderMayReuseAdjacentPages = true
+        }
         // 重排可能改变元素位置与页 endPosition，页上下文缓存全部失效。
         directReaderPageContexts.clear()
         directReaderChapterPageCounts = directReaderPages.groupingBy { it.id.chapterIndex }.eachCount()
@@ -1768,6 +1780,24 @@ class ReadBookController(
         directReaderPageIndex?.let(::publishDirectReaderWindow)
     }
 
+    fun setComposeVisibleBodyTextPositionProvider(
+        provider: (() -> ReaderVisibleTextPosition?)?,
+    ) {
+        composeVisibleBodyTextPositionProvider = provider
+    }
+
+    private fun readAloudFromComposeVisibleStart(): Boolean {
+        val position = composeVisibleBodyTextPositionProvider?.invoke() ?: return false
+        // The Canvas window is normally kept on the logical current page. A crossing may
+        // briefly expose a neighbor before its chapter becomes the active ReadBook chapter;
+        // let the existing chapter-transition path handle that case rather than speaking
+        // with mismatched chapter coordinates.
+        if (position.chapterIndex != ReadBook.durChapterIndex) return false
+        ReadBook.updateReadingPosition(position.chapterPosition)
+        ReadBook.readAloud(chapterPosition = position.chapterPosition)
+        return true
+    }
+
     // ── Key handling ──
 
     private fun toggleReadAloud() {
@@ -1775,12 +1805,13 @@ class ReadBookController(
         when {
             !BaseReadAloudService.isRun -> {
                 ReadAloud.upReadAloudClass()
-                ReadBook.readAloud()
+                if (!readAloudFromComposeVisibleStart()) ReadBook.readAloud()
             }
 
             BaseReadAloudService.pause -> {
+                val restartFromVisibleStart = pageChanged && readAloudFromComposeVisibleStart()
                 pageChanged = false
-                ReadAloud.resume(activity)
+                if (!restartFromVisibleStart) ReadAloud.resume(activity)
             }
 
             else -> ReadAloud.pause(activity)

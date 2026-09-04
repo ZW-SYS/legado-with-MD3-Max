@@ -57,7 +57,43 @@ object ReaderCurlTouchPolicy {
         baseDurationMillis: Int = 300,
     ): Int {
         if (pageWidth <= 0f || baseDurationMillis <= 0) return 0
-        return (baseDurationMillis * abs(targetX - currentX) / pageWidth).toInt()
+        val distance = abs(targetX - currentX)
+        if (distance < .01f) return 0
+        // A one- or two-pixel final travel previously rounded to 0 ms, committing the page
+        // before Compose had a chance to present the final curl frame.
+        return (baseDurationMillis * distance / pageWidth).toInt().coerceAtLeast(90)
+    }
+
+    /**
+     * Keeps the first visible curl clear of its locked corner after horizontal drag capture.
+     * This creates a small, deterministic "snap" into a drawable fold instead of allowing the
+     * Bezier controls to collapse while the finger is still on the page edge.
+     */
+    fun dragX(
+        direction: ReaderTurnDirection,
+        rawX: Float,
+        pageWidth: Float,
+        snapFraction: Float = .04f,
+    ): Float {
+        if (pageWidth <= 0f) return rawX
+        val inset = (pageWidth * snapFraction).coerceAtLeast(1f)
+        return when (direction) {
+            ReaderTurnDirection.PREVIOUS -> rawX.coerceIn(inset, pageWidth)
+            ReaderTurnDirection.NEXT -> rawX.coerceIn(0f, pageWidth - inset)
+        }
+    }
+
+    /** Interpolates the first safe fold out of its corner so the entering page does not pop in. */
+    fun revealX(
+        direction: ReaderTurnDirection,
+        targetX: Float,
+        pageWidth: Float,
+        revealProgress: Float,
+    ): Float {
+        if (pageWidth <= 0f) return targetX
+        val cornerX = if (direction == ReaderTurnDirection.NEXT) pageWidth else 0f
+        val progress = revealProgress.coerceIn(0f, 1f)
+        return cornerX + (targetX - cornerX) * progress
     }
 
     fun programmaticX(

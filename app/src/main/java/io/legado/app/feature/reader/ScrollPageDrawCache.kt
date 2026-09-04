@@ -1,13 +1,13 @@
 package io.legado.app.feature.reader
 
-import android.graphics.Bitmap
 import android.graphics.Paint
 import androidx.compose.runtime.mutableStateOf
 import io.legado.app.feature.reader.core.model.ReaderElement
 import io.legado.app.feature.reader.core.model.ReaderPage
 import io.legado.app.feature.reader.core.model.ReaderTextStyle
-import io.legado.app.feature.reader.core.model.emphasisUnderlineRuns
 import io.legado.app.feature.reader.core.model.textBackgroundRuns
+import io.legado.app.feature.reader.core.style.ReaderBackgroundBand
+import io.legado.app.feature.reader.core.style.mergeBackgroundBounds
 import io.legado.app.feature.reader.platform.ReaderAndroidPaintFactory
 import io.legado.app.feature.reader.platform.ReaderPageDecorationDrawCache
 
@@ -22,18 +22,12 @@ internal class ScrollPageDrawData(val page: ReaderPage) {
     val paints: Map<ReaderTextStyle, Paint> =
         textElements.map { it.style }.distinct().associateWith(ReaderAndroidPaintFactory::create)
     val textBackgrounds = page.textBackgroundRuns()
+    val textBackgroundBands: List<ReaderBackgroundBand> = textElements.mergeBackgroundBounds()
     val textBackgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
     val decorationDrawCache = ReaderPageDecorationDrawCache.create(page)
-    val emphasisUnderlines = page.emphasisUnderlineRuns()
 
-    /** 任一正文元素被宿主标为选中（搜索结果/朗读段落）时为真，供 draw 期裁剪选中背景计算。 */
-    val hasSelectedElements = textElements.any { it.selected }
-
-    /** 正文内联图片位图；加载完成写回以触发重绘。 */
-    val images = mutableStateOf<Map<ReaderElement.Image, Bitmap>>(emptyMap())
-
-    /** 文字背景位图，按 source 键；加载完成写回以触发重绘。 */
-    val textBackgroundBitmaps = mutableStateOf<Map<String, Bitmap>>(emptyMap())
+    /** Text-background bitmaps are owned by ReaderTextBackgroundLoader's byte-bounded LRU. */
+    val textBackgroundRevision = mutableStateOf(0)
 }
 
 /**

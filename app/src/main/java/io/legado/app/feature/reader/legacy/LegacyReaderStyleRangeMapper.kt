@@ -5,16 +5,16 @@ import io.legado.app.data.entities.HighlightRule
 import io.legado.app.domain.model.BookContentProcessEngine
 import io.legado.app.domain.model.TextProcessAnchor
 import io.legado.app.domain.model.TextProcessStyle
-import io.legado.app.feature.reader.core.model.ReaderUnderline
 import io.legado.app.feature.reader.core.model.ReaderTextBackgroundImage
+import io.legado.app.feature.reader.core.model.ReaderUnderline
 import io.legado.app.feature.reader.core.model.withBitmapSize
-import io.legado.app.feature.reader.platform.ReaderTextBackgroundLoader
 import io.legado.app.feature.reader.core.source.ReaderChapterInlineSource
 import io.legado.app.feature.reader.core.source.ReaderChapterSource
 import io.legado.app.feature.reader.core.source.ReaderChapterSourceBlock
 import io.legado.app.feature.reader.core.style.ReaderCharacterStyle
 import io.legado.app.feature.reader.core.style.ReaderStyleRange
 import io.legado.app.feature.reader.core.style.ReaderStyleTarget
+import io.legado.app.feature.reader.platform.ReaderTextBackgroundLoader
 import io.legado.app.utils.GSON
 import io.legado.app.utils.dpToPx
 import io.legado.app.utils.fromJsonObject
@@ -116,7 +116,11 @@ object LegacyReaderStyleRangeMapper {
             )
         },
         fontPath = fontPath,
-        fontWeight = fontWeight,
+        // 400 is the persisted/default "regular" value from the View reader, where an empty
+        // font override left the body Paint untouched.  Passing it as an explicit override in
+        // the new renderer reset bold/light body text to regular.  Keep it unset so the body
+        // style remains the source of truth; non-default weights still override it.
+        fontWeight = fontWeight.takeIf { it != 400 },
         italic = isItalic,
         fontSizeOffsetPx = fontSizeOffset.toFloat().spToPx(),
         backgroundImage = bgImage?.takeIf(String::isNotBlank)?.let {

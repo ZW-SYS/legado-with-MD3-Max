@@ -139,7 +139,9 @@ object ReaderSelectionPolicy {
         y: Float,
         locale: Locale = Locale.getDefault(),
     ): ReaderSelection? {
-        val hit = page.elementAt(x, y) as? ReaderElement.Text ?: return null
+        // Glyph bounds intentionally omit letter- and justification-spacing. Long presses in
+        // those visual gaps should start selection just like handle drags do.
+        val hit = snapToText(page, x, y) ?: return null
         val paragraph = page.elements.filterIsInstance<ReaderElement.Text>()
             .filter {
                 it.emphasized == hit.emphasized &&

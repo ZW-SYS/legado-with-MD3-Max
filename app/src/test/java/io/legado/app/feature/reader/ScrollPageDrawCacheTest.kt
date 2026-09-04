@@ -32,6 +32,21 @@ class ScrollPageDrawCacheTest {
     }
 
     @Test
+    fun `read aloud and search refresh reuse immutable layout draw data`() {
+        val original = page(listOf(text()))
+        val highlighted = original.copy(
+            searchStart = 0,
+            searchEndInclusive = 3,
+            readAloudParagraphIndex = 0,
+        )
+        val cache = ScrollPageDrawCache()
+
+        val originalData = cache.ensure(original)
+
+        assertSame(originalData, cache.ensure(highlighted))
+    }
+
+    @Test
     fun `repaginated page with a new elements list rebuilds draw data`() {
         val original = page(listOf(text()))
         val repaginated = original.copy(elements = listOf(text()))

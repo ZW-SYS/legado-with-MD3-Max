@@ -1,9 +1,9 @@
 package io.legado.app.feature.reader.core.layout
 
 import io.legado.app.feature.reader.core.model.ReaderTextStyle
+import io.legado.app.feature.reader.core.source.ReaderChapterInlineSource
 import io.legado.app.feature.reader.core.source.ReaderChapterSource
 import io.legado.app.feature.reader.core.source.ReaderChapterSourceBlock
-import io.legado.app.feature.reader.core.source.ReaderChapterInlineSource
 import io.legado.app.feature.reader.core.source.ReaderInlineSourceStyle
 import io.legado.app.feature.reader.core.style.ReaderCharacterStyle
 import io.legado.app.feature.reader.core.style.ReaderCharacterStyleResolver
@@ -197,8 +197,13 @@ class ReaderChapterBlockMeasurer(
                             // subtitle bounds). Style overrides and baseline-shift spans need
                             // per-glyph metrics so their visual extents can expand the shared line.
                             val hasBaselineShift = item.style.superscript || item.style.subscript
+                            // Highlight rules are paint-only except for an explicit size
+                            // offset.  Letting color/underline/typeface/weight matches change
+                            // the shared row metrics made line and paragraph spacing vary with
+                            // the text a rule happened to match.  HTML baseline shifts and a
+                            // requested size offset still need their own visual extents.
                             val lineMetrics = textShaper.fontLineMetrics.takeIf {
-                                textStyle != baseStyle || hasBaselineShift
+                                hasBaselineShift || rangeStyle?.fontSizeOffsetPx != 0f
                             }
                             val baselineShift = lineMetrics?.let { metrics ->
                                 (if (item.style.superscript) -metrics.ascentPx / 2f else 0f) +

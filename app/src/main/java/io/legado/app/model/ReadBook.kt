@@ -10,10 +10,18 @@ import io.legado.app.data.entities.BookProgress
 import io.legado.app.data.entities.BookSource
 import io.legado.app.data.entities.readRecord.ReadRecord
 import io.legado.app.data.entities.readRecord.ReadRecordSession
+import io.legado.app.data.repository.HighlightRuleRepository
 import io.legado.app.data.repository.ReadRecordRepository
 import io.legado.app.domain.gateway.BackupSettingsGateway
 import io.legado.app.domain.gateway.OtherSettingsGateway
 import io.legado.app.domain.gateway.ReadSettingsGateway
+import io.legado.app.feature.reader.core.navigation.ReaderChapterPaginationSnapshot
+import io.legado.app.feature.reader.core.source.ReaderChapterSourceParser
+import io.legado.app.feature.reader.legacy.LegacyReaderChapterPaginationResult
+import io.legado.app.feature.reader.legacy.LegacyReaderChapterPaginator
+import io.legado.app.feature.reader.legacy.LegacyReaderPageDecorationFactory
+import io.legado.app.feature.reader.platform.AndroidReaderHtmlSemanticTextResolver
+import io.legado.app.feature.reader.platform.ReaderAndroidPaginationStyle
 import io.legado.app.help.AppWebDav
 import io.legado.app.help.book.BookHelp
 import io.legado.app.help.book.ContentProcessor
@@ -27,7 +35,6 @@ import io.legado.app.help.book.readSimulating
 import io.legado.app.help.book.simulatedTotalChapterNum
 import io.legado.app.help.book.update
 import io.legado.app.help.config.ReadBookConfig
-import io.legado.app.data.repository.HighlightRuleRepository
 import io.legado.app.help.coroutine.Coroutine
 import io.legado.app.help.globalExecutor
 import io.legado.app.model.ReadBook.callBack
@@ -36,6 +43,8 @@ import io.legado.app.model.ReadBook.renderCallBack
 import io.legado.app.model.ReadBook.snapshot
 import io.legado.app.model.localBook.LocalBook
 import io.legado.app.model.localBook.TextFile
+import io.legado.app.model.reader.ReaderChapterInput
+import io.legado.app.model.reader.ReaderChapterInputWindow
 import io.legado.app.model.translation.TranslationChapterState
 import io.legado.app.model.translation.TranslationChapterStatus
 import io.legado.app.model.translation.TranslationManager
@@ -44,15 +53,6 @@ import io.legado.app.service.BaseReadAloudService
 import io.legado.app.service.CacheBookService
 import io.legado.app.ui.book.read.ConfigUpdateAction
 import io.legado.app.ui.book.read.ReadConfigUpdateBus
-import io.legado.app.feature.reader.core.navigation.ReaderChapterPaginationSnapshot
-import io.legado.app.feature.reader.core.source.ReaderChapterSourceParser
-import io.legado.app.feature.reader.platform.AndroidReaderHtmlSemanticTextResolver
-import io.legado.app.feature.reader.legacy.LegacyReaderChapterPaginationResult
-import io.legado.app.feature.reader.legacy.LegacyReaderChapterPaginator
-import io.legado.app.feature.reader.legacy.LegacyReaderPageDecorationFactory
-import io.legado.app.feature.reader.platform.ReaderAndroidPaginationStyle
-import io.legado.app.model.reader.ReaderChapterInput
-import io.legado.app.model.reader.ReaderChapterInputWindow
 import io.legado.app.ui.book.read.pageestimate.ChapterContentHasher
 import io.legado.app.ui.book.read.pageestimate.ChapterLengthInfo
 import io.legado.app.ui.book.read.pageestimate.LocalPageEstimateCalibrationStore
@@ -74,7 +74,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -89,7 +88,6 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import splitties.init.appCtx
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.math.max
 import kotlin.math.min
 
 
@@ -1289,6 +1287,25 @@ object ReadBook : CoroutineScope by MainScope(), KoinComponent {
         }
         loadContent(durChapterIndex + 1, resetPageOffset = resetPageOffset)
         loadContent(durChapterIndex - 1, resetPageOffset = resetPageOffset)
+    }
+
+    /**
+     * Reader cold-start path: foreground the chapter needed for the first rendered page.
+     *
+     * Adjacent chapters preserve their normal warm-cache behavior, but beginning their content
+     * parsing only after the current chapter is available keeps them from competing with the
+     * first page's database, rule, and image work on a cold device.
+     */
+    fun loadInitialContent(
+        resetPageOffset: Boolean,
+        success: (() -> Unit)? = null,
+    ) {
+        val currentIndex = durChapterIndex
+        loadContent(currentIndex, resetPageOffset = resetPageOffset) {
+            success?.invoke()
+            loadContent(currentIndex + 1, resetPageOffset = resetPageOffset)
+            loadContent(currentIndex - 1, resetPageOffset = resetPageOffset)
+        }
     }
 
     fun relayoutContent() {

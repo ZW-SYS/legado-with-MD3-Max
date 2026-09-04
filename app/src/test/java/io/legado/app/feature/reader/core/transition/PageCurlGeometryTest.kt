@@ -86,6 +86,40 @@ class PageCurlGeometryTest {
         assertEquals(0, ReaderCurlTouchPolicy.settleDurationMillis(1000f, 1000f, 1000f))
     }
 
+    @Test
+    fun simulationCurlSnapsAwayFromTheDegenerateCornerAndKeepsAVisibleFinalFrame() {
+        assertEquals(960f, ReaderCurlTouchPolicy.dragX(ReaderTurnDirection.NEXT, 999f, 1000f))
+        assertEquals(40f, ReaderCurlTouchPolicy.dragX(ReaderTurnDirection.PREVIOUS, 1f, 1000f))
+        assertEquals(90, ReaderCurlTouchPolicy.settleDurationMillis(999f, 1000f, 1000f))
+    }
+
+    @Test
+    fun simulationCurlRevealsTheSafeSnapContinuouslyFromTheTouchedCorner() {
+        assertEquals(
+            1000f,
+            ReaderCurlTouchPolicy.revealX(ReaderTurnDirection.NEXT, 960f, 1000f, 0f)
+        )
+        assertEquals(
+            980f,
+            ReaderCurlTouchPolicy.revealX(ReaderTurnDirection.NEXT, 960f, 1000f, .5f)
+        )
+        assertEquals(
+            40f,
+            ReaderCurlTouchPolicy.revealX(ReaderTurnDirection.PREVIOUS, 80f, 1000f, .5f)
+        )
+    }
+
+    @Test
+    fun cancelledPreviousCurlReturnsPastTheLeftEdge() {
+        assertEquals(
+            -1000f, ReaderCurlTouchPolicy.settledX(
+                ReaderTurnDirection.PREVIOUS,
+                committed = false,
+                pageWidth = 1000f,
+            )
+        )
+    }
+
     @Test fun simulationCornerStaysLockedWhileTouchCrossesTheViewportMidpoint() {
         val corner = CurlPoint(1080f, 0f)
         val first = PageCurlGeometry.calculate(1080f, 1920f, 900f, 300f, corner)!!

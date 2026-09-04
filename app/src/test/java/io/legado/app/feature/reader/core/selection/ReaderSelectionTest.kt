@@ -1,6 +1,10 @@
 package io.legado.app.feature.reader.core.selection
 
-import io.legado.app.feature.reader.core.model.*
+import io.legado.app.feature.reader.core.model.ReaderElement
+import io.legado.app.feature.reader.core.model.ReaderPage
+import io.legado.app.feature.reader.core.model.ReaderPageId
+import io.legado.app.feature.reader.core.model.ReaderRect
+import io.legado.app.feature.reader.core.model.ReaderTextStyle
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -90,6 +94,27 @@ class ReaderSelectionTest {
         val selection = ReaderSelectionPolicy.startWord(paragraphs, 5f, 40f, Locale.ENGLISH)!!
 
         assertEquals("word", selection.selectedText(paragraphs))
+    }
+
+    @Test
+    fun longPressSnapsAcrossLetterSpacingGaps() {
+        val spaced = page.copy(
+            elements = listOf(
+                ReaderElement.Text(
+                    ReaderRect(0f, 0f, 10f, 20f), 15f, "甲", style, false, false,
+                    chapterPosition = 0,
+                ),
+                ReaderElement.Text(
+                    ReaderRect(14f, 0f, 24f, 20f), 15f, "乙", style, false, false,
+                    chapterPosition = 1,
+                ),
+            )
+        )
+
+        val selection = ReaderSelectionPolicy.startWord(spaced, 12f, 10f, Locale.CHINESE)
+
+        assertEquals(0, selection?.anchor)
+        assertEquals("甲乙", selection?.selectedText(spaced))
     }
 
     @Test fun handlesKeepSemanticStartWhenSelectionIsReversed() {

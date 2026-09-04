@@ -18,7 +18,7 @@ class ReaderUnderlineRunTest {
     }
 
     @Test
-    fun `line style and geometry changes start distinct segments`() {
+    fun `line and style changes start distinct segments`() {
         val other = style.copy(underline = underline.copy(mode = 3))
         val page = page(
             text(0f, 0f, 10f, 20f, style),
@@ -27,7 +27,32 @@ class ReaderUnderlineRunTest {
             text(10f, 20f, 20f, 40f, other),
         )
 
-        assertEquals(4, page.underlineRuns().size)
+        assertEquals(3, page.underlineRuns().size)
+    }
+
+    @Test
+    fun `letter spacing remains one continuous underline run`() {
+        val page = page(
+            text(0f, 0f, 10f, 20f, style),
+            text(14f, 0f, 24f, 20f, style),
+        )
+
+        assertEquals(listOf(ReaderRect(0f, 0f, 24f, 20f)), page.underlineRuns().map { it.bounds })
+    }
+
+    @Test
+    fun `unstyled text breaks an underline run`() {
+        val plain = style.copy(underline = null)
+        val page = page(
+            text(0f, 0f, 10f, 20f, style),
+            text(10f, 0f, 20f, 20f, plain),
+            text(20f, 0f, 30f, 20f, style),
+        )
+
+        assertEquals(
+            listOf(ReaderRect(0f, 0f, 10f, 20f), ReaderRect(20f, 0f, 30f, 20f)),
+            page.underlineRuns().map { it.bounds },
+        )
     }
 
     private fun text(left: Float, top: Float, right: Float, bottom: Float, textStyle: ReaderTextStyle) =

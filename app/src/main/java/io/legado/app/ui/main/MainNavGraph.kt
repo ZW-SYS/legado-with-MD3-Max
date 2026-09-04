@@ -50,7 +50,6 @@ import io.legado.app.ui.book.audio.AudioPlayIntent
 import io.legado.app.ui.book.audio.AudioPlayScreenContent
 import io.legado.app.ui.book.audio.AudioPlayViewModel
 import io.legado.app.ui.book.cache.manage.BookCacheManageRouteScreen
-import io.legado.app.ui.widget.components.changeSource.ChangeSourceSheet
 import io.legado.app.ui.book.explore.ExploreShowIntent
 import io.legado.app.ui.book.explore.ExploreShowRouteScreen
 import io.legado.app.ui.book.explore.ExploreShowViewModel
@@ -142,9 +141,9 @@ import io.legado.app.ui.rss.subscription.RuleSubRouteScreen
 import io.legado.app.ui.theme.ProvideThemeOverride
 import io.legado.app.ui.theme.rememberImageSeedColor
 import io.legado.app.ui.theme.rememberThemeOverride
+import io.legado.app.ui.widget.components.changeSource.ChangeSourceSheet
 import io.legado.app.utils.openUrl
 import io.legado.app.utils.sendToClip
-import io.legado.app.utils.showDialogFragment
 import io.legado.app.utils.startActivityForBook
 import io.legado.app.utils.toastOnUi
 import io.legado.app.utils.toggleSystemBar
@@ -725,9 +724,11 @@ fun MainActivity.mainEntryProvider(
         }
 
         LaunchedEffect(route, readBookViewModel, lifecycleOwner) {
+            // Resolving the book and applying its read style do not depend on launcher effects.
+            // Start that I/O immediately; initData still waits below because it can emit effects.
+            val initialBook = readBookViewModel.initReadBookConfig(initRequest)
             effectsReady.await()
             collectorReady[0] = true
-            val initialBook = readBookViewModel.initReadBookConfig(initRequest)
             readBookViewModel.initData(initRequest, initialBook) {
                 readBookViewModel.markJustInitData()
                 controller.onRouteInitialized()

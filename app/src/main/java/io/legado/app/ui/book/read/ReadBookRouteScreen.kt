@@ -10,8 +10,8 @@ import android.os.SystemClock
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewTreeObserver
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedVisibility
@@ -26,9 +26,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -39,8 +39,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
@@ -67,8 +67,8 @@ import io.legado.app.R
 import io.legado.app.constant.AppLog
 import io.legado.app.constant.BookType
 import io.legado.app.constant.ReadMenuBlurMode
-import io.legado.app.feature.reader.ReaderCanvasSurface
 import io.legado.app.feature.reader.ReaderBackgroundSurface
+import io.legado.app.feature.reader.ReaderCanvasSurface
 import io.legado.app.feature.reader.core.gesture.ReaderTapActionGrid
 import io.legado.app.feature.reader.core.model.readerBackgroundAlpha
 import io.legado.app.feature.reader.core.transition.ReaderTransitionMode
@@ -88,10 +88,10 @@ import io.legado.app.ui.main.AndroidPlatformCapabilities
 import io.legado.app.ui.main.MainActivity
 import io.legado.app.ui.replace.ReplaceEditRoute
 import io.legado.app.ui.replace.ReplaceRuleActivity
-import io.legado.app.ui.theme.LocalAppUiConfiguration
 import io.legado.app.ui.theme.LegadoTheme
-import io.legado.app.ui.widget.components.text.AppText
+import io.legado.app.ui.theme.LocalAppUiConfiguration
 import io.legado.app.ui.widget.components.image.cover.sharedCoverSourceRadius
+import io.legado.app.ui.widget.components.text.AppText
 import io.legado.app.utils.StartActivityContract
 import io.legado.app.utils.takePersistablePermissionSafely
 import io.legado.app.utils.toastOnUi
@@ -656,13 +656,13 @@ fun ReadBookRouteScreen(
             Modifier
                 .fillMaxSize()
                 .onSizeChanged { size ->
-                controller.onComposeReaderViewportChanged(
-                    widthPx = size.width,
-                    heightPx = size.height,
-                    density = density,
-                    contentPadding = readerContentPadding,
-                )
-            }
+                    controller.onComposeReaderViewportChanged(
+                        widthPx = size.width,
+                        heightPx = size.height,
+                        density = density,
+                        contentPadding = readerContentPadding,
+                    )
+                }
         ) {
             ReaderBackgroundSurface(
                 backgroundImage = readerBackground.drawable,
@@ -731,6 +731,7 @@ fun ReadBookRouteScreen(
                 noAnimationScrollPage = readPreferences.noAnimScrollPage,
                 externalPageTurns = controller.composePageTurns,
                 externalSelectionCancels = controller.composeSelectionCancels,
+                    onVisibleBodyTextPositionProvider = controller::setComposeVisibleBodyTextPositionProvider,
                 )
             }
             AnimatedVisibility(

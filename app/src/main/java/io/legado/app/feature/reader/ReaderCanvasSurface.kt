@@ -95,6 +95,7 @@ import io.legado.app.feature.reader.core.gesture.ReaderPageViewportLayout
 import io.legado.app.feature.reader.core.gesture.ReaderTapAction
 import io.legado.app.feature.reader.core.gesture.ReaderTapActionGrid
 import io.legado.app.feature.reader.core.model.ReaderElement
+import io.legado.app.feature.reader.core.model.ReaderEmphasisUnderlineRun
 import io.legado.app.feature.reader.core.model.ReaderImageDrawLayout
 import io.legado.app.feature.reader.core.model.ReaderNineSliceLayout
 import io.legado.app.feature.reader.core.model.ReaderPage
@@ -107,8 +108,9 @@ import io.legado.app.feature.reader.core.model.ReaderTipAlignment
 import io.legado.app.feature.reader.core.model.ReaderTipRow
 import io.legado.app.feature.reader.core.model.ReaderTipRowLayout
 import io.legado.app.feature.reader.core.model.ReaderTipVisual
-import io.legado.app.feature.reader.core.model.emphasisUnderlineRuns
 import io.legado.app.feature.reader.core.model.textBackgroundRuns
+import io.legado.app.feature.reader.core.readaloud.ReaderVisibleTextPosition
+import io.legado.app.feature.reader.core.readaloud.ReaderVisibleTextPositionPolicy
 import io.legado.app.feature.reader.core.selection.ReaderPageChangeOrigin
 import io.legado.app.feature.reader.core.selection.ReaderSelection
 import io.legado.app.feature.reader.core.selection.ReaderSelectionEndpoint
@@ -200,6 +202,7 @@ fun ReaderCanvasSurface(
     noAnimationScrollPage: Boolean,
     externalPageTurns: Flow<ReaderTurnDirection>,
     externalSelectionCancels: Flow<Unit>,
+    onVisibleBodyTextPositionProvider: ((() -> ReaderVisibleTextPosition?)?) -> Unit,
 ) {
     // 滚动跨页同步换窗：跨页帧内宿主回调直接返回新窗口，先写入 pending 供绘制与
     // 手势立即使用；宿主 StateFlow 回声（同一实例）或外部窗口变化会将其清除。
@@ -228,6 +231,10 @@ fun ReaderCanvasSurface(
     var displayOffset by remember { mutableFloatStateOf(0f) }
     var transition by remember { mutableStateOf(ReaderPageTransition()) }
     var pageMotionJob by remember { mutableStateOf<Job?>(null) }
+    // The first curl frame starts at a corner. Animate it into the safe fold position so
+    // the entering page is revealed instead of popping in when horizontal capture begins.
+    var curlRevealProgress by remember { mutableFloatStateOf(1f) }
+    var curlRevealJob by remember { mutableStateOf<Job?>(null) }
     var pendingTurn by remember { mutableStateOf<ReaderTurnDirection?>(null) }
     var pendingTurnOrigin by remember { mutableStateOf<ReaderPageId?>(null) }
     val latestPreviousPage by rememberUpdatedState(onPreviousPage)
@@ -259,6 +266,7 @@ fun ReaderCanvasSurface(
             displayOffset = 0f
             transition = ReaderPageTransition()
             bookmarkReturnJob?.cancel()
+            curlRevealJob?.cancel()
             bookmarkOffset = 0f
             bookmarkArmed = false
         }
@@ -279,6 +287,17 @@ fun ReaderCanvasSurface(
     // 零重组零重绘（对照 shutiao 的 contentOffset 语义）。
     val scrollOffsetState = remember { mutableFloatStateOf(0f) }
     var scrollOffset by scrollOffsetState
+    val latestVisibleBodyTextPosition by rememberUpdatedState {
+        if (transitionMode == ReaderTransitionMode.SCROLL) {
+            ReaderVisibleTextPositionPolicy.firstVisibleBodyText(currentPageWindow(), scrollOffset)
+        } else {
+            null
+        }
+    }
+    DisposableEffect(onVisibleBodyTextPositionProvider) {
+        onVisibleBodyTextPositionProvider { latestVisibleBodyTextPosition() }
+        onDispose { onVisibleBodyTextPositionProvider(null) }
+    }
     // 滚动跨页折算标志：applyScrollResult 完成一次同步换窗后置位，由 current.id
     // 效应消费——据此区分"自己跨页"与"外部换窗"，后者才把滚动偏移归零。
     var scrollOwnCrossing by remember { mutableStateOf(false) }
@@ -344,6 +363,18 @@ fun ReaderCanvasSurface(
     }
     fun settlePageTurn(decision: ReaderTransitionDecision) {
         pageMotionJob?.cancel()
+        curlRevealJob?.cancel()
+        if (transitionMode == ReaderTransitionMode.SIMULATION) {
+            transition.direction?.let { direction ->
+                curlTouchX = ReaderCurlTouchPolicy.revealX(
+                    direction,
+                    curlTouchX,
+                    transition.pageExtentPx,
+                    curlRevealProgress,
+                )
+            }
+            curlRevealProgress = 1f
+        }
         pendingTurn = transition.direction.takeIf { decision.commit }
         pendingTurnOrigin = latestPages.current?.id
         if (transitionMode == ReaderTransitionMode.NONE) {
@@ -410,6 +441,7 @@ fun ReaderCanvasSurface(
         if ((if (direction == ReaderTurnDirection.PREVIOUS) window.previous else window.next) == null) return
         val width = window.current?.widthPx?.toFloat() ?: return
         if (transitionMode == ReaderTransitionMode.SIMULATION) {
+            curlRevealProgress = 1f
             curlTouchX = ReaderCurlTouchPolicy.programmaticX(direction, width)
             curlTouchY = ReaderCurlTouchPolicy.programmaticY(
                 direction, curlTouchY, window.current.heightPx.toFloat(),
@@ -422,6 +454,17 @@ fun ReaderCanvasSurface(
         transition = ReaderPageTransition(direction, 0f, width, dragging = true)
         displayOffset = 0f
         settlePageTurn(ReaderTransitionDecision(target, commit = true))
+    }
+
+    fun startCurlRevealSnap() {
+        curlRevealJob?.cancel()
+        curlRevealProgress = 0f
+        curlRevealJob = animationScope.launch {
+            Animatable(0f).animateTo(
+                1f,
+                tween(100, easing = FastOutSlowInEasing),
+            ) { curlRevealProgress = value }
+        }
     }
     fun applyScrollResult(result: ReaderScrollResult, window: ReaderPageWindow) {
         scrollOffset = result.offsetPx
@@ -705,6 +748,8 @@ fun ReaderCanvasSurface(
                 val down = awaitFirstDown(requireUnconsumed = false)
                 latestReaderInteraction()
                 pageMotionJob?.cancel()
+                curlRevealJob?.cancel()
+                curlRevealProgress = 1f
                 // 翻页收尾被打断时在此同步提交；宿主当帧返回新窗口，但组合要等下一帧，
                 // 手势必须改用返回的窗口命中，否则长按会选中已不在屏幕上的旧页。
                 val turnedWindow = completePendingTurn()
@@ -894,6 +939,7 @@ fun ReaderCanvasSurface(
                             if (horizontalTurn) {
                                 horizontalDrag = ReaderHorizontalDrag.capture(total.x)
                                 horizontalCapturedY = change.position.y
+                                if (transitionMode == ReaderTransitionMode.SIMULATION) startCurlRevealSnap()
                             }
                         }
                         if (bookmarkDrag) {
@@ -922,6 +968,7 @@ fun ReaderCanvasSurface(
                                 if (horizontalTurn) {
                                     horizontalDrag = ReaderHorizontalDrag.capture(total.x)
                                     horizontalCapturedY = change.position.y
+                                    if (transitionMode == ReaderTransitionMode.SIMULATION) startCurlRevealSnap()
                                 }
                             }
                         }
@@ -932,7 +979,11 @@ fun ReaderCanvasSurface(
                             ) ?: ReaderPageTransition(pageExtentPx = size.width.toFloat())
                             transition.direction?.takeIf { transitionMode == ReaderTransitionMode.SIMULATION }
                                 ?.let {
-                                    curlTouchX = change.position.x
+                                    curlTouchX = ReaderCurlTouchPolicy.dragX(
+                                        it,
+                                        change.position.x,
+                                        size.width.toFloat(),
+                                    )
                                     curlCornerY = ReaderCurlTouchPolicy.cornerY(
                                         it, horizontalCapturedY, size.height.toFloat(),
                                     )
@@ -968,8 +1019,16 @@ fun ReaderCanvasSurface(
                     if (!released) {
                         bookmarkArmed = false
                         bookmarkOffset = 0f
-                        displayOffset = 0f
-                        transition = ReaderPageTransition()
+                        // A competing gesture or pointer cancellation does not deliver UP.
+                        // Do not discard an in-progress horizontal curl here: it has the same
+                        // visual contract as a released-but-uncommitted turn and must return
+                        // through the curl's natural cancel path (previous-page curls go left).
+                        if (horizontalTurn && transition.dragging) {
+                            settlePageTurn(ReaderTransitionDecision(0f, commit = false))
+                        } else {
+                            displayOffset = 0f
+                            transition = ReaderPageTransition()
+                        }
                     }
                 }
                 if (released) latestReaderInteraction()
@@ -1087,7 +1146,27 @@ fun ReaderCanvasSurface(
                 )
             }
         } else if (transitionMode == ReaderTransitionMode.SIMULATION && transition.direction != null) {
-            SimulationPageStack(pages, transition.direction!!, curlTouchX, curlTouchY, curlCornerY, backgroundColor, pageBackgroundImage, backgroundImageAlpha, selectionColor, textAccentColor, textSelection, cachedImage, loadImage)
+            SimulationPageStack(
+                pages,
+                transition.direction!!,
+                displayOffset,
+                ReaderCurlTouchPolicy.revealX(
+                    transition.direction!!,
+                    curlTouchX,
+                    current.widthPx.toFloat(),
+                    curlRevealProgress
+                ),
+                curlTouchY,
+                curlCornerY,
+                backgroundColor,
+                pageBackgroundImage,
+                backgroundImageAlpha,
+                selectionColor,
+                textAccentColor,
+                textSelection,
+                cachedImage,
+                loadImage
+            )
         } else {
             @Composable
             fun PageLayer(page: ReaderPage, transform: ReaderPageTransform, offsetY: Float = 0f) {
@@ -1261,20 +1340,17 @@ private fun ScrollPageStack(
             val cachedSources = sources.mapNotNull { source ->
                 ReaderTextBackgroundLoader.cached(source)?.let { source to it }
             }.toMap()
-            if (cachedSources.isNotEmpty()) data.textBackgroundBitmaps.value = cachedSources
+            if (cachedSources.isNotEmpty()) data.textBackgroundRevision.value++
             val loadedSources = withContext(Dispatchers.IO) {
                 sources.mapNotNull { source ->
                     ReaderTextBackgroundLoader.load(source)?.let { source to it }
                 }.toMap()
             }
-            if (loadedSources.isNotEmpty()) data.textBackgroundBitmaps.value = loadedSources
+            if (loadedSources.isNotEmpty()) data.textBackgroundRevision.value++
             page.elements.filterIsInstance<ReaderElement.Image>().forEach { element ->
-                val bitmap = (cachedImage(element) ?: loadImage(element))
-                    ?.takeUnless(Bitmap::isRecycled)
-                    ?: return@forEach
-                if (data.images.value[element] !== bitmap) {
-                    data.images.value = data.images.value + (element to bitmap)
-                }
+                // The controller owns inline bitmaps in a byte-bounded LRU. Do not retain
+                // another strong reference for every cached draw page.
+                if (cachedImage(element) == null) loadImage(element)
             }
         }
     }
@@ -1290,14 +1366,22 @@ private fun ScrollPageStack(
         val activeSelection = selectionProvider()
         fun drawOne(page: ReaderPage, stackOffsetY: Float) {
             val data = cache.ensure(page)
-            val selectedBounds = if (activeSelection != null || data.hasSelectedElements) {
+            val selectedBounds = if (activeSelection != null || page.searchStart != null) {
                 data.textElements
-                    .filter { it.selected || activeSelection?.contains(it) == true }
+                    .filter { page.isSearchResult(it) || activeSelection?.contains(it) == true }
                     .map(ReaderElement.Text::bounds)
                     .mergeSelectionBounds()
             } else emptyList()
             withTransform({ translate(0f, stackOffsetY) }) {
-                drawScrollPageContent(page, data, selection, readAloud, activeSelection, selectedBounds)
+                drawScrollPageContent(
+                    page,
+                    data,
+                    selection,
+                    readAloud,
+                    activeSelection,
+                    selectedBounds,
+                    cachedImage
+                )
             }
         }
         window.previous?.let { drawOne(it, -it.scrollExtentPx) }
@@ -1313,15 +1397,16 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawScrollPageConte
     readAloud: Color,
     activeSelection: ReaderSelection?,
     selectedBounds: List<ReaderRect>,
+    cachedImage: (ReaderElement.Image) -> Bitmap?,
 ) {
     val native = drawContext.canvas.nativeCanvas
-    val bitmaps = data.textBackgroundBitmaps.value
+    data.textBackgroundRevision.value
     data.textBackgrounds.forEach { run ->
-        bitmaps[run.image.source]?.let { bitmap ->
+        ReaderTextBackgroundLoader.cached(run.image.source)?.let { bitmap ->
             drawTextBackground(native, bitmap, run, data.textBackgroundPaint)
         }
     }
-    data.textElements.mergeBackgroundBounds().forEach { band ->
+    data.textBackgroundBands.forEach { band ->
         drawRect(
             Color(band.colorArgb),
             Offset(band.bounds.left, band.bounds.top),
@@ -1331,15 +1416,15 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawScrollPageConte
     selectedBounds.forEach { rect ->
         drawRect(selection, Offset(rect.left, rect.top), Size(rect.width, rect.height))
     }
-    val images = data.images.value
     page.elements.forEach { e -> when (e) {
         is ReaderElement.Text -> {
             val paint = data.paints.getValue(e.style)
-            paint.color = e.resolvedColorArgb(readAloud.toArgb())
+            paint.color = page.resolvedColorArgb(e, readAloud.toArgb())
             paint.isUnderlineText = e.style.nativeUnderline || e.drawsLinkUnderline
             native.drawText(e.value, e.bounds.left, e.baselinePx, paint)
         }
-        is ReaderElement.Image -> images[e]?.let { bitmap ->
+
+        is ReaderElement.Image -> cachedImage(e)?.let { bitmap ->
             ReaderImageDrawLayout.fitCenter(e.bounds, bitmap.width, bitmap.height)?.let { layout ->
                 drawImage(
                     image = bitmap.asImageBitmap(),
@@ -1368,7 +1453,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawScrollPageConte
         }
         is ReaderElement.Rule -> Unit
     } }
-    data.emphasisUnderlines.forEach { run ->
+    page.dynamicEmphasisUnderlineRuns().forEach { run ->
         drawLine(
             color = Color(run.style.colorArgb),
             start = Offset(run.startPx, run.yPx),
@@ -1385,6 +1470,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawScrollPageConte
 private fun SimulationPageStack(
     pages: ReaderPageWindow,
     direction: ReaderTurnDirection,
+    pageOffsetPx: Float,
     touchX: Float,
     touchY: Float,
     cornerY: Float,
@@ -1414,7 +1500,39 @@ private fun SimulationPageStack(
             )
         }
         if (frame == null) {
-            ReaderPageCanvas(basePage, background, backgroundImage, backgroundImageAlpha, selection, readAloud, Modifier.fillMaxSize(), activeSelection, cachedImage, loadImage)
+            // A degenerate Bezier frame used to draw only the base page, which made the
+            // entering page disappear for an entire drag frame. Keep the destination visible
+            // with a cheap horizontal fallback until the next valid curl frame arrives.
+            ReaderPageCanvas(
+                revealPage,
+                background,
+                backgroundImage,
+                backgroundImageAlpha,
+                selection,
+                readAloud,
+                Modifier.fillMaxSize(),
+                activeSelection,
+                cachedImage,
+                loadImage
+            )
+            val baseTranslation = when (direction) {
+                ReaderTurnDirection.NEXT -> pageOffsetPx
+                ReaderTurnDirection.PREVIOUS -> pageOffsetPx - width
+            }
+            ReaderPageCanvas(
+                basePage,
+                background,
+                backgroundImage,
+                backgroundImageAlpha,
+                selection,
+                readAloud,
+                Modifier
+                    .fillMaxSize()
+                    .graphicsLayer { translationX = baseTranslation },
+                activeSelection,
+                cachedImage,
+                loadImage,
+            )
             return@BoxWithConstraints
         }
         val paths = remember(frame, width, height) { frame.renderPaths(width, height) }
@@ -1605,9 +1723,15 @@ private fun ReaderPageCanvas(
     val decorationDrawCache = remember(page.elements) {
         ReaderPageDecorationDrawCache.create(page)
     }
-    val selectedTextBounds = remember(textElements, activeSelection) {
+    val textBackgroundBands = remember(textElements) { textElements.mergeBackgroundBounds() }
+    val selectedTextBounds = remember(
+        textElements,
+        activeSelection,
+        page.searchStart,
+        page.searchEndInclusive,
+    ) {
         textElements
-            .filter { it.selected || activeSelection?.contains(it) == true }
+            .filter { page.isSearchResult(it) || activeSelection?.contains(it) == true }
             .map(ReaderElement.Text::bounds)
             .mergeSelectionBounds()
     }
@@ -1649,7 +1773,7 @@ private fun ReaderPageCanvas(
                 drawTextBackground(native, bitmap, run, textBackgroundPaint)
             }
         }
-        textElements.mergeBackgroundBounds().forEach { band ->
+        textBackgroundBands.forEach { band ->
             drawRect(
                 Color(band.colorArgb),
                 Offset(band.bounds.left, band.bounds.top),
@@ -1662,7 +1786,7 @@ private fun ReaderPageCanvas(
         page.elements.forEach { e -> when (e) {
             is ReaderElement.Text -> {
                 val paint = paints.getValue(e.style)
-                paint.color = e.resolvedColorArgb(readAloud.toArgb())
+                paint.color = page.resolvedColorArgb(e, readAloud.toArgb())
                 paint.isUnderlineText = e.style.nativeUnderline || e.drawsLinkUnderline
                 native.drawText(e.value, e.bounds.left, e.baselinePx, paint)
             }
@@ -1695,7 +1819,7 @@ private fun ReaderPageCanvas(
             }
             is ReaderElement.Rule -> Unit
         } }
-        page.emphasisUnderlineRuns().forEach { run ->
+        page.dynamicEmphasisUnderlineRuns().forEach { run ->
             drawLine(
                 color = Color(run.style.colorArgb),
                 start = Offset(run.startPx, run.yPx),
@@ -1735,6 +1859,35 @@ fun ReaderBackgroundSurface(
 
 private fun Drawable.isolatedCopy(): Drawable =
     constantState?.newDrawable()?.mutate() ?: mutate()
+
+private fun ReaderPage.isSearchResult(text: ReaderElement.Text): Boolean {
+    val start = searchStart ?: return false
+    val end = searchEndInclusive ?: return false
+    val textEnd = text.chapterPosition + text.value.length - 1
+    return text.chapterPosition <= maxOf(start, end) && textEnd >= minOf(start, end)
+}
+
+private fun ReaderPage.isReadAloud(text: ReaderElement.Text): Boolean =
+    !text.emphasized && readAloudParagraphIndex != null && text.paragraphIndex == readAloudParagraphIndex
+
+private fun ReaderPage.resolvedColorArgb(text: ReaderElement.Text, accentColorArgb: Int): Int =
+    if (text.link != null || isSearchResult(text) || isReadAloud(text)) accentColorArgb else text.style.colorArgb
+
+private fun ReaderPage.dynamicEmphasisUnderlineRuns(): List<ReaderEmphasisUnderlineRun> {
+    val style = emphasisUnderlineStyle ?: return emptyList()
+    val lines = LinkedHashMap<Pair<Float, Float>, MutableList<ReaderElement.Text>>()
+    elements.filterIsInstance<ReaderElement.Text>()
+        .filter { isSearchResult(it) || isReadAloud(it) }
+        .forEach { text -> lines.getOrPut(text.bounds.top to text.bounds.bottom) { mutableListOf() } += text }
+    return lines.values.map { line ->
+        ReaderEmphasisUnderlineRun(
+            startPx = line.minOf { it.bounds.left },
+            endPx = line.maxOf { it.bounds.right },
+            yPx = line.maxOf { it.bounds.bottom } - style.bottomOffsetPx,
+            style = style,
+        )
+    }
+}
 
 @Composable
 private fun ReaderPageDecorationOverlay(page: ReaderPage, modifier: Modifier) {
