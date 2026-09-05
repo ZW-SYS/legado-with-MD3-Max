@@ -412,16 +412,6 @@ object ReaderPaginator {
                     is ReaderMeasuredInlineItem.Image -> "\uFFFC"
                 }
             }
-            fun backgroundImage(index: Int) = (paragraph.items[index] as? ReaderMeasuredInlineItem.Text)
-                ?.style?.backgroundImage?.takeIf { it.fit == 3 }
-            fun backgroundInsetBefore(index: Int, lineStart: Int): Float {
-                val image = backgroundImage(index) ?: return 0f
-                return if (index == lineStart || backgroundImage(index - 1) != image) image.contentInsetLeftPx else 0f
-            }
-            fun backgroundInsetAfter(index: Int, lineEnd: Int): Float {
-                val image = backgroundImage(index) ?: return 0f
-                return if (index + 1 == lineEnd || backgroundImage(index + 1) != image) image.contentInsetRightPx else 0f
-            }
             val breaker = ChineseLineBreaker(
                 clusters = clusters,
                 widthsPx = paragraph.items.map { it.widthPx + letterSpacing },
@@ -433,34 +423,25 @@ object ReaderPaginator {
                 firstLineWidthPx = (config.contentWidthPx - indentWidth)
                     .coerceAtLeast(0f).toInt(),
             )
-            val originalEnds = breaker.lineClusterStarts.drop(1)
-            val starts = mutableListOf(0)
-            // ZhLayout reserves the nine-slice side pieces after shaping, then pulls an
-            // overflowing line back into the column. Move whole clusters instead so Canvas
-            // keeps stable hit-test and selection geometry.
-            while (starts.last() < paragraph.items.size) {
-                val from = starts.last()
-                val lineIndent = if (starts.size == 1) indentWidth else paragraph.restLineIndentWidthPx
-                val available = config.contentWidthPx - lineIndent
-                var until = originalEnds.firstOrNull { it > from } ?: paragraph.items.size
-                fun occupiedWidth(until: Int): Float = (from until until).sumOf { index ->
-                    (paragraph.items[index].widthPx + backgroundInsetBefore(index, from) +
-                        backgroundInsetAfter(index, until)).toDouble()
-                }.toFloat() + letterSpacing * (until - from - 1).coerceAtLeast(0)
-                while (until - from > 1 && occupiedWidth(until) > available) {
-                    val candidate = until - 1
-                    if (ChineseLineBreaker.isForbiddenBreak(clusters[candidate - 1], clusters[candidate])) break
-                    until = candidate
-                }
-                starts += until
-            }
+            // Nine-slice edges are a paint-time frame around a matched run.  They must not
+            // take width away from the text line: doing so made large left/right slices create
+            // artificial one-character lines and inflated justification gaps.  Keep the same
+            // text shaping boundary as the View reader, then expand only the drawn background.
+            val starts = breaker.lineClusterStarts
             for (lineIndex in 0 until starts.lastIndex) {
                 val from = starts[lineIndex]
                 val until = starts[lineIndex + 1]
                 val lineItems = paragraph.items.subList(from, until)
                 val textItems = lineItems.filterIsInstance<ReaderMeasuredInlineItem.Text>()
-                val maxTextScale = textItems
-                    .maxOfOrNull { it.style.fontSizePx / paragraph.baseTextSizePx.coerceAtLeast(1f) } ?: 1f
+                // Inline HTML may shrink every glyph in a row (<small>, font-size, etc.).
+                // It changes glyph drawing but not the paragraph's base line box; otherwise a
+                // small final row advances less and makes the following paragraph gap collapse.
+                val maxTextScale = maxOf(
+                    1f,
+                    textItems.maxOfOrNull {
+                        it.style.fontSizePx / paragraph.baseTextSizePx.coerceAtLeast(1f)
+                    } ?: 1f,
+                )
                 val fallbackLineHeight = paragraph.lineHeightPx * maxTextScale
                 val fallbackBaseline = paragraph.baselineOffsetPx * maxTextScale
                 // Keep the paragraph's unshifted line box as the minimum. A line containing
@@ -483,11 +464,8 @@ object ReaderPaginator {
                 if (y + actualLineHeight > config.contentBottomPx && columnHasContent()) advanceColumn()
                 val indent = if (lineIndex == 0) indentWidth else paragraph.restLineIndentWidthPx
                 val available = (config.contentWidthPx - indent).coerceAtLeast(0f)
-                fun backgroundInsetBefore(index: Int) = backgroundInsetBefore(from + index, from)
-                fun backgroundInsetAfter(index: Int) = backgroundInsetAfter(from + index, until)
                 val naturalWidth = lineItems.sumOf { it.widthPx.toDouble() }.toFloat() +
-                    letterSpacing * (lineItems.size - 1).coerceAtLeast(0) +
-                    lineItems.indices.sumOf { (backgroundInsetBefore(it) + backgroundInsetAfter(it)).toDouble() }.toFloat()
+                        letterSpacing * (lineItems.size - 1).coerceAtLeast(0)
                 val indentItems = (paragraph.leadingIndentItems - from).coerceIn(0, lineItems.size)
                 val stretchableGaps = (lineItems.size - indentItems - 1).coerceAtLeast(0)
                 val shouldJustify =
@@ -540,7 +518,6 @@ object ReaderPaginator {
                     }
                 }
                 lineItems.forEachIndexed { itemIndex, item ->
-                    x += backgroundInsetBefore(itemIndex)
                     val itemBackground = (item as? ReaderMeasuredInlineItem.Text)
                         ?.style?.backgroundImage
                     when (item) {
@@ -589,7 +566,7 @@ object ReaderPaginator {
                         }
                     }
                     pageText.append(if (item is ReaderMeasuredInlineItem.Text) item.value else '\uFFFC')
-                    x += item.widthPx + backgroundInsetAfter(itemIndex) + letterSpacing +
+                    x += item.widthPx + letterSpacing +
                         if (item is ReaderMeasuredInlineItem.Text && item.value == " ") wordSpaceExtra else 0f
                     x += if (itemIndex >= indentItems) justifyGap else 0f
                 }

@@ -433,7 +433,7 @@ class ReaderPaginatorTest {
     }
 
     @Test
-    fun nineSliceSidePiecesReserveSpaceAndReflowEachVisualLine() {
+    fun nineSliceSidePiecesDoNotChangeTextWrappingOrPlacement() {
         val frame = ReaderTextBackgroundImage(
             source = "frame.png",
             fit = 3,
@@ -457,13 +457,16 @@ class ReaderPaginatorTest {
         ).single()
 
         val glyphs = page.elements.filterIsInstance<ReaderElement.Text>()
-        assertEquals(listOf(3f, 3f, 3f, 3f), glyphs.map { it.bounds.left })
-        assertEquals(listOf(0f, 20f, 40f, 60f), glyphs.map { it.bounds.top })
-        assertTrue(page.textBackgroundRuns().all { it.bounds.left == 0f && it.bounds.right == 17f })
+        assertEquals(listOf(0f, 10f, 0f, 10f), glyphs.map { it.bounds.left })
+        assertEquals(listOf(0f, 0f, 20f, 20f), glyphs.map { it.bounds.top })
+        assertEquals(
+            listOf(-3f to 24f, -3f to 24f),
+            page.textBackgroundRuns().map { it.bounds.left to it.bounds.right },
+        )
     }
 
     @Test
-    fun nineSliceReflowDoesNotOrphanClosingPunctuation() {
+    fun nineSliceDoesNotOrphanClosingPunctuation() {
         val framedStyle = style.copy(backgroundImage = ReaderTextBackgroundImage(
             "frame.png", 3, 1f, contentInsetLeftPx = 3f, contentInsetRightPx = 4f,
         ))

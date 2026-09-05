@@ -5,6 +5,8 @@ data class ReaderSearchRequest(
     val directLength: Int,
     val occurrence: Int,
     val isRegex: Boolean,
+    /** Characters present in the search document but excluded from the renderer's body text. */
+    val leadingCharactersExcludedFromContent: Int = 0,
 )
 
 data class ReaderSearchMatch(val start: Int, val length: Int)
@@ -14,7 +16,7 @@ object ReaderSearchMatcher {
     fun find(content: String, query: String, request: ReaderSearchRequest): ReaderSearchMatch? {
         if (query.isEmpty()) return null
         val directLength = request.directLength.takeIf { it > 0 } ?: query.length
-        val directIndex = request.directIndex
+        val directIndex = request.directIndex - request.leadingCharactersExcludedFromContent
         if (directIndex >= 0 && directIndex + directLength <= content.length) {
             val matches = if (request.isRegex) {
                 runCatching {

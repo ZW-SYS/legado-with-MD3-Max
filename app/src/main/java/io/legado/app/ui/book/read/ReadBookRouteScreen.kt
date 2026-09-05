@@ -735,15 +735,15 @@ fun ReadBookRouteScreen(
                 )
             }
             AnimatedVisibility(
-                visible = readerEntranceSettled && !hasReadablePage,
+                // Generic "loading data" duplicated the Canvas placeholder and could flash
+                // before a warm cached chapter page was republished. The body renderer owns
+                // normal loading feedback; this outer layer is reserved for messages/errors.
+                visible = readerEntranceSettled && !hasReadablePage &&
+                        (state.msg != null || readerPaginationError != null),
                 enter = fadeIn(animationSpec = tween(300)),
                 exit = fadeOut(animationSpec = tween(300)),
             ) {
-                val message = state.msg ?: if (readerPaginationError != null) {
-                    stringResource(R.string.load_error_retry)
-                } else {
-                    stringResource(R.string.data_loading)
-                }
+                val message = state.msg ?: stringResource(R.string.load_error_retry)
                 val retryable = state.msg == null && readerPaginationError != null
                 val retryLabel = stringResource(R.string.dynamic_click_retry)
                 Box(

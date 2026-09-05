@@ -10,7 +10,14 @@ class ReaderSearchMatcherTest {
         occurrence: Int = 0,
         directLength: Int = 0,
         isRegex: Boolean = false,
-    ) = ReaderSearchRequest(directIndex, directLength, occurrence, isRegex)
+        leadingCharactersExcludedFromContent: Int = 0,
+    ) = ReaderSearchRequest(
+        directIndex,
+        directLength,
+        occurrence,
+        isRegex,
+        leadingCharactersExcludedFromContent,
+    )
 
     @Test
     fun `直达下标命中时直接采用`() {
@@ -36,6 +43,25 @@ class ReaderSearchMatcherTest {
         assertEquals(
             ReaderSearchMatch(4, 2),
             ReaderSearchMatcher.find(content, "灯塔", request(directIndex = 0, directLength = 2)),
+        )
+    }
+
+    @Test
+    fun `扣除标题前缀后的直达下标优先于同词出现次数`() {
+        // 检索层的章节文本是“标题\\n正文”，Canvas 只以正文建立坐标。
+        // 若不先扣标题长度，原下标可能碰巧指向正文中的另一个同词。
+        val content = "灯塔在前，灯塔在后。"
+        assertEquals(
+            ReaderSearchMatch(0, 2),
+            ReaderSearchMatcher.find(
+                content,
+                "灯塔",
+                request(
+                    directIndex = 3,
+                    occurrence = 1,
+                    leadingCharactersExcludedFromContent = 3,
+                ),
+            ),
         )
     }
 

@@ -41,6 +41,22 @@ class ReaderLineSpacingTest {
         assertEquals(listOf(0f, 35f), page.elements.map { it.bounds.top })
     }
 
+    @Test
+    fun smallerInlineTextKeepsTheBodyLineBoxAndFollowingParagraphGap() {
+        val small = style.copy(fontSizePx = 10f)
+        val first = inline("甲", multiplier = 1.5f).copy(
+            items = listOf(ReaderMeasuredInlineItem.Text("甲", 10f, small, 0)),
+        )
+        val page = ReaderPaginator.paginateBlocks(
+            listOf(first, inline("乙")),
+            config.copy(viewportHeightPx = 100, paragraphSpacingPx = 5f),
+        ).single()
+
+        val text = page.elements.filterIsInstance<ReaderElement.Text>()
+        assertEquals(20f, text.first().bounds.height, 0f)
+        assertEquals(listOf(0f, 35f), text.map { it.bounds.top })
+    }
+
     @Test fun doubledFontAndInlineImageDetermineHeightBeforeSpacingMultiplier() {
         val paragraph = inline("甲乙").copy(items = listOf(
             ReaderMeasuredInlineItem.Text("甲", 20f, style.copy(fontSizePx = 40f), 0),
