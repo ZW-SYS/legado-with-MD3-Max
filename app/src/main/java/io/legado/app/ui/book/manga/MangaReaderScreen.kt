@@ -377,6 +377,10 @@ private fun WebtoonMangaList(
     imageLoader: ImageLoader,
 ) {
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = state.currentItemIndex)
+    // 单张图片的加载状态会更新整个 UiState.pages。可见页监听不能因此重启：重启会
+    // 丢失 distinctUntilChanged 的上一条记录，并把 LazyColumn 尚未完成重测时保留的
+    // 旧视口重新上报为当前页，进而使章节/页码跳回去。
+    val latestReaderState by rememberUpdatedState(state)
     val coroutineScope = rememberCoroutineScope()
     var pendingWebtoonTap by remember { mutableStateOf<Job?>(null) }
     var lastWebtoonTapAt by remember { mutableStateOf(0L) }
@@ -469,19 +473,20 @@ private fun WebtoonMangaList(
             }
         }
 
-    LaunchedEffect(listState, state.pages, state.navigationId) {
+    LaunchedEffect(listState, state.navigationId) {
         snapshotFlow {
+            val currentState = latestReaderState
             val visibleItems = listState.layoutInfo.visibleItemsInfo
             val visibleItemIndices = visibleItems.map { it.index }
             val currentChapterVisible = visibleItems.any { visibleItem ->
-                (state.pages.getOrNull(visibleItem.index) as? MangaReaderItemUi.Page)
-                    ?.chapterIndex == state.chapterIndex
+                (currentState.pages.getOrNull(visibleItem.index) as? MangaReaderItemUi.Page)
+                    ?.chapterIndex == currentState.chapterIndex
             }
             val firstItemIndex = visibleItems.firstOrNull()?.index
             val focusedItemIndex = mangaWebtoonFocusedPageIndex(
-                items = state.pages,
+                items = currentState.pages,
                 visibleItemIndices = visibleItemIndices,
-                currentChapterIndex = state.chapterIndex,
+                currentChapterIndex = currentState.chapterIndex,
             )
             if (firstItemIndex == null || focusedItemIndex == null) null
             else Triple(focusedItemIndex, firstItemIndex, currentChapterVisible)
@@ -489,13 +494,14 @@ private fun WebtoonMangaList(
             .distinctUntilChanged()
             .collect { entry ->
                 entry?.let { (focusedIndex, firstIndex, currentChapterVisible) ->
-                    when (val item = state.pages.getOrNull(focusedIndex)) {
+                    val currentState = latestReaderState
+                    when (val item = currentState.pages.getOrNull(focusedIndex)) {
                         is MangaReaderItemUi.Page -> onIntent(MangaReaderIntent.VisibleItemChanged(
                             itemIndex = focusedIndex,
                             firstItemIndex = firstIndex,
                             lastItemIndex = focusedIndex,
                             currentChapterVisible = currentChapterVisible,
-                            navigationId = state.navigationId,
+                            navigationId = currentState.navigationId,
                         ))
                         is MangaReaderItemUi.ChapterTransition -> Unit
                         is MangaReaderItemUi.ChapterEdge, null -> Unit
