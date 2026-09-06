@@ -75,7 +75,6 @@ data class ReaderChapterMeasureStyle(
     val bodyIndentText: String? = null,
     val imageLayoutMode: ReaderImageLayoutMode = ReaderImageLayoutMode.AUTO,
     val imageAvailableWidthPx: Float? = null,
-    val imageAvailableHeightPx: Float? = null,
 )
 
 sealed interface ReaderChapterMeasureResult {
@@ -260,17 +259,11 @@ class ReaderChapterBlockMeasurer(
                                 pageBreakAfter = mode == ReaderImageLayoutMode.SINGLE_PAGE,
                             )
                         } else {
-                            // The View reader replaces the inline placeholder with an image
-                            // fitted to the visible text area. Do the final fitting during
-                            // measurement so following content gets the same stable geometry.
-                            val availableWidth = style.imageAvailableWidthPx
-                                ?.takeIf { it > 0f } ?: size.widthPx
-                            val availableHeight = style.imageAvailableHeightPx
-                                ?.takeIf { it > 0f } ?: size.heightPx
-                            val scale = minOf(
-                                availableWidth / size.widthPx.coerceAtLeast(1f),
-                                availableHeight / size.heightPx.coerceAtLeast(1f),
-                            )
+                            // 文字嵌入（行内图）：与 View 实现一致，图片作为段内占位参与行排版，
+                            // 只允许缩小到不超过当前行高（禁止放大到铺满整页文字区）。行高上限
+                            // 让紧随其后的内容保持与行内占位一致且稳定的几何。
+                            val maxHeight = lineHeight ?: baseStyle.fontSizePx
+                            val scale = minOf(1f, maxHeight / size.heightPx.coerceAtLeast(1f))
                             inline += ReaderMeasuredInlineItem.Image(
                                 source = item.source,
                                 widthPx = size.widthPx * scale,

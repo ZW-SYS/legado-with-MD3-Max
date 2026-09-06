@@ -170,7 +170,7 @@ object LegacyReaderChapterPaginator {
                 bodyIndentText = ReadBookConfig.paragraphIndent,
                 bodyAlignment = if (ReadBookConfig.textFullJustify) ReaderTextAlignment.JUSTIFY else ReaderTextAlignment.START,
                 titleAlignment = if (ReadBookConfig.isMiddleTitle || chapter.isVolume ||
-                    content.textList.isEmpty() || singleImage
+                    content.textList.isEmpty()
                 ) ReaderTextAlignment.CENTER else ReaderTextAlignment.START,
                 imagePageBreakBefore = singleImage,
                 imagePageBreakAfter = singleImage,
@@ -180,12 +180,6 @@ object LegacyReaderChapterPaginator {
                         paginationStyle.paddingLeftPx - paginationStyle.paddingRightPx -
                         contentPaddingLeftPx - contentPaddingRightPx
                     ).coerceAtLeast(0).toFloat(),
-                imageAvailableHeightPx = (
-                        viewportHeightPx.toFloat() - paginationStyle.paddingTopPx - paginationStyle.paddingBottomPx -
-                                contentPaddingTopPx - contentPaddingBottomPx -
-                                LegacyReaderPageDecorationFactory.headerExtentPx() -
-                                LegacyReaderPageDecorationFactory.footerExtentPx()
-                        ).coerceAtLeast(0f),
                 bodyLineHeightPx = paginationStyle.bodyTextHeightPx,
                 bodyBaselineOffsetPx = paginationStyle.bodyBaselineOffsetPx,
                 titleLineHeightPx = paginationStyle.titleTextHeightPx,
