@@ -1107,8 +1107,8 @@ class ReadBookViewModel(
                 ReadBook.book?.setImageStyle(intent.style)
                 if (intent.style == Book.imgStyleSingle) {
                     ReadBook.book?.setPageAnim(0)
-                    _effects.tryEmit(ReadBookEffect.MenuImageStyleChanged(intent.style))
                 }
+                _effects.tryEmit(ReadBookEffect.MenuImageStyleChanged(intent.style))
                 ReadBook.loadContent(false)
             }
 

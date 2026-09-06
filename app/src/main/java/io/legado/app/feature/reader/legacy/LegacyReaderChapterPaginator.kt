@@ -180,6 +180,12 @@ object LegacyReaderChapterPaginator {
                         paginationStyle.paddingLeftPx - paginationStyle.paddingRightPx -
                         contentPaddingLeftPx - contentPaddingRightPx
                     ).coerceAtLeast(0).toFloat(),
+                imageAvailableHeightPx = (
+                        viewportHeightPx.toFloat() - paginationStyle.paddingTopPx - paginationStyle.paddingBottomPx -
+                                contentPaddingTopPx - contentPaddingBottomPx -
+                                LegacyReaderPageDecorationFactory.headerExtentPx() -
+                                LegacyReaderPageDecorationFactory.footerExtentPx()
+                        ).coerceAtLeast(0f),
                 bodyLineHeightPx = paginationStyle.bodyTextHeightPx,
                 bodyBaselineOffsetPx = paginationStyle.bodyBaselineOffsetPx,
                 titleLineHeightPx = paginationStyle.titleTextHeightPx,

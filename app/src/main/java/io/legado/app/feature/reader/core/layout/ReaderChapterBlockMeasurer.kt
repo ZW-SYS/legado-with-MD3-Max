@@ -75,6 +75,7 @@ data class ReaderChapterMeasureStyle(
     val bodyIndentText: String? = null,
     val imageLayoutMode: ReaderImageLayoutMode = ReaderImageLayoutMode.AUTO,
     val imageAvailableWidthPx: Float? = null,
+    val imageAvailableHeightPx: Float? = null,
 )
 
 sealed interface ReaderChapterMeasureResult {
@@ -259,8 +260,17 @@ class ReaderChapterBlockMeasurer(
                                 pageBreakAfter = mode == ReaderImageLayoutMode.SINGLE_PAGE,
                             )
                         } else {
-                            val maxHeight = lineHeight ?: baseStyle.fontSizePx
-                            val scale = minOf(1f, maxHeight / size.heightPx.coerceAtLeast(1f))
+                            // The View reader replaces the inline placeholder with an image
+                            // fitted to the visible text area. Do the final fitting during
+                            // measurement so following content gets the same stable geometry.
+                            val availableWidth = style.imageAvailableWidthPx
+                                ?.takeIf { it > 0f } ?: size.widthPx
+                            val availableHeight = style.imageAvailableHeightPx
+                                ?.takeIf { it > 0f } ?: size.heightPx
+                            val scale = minOf(
+                                availableWidth / size.widthPx.coerceAtLeast(1f),
+                                availableHeight / size.heightPx.coerceAtLeast(1f),
+                            )
                             inline += ReaderMeasuredInlineItem.Image(
                                 source = item.source,
                                 widthPx = size.widthPx * scale,

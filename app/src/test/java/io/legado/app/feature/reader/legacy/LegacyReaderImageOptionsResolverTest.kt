@@ -1,26 +1,27 @@
 package io.legado.app.feature.reader.legacy
 
 import io.legado.app.feature.reader.core.layout.ReaderImageLayoutMode
-import io.legado.app.feature.reader.core.layout.ReaderTextAlignment
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
 class LegacyReaderImageOptionsResolverTest {
-    @Test fun parsesTypedImageUrlOptions() {
+    @Test
+    fun sourceTextStyleIsTheOnlyLayoutOverride() {
         val options = LegacyReaderImageOptionsResolver.resolve(
-            "https://example/image, {\"style\":\"right\",\"width\":\"37.5%\",\"click\":\"open(\\\"x\\\")\"}",
+            "https://example/image, {\"style\":\"text\",\"width\":\"37.5%\",\"click\":\"open(\\\"x\\\")\"}",
         )!!
-        assertEquals(ReaderImageLayoutMode.STANDALONE, options.layoutMode)
-        assertEquals(ReaderTextAlignment.END, options.horizontalAlignment)
-        assertEquals(.375f, options.requestedWidthFraction!!, 0f)
+        assertEquals(ReaderImageLayoutMode.INLINE, options.layoutMode)
+        assertNull(options.requestedWidthFraction)
+        assertNull(options.horizontalAlignment)
         assertEquals("open(\"x\")", options.action)
     }
 
-    @Test fun parsesAbsoluteWidthAndKnownModesCaseInsensitively() {
+    @Test
+    fun nonTextSourceStyleDoesNotOverrideReaderImageStyle() {
         val options = LegacyReaderImageOptionsResolver.resolve("x,{\"style\":\"full\",\"width\":\"123\"}")!!
-        assertEquals(ReaderImageLayoutMode.FULL_WIDTH, options.layoutMode)
-        assertEquals(123f, options.requestedWidthPx!!, 0f)
+        assertNull(options.layoutMode)
+        assertNull(options.requestedWidthPx)
     }
 
     @Test fun malformedOrAbsentOptionsDoNotInventOverrides() {
