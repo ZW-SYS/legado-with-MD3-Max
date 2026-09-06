@@ -167,6 +167,8 @@ data class ReaderPage(
     /** Dynamic search range, kept separate from immutable layout elements for draw-cache reuse. */
     val searchStart: Int? = null,
     val searchEndInclusive: Int? = null,
+    /** Whether the dynamic search range is in the independent title coordinate space. */
+    val searchIsTitle: Boolean = false,
     /** Dynamic read-aloud paragraph, likewise independent of the pagination layout. */
     val readAloudParagraphIndex: Int? = null,
     /** 邻章未装载时预置的"加载中"占位页，分页批次落地后被同 id 真实页替换。 */

@@ -393,10 +393,12 @@ abstract class AbsCallBack(
             val requestBuilder = userResponse.request.newBuilder()
             if (HttpMethod.permitsRequestBody(method)) {
                 val responseCode = userResponse.code
-                val maintainBody = HttpMethod.redirectsWithBody(method) ||
+                // OkHttp 5.5 folds redirect status handling into redirectsToGet().
+                // PROPFIND is the only method whose body is retained for 301/302/303.
+                val maintainBody = method == "PROPFIND" ||
                         responseCode == HTTP_PERM_REDIRECT ||
                         responseCode == HTTP_TEMP_REDIRECT
-                if (HttpMethod.redirectsToGet(method)
+                if (HttpMethod.redirectsToGet(method, responseCode)
                     && responseCode != HTTP_PERM_REDIRECT
                     && responseCode != HTTP_TEMP_REDIRECT
                 ) {

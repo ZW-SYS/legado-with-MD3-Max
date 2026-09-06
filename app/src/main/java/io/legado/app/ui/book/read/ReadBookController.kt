@@ -612,6 +612,7 @@ class ReadBookController(
                 // resolves these compact dynamic ranges while drawing.
                 searchStart = selection?.anchor?.takeIf { pageHasSearchSelection },
                 searchEndInclusive = selection?.focus?.takeIf { pageHasSearchSelection },
+                searchIsTitle = selection?.anchorIsTitle == true,
                 readAloudParagraphIndex = aloudParagraphIndex.takeIf { pageHasAloudParagraph },
                 revision = decorated.revision xor (selection?.hashCode()?.toLong() ?: 0L) xor
                         (aloudPosition?.hashCode()?.toLong() ?: 0L),
@@ -666,10 +667,17 @@ class ReadBookController(
             chapterCount = ReadBook.simulatedChapterSize,
         )
         if (missingChapters.isEmpty()) return index
+        val cachedChapterIndexes = listOfNotNull(
+            ReadBook.readerChapterInputWindow.previous,
+            ReadBook.readerChapterInputWindow.current,
+            ReadBook.readerChapterInputWindow.next,
+        ).mapTo(mutableSetOf()) { it.chapter.index }
         val updated = pages.toMutableList()
         var added = 0
         missingChapters.forEach { chapterIndex ->
-            placeholderReaderPage(chapterIndex)?.let {
+            // Match the View reader's three-chapter hand-off: cached chapter content waits for
+            // its Canvas pagination rather than being presented as a network/content load.
+            if (chapterIndex !in cachedChapterIndexes) placeholderReaderPage(chapterIndex)?.let {
                 updated.add(it)
                 added++
             }
@@ -723,14 +731,11 @@ class ReadBookController(
     ) {
         val result = navigation.result
         val query = result.query.ifBlank { viewModel.uiState.value.searchContentQuery }
-        // 选区锚点、updateReadingPosition、locate 都以 semanticContent 为字符空间。
-        // 检索结果把显示标题也算入章节字符串，Canvas 的 semanticContent 则只保存正文；
-        // 不先扣掉标题前缀，偏移位置若恰好也是同一关键词会被当成有效直达结果，导致高亮落在别处。
-        val titlePrefixLength = input.source.blocks
-            .any { it is io.legado.app.feature.reader.core.source.ReaderChapterSourceBlock.Text && it.isTitle }
-            .takeIf { it }
-            ?.let { input.source.title.length + 1 }
-            ?: 0
+        // Full-text search uses the exact document “display title + newline + body” when the
+        // title is enabled. Resolve in that document, then map to title/body Canvas coordinates.
+        val searchTitle = input.displayTitle.takeIf {
+            ReadBookConfig.titleMode != 2 || input.chapter.isVolume || input.content.textList.isEmpty()
+        }
         val match = ReaderSearchMatcher.find(
             content = input.source.semanticContent,
             query = query,
@@ -739,8 +744,8 @@ class ReadBookController(
                 directLength = result.matchLength,
                 occurrence = result.resultCountWithinChapter,
                 isRegex = result.isRegex,
-                leadingCharactersExcludedFromContent = titlePrefixLength,
             ),
+            title = searchTitle,
         ) ?: run {
             pendingSearchNavigation = null
             return
@@ -750,13 +755,15 @@ class ReadBookController(
             chapterIndex = result.chapterIndex,
             anchor = match.start,
             focus = match.start + match.length - 1,
+            anchorIsTitle = match.isTitle,
         )
-        ReadBook.updateReadingPosition(match.start)
+        val bodyPosition = if (match.isTitle) 0 else match.start
+        ReadBook.updateReadingPosition(bodyPosition)
         directReaderPages.takeIf { pages ->
             pages.any { it.id.chapterIndex == result.chapterIndex }
         }?.let { pages ->
             publishDirectReaderWindow(
-                ReaderPageNavigator.locate(pages, result.chapterIndex, match.start)
+                ReaderPageNavigator.locate(pages, result.chapterIndex, bodyPosition)
             )
         }
     }
@@ -1688,7 +1695,9 @@ class ReadBookController(
                     // 避免挂起导航在用户之后主动进入同一章时劫持阅读位置
                     ReadBook.openChapter(
                         result.chapterIndex,
-                        result.queryIndexInChapter.coerceAtLeast(0),
+                        // Search offsets may include a title prefix. The body offset is resolved
+                        // after the cached chapter input has been published.
+                        0,
                     ) {
                         pendingSearchNavigation = null
                     }
@@ -2069,6 +2078,13 @@ class ReadBookController(
                 viewModel.startBackupJob()
                 return window
             }
+        // ReadBook has promoted a cached adjacent chapter input, but its Canvas pages may still
+        // be shaping in the background. Start that pagination and retain the completed source
+        // page until it publishes; only an actually missing chapter gets a “loading” page.
+        if (ReadBook.readerChapterInputWindow.current?.chapter?.index == targetChapterIndex) {
+            publishReaderPageWindow()
+            return null
+        }
         val placeholder = placeholderReaderPage(targetChapterIndex) ?: return null
         val pages = directReaderPages.toMutableList()
         pages.add(placeholder)

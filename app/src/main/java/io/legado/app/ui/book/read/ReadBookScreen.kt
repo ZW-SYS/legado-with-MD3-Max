@@ -601,6 +601,9 @@ fun ReadBookScreen(
         )
     }
 
+    val showCharsetSheet = state.activeSheet is ReadBookSheet.Charset
+    val showSimulatedReadingSheet = state.activeSheet is ReadBookSheet.SimulatedReading
+
     // AlertDialog-based sheets and special cases — conditionally composed
     when (state.activeSheet) {
         is ReadBookSheet.ClickActionConfig -> {
@@ -636,12 +639,14 @@ fun ReadBookScreen(
 
         is ReadBookSheet.Charset -> {
             CharsetConfigSheet(
+                show = showCharsetSheet,
                 onDismissRequest = dismissSheet,
             )
         }
 
         is ReadBookSheet.SimulatedReading -> {
             SimulatedReadingSheet(
+                show = showSimulatedReadingSheet,
                 onDismissRequest = dismissSheet,
                 onApply = { onIntent(ReadBookIntent.ApplySimulatedReading) },
             )

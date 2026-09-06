@@ -176,6 +176,7 @@ import io.legado.app.domain.usecase.BuildSpeechPlanUseCase
 import io.legado.app.domain.usecase.CacheBookChaptersUseCase
 import io.legado.app.domain.usecase.ChangeBookSourceUseCase
 import io.legado.app.domain.usecase.ChangeSourceSearchUseCase
+import io.legado.app.domain.usecase.CheckBookContentQualityUseCase
 import io.legado.app.domain.usecase.CleanSelectedTextUseCase
 import io.legado.app.domain.usecase.ClearBookCacheUseCase
 import io.legado.app.domain.usecase.CoverAlbumUseCase
@@ -186,7 +187,6 @@ import io.legado.app.domain.usecase.ExportBookshelfUseCase
 import io.legado.app.domain.usecase.GenerateBookshelfAutoGroupPlanUseCase
 import io.legado.app.domain.usecase.GenerateChapterSummaryUseCase
 import io.legado.app.domain.usecase.GetChapterContentUseCase
-import io.legado.app.domain.usecase.CheckBookContentQualityUseCase
 import io.legado.app.domain.usecase.GetReadingProgressUseCase
 import io.legado.app.domain.usecase.HomeDashboardUseCase
 import io.legado.app.domain.usecase.IdentifyBookCharactersUseCase
@@ -211,6 +211,7 @@ import io.legado.app.domain.usecase.UploadReadingProgressUseCase
 import io.legado.app.domain.usecase.VerifyBookmarkTargetUseCase
 import io.legado.app.domain.usecase.WebDavBackupUseCase
 import io.legado.app.domain.usecase.readRecord.GetReadRecordOverviewUseCase
+import io.legado.app.feature.onboarding.OnboardingViewModel
 import io.legado.app.help.coil.CoverFetcher
 import io.legado.app.help.coil.CoverInterceptor
 import io.legado.app.help.config.ThemePackageManager
@@ -289,7 +290,6 @@ import io.legado.app.ui.config.translation.TranslationConfigViewModel
 import io.legado.app.ui.dict.DictViewModel
 import io.legado.app.ui.dict.rule.DictRuleViewModel
 import io.legado.app.ui.highlightTagRule.HighlightTagRuleViewModel
-import io.legado.app.feature.onboarding.OnboardingViewModel
 import io.legado.app.ui.login.SourceLoginViewModel
 import io.legado.app.ui.main.MainRouteSearchContent
 import io.legado.app.ui.main.MainViewModel
@@ -315,12 +315,12 @@ import io.legado.app.ui.tagGroupRule.TagGroupRuleViewModel
 import io.legado.app.utils.isNightMode
 import io.legado.app.utils.sysConfiguration
 import kotlinx.coroutines.Dispatchers
-import kotlinx.datetime.Clock
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
+import kotlin.time.Clock
 
 val appModule = module {
 

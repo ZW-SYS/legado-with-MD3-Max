@@ -24,11 +24,13 @@ data class ReaderBookmarkBadge(
             imageSource: String = "",
             imageVersion: String = "",
         ): ReaderBookmarkBadge? {
-            if (!hasBookmark || isScroll) return null
-            val width = (sizeDp.coerceAtLeast(1) * density).toInt().coerceAtLeast(1)
+            // A zero-size badge explicitly hides the decoration while preserving the bookmark.
+            if (!hasBookmark || isScroll || sizeDp <= 0) return null
+            val width = (sizeDp * density).toInt().coerceAtLeast(1)
             return ReaderBookmarkBadge(
                 leftPx = pageWidthPx - contentRightPaddingPx - 6 * density - width,
-                topPx = contentTopPx + 2 * density,
+                // Keep the page header clear: the badge starts at the body viewport's top edge.
+                topPx = contentTopPx,
                 widthPx = width,
                 heightPx = width * 2,
                 imageSource = imageSource,

@@ -1863,6 +1863,7 @@ private fun Drawable.isolatedCopy(): Drawable =
 private fun ReaderPage.isSearchResult(text: ReaderElement.Text): Boolean {
     val start = searchStart ?: return false
     val end = searchEndInclusive ?: return false
+    if (text.emphasized != searchIsTitle) return false
     val textEnd = text.chapterPosition + text.value.length - 1
     return text.chapterPosition <= maxOf(start, end) && textEnd >= minOf(start, end)
 }

@@ -28,6 +28,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.metadata
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
 import coil3.ImageLoader
@@ -598,18 +599,20 @@ fun MainActivity.mainEntryProvider(
     }
 
     entry<MainRouteReadBook>(
-        metadata = NavDisplay.transitionSpec {
-            fadeIn(animationSpec = tween(600)) togetherWith
-                fadeOut(animationSpec = tween(600))
-        } + NavDisplay.popTransitionSpec {
-            fadeIn(animationSpec = tween(600)) togetherWith
-                fadeOut(animationSpec = tween(600))
-        } + NavDisplay.predictivePopTransitionSpec { _ ->
-            if (configuration.appShell.predictiveBackEnabled) {
+        metadata = metadata {
+            put(NavDisplay.TransitionKey) {
                 fadeIn(animationSpec = tween(600)) togetherWith
-                    fadeOut(animationSpec = tween(600))
-            } else {
-                null
+                        fadeOut(animationSpec = tween(600))
+            }
+            put(NavDisplay.PopTransitionKey) {
+                fadeIn(animationSpec = tween(600)) togetherWith
+                        fadeOut(animationSpec = tween(600))
+            }
+            if (configuration.appShell.predictiveBackEnabled) {
+                put(NavDisplay.PredictivePopTransitionKey) { _ ->
+                    fadeIn(animationSpec = tween(600)) togetherWith
+                            fadeOut(animationSpec = tween(600))
+                }
             }
         }
     ) { route ->
@@ -1073,42 +1076,20 @@ fun MainActivity.mainEntryProvider(
     }
 
     entry<MainRouteBookInfo>(
-        metadata = NavDisplay.transitionSpec {
-            val from = initialState.key
-            val fromStr = from.toString()
-            if (from is MainRouteHome || from is MainRouteExploreShow || from is MainRouteSearch ||
-                fromStr.startsWith("MainRouteHome") || fromStr.startsWith("MainRouteExploreShow") || fromStr.startsWith(
-                    "MainRouteSearch"
-                )
-            ) {
+        metadata = metadata {
+            put(NavDisplay.TransitionKey) {
                 fadeIn(animationSpec = tween(300)) togetherWith
                         fadeOut(animationSpec = tween(300))
-            } else null
-        } + NavDisplay.popTransitionSpec {
-            val to = targetState.key
-            val toStr = to.toString()
-            if (to is MainRouteHome || to is MainRouteExploreShow || to is MainRouteSearch ||
-                toStr.startsWith("MainRouteHome") || toStr.startsWith("MainRouteExploreShow") || toStr.startsWith(
-                    "MainRouteSearch"
-                )
-            ) {
+            }
+            put(NavDisplay.PopTransitionKey) {
                 fadeIn(animationSpec = tween(300)) togetherWith
                         fadeOut(animationSpec = tween(300))
-            } else null
-        } + NavDisplay.predictivePopTransitionSpec { _ ->
-            if (!configuration.appShell.predictiveBackEnabled) {
-                null
-            } else {
-                val to = targetState.key
-                val toStr = to.toString()
-                if (to is MainRouteHome || to is MainRouteExploreShow || to is MainRouteSearch ||
-                    toStr.startsWith("MainRouteHome") || toStr.startsWith("MainRouteExploreShow") || toStr.startsWith(
-                        "MainRouteSearch"
-                    )
-                ) {
+            }
+            if (configuration.appShell.predictiveBackEnabled) {
+                put(NavDisplay.PredictivePopTransitionKey) { _ ->
                     fadeIn(animationSpec = tween(300)) togetherWith
                             fadeOut(animationSpec = tween(300))
-                } else null
+                }
             }
         }
     ) { route ->
