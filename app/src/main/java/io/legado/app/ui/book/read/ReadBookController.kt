@@ -88,11 +88,13 @@ import io.legado.app.utils.share
 import io.legado.app.utils.sysScreenOffTime
 import io.legado.app.utils.throttle
 import io.legado.app.utils.toastOnUi
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -142,6 +144,7 @@ class ReadBookController(
     }
     private val readerImageLoads = ConcurrentHashMap<String, Deferred<android.graphics.Bitmap?>>()
     private val readerImageGenerations = ConcurrentHashMap<String, Long>()
+    private var readerImageLoadJob = SupervisorJob()
 
     private fun readerImageCacheKey(element: ReaderElement.Image): String =
         ReaderImageCachePolicy.withGeneration(
@@ -152,27 +155,54 @@ class ReadBookController(
     fun cachedReaderImage(element: ReaderElement.Image): android.graphics.Bitmap? =
         readerImageCache.get(readerImageCacheKey(element))?.takeUnless(android.graphics.Bitmap::isRecycled)
 
-    private fun invalidateReaderImage(source: String) {
-        val generation = readerImageGenerations.compute(source) { _, current -> (current ?: 0L) + 1L } ?: 1L
-        val currentGenerationSuffix = "|generation=$generation"
+    private fun activeReaderImageKeys(window: ReaderPageWindow): Set<String> =
+        listOfNotNull(window.previous, window.current, window.next, window.nextPlus)
+            .asSequence()
+            .flatMap { page -> page.elements.asSequence().filterIsInstance<ReaderElement.Image>() }
+            .map(::readerImageCacheKey)
+            .toSet()
+
+    private fun cancelReaderImageLoadsExcept(allowedKeys: Set<String>) {
+        readerImageLoads.entries
+            .filter { (key, _) -> key !in allowedKeys }
+            .forEach { (key, load) ->
+                if (readerImageLoads.remove(key, load)) load.cancel()
+            }
+    }
+
+    private fun invalidateReaderImages(sources: Set<String>) {
+        if (sources.isEmpty()) return
+        sources.forEach { source ->
+            readerImageGenerations.compute(source) { _, current -> (current ?: 0L) + 1L }
+        }
         readerImageCache.snapshot().keys
-            .filter {
-                ReaderImageCachePolicy.belongsToSource(it, source) &&
-                    !it.endsWith(currentGenerationSuffix)
+            .filter { key ->
+                sources.any { source ->
+                    ReaderImageCachePolicy.belongsToSource(
+                        key,
+                        source
+                    )
+                }
             }
             .forEach(readerImageCache::remove)
         readerImageLoads.entries
-            .filter {
-                ReaderImageCachePolicy.belongsToSource(it.key, source) &&
-                    !it.key.endsWith(currentGenerationSuffix)
+            .filter { (key, _) ->
+                sources.any { source ->
+                    ReaderImageCachePolicy.belongsToSource(
+                        key,
+                        source
+                    )
+                }
             }
             .forEach { (key, load) ->
-            if (readerImageLoads.remove(key, load)) load.cancel()
-        }
+                if (readerImageLoads.remove(key, load)) {
+                    load.cancel()
+                }
+            }
         val revisionSalt = System.nanoTime()
         var changed = false
         directReaderPages = directReaderPages.map { page ->
-            if (page.elements.any { it is ReaderElement.Image && it.source == source }) {
+            if (page.elements.any { it is ReaderElement.Image && it.source in sources }) {
                 changed = true
                 page.copy(revision = page.revision xor revisionSalt)
             } else {
@@ -182,11 +212,39 @@ class ReadBookController(
         if (changed) directReaderPageIndex?.let(::publishDirectReaderWindow)
     }
 
+    private fun invalidateReaderImage(source: String) = invalidateReaderImages(setOf(source))
+
+    private fun refreshInlineImagesThenReload() {
+        val sources = _readerPageWindow.value
+            .let { window ->
+                listOfNotNull(
+                    window.previous,
+                    window.current,
+                    window.next,
+                    window.nextPlus
+                )
+            }
+            .asSequence()
+            .flatMap { page -> page.elements.asSequence() }
+            .filterIsInstance<ReaderElement.Image>()
+            .map(ReaderElement.Image::source)
+            .toSet()
+        if (sources.isEmpty()) {
+            if (viewModel.isInitFinish) ReadBook.loadContent(resetPageOffset = false)
+            return
+        }
+        activity.lifecycleScope.launch {
+            viewModel.refreshImageFiles(sources)
+            invalidateReaderImages(sources)
+            if (viewModel.isInitFinish) ReadBook.loadContent(resetPageOffset = false)
+        }
+    }
+
     /** Android image capability used by the Compose Canvas renderer. */
     suspend fun loadReaderImage(element: ReaderElement.Image): android.graphics.Bitmap? {
         cachedReaderImage(element)?.let { return it }
         val key = readerImageCacheKey(element)
-        val candidate = activity.lifecycleScope.async(IO, start = CoroutineStart.LAZY) {
+        val candidate = CoroutineScope(readerImageLoadJob + IO).async(start = CoroutineStart.LAZY) {
             readerImageCache.get(key)?.takeUnless(android.graphics.Bitmap::isRecycled) ?: ReadBook.book?.let { book ->
                 ImageProvider.getImage(
                     book = book,
@@ -365,6 +423,11 @@ class ReadBookController(
     }
 
     private fun updateReaderPageWindow(value: ReaderPageWindow): ReaderPageWindow {
+        val previous = _readerPageWindow.value.current
+        val next = value.current
+        if (previous?.id != next?.id || previous?.layoutRevision != next?.layoutRevision) {
+            cancelReaderImageLoadsExcept(activeReaderImageKeys(value))
+        }
         _readerPageWindow.value = value
         readerSessionViewModel.submitPageWindow(value)
         return value
@@ -382,6 +445,10 @@ class ReadBookController(
 
     fun onComposeRendererDetached() {
         ReadBook.unregisterRender(this)
+        cancelReaderImageLoadsExcept(emptySet())
+        readerImageLoadJob.cancel()
+        readerImageLoadJob = SupervisorJob()
+        readerImageCache.evictAll()
     }
 
     fun showComposeTextActionMenu(
@@ -1049,7 +1116,6 @@ class ReadBookController(
         layoutController.viewport.value?.let { viewport ->
             updateComposeReaderBackground(viewport.widthPx, viewport.heightPx)
         }
-        rebuildDirectReaderPages()
         upSystemUiVisibility()
         LogUtils.d(
             "ReadBookTheme",
@@ -1550,6 +1616,8 @@ class ReadBookController(
             // ── Reader-renderer effects ──
             is ReadBookEffect.Finish -> closeReadBook()
             is ReadBookEffect.UpdateReaderConfig -> {
+                val refreshInlineImages =
+                    ConfigUpdateAction.RefreshInlineImages in effect.actions
                 if (ConfigUpdateAction.UpdateBackground in effect.actions) {
                     layoutController.viewport.value?.let { viewport ->
                         updateComposeReaderBackground(viewport.widthPx, viewport.heightPx)
@@ -1572,8 +1640,12 @@ class ReadBookController(
                         ConfigUpdateAction.UpdateBackground,
                         ConfigUpdateAction.UpdateStyle,
                         ConfigUpdateAction.UpdateBackgroundAlpha,
-                        ConfigUpdateAction.UpdatePageSlopSquare -> Unit
-                        ConfigUpdateAction.ReloadContent -> if (viewModel.isInitFinish) ReadBook.loadContent(resetPageOffset = false)
+                        ConfigUpdateAction.UpdatePageSlopSquare,
+                        ConfigUpdateAction.RefreshInlineImages -> Unit
+
+                        ConfigUpdateAction.ReloadContent -> if (!refreshInlineImages && viewModel.isInitFinish) {
+                            ReadBook.loadContent(resetPageOffset = false)
+                        }
                         ConfigUpdateAction.RelayoutContent -> if (viewModel.isInitFinish) {
                             layoutController.requestRelayout()
                         }
@@ -1593,7 +1665,8 @@ class ReadBookController(
                         ConfigUpdateAction.UpdatePageAnim -> Unit
                     }
                 }
-                if (effect.actions.any(ConfigUpdateAction::invalidatesDirectReaderPages)) {
+                if (refreshInlineImages) refreshInlineImagesThenReload()
+                if (!refreshInlineImages && effect.actions.any(ConfigUpdateAction::invalidatesDirectReaderPages)) {
                     rebuildDirectReaderPages()
                 }
             }
@@ -2037,6 +2110,16 @@ class ReadBookController(
         return window
     }
 
+    /** Restores the legacy reader's feedback when a page turn reaches a book boundary. */
+    fun showComposePageBoundary(direction: ReaderTurnDirection) {
+        activity.toastOnUi(
+            when (direction) {
+                ReaderTurnDirection.PREVIOUS -> R.string.no_prev_page
+                ReaderTurnDirection.NEXT -> R.string.no_next_page
+            },
+        )
+    }
+
     /**
      * 章节边界而邻章未分页：滚入"加载中"占位页并触发装载（对照 shutiao 的占位页
      * 滚动继续语义）。占位页插入 directReaderPages 并正常发布——装载期间页码、
@@ -2295,6 +2378,7 @@ private fun ConfigUpdateAction.invalidatesDirectReaderPages(): Boolean = when (t
     ConfigUpdateAction.UpdateBackground,
     ConfigUpdateAction.UpdateBackgroundAlpha,
     ConfigUpdateAction.UpdatePageSlopSquare,
+    ConfigUpdateAction.RefreshInlineImages,
     ConfigUpdateAction.RebuildWholeBookPageIndex,
     ConfigUpdateAction.UpdateWholeBookPageDemand,
     ConfigUpdateAction.SubmitRenderTask,

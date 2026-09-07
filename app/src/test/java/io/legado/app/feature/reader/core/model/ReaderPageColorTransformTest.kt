@@ -101,6 +101,45 @@ class ReaderPageColorTransformTest {
         assertEquals(newBody, (result.elements[2] as ReaderElement.ParagraphMarker).colorArgb)
     }
 
+    @Test
+    fun `theme recolor updates inherited page-tip glyph colors but preserves custom tip colors`() {
+        val oldBody = 0xFF202020.toInt()
+        val newBody = 0xFFE0E0E0.toInt()
+        val custom = 0xFF1177AA.toInt()
+        val inherited = ReaderTipRow(
+            visible = true,
+            tips = emptyList(),
+            colorArgb = oldBody,
+            fontSizePx = 12f,
+            fontPath = "",
+            paddingLeftPx = 0f,
+            paddingTopPx = 0f,
+            paddingRightPx = 0f,
+            paddingBottomPx = 0f,
+            dividerColorArgb = oldBody,
+        )
+        val page = ReaderPage(
+            id = ReaderPageId(0, 0), chapterTitle = "", text = "",
+            widthPx = 100, heightPx = 100, contentTopPx = 0f, contentBottomPx = 100f,
+            elements = emptyList(),
+            decoration = ReaderPageDecoration(
+                header = inherited,
+                footer = inherited.copy(colorArgb = custom)
+            ),
+            revision = 1L,
+        )
+
+        val result = page.remapThemeColors(
+            ReaderThemeColorChange(oldBody, newBody, oldBody, newBody),
+            revisionSalt = 2L,
+        )
+
+        assertEquals(newBody, result.decoration.header?.colorArgb)
+        assertEquals(newBody, result.decoration.header?.dividerColorArgb)
+        assertEquals(custom, result.decoration.footer?.colorArgb)
+        assertEquals(newBody, result.decoration.footer?.dividerColorArgb)
+    }
+
     private fun text(value: String, color: Int, top: Float, emphasized: Boolean = false) = ReaderElement.Text(
         bounds = ReaderRect(0f, top, 50f, top + 20f),
         baselinePx = top + 15f,

@@ -1,10 +1,10 @@
 package io.legado.app.feature.reader.core.transition
 
+import io.legado.app.constant.PageAnim
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import io.legado.app.constant.PageAnim
 
 class ReaderPageTransitionTest {
     @Test
@@ -93,6 +93,7 @@ class ReaderPageTransitionTest {
         )
 
         assertFalse(transition.dragging)
+        assertEquals(ReaderTurnDirection.PREVIOUS, transition.direction)
         assertEquals(0f, transition.offsetPx)
     }
 

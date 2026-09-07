@@ -101,7 +101,6 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -352,12 +351,13 @@ fun ReadBookRouteScreen(
 
     // ── Effect collection: route handles launcher effects, rest goes to bridge ──
 
-    LaunchedEffect(viewModel) {
-        launch {
+    LaunchedEffect(viewModel, lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.effects
                 .onSubscription {
-                    effectsReady.complete(Unit)
-                    onEffectsReady()
+                    if (effectsReady.complete(Unit)) {
+                        onEffectsReady()
+                    }
                 }
                 .collect { effect ->
                     try {
@@ -718,6 +718,7 @@ fun ReadBookRouteScreen(
                     .layerBackdrop(menuBackdrop),
                 onPreviousPage = { controller.completeComposePageTurn(PageDirection.PREV) },
                 onNextPage = { controller.completeComposePageTurn(PageDirection.NEXT) },
+                    onPageBoundaryReached = controller::showComposePageBoundary,
                 onToggleMenu = controller::showComposeActionMenu,
                 onToggleBookmark = { viewModel.onIntent(ReadBookIntent.ToggleBookmark) },
                 swipeToBookmarkEnabled = readPreferences.swipeToAddBookmark,

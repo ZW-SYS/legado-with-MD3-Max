@@ -150,6 +150,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlin.math.PI
 import kotlin.math.abs
@@ -178,6 +180,7 @@ fun ReaderCanvasSurface(
     modifier: Modifier = Modifier,
     onPreviousPage: () -> ReaderPageWindow?,
     onNextPage: () -> ReaderPageWindow?,
+    onPageBoundaryReached: (ReaderTurnDirection) -> Unit,
     onToggleMenu: () -> Unit,
     onToggleBookmark: () -> Unit,
     swipeToBookmarkEnabled: Boolean,
@@ -239,6 +242,7 @@ fun ReaderCanvasSurface(
     var pendingTurnOrigin by remember { mutableStateOf<ReaderPageId?>(null) }
     val latestPreviousPage by rememberUpdatedState(onPreviousPage)
     val latestNextPage by rememberUpdatedState(onNextPage)
+    val latestPageBoundaryReached by rememberUpdatedState(onPageBoundaryReached)
     val latestAutoPageStop by rememberUpdatedState(onAutoPageStop)
     val latestAutoPagePaused by rememberUpdatedState(autoPagePaused)
     val latestAutoPageActive by rememberUpdatedState(autoPageActive)
@@ -316,14 +320,17 @@ fun ReaderCanvasSurface(
         pages.current.revision,
         pages.next?.id,
         pages.next?.revision,
+        pages.nextPlus?.id,
+        pages.nextPlus?.revision,
     ) {
         // Paged modes do not compose the adjacent page until a gesture starts. Warm its images
         // while the window is idle so the first animation frame never falls back to placeholders.
-        listOfNotNull(pages.nextPlus, pages.next, pages.previous, pages.current)
+        val prefetchSemaphore = Semaphore(2)
+        listOfNotNull(pages.current, pages.next, pages.previous, pages.nextPlus)
             .asSequence()
             .flatMap { page -> page.elements.asSequence().filterIsInstance<ReaderElement.Image>() }
             .distinctBy { element -> element.source to element.bounds }
-            .forEach { element -> launch { loadImage(element) } }
+            .forEach { element -> launch { prefetchSemaphore.withPermit { loadImage(element) } } }
     }
     val transforms = transition.copy(offsetPx = displayOffset).transforms(transitionMode)
     fun pageViewportLayout(window: ReaderPageWindow = currentPageWindow()): ReaderPageViewportLayout =
@@ -438,7 +445,10 @@ fun ReaderCanvasSurface(
     }
     fun tapPageTurn(direction: ReaderTurnDirection) {
         val window = latestPages
-        if ((if (direction == ReaderTurnDirection.PREVIOUS) window.previous else window.next) == null) return
+        if ((if (direction == ReaderTurnDirection.PREVIOUS) window.previous else window.next) == null) {
+            latestPageBoundaryReached(direction)
+            return
+        }
         val width = window.current?.widthPx?.toFloat() ?: return
         if (transitionMode == ReaderTransitionMode.SIMULATION) {
             curlRevealProgress = 1f
@@ -497,18 +507,17 @@ fun ReaderCanvasSurface(
         if (steps == 1) {
             val window = currentPageWindow()
             val currentPage = window.current ?: return
-            applyScrollResult(
-                ReaderScrollPolicy.apply(
-                    scrollOffset,
-                    distance,
-                    window.previous?.scrollExtentPx ?: 0f,
-                    currentPage.scrollExtentPx,
-                    currentPage.scrollViewportExtentPx(),
-                    window.previous != null,
-                    window.next != null,
-                ),
-                window,
+            val result = ReaderScrollPolicy.apply(
+                scrollOffset,
+                distance,
+                window.previous?.scrollExtentPx ?: 0f,
+                currentPage.scrollExtentPx,
+                currentPage.scrollViewportExtentPx(),
+                window.previous != null,
+                window.next != null,
             )
+            applyScrollResult(result, window)
+            if (result.hitBoundary) latestPageBoundaryReached(direction)
             return
         }
         pageMotionJob = animationScope.launch {
@@ -525,7 +534,10 @@ fun ReaderCanvasSurface(
                     window.next != null,
                 )
                 applyScrollResult(result, window)
-                if (result.hitBoundary) return@launch
+                if (result.hitBoundary) {
+                    latestPageBoundaryReached(direction)
+                    return@launch
+                }
                 // 按帧驱动步进：跟随合成器节拍，掉帧时步长自动摊平，不与显示帧脱节。
                 withFrameNanos { }
             }
@@ -771,6 +783,7 @@ fun ReaderCanvasSurface(
                 var bookmarkDrag = false
                 var bookmarkReleased = false
                 var scrollDrag = false
+                var scrollHitBoundary: ReaderTurnDirection? = null
                 var movedPastSlop = false
                 var longPressed = false
                 var grabbingStart = false
@@ -1010,6 +1023,13 @@ fun ReaderCanvasSurface(
                                     window.next != null
                                 )
                                 applyScrollResult(result, window)
+                                if (result.hitBoundary) {
+                                    scrollHitBoundary = if (change.positionChange().y > 0f) {
+                                        ReaderTurnDirection.PREVIOUS
+                                    } else {
+                                        ReaderTurnDirection.NEXT
+                                    }
+                                }
                                 change.consume()
                             }
                         }
@@ -1065,29 +1085,40 @@ fun ReaderCanvasSurface(
                         ) { bookmarkOffset = value }
                     }
                 } else if (scrollDrag) {
-                    val velocity = if (released) velocityTracker.calculateVelocity().y else 0f
-                    pageMotionJob = animationScope.launch {
-                        var lastValue = 0f
-                        try {
-                            Animatable(0f).animateDecay(velocity, scrollDecay) {
-                                val delta = value - lastValue
-                                lastValue = value
-                                val window = currentPageWindow()
-                                val page = window.current ?: return@animateDecay
-                                val result = ReaderScrollPolicy.apply(
-                                    scrollOffset,
-                                    delta,
-                                    window.previous?.scrollExtentPx ?: 0f,
-                                    page.scrollExtentPx,
-                                    page.scrollViewportExtentPx(),
-                                    window.previous != null,
-                                    window.next != null,
-                                )
-                                applyScrollResult(result, window)
-                                if (result.hitBoundary) throw ReaderScrollBoundaryReached()
+                    val boundary = scrollHitBoundary
+                    if (boundary != null) {
+                        latestPageBoundaryReached(boundary)
+                    } else {
+                        val velocity = if (released) velocityTracker.calculateVelocity().y else 0f
+                        pageMotionJob = animationScope.launch {
+                            var lastValue = 0f
+                            try {
+                                Animatable(0f).animateDecay(velocity, scrollDecay) {
+                                    val delta = value - lastValue
+                                    lastValue = value
+                                    val window = currentPageWindow()
+                                    val page = window.current ?: return@animateDecay
+                                    val result = ReaderScrollPolicy.apply(
+                                        scrollOffset,
+                                        delta,
+                                        window.previous?.scrollExtentPx ?: 0f,
+                                        page.scrollExtentPx,
+                                        page.scrollViewportExtentPx(),
+                                        window.previous != null,
+                                        window.next != null,
+                                    )
+                                    applyScrollResult(result, window)
+                                    if (result.hitBoundary) throw ReaderScrollBoundaryReached()
+                                }
+                            } catch (_: ReaderScrollBoundaryReached) {
+                                // Reaching the first/last content boundary ends the fling immediately.
+                                val direction = if (velocity > 0f) {
+                                    ReaderTurnDirection.PREVIOUS
+                                } else {
+                                    ReaderTurnDirection.NEXT
+                                }
+                                latestPageBoundaryReached(direction)
                             }
-                        } catch (_: ReaderScrollBoundaryReached) {
-                            // Reaching the first/last content boundary ends the fling immediately.
                         }
                     }
                 } else if (horizontalTurn && transition.dragging) {
@@ -1101,6 +1132,8 @@ fun ReaderCanvasSurface(
                             lastDragDeltaPx = if (fade) null else lastHorizontalDelta,
                         )
                     )
+                } else if (released && horizontalTurn) {
+                    transition.direction?.let(latestPageBoundaryReached)
                 } else if (released && !suppressTap && total.getDistance() < pageTouchSlop) {
                     // 元素命中复用 DOWN 时刻的布局：与长按同一坐标系，且不被
                     // 松手前可能发生的窗口替换干扰。
@@ -1145,7 +1178,7 @@ fun ReaderCanvasSurface(
                     loadImage = loadImage,
                 )
             }
-        } else if (transitionMode == ReaderTransitionMode.SIMULATION && transition.direction != null) {
+        } else if (transitionMode == ReaderTransitionMode.SIMULATION && transition.dragging) {
             SimulationPageStack(
                 pages,
                 transition.direction!!,
@@ -1571,7 +1604,18 @@ private fun SimulationPageStack(
                     values[Matrix.TranslateX] = frame.mirror.translateX
                     values[Matrix.TranslateY] = frame.mirror.translateY
                 }
-                withTransform({ transform(matrix) }) { drawLayer(baseLayer) }
+                // Canvas.drawBitmap() in the View implementation naturally kept sampling
+                // within the screenshot's bounds. A transformed GraphicsLayer otherwise
+                // samples beyond its recorded page surface as opaque black on some devices,
+                // producing a dark wedge between the two sides of a curl. Clip in source
+                // coordinates first so uncovered back-page pixels retain the mean background
+                // color drawn above, while the complete background image remains mirrored.
+                withTransform({
+                    transform(matrix)
+                    clipRect(0f, 0f, size.width, size.height)
+                }) {
+                    drawLayer(baseLayer)
+                }
                 drawCurlFolderShadow(frame)
             } }
             drawCurlFrontShadows(frame, paths)

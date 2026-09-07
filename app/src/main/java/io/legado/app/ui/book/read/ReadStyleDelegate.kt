@@ -129,6 +129,7 @@ class ReadStyleDelegate(
             ConfigUpdateAction.UpdateBackgroundAlpha,
             ConfigUpdateAction.UpdateStyle,
             ConfigUpdateAction.UpdateSystemUi,
+            ConfigUpdateAction.RefreshInlineImages,
             ConfigUpdateAction.ReloadContent,
             ConfigUpdateAction.UpdatePageAnim,
         )

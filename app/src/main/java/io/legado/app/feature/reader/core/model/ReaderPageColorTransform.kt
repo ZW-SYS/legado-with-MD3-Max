@@ -59,6 +59,20 @@ fun ReaderPage.remapThemeColors(change: ReaderThemeColorChange, revisionSalt: Lo
         emphasisUnderlineStyle = emphasisUnderlineStyle?.copy(
             colorArgb = emphasisUnderlineStyle.colorArgb.mapped(change.oldBodyArgb, change.newBodyArgb),
         ),
+        // Page-tip glyphs (battery and chapter-arrow variants) are painted with their row's
+        // color. The View reader updated them through PageView.upThemeColors(); keep cached
+        // Canvas pages in sync without waiting for the next pagination pass.
+        decoration = decoration.copy(
+            header = decoration.header?.remapThemeColor(change),
+            footer = decoration.footer?.remapThemeColor(change),
+        ),
         revision = revision xor revisionSalt,
     )
 }
+
+private fun ReaderTipRow.remapThemeColor(change: ReaderThemeColorChange): ReaderTipRow = copy(
+    colorArgb = if (colorArgb == change.oldBodyArgb) change.newBodyArgb else colorArgb,
+    dividerColorArgb = dividerColorArgb?.let { color ->
+        if (color == change.oldBodyArgb) change.newBodyArgb else color
+    },
+)

@@ -103,6 +103,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val READER_SYNC_MIN_INTERVAL_MS = 250L
 
@@ -2354,15 +2355,33 @@ class ReadBookViewModel(
     }
 
     fun refreshImage(src: String) {
+        refreshImages(setOf(src))
+    }
+
+    /**
+     * Re-fetch the supplied inline images. Theme changes use this same path as the
+     * reader's explicit “refresh image” action so source-side JS is evaluated again.
+     */
+    fun refreshImages(sources: Set<String>) {
+        if (sources.isEmpty()) return
         execute {
-            ReadBook.book?.let { book ->
-                val vFile = BookHelp.getImage(book, src)
-                ImageProvider.bitmapLruCache.remove(vFile.absolutePath)
-                vFile.delete()
-            }
+            refreshImageFiles(sources)
         }.onFinally {
-            _effects.tryEmit(ReadBookEffect.InvalidateReaderImage(src))
+            sources.forEach { source ->
+                _effects.tryEmit(ReadBookEffect.InvalidateReaderImage(source))
+            }
             ReadBook.loadContent(false)
+        }
+    }
+
+    /** Performs the file-cache half of image refresh before a renderer redraws it. */
+    suspend fun refreshImageFiles(sources: Set<String>) = withContext(IO) {
+        val book = ReadBook.book ?: return@withContext
+        sources.forEach { source ->
+            val vFile = BookHelp.getImage(book, source)
+            ImageProvider.bitmapLruCache.remove(vFile.absolutePath)
+            vFile.delete()
+            ImageProvider.cacheImage(book, source, ReadBook.bookSource)
         }
     }
 

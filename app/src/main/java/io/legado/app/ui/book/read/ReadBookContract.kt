@@ -1040,6 +1040,9 @@ sealed interface ConfigUpdateAction {
     data object UpdateStyle : ConfigUpdateAction
     data object UpdateBackgroundAlpha : ConfigUpdateAction
     data object UpdatePageSlopSquare : ConfigUpdateAction
+
+    /** Re-fetch inline images after a reading-theme preset changes its text colors. */
+    data object RefreshInlineImages : ConfigUpdateAction
     data object ReloadContent : ConfigUpdateAction
     data object RelayoutContent : ConfigUpdateAction
     data object UpdateContent : ConfigUpdateAction
@@ -1221,6 +1224,7 @@ sealed interface ConfigUpdate {
         override val actions = setOf(
             ConfigUpdateAction.UpdateBackground,
             ConfigUpdateAction.UpdateStyle,
+            ConfigUpdateAction.RefreshInlineImages,
             ConfigUpdateAction.RebuildWholeBookPageIndex,
             ConfigUpdateAction.ReloadContent,
             ConfigUpdateAction.UpdateSystemUi,
