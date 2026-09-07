@@ -626,7 +626,17 @@ class ReadBookController(
             paginationStyle = paginationStyle,
             paginationEnvironmentPublished = paginationEnvironmentPublished,
         )
-        if (_readerPageWindow.value.current?.id?.chapterIndex != ReadBook.durChapterIndex) {
+        val currentInputIsReady = ReadBook.readerChapterInputWindow.current
+            ?.chapter
+            ?.index == ReadBook.durChapterIndex
+        // The legacy View keeps its completed page visible while an already loaded adjacent
+        // chapter is laying out. The Canvas paginator creates a chapter's page list as one
+        // background batch, so clearing the window here turned that local/cached hand-off into
+        // a misleading “loading” screen. Only clear when the target chapter content itself is
+        // absent; a real remote/content miss still uses the normal loading placeholder.
+        if (!currentInputIsReady &&
+            _readerPageWindow.value.current?.id?.chapterIndex != ReadBook.durChapterIndex
+        ) {
             updateReaderPageWindow(ReaderPageWindow())
         }
     }
