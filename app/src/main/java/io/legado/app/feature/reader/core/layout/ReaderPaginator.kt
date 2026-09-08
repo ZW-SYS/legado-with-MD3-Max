@@ -253,7 +253,13 @@ object ReaderPaginator {
                 pages += elements
                 pageTexts += pageText
                 pageExtents += if (config.continuousScroll) {
-                    max(config.contentBottomPx - config.paddingTopPx, y - config.paddingTopPx)
+                    // Legacy TextChapterLayout records the scroll-page height from its
+                    // current layout cursor (durY). In particular, durY already contains
+                    // the final line advance and paragraph spacing. Do not expand it to a
+                    // viewport here: the next scroll page must begin immediately after
+                    // that spacing, including when a paragraph boundary is also a page
+                    // boundary.
+                    (y - config.paddingTopPx).coerceAtLeast(0f)
                 } else config.viewportHeightPx.toFloat()
                 elements = mutableListOf()
                 pageText = StringBuilder()
