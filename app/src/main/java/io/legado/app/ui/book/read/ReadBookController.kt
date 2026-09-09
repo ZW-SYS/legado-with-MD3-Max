@@ -349,6 +349,9 @@ class ReadBookController(
     private var directReaderAdjacentLayoutJob: Job? = null
     private var directReaderLayoutKey: String? = null
 
+    /** 排版环境不含当前章身份；用它区分普通换章和主题/规则引起的整窗重排。 */
+    private var directReaderPaginationEnvironmentKey: String? = null
+
     /** Only chapter-window changes may reuse adjacent pages; a reflow invalidates their geometry. */
     private var directReaderMayReuseAdjacentPages = false
     private var directReaderPages = emptyList<io.legado.app.feature.reader.core.model.ReaderPage>()
@@ -682,6 +685,7 @@ class ReadBookController(
         directReaderAdjacentLayoutJob?.cancel()
         directReaderAdjacentLayoutJob = null
         directReaderLayoutKey = null
+        directReaderPaginationEnvironmentKey = null
         directReaderMayReuseAdjacentPages = false
         ReadBook.clearReaderPagination()
         updateReaderPaginationError(null)
@@ -923,25 +927,22 @@ class ReadBookController(
                 contentPaddingBottomPx = contentPadding.bottom,
             )
         }
-        val key = buildString {
-            // The first readable page depends only on the current chapter. Including adjacent
-            // inputs here made their asynchronous arrival cancel and restart current-chapter
-            // measurement during opening. They remain in `chapters` for background prelayout.
-            listOf(chapter).forEach { candidate ->
-                append(LegacyReaderChapterLayoutIdentity(
-                    chapterIndex = candidate.chapter.index,
-                    chapterUrl = candidate.chapter.url,
-                    chapterBaseUrl = candidate.chapter.baseUrl,
-                    displayTitle = candidate.displayTitle,
-                    isVolume = candidate.chapter.isVolume,
-                    contentHash = candidate.contentHash,
-                    contentProcessesHash = candidate.contentProcessesHash,
-                    sourceHash = candidate.sourceHash,
-                    bookUrl = candidate.book.bookUrl,
-                    bookOrigin = candidate.book.origin,
-                    bookSourceHash = candidate.bookSourceHash,
-                )).append(',')
-            }
+        // 首屏只依赖当前章；相邻章异步到达不应重启当前章测量。环境身份则单独保存：
+        // 普通换章可复用相邻页，主题/高亮规则/排版参数变化必须废弃整窗旧页。
+        val chapterLayoutIdentity = LegacyReaderChapterLayoutIdentity(
+            chapterIndex = chapter.chapter.index,
+            chapterUrl = chapter.chapter.url,
+            chapterBaseUrl = chapter.chapter.baseUrl,
+            displayTitle = chapter.displayTitle,
+            isVolume = chapter.chapter.isVolume,
+            contentHash = chapter.contentHash,
+            contentProcessesHash = chapter.contentProcessesHash,
+            sourceHash = chapter.sourceHash,
+            bookUrl = chapter.book.bookUrl,
+            bookOrigin = chapter.book.origin,
+            bookSourceHash = chapter.bookSourceHash,
+        )
+        val paginationEnvironmentKey = buildString {
             append('|').append(width).append('x').append(height)
             append('|').append(contentPadding.left).append(',').append(contentPadding.top)
             append(',').append(contentPadding.right).append(',').append(contentPadding.bottom)
@@ -974,6 +975,7 @@ class ReadBookController(
             append('|').append(resolvedPaginationStyle.paragraphSpacing)
             append('|').append(ReadBookConfig.durConfig.highlightRules.hashCode())
         }
+        val key = "$chapterLayoutIdentity,$paginationEnvironmentKey"
         if (directReaderLayoutKey == key && directReaderPages.isNotEmpty()) {
             // upContent 语义是"按 durChapterPos 重新定位"（对照旧 View upContent 重绘）：
             // 朗读跨页走 moveToNextPage → upContent，只有重定位页面才会前进；缓存下标
@@ -1005,11 +1007,19 @@ class ReadBookController(
                 )
             }
         if (directReaderLayoutKey != key) {
+            val environmentChanged = directReaderPaginationEnvironmentKey != null &&
+                    directReaderPaginationEnvironmentKey != paginationEnvironmentKey
+            if (environmentChanged) {
+                // 当前章先提交、相邻章后台预排的两阶段策略只适用于同一排版环境。
+                // 主题/高亮规则变化后继续保留相邻旧页，会在翻到该章时先显示旧几何再跳变。
+                directReaderMayReuseAdjacentPages = false
+            }
             val paginationGeneration = ReadBook.readerPaginationGeneration
             directReaderLayoutJob?.cancel()
             directReaderAdjacentLayoutJob?.cancel()
             directReaderAdjacentLayoutJob = null
             directReaderLayoutKey = key
+            directReaderPaginationEnvironmentKey = paginationEnvironmentKey
             updateReaderPaginationError(null)
             ReadBook.clearReaderPagination()
             directReaderLayoutJob = activity.lifecycleScope.launch(IO) {
