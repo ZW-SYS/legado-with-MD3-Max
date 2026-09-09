@@ -228,15 +228,16 @@ object ReaderPaginator {
             is ReaderElement.ParagraphMarker -> element.copy(bounds = element.bounds.offsetY(deltaY))
         }
 
-        fun justifyColumnBottom() {
-            if (!config.textBottomJustify || columnRows.size <= 1) return
+        /** 返回最后一行实际下移量，滚动模式必须把它计入页高。 */
+        fun justifyColumnBottom(): Float {
+            if (!config.textBottomJustify || columnRows.size <= 1) return 0f
             val last = columnRows.last()
-            if (last.standaloneImage) return
+            if (last.standaloneImage) return 0f
             val lastHeight = last.bottom - last.top
             val reservedLineSpacing = config.lineHeightPx * config.lineSpacingMultiplier
-            if (config.contentBottomPx - (last.bottom + reservedLineSpacing) >= lastHeight) return
+            if (config.contentBottomPx - (last.bottom + reservedLineSpacing) >= lastHeight) return 0f
             val surplus = config.contentBottomPx - last.bottom
-            if (surplus <= 0f) return
+            if (surplus <= 0f) return 0f
             val gap = surplus / (columnRows.size - 1)
             columnRows.forEachIndexed { rowIndex, row ->
                 if (rowIndex == 0) return@forEachIndexed
@@ -245,10 +246,11 @@ object ReaderPaginator {
                     elements[elementIndex] = shiftElement(elements[elementIndex], deltaY)
                 }
             }
+            return surplus
         }
 
         fun finishPage() {
-            justifyColumnBottom()
+            val bottomJustifyShift = justifyColumnBottom()
             if (elements.isNotEmpty()) {
                 pages += elements
                 pageTexts += pageText
@@ -259,7 +261,10 @@ object ReaderPaginator {
                     // viewport here: the next scroll page must begin immediately after
                     // that spacing, including when a paragraph boundary is also a page
                     // boundary.
-                    (y - config.paddingTopPx).coerceAtLeast(0f)
+                    // 底部对齐把行整体下移后，页高必须同样增加（对照旧 View
+                    // TextPage.upLinesPosition 的 `height += surplus`），否则滚动模式下
+                    // 下一页会压在当前页最后几行上。
+                    (y + bottomJustifyShift - config.paddingTopPx).coerceAtLeast(0f)
                 } else config.viewportHeightPx.toFloat()
                 elements = mutableListOf()
                 pageText = StringBuilder()
