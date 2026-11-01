@@ -86,6 +86,14 @@ fun ParagraphReviewSheet(
         onDismissRequest = onDismissRequest,
         animateContentSize = false,
         contentPaddingEnabled = false,
+        // 必须关掉 sheet 自身的拖拽手势，否则网页滑不动。
+        // Material3 的 ModalBottomSheet 在 sheet 表面挂 Modifier.anchoredDraggable，而 Compose
+        // 与 AndroidView 的互操作（PointerInteropFilter）对 MOVE 是「Initial pass 先交给 WebView
+        // 但不消费、Main pass 再由 Compose 祖先抢」：sheet 的拖拽一旦吃到位移就会给 WebView 发
+        // ACTION_CANCEL，于是页面朝 sheet 可收缩方向的滑动被截断（表现为某些方向滑不动，或一滑
+        // 整层被拖走）。关闭后 sheet 仍可用拖柄点击、点遮罩、返回键关闭，
+        // 与 SourceLoginWebSheet / DictWebSheet 的处置一致。
+        sheetGesturesEnabled = false,
     ) {
         Box(
             modifier = Modifier
