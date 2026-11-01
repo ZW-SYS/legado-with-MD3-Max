@@ -4,10 +4,14 @@ import android.app.Application
 import android.graphics.Bitmap
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
-import io.legado.app.ui.theme.AppTheme
-import io.legado.app.domain.model.settings.AppUiConfiguration
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import io.legado.app.ui.theme.LocalLegadoColorScheme
+import io.legado.app.ui.theme.LocalLegadoTypography
+import io.legado.app.ui.theme.toLegadoColorScheme
+import io.legado.app.ui.theme.toLegadoTypography
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
@@ -121,10 +125,19 @@ class MangaReaderScreenLayoutTest {
         }.build()
         compose.setContent {
             val savedState = rememberSaveableStateHolder()
-            // 章节过渡卡片里的 AppText 读 Legado 主题；只给 MaterialTheme 会抛
-            // "No ColorScheme provided"。背景关闭以保留截图里未绘制区域的黑色断言。
-            AppTheme(AppUiConfiguration(), applyBackground = false) {
-                MaterialTheme {
+            // 阅读器里的文字样式与颜色直接读 LegadoTheme；测试只补这两个 local，
+            // 不套 AppTheme，避免背景绘制打断截图中未绘制区域的黑色断言。
+            MaterialTheme {
+                val colorScheme = MaterialTheme.colorScheme
+                val typography = MaterialTheme.typography
+                CompositionLocalProvider(
+                    LocalLegadoColorScheme provides remember(colorScheme) {
+                        colorScheme.toLegadoColorScheme()
+                    },
+                    LocalLegadoTypography provides remember(typography) {
+                        typography.toLegadoTypography()
+                    },
+                ) {
                     if (visible.value) savedState.SaveableStateProvider("reader") {
                         val content: @Composable () -> Unit = {
                             MangaReaderScreen(
