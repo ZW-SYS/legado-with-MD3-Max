@@ -5,7 +5,6 @@ package io.legado.app.data.repository.manga.translation
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
-import android.content.Context
 import android.graphics.Bitmap
 import android.os.SystemClock
 import android.util.Log
@@ -24,25 +23,23 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.security.MessageDigest
-
-data class MangaBubbleDetection(val bounds: MangaShapeRect, val confidence: Float, val kind: Int)
 
 /** CPU-only image analysis. One session/workspace, serialized forwards, released after idle. */
 internal object MangaBubbleDetector {
-    const val MODEL_BYTES = 11_120_765L
-    const val MODEL_SHA256 = "5FE9E4F576E49D4E7E8B0E029D6D3CDC252ABD4694113E1CAE120E62C931EA79"
-    private const val MODEL = "detector-v4-s_int8.onnx"
     private const val SIDE = 640
     private val lock = Mutex()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var releaseJob: Job? = null
     private var session: OrtSession? = null
     private var workspace: Workspace? = null
-    private var verified: File? = null
+    private var cachedModel: File? = null
     private var lastUse = 0L
 
-    suspend fun detect(context: Context, bitmap: Bitmap): List<MangaBubbleDetection> = lock.withLock {
+    /**
+     * [model] 由 [MangaVisionModelRepository] 提供并已完成校验；本对象不再读取 assets，
+     * 因此权重可以完全移出 APK 按需下载。
+     */
+    suspend fun detect(model: File, bitmap: Bitmap): List<MangaBubbleDetection> = lock.withLock {
         val entered = SystemClock.elapsedRealtime()
         Log.d("MangaDetector", "phase=locked")
         currentCoroutineContext().ensureActive()
@@ -52,7 +49,8 @@ internal object MangaBubbleDetector {
             val output = withContext(NonCancellable + Dispatchers.Default) {
                 Log.d("MangaDetector", "phase=worker dispatchMs=${SystemClock.elapsedRealtime() - entered}")
                 val modelStarted = SystemClock.elapsedRealtime()
-                val model = prepare(context)
+                // 权重可能被替换（重新下载），路径变化时丢弃旧会话。
+                if (cachedModel != model) { session?.close(); session = null; workspace = null; cachedModel = model }
                 Log.d("MangaDetector", "phase=weights modelMs=${SystemClock.elapsedRealtime() - modelStarted}")
                 val environmentStarted = SystemClock.elapsedRealtime()
                 val environment = OrtEnvironment.getEnvironment()
@@ -110,27 +108,6 @@ internal object MangaBubbleDetector {
         }
     }
 
-    private fun prepare(context: Context): File {
-        verified?.takeIf { it.isFile && it.length() == MODEL_BYTES }?.let { return it }
-        val target = File(context.noBackupFilesDir, "manga-vision/$MODEL")
-        fun valid(file: File): Boolean = file.isFile && file.length() == MODEL_BYTES &&
-            file.inputStream().buffered().use { input ->
-                val digest = MessageDigest.getInstance("SHA-256")
-                val buffer = ByteArray(64 * 1024)
-                while (true) { val count = input.read(buffer); if (count < 0) break; digest.update(buffer, 0, count) }
-                digest.digest().joinToString("") { "%02X".format(it) } == MODEL_SHA256
-            }
-        if (!valid(target)) {
-            target.parentFile!!.mkdirs()
-            val temp = File(target.parentFile, "$MODEL.tmp")
-            try {
-                context.assets.open("manga-vision/$MODEL").use { input -> temp.outputStream().use(input::copyTo) }
-                check(valid(temp)) { "Invalid bundled manga detector" }
-                java.nio.file.Files.move(temp.toPath(), target.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
-            } finally { temp.delete() }
-        }
-        return target.also { verified = it }
-    }
 
     internal fun postprocess(width: Int, height: Int, labels: LongArray, boxes: Array<FloatArray>, scores: FloatArray): List<MangaBubbleDetection> {
         require(width > 0 && height > 0 && labels.size == boxes.size && boxes.size == scores.size)

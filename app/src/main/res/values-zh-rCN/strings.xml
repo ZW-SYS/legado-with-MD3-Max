@@ -100,6 +100,7 @@
     <string name="book_source_login">书源登录</string>
     <string name="setting">设置</string>
     <string name="theme_setting">外观</string>
+    <string name="theme_refactor_tip">仍有部分界面未用 Compose 重构，这些界面会与大部分界面有较大差异。</string>
     <string name="theme_setting_s">主题 • 深色模式 • 界面设置</string>
     <string name="dash_gap">虚线间隔</string>
     <string name="other_setting">高级</string>
@@ -2651,6 +2652,7 @@
     <string name="import_status_existing">已有</string>
     <string name="import_status_error">错误</string>
     <string name="details">详情</string>
+    <string name="details_of">%1$s详情</string>
     <string name="error_details">错误详情</string>
     <string name="reload">重新加载</string>
     <string name="no_more_data">已经到底了~</string>

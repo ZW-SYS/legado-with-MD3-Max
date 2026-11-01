@@ -12,6 +12,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.legado.app.data.repository.manga.translation.MangaBubbleDetector
+import io.legado.app.data.repository.manga.translation.MangaVisionModelRepository
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.delay
 import org.junit.Assert.*
@@ -29,6 +30,8 @@ class MangaVisionInstrumentedTest {
         fun record(value: String) { metrics.appendText(value + "\n"); Log.i("MangaVisionTest", value) }
         awake.acquire(120_000)
         try {
+            // 权重由仓库提供（内置资源复制或显式下载），检测器本身不再读 assets。
+            val model = MangaVisionModelRepository(app, File(app.cacheDir, "manga-vision-test")).requireModel()
             // Reuse the existing debug UI-test host: reader-like foreground scheduling, no book/UI state.
             ActivityScenario.launch(ComponentActivity::class.java).use { host ->
                 host.onActivity { activity ->
@@ -53,10 +56,10 @@ class MangaVisionInstrumentedTest {
                     }
                     val started = SystemClock.elapsedRealtime()
                     record("Starting cold detector call; interactive=${power.isInteractive}")
-                    val cold = MangaBubbleDetector.detect(app, bitmap)
+                    val cold = MangaBubbleDetector.detect(model, bitmap)
                     val coldMs = SystemClock.elapsedRealtime() - started
                     val warmStarted = SystemClock.elapsedRealtime()
-                    val warm = MangaBubbleDetector.detect(app, bitmap)
+                    val warm = MangaBubbleDetector.detect(model, bitmap)
                     val warmMs = SystemClock.elapsedRealtime() - warmStarted
                     record("coldMs=$coldMs warmMs=$warmMs bubbles=${cold.count { it.kind == 0 }}")
                     assertTrue("Expected separate physical bubbles: $cold", cold.count { it.kind == 0 } >= 2)
@@ -64,7 +67,7 @@ class MangaVisionInstrumentedTest {
                     // Check that the idle-release path can reopen the same model without losing geometry.
                     delay(31_100)
                     val reopenStarted = SystemClock.elapsedRealtime()
-                    val reopened = MangaBubbleDetector.detect(app, bitmap)
+                    val reopened = MangaBubbleDetector.detect(model, bitmap)
                     record("idleReopenMs=${SystemClock.elapsedRealtime() - reopenStarted}")
                     assertEquals(warm, reopened)
                     for (region in cold) {

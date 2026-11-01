@@ -45,10 +45,15 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew \
-            testAppDebugUnitTest \
-            lintAppDebug \
+            testAppCoreDebugUnitTest \
+            testAppFullDebugUnitTest \
+            lintAppCoreDebug \
+            lintAppFullDebug \
             verifyConfigArchitecture \
-            assembleAppDebug \
+            assembleAppCoreDebug \
+            assembleAppFullDebug \
+            compileAppCoreDebugAndroidTestKotlin \
+            compileAppFullDebugAndroidTestKotlin \
             --continue \
             --no-daemon \
             --no-configuration-cache
@@ -60,8 +65,10 @@ jobs:
           name: verify-unit-test-reports
           if-no-files-found: warn
           path: |
-            app/build/test-results/testAppDebugUnitTest/**
-            app/build/reports/tests/testAppDebugUnitTest/**
+            app/build/test-results/testAppCoreDebugUnitTest/**
+            app/build/test-results/testAppFullDebugUnitTest/**
+            app/build/reports/tests/testAppCoreDebugUnitTest/**
+            app/build/reports/tests/testAppFullDebugUnitTest/**
 
       - name: Upload lint reports
         if: ${{ always() }}
@@ -70,7 +77,11 @@ jobs:
           name: verify-lint-reports
           if-no-files-found: warn
           path: |
-            app/build/reports/lint-results-appDebug.html
-            app/build/reports/lint-results-appDebug.xml
-            app/build/reports/lint-results-appDebug.txt
-            app/build/reports/lint-results-appDebug.sarif
+            app/build/reports/lint-results-appCoreDebug.html
+            app/build/reports/lint-results-appCoreDebug.xml
+            app/build/reports/lint-results-appCoreDebug.txt
+            app/build/reports/lint-results-appCoreDebug.sarif
+            app/build/reports/lint-results-appFullDebug.html
+            app/build/reports/lint-results-appFullDebug.xml
+            app/build/reports/lint-results-appFullDebug.txt
+            app/build/reports/lint-results-appFullDebug.sarif

@@ -9,11 +9,13 @@ import android.util.Base64
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import io.legado.app.data.repository.manga.engine.LocalMangaEngine
 import io.legado.app.data.repository.manga.translation.*
 import io.legado.app.data.AppDatabase
 import io.legado.app.domain.gateway.AiProfileGateway
 import io.legado.app.domain.gateway.AiTextGateway
 import io.legado.app.domain.gateway.MangaTranslationGateway
+import io.legado.app.domain.gateway.TranslationSettingsGateway
 import io.legado.app.domain.gateway.AiStreamEvent
 import io.legado.app.domain.model.*
 import io.legado.app.domain.model.manga.*
@@ -160,10 +162,13 @@ class MangaAiCalibrationInstrumentedTest {
         val width = dimensions.outWidth; val height = dimensions.outHeight
         require(width > 0 && height > 0 && width.toLong() * height <= 4 * 1024 * 1024 && source.length() <= 8 * 1024 * 1024)
         val frame = MangaAiFrame("page", width, height)
+        val visionModels = MangaVisionModelRepository(app, File(folder, "vision-models"))
         if (mode in setOf("pipeline", "replay")) {
             val replay = mode == "replay"
-            val engine = args.getString("mangaAiCalibrationInpaint")?.let(MangaInpaintEngine::valueOf) ?: MangaInpaintEngine.LOCAL
+            val engine = args.getString("mangaAiCalibrationInpaint")?.let(MangaInpaintEngine::valueOf) ?: MangaInpaintEngine.BUILTIN
             val inpaintRuntime = MangaLocalInpainter(app, MangaInpaintModelRepository(app, File(folder, "models")))
+            val localEngine = LocalMangaEngine(
+                app, MangaPaddleOcr(MangaOcrModelRepository(app)), inpaintRuntime, visionModels)
             val gateway: MangaTranslationGateway = if (!replay) {
                 val live = GlobalContext.get().get<AiTextGateway>()
                 var responseIndex = 0
@@ -180,7 +185,7 @@ class MangaAiCalibrationInstrumentedTest {
                     }
                 }
                 MangaTranslationRepository(app, GlobalContext.get().get<AppDatabase>(), profiles, captured,
-                    inpaintReady = inpaintRuntime::requireReady, inpaint = inpaintRuntime::erase)
+                    GlobalContext.get().get<TranslationSettingsGateway>(), localEngine = localEngine)
             } else {
                 val response = File(folder, "replay-plan.json").readText().trim().let {
                     if (it.startsWith("```")) it.substringAfter('\n').substringBeforeLast("```").trim() else it
@@ -205,7 +210,7 @@ class MangaAiCalibrationInstrumentedTest {
                         emit(AiStreamEvent.Content(JsonObject(saved + ("regions" to JsonArray(regions))).toString()))
                     }
                     override suspend fun fetchModels(provider: AiProviderConfig): Result<List<AiAvailableModel>> = error("Replay does not fetch models")
-                }, inpaintReady = inpaintRuntime::requireReady, inpaint = inpaintRuntime::erase)
+                }, GlobalContext.get().get<TranslationSettingsGateway>(), localEngine = localEngine)
             }
             val bookUrl = "manga-ai-calibration:${UUID.randomUUID()}"
             val hash = MessageDigest.getInstance("SHA-256").digest(bookUrl.toByteArray()).joinToString("") { "%02x".format(it) }
@@ -290,7 +295,7 @@ class MangaAiCalibrationInstrumentedTest {
         val anchors = if (!anchorMode) emptyList() else {
             val original = checkNotNull(BitmapFactory.decodeFile(source.absolutePath))
             try {
-                val detected = MangaBubbleDetector.detect(app, original)
+                val detected = MangaBubbleDetector.detect(visionModels.requireModel(), original)
                 File(folder, "detections.json").writeText(buildJsonArray {
                     detected.forEach { d -> add(buildJsonObject {
                         put("kind", d.kind); put("confidence", d.confidence)

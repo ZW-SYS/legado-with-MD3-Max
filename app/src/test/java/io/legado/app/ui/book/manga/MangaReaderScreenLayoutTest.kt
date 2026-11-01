@@ -121,23 +121,25 @@ class MangaReaderScreenLayoutTest {
         }.build()
         compose.setContent {
             val savedState = rememberSaveableStateHolder()
-            MaterialTheme {
-                if (visible.value) savedState.SaveableStateProvider("reader") {
-                    val content: @Composable () -> Unit = {
-                    MangaReaderScreen(
-                        reader.value,
-                        ::onIntent,
-                        imageLoader = imageLoader,
-                        canHandleBack = false,
-                        onTranslatePage = { key, force -> translatedPages += key to force },
-                        onRecomposePage = { key -> recomposedPages += key },
-                        canRecomposePage = { it == "page:2:0" },
-                        hasTranslatedPage = { it == "page:2:0" && hasTranslation.value },
-                    )
+            // 章节过渡卡片里的 AppText 读 Legado 主题；只给 MaterialTheme 会抛
+            // "No ColorScheme provided"。背景关闭以保留截图里未绘制区域的黑色断言。
+            AppTheme(AppUiConfiguration(), applyBackground = false) {
+                MaterialTheme {
+                    if (visible.value) savedState.SaveableStateProvider("reader") {
+                        val content: @Composable () -> Unit = {
+                            MangaReaderScreen(
+                                reader.value,
+                                ::onIntent,
+                                imageLoader = imageLoader,
+                                canHandleBack = false,
+                                onTranslatePage = { key, force -> translatedPages += key to force },
+                                onRecomposePage = { key -> recomposedPages += key },
+                                canRecomposePage = { it == "page:2:0" },
+                                hasTranslatedPage = { it == "page:2:0" && hasTranslation.value },
+                            )
+                        }
+                        content()
                     }
-                    if (reader.value.activeSheet is MangaReaderSheet.PageActions) AppTheme(AppUiConfiguration()) { content() }
-                    else content()
-
                 }
             }
         }

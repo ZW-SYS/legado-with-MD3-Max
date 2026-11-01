@@ -101,6 +101,7 @@
     <string name="book_source_login">Book source login</string>
     <string name="setting">Settings</string>
     <string name="theme_setting">Theme Settings</string>
+    <string name="theme_refactor_tip">Some screens are not rebuilt with Compose yet, so they look quite different from the rest of the app.</string>
     <string name="theme_setting_s">Some settings related to interface or color</string>
     <string name="personalization_setting">Advanced Personalization</string>
     <string name="personalization_setting_s">Fine-tune fonts and other appearance details</string>
@@ -2674,6 +2675,7 @@
     <string name="import_status_existing">Existing</string>
     <string name="import_status_error">Error</string>
     <string name="details">Details</string>
+    <string name="details_of">%1$s details</string>
     <string name="error_details">Error Details</string>
     <string name="reload">Reload</string>
     <string name="no_more_data">No more data</string>

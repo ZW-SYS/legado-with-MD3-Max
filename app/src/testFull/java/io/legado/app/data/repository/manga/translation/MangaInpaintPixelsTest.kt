@@ -59,7 +59,7 @@ class MangaInpaintPixelsTest {
     }
 
     @Test fun `old saved settings default to local and every downloadable model pins immutable bytes`() {
-        assertEquals(MangaInpaintEngine.LOCAL, MangaTranslationPlan.json.decodeFromString<MangaTranslationSettings>("{}").inpaintEngine)
+        assertEquals(MangaInpaintEngine.BUILTIN, MangaTranslationPlan.json.decodeFromString<MangaTranslationSettings>("{}").inpaintEngine)
         assertEquals(MangaInpaintEngine.entries.filter { it.downloadable }.toSet(), MangaInpaintModelCatalog.files.keys)
         MangaInpaintModelCatalog.files.values.forEach {
             assertTrue(it.sha256.matches(Regex("[0-9a-f]{64}"))); assertTrue(it.bytes > 0)

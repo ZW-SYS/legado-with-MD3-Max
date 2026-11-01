@@ -30,8 +30,6 @@ import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
 
-internal data class MangaOcrModelFile(val name: String, val url: String, val bytes: Long, val sha256: String)
-
 /** The same lock protects download, native use and deletion; inference owns no persistent sessions. */
 internal class MangaOcrModelRepository(
     private val context: Context,
@@ -155,7 +153,8 @@ private val mangaModelClient by lazy {
         .callTimeout(15, TimeUnit.MINUTES).build()
 }
 
-private suspend fun downloadMangaOcrFile(spec: MangaOcrModelFile, target: File, progress: (Long) -> Unit) = coroutineScope {
+/** Shared by OCR weights and the vision detector, so both use one download/verify pipeline. */
+internal suspend fun downloadMangaOcrFile(spec: MangaOcrModelFile, target: File, progress: (Long) -> Unit) = coroutineScope {
     val call = mangaModelClient.newCall(Request.Builder().url(spec.url).build())
     // Cancel socket I/O immediately even while blocked in a synchronous read on Dispatchers.IO.
     val watcher = launch(Dispatchers.IO, start = CoroutineStart.UNDISPATCHED) {

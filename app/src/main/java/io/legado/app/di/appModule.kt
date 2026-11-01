@@ -420,19 +420,13 @@ val appModule = module {
     single<LabSettingsGateway> { LabSettingsRepository() }
     single<MangaSettingsGateway> { MangaSettingsRepository() }
     single<AiImageGateway> { AiImageRepository() }
-    single { io.legado.app.data.repository.manga.translation.MangaOcrModelRepository(get()) }
-    single<io.legado.app.domain.gateway.MangaOcrModelGateway> { get<io.legado.app.data.repository.manga.translation.MangaOcrModelRepository>() }
-    single { io.legado.app.data.repository.manga.translation.MangaInpaintModelRepository(get()) }
-    single<io.legado.app.domain.gateway.MangaInpaintModelGateway> { get<io.legado.app.data.repository.manga.translation.MangaInpaintModelRepository>() }
-    single { io.legado.app.data.repository.manga.translation.MangaLocalInpainter(get(), get()) }
-    single { io.legado.app.data.repository.manga.translation.MangaPaddleOcr(get()) }
+    // 本地引擎、模型仓库与可用/不可用装配由 engine 维度提供（见 MangaEngineModule）。
     single<io.legado.app.domain.gateway.MangaCloudOcrGateway> { io.legado.app.data.repository.manga.translation.MangaCloudOcrConfigRepository(get()) }
     single { io.legado.app.data.repository.manga.translation.MangaCloudOcr(get(), get()) }
-    single<MangaTranslationGateway> { MangaTranslationRepository(get(), get(), get(), get(), translationSettings = get(), imageEditor = MangaImageEditor(get())::edit,
-        paddleDetector = get<io.legado.app.data.repository.manga.translation.MangaPaddleOcr>()::detect,
+    single<MangaTranslationGateway> { MangaTranslationRepository(get(), get(), get(), get(), translationSettings = get(),
+        localEngine = get(),
+        imageEditor = MangaImageEditor(get())::edit,
         cloudDetector = get<io.legado.app.data.repository.manga.translation.MangaCloudOcr>()::detect,
-        inpaintReady = get<io.legado.app.data.repository.manga.translation.MangaLocalInpainter>()::requireReady,
-        inpaint = get<io.legado.app.data.repository.manga.translation.MangaLocalInpainter>()::erase,
         cloudIdentity = get<io.legado.app.data.repository.manga.translation.MangaCloudOcr>()::identity) }
     viewModelOf(::MangaTranslationViewModel)
     viewModelOf(::MangaConfigViewModel)
