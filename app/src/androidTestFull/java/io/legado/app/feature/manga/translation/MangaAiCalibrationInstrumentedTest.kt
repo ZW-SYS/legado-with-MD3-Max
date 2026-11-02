@@ -16,7 +16,6 @@ import io.legado.app.domain.gateway.AiProfileGateway
 import io.legado.app.domain.gateway.AiTextGateway
 import io.legado.app.domain.gateway.TranslationSettingsGateway
 import io.legado.app.domain.gateway.MangaTranslationGateway
-import io.legado.app.domain.gateway.TranslationSettingsGateway
 import io.legado.app.domain.gateway.AiStreamEvent
 import io.legado.app.domain.model.*
 import io.legado.app.domain.model.manga.*
