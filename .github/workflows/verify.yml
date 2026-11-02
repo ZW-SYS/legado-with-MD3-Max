@@ -43,18 +43,27 @@ jobs:
 
       # Reader semantic golden/contract/consumer/file tests are discovered by the
       # same unfiltered JVM task, preserving per-class Robolectric isolation.
-      - name: Run semantic compatibility, unit tests, lint, architecture check, and debug build
+      # core / full 分两次调用：两个变体同时编译 Kotlin 会把 runner 内存打满
+      # （OutOfMemoryError: Java heap space），串行后各自独占一次构建。
+      - name: Run semantic compatibility, unit tests, lint, architecture check, and debug build (core)
         run: |
           chmod +x gradlew
           ./gradlew \
             testAppCoreDebugUnitTest \
-            testAppFullDebugUnitTest \
             lintAppCoreDebug \
-            lintAppFullDebug \
             verifyConfigArchitecture \
             assembleAppCoreDebug \
-            assembleAppFullDebug \
             compileAppCoreDebugAndroidTestKotlin \
+            --continue \
+            --no-daemon \
+            --no-configuration-cache
+
+      - name: Run unit tests, lint and debug build (full)
+        run: |
+          ./gradlew \
+            testAppFullDebugUnitTest \
+            lintAppFullDebug \
+            assembleAppFullDebug \
             compileAppFullDebugAndroidTestKotlin \
             --continue \
             --no-daemon \
