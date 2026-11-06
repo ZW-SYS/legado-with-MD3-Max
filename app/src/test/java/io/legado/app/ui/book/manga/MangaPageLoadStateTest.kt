@@ -2,13 +2,28 @@ package io.legado.app.ui.book.manga
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class MangaPageLoadStateTest {
     private val page = MangaReaderItemUi.Page(
         key = "page", imageUrl = "url", bookUrl = "book", chapterIndex = 0, chapterCount = 1,
-        pageIndex = 0, pageCount = 1, chapterName = "chapter",
+        pageIndex = 0, pageCount = 1, chapterName = "chapter", chapterSubject = "chapter",
     )
+
+    @Test fun `prefetch marks original data ready without pretending the page has been displayed`() {
+        val prefetched = page.reduceSourceLoaded(page.requestId)
+        assertTrue(prefetched.sourceReady)
+        assertEquals(MangaPageLoadState.Queued, prefetched.loadState)
+        assertSame(prefetched, prefetched.reduceSourceLoaded(page.requestId))
+        val retry = page.copy(retryRevision = 1)
+        assertSame(retry, retry.reduceSourceLoaded(page.requestId))
+        assertFalse(retry.sourceReady)
+        val otherBook = page.copy(bookUrl = "other")
+        assertSame(otherBook, otherBook.reduceSourceLoaded(page.requestId))
+        assertTrue(page.reduceImageLoad(page.requestId, MangaPageLoadState.Ready).sourceReady)
+    }
 
     @Test
     fun `retry ignores late start success and failure of previous request`() {

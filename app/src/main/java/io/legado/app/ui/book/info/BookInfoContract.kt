@@ -15,7 +15,6 @@ import io.legado.app.ui.widget.components.variable.VariableEditorUiState
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
-const val READER_RESULT_DELETED = 100
 
 @Stable
 data class HighlightedTag(
@@ -94,6 +93,7 @@ data class BookInfoBookUi(
     val isLocal: Boolean,
     val type: Int,
     val canUpdate: Boolean,
+    val disableReadRecord: Boolean,
     val splitLongChapter: Boolean,
     val durChapterTitle: String?,
     val latestChapterTitle: String?,
@@ -199,7 +199,7 @@ sealed interface BookInfoIntent {
     data class UpdateVariable(val value: String) : BookInfoIntent
     data object SaveVariable : BookInfoIntent
     data class MenuAction(val action: BookInfoMenuAction) : BookInfoIntent
-    data class AuthorClick(val longClick: Boolean) : BookInfoIntent
+    data class AuthorClick(val longClick: Boolean, val author: String? = null) : BookInfoIntent
     data class BookNameClick(val longClick: Boolean) : BookInfoIntent
     data object OriginClick : BookInfoIntent
     data object ReadClick : BookInfoIntent
@@ -381,6 +381,7 @@ enum class BookInfoMenuAction {
     SyncRemote,
     Refresh,
     ReadRecord,
+    ToggleReadRecordDisabled,
     Login,
     Top,
     SetSourceVariable,

@@ -8,7 +8,7 @@ import android.net.Uri
 import android.os.Message
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
@@ -28,6 +28,8 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -61,20 +63,20 @@ import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MediumFlexibleTopAppBar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -88,8 +90,9 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -99,23 +102,23 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.size.Size
 import io.legado.app.R
 import io.legado.app.constant.BookType
-import io.legado.app.core.ui.morph.trackBookMorphCover
 import io.legado.app.data.entities.BaseSource
 import io.legado.app.data.entities.BookGroup
 import io.legado.app.data.entities.BookSource
 import io.legado.app.data.entities.SearchBook
 import io.legado.app.help.WebCacheManager
 import io.legado.app.help.coil.CoverExtras
+import io.legado.app.help.http.handleRenderProcessGone
 import io.legado.app.help.webView.WebJsExtensions
 import io.legado.app.ui.association.OnLineImportActivity
 import io.legado.app.ui.main.homepage.modules.BannerModule
 import io.legado.app.ui.theme.LegadoTheme
+import io.legado.app.ui.theme.LocalAppUiConfiguration
 import io.legado.app.ui.theme.LocalHazeState
 import io.legado.app.ui.theme.LocalLegadoThemeColors
 import io.legado.app.ui.theme.ProvideColorSchemeOverride
@@ -129,6 +132,7 @@ import io.legado.app.ui.theme.responsiveHazeEffectFixedStyle
 import io.legado.app.ui.widget.components.AppPullToRefresh
 import io.legado.app.ui.widget.components.AppScaffold
 import io.legado.app.ui.widget.components.AppTextField
+import io.legado.app.ui.widget.components.WebViewContainerCompose
 import io.legado.app.ui.widget.components.alert.AppAlertDialog
 import io.legado.app.ui.widget.components.button.series.SmallTonalButton
 import io.legado.app.ui.widget.components.card.GlassCard
@@ -141,6 +145,7 @@ import io.legado.app.ui.widget.components.icon.AppIcons
 import io.legado.app.ui.widget.components.image.cover.BookCoverImage
 import io.legado.app.ui.widget.components.image.cover.CoilBookCover
 import io.legado.app.ui.widget.components.image.cover.buildCoverImageRequest
+import io.legado.app.ui.widget.components.image.cover.cachedCoverAspectRatio
 import io.legado.app.ui.widget.components.image.cover.usesDefaultBookCover
 import io.legado.app.ui.widget.components.log.AppLogSheet
 import io.legado.app.ui.widget.components.menuItem.RoundDropdownMenu
@@ -183,6 +188,7 @@ fun BookInfoScreen(
     groups: ImmutableList<BookGroup>,
     onIntent: (BookInfoIntent) -> Unit,
     onBack: () -> Unit,
+    onOpenExplore: (title: String, url: String) -> Unit = { _, _ -> },
     sharedTransitionScope: SharedTransitionScope? = null,
     animatedVisibilityScope: AnimatedVisibilityScope? = null,
     sharedCoverKey: String? = null,
@@ -246,6 +252,7 @@ fun BookInfoScreen(
             sharedCoverKey = sharedCoverKey,
             backdropStyle = backdropStyle,
             usesDefaultCover = usesDefaultCover,
+            onOpenExplore = onOpenExplore,
             onNetworkCoverLoadError = { failedCoverPath ->
                 if (failedCoverPath == state.book?.coverPath) {
                     usesDefaultCover = true
@@ -291,6 +298,7 @@ private fun BookInfoScreenContent(
     backdropStyle: BookInfoBackdropStyle?,
     usesDefaultCover: Boolean,
     onNetworkCoverLoadError: (String?) -> Unit,
+    onOpenExplore: (title: String, url: String) -> Unit,
 ) {
     val isMiuix = ThemeResolver.isMiuixEngine(LegadoTheme.composeEngine)
     val scrollBehavior = if (isMiuix) {
@@ -306,6 +314,7 @@ private fun BookInfoScreenContent(
     // 语言/字体缩放切换后可能拿到过期值（LocalContextGetResourceValueCall）。
     val jumpToAnotherAppMessage = stringResource(R.string.jump_to_another_app)
     val confirmLabel = stringResource(R.string.confirm)
+    val readingLabel = stringResource(R.string.reading)
     val jumpToAnotherApp: (Uri) -> Unit = { uri ->
         scope.launch {
             val result = snackbarHostState.showSnackbar(
@@ -336,10 +345,13 @@ private fun BookInfoScreenContent(
             if (!state.privateLocked) {
                 ExtendedFloatingActionButton(
                     onClick = { onIntent(BookInfoIntent.ReadClick) },
+                    modifier = Modifier.semantics {
+                        contentDescription = readingLabel
+                    },
                     containerColor = LegadoTheme.colorScheme.primaryContainer,
                     contentColor = LegadoTheme.colorScheme.onPrimaryContainer,
-                    icon = { Icon(Icons.Default.Book, null) },
-                    text = { Text(stringResource(R.string.reading)) },
+                    icon = { AppIcon(Icons.Default.Book, null) },
+                    text = { AppText(stringResource(R.string.reading)) },
                 )
             }
         },
@@ -401,9 +413,10 @@ private fun BookInfoScreenContent(
                                         highlightedTags = state.highlightedTags,
                                         kindLabels = state.kindLabels,
                                         groupNames = state.groupNames,
+                                        onKindClick = onOpenExplore,
                                         onCoverClick = { onIntent(BookInfoIntent.CoverClick) },
                                         onCoverLongClick = { onIntent(BookInfoIntent.CoverLongClick) },
-                                        onAuthorClick = { onIntent(BookInfoIntent.AuthorClick(it)) },
+                                        onAuthorClick = { longClick, author -> onIntent(BookInfoIntent.AuthorClick(longClick, author)) },
                                         onBookNameClick = { onIntent(BookInfoIntent.BookNameClick(it)) },
                                         onOriginClick = { onIntent(BookInfoIntent.OriginClick) },
                                         onNetworkCoverLoadError = {
@@ -458,23 +471,6 @@ private fun BookInfoScreenContent(
                                                 },
                                             )
                                         }
-                                        state.relatedBooks.forEach { module ->
-                                            RelatedBooksBanner(
-                                                title = module.title,
-                                                books = module.books,
-                                                onBookClick = { book, _ ->
-                                                    onIntent(BookInfoIntent.RelatedBookClick(book))
-                                                },
-                                                onMoreClick = {
-                                                    onIntent(
-                                                        BookInfoIntent.RelatedBooksMore(
-                                                            module.title,
-                                                            module.resolvedUrl
-                                                        )
-                                                    )
-                                                },
-                                            )
-                                        }
                                         BookInfoSummary(
                                             book = book,
                                             tocLoadFailed = state.tocLoadFailed,
@@ -496,6 +492,24 @@ private fun BookInfoScreenContent(
                                                 onIntent(BookInfoIntent.IntroImageLongClick(source))
                                             },
                                         )
+                                        state.relatedBooks.forEach { module ->
+                                            RelatedBooksBanner(
+                                                title = module.title,
+                                                books = module.books,
+                                                showMore = module.resolvedUrl.isNotBlank(),
+                                                onBookClick = { book, _ ->
+                                                    onIntent(BookInfoIntent.RelatedBookClick(book))
+                                                },
+                                                onMoreClick = {
+                                                    onIntent(
+                                                        BookInfoIntent.RelatedBooksMore(
+                                                            module.title,
+                                                            module.resolvedUrl
+                                                        )
+                                                    )
+                                                },
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -634,13 +648,17 @@ private fun BookInfoColorTheme(
     )
     val targetColorScheme = theme?.colorScheme ?: baseTheme.colorScheme
     val targetSeedColor = theme?.seedColor ?: baseTheme.seedColor
+    // 「设备默认取色 → 封面取色」的渐变：整色板 400ms 插值。
+    //
+    // 代价是明确的：插值期间每帧都会产出新的 ColorScheme/LegadoColorScheme/LocalLegadoThemeColors
+    // 并重建 Miuix ThemeController，详情页会在转场期间反复重组 + 强制布局。这里仍然选它，
+    // 因为一次性切换会在过渡里闪出一帧平台底色（surface），观感上更差。
     val animatedColorScheme = targetColorScheme.animateColorSchemeAsState(animationSpec)
     val animatedSeedColor by animateColorAsState(
         targetValue = targetSeedColor,
         animationSpec = animationSpec,
         label = "book_info_theme_seed",
     )
-
     ProvideColorSchemeOverride(
         colorScheme = animatedColorScheme,
         seedColor = animatedSeedColor,
@@ -682,9 +700,10 @@ private fun BookInfoLockedContent(
                 highlightedTags = emptyList(),
                 kindLabels = emptyList(),
                 groupNames = null,
+                onKindClick = { _, _ -> },
                 onCoverClick = {},
                 onCoverLongClick = {},
-                onAuthorClick = {},
+                onAuthorClick = { _, _ -> },
                 onBookNameClick = {},
                 onOriginClick = {},
                 onNetworkCoverLoadError = {},
@@ -778,7 +797,7 @@ private fun BookInfoTransparentTopAppBar(
     } else {
         MediumFlexibleTopAppBar(
             modifier = hazeState?.let { Modifier.responsiveHazeEffectFixedStyle(it) } ?: Modifier,
-            title = { Text(text = "", maxLines = 1) },
+            title = { AppText(text = "", maxLines = 1) },
             navigationIcon = {
                 TopBarNavigationButton(onClick = onBackPressed)
             },
@@ -1054,6 +1073,13 @@ private fun BookInfoOverflowMenu(
             text = stringResource(R.string.read_record),
             onClick = { onMenuAction(BookInfoMenuAction.ReadRecord) }
         )
+        if (state.inBookshelf && book != null) {
+            RoundDropdownMenuItem(
+                text = stringResource(R.string.book_disable_read_record),
+                onClick = { onMenuAction(BookInfoMenuAction.ToggleReadRecordDisabled) },
+                isSelected = book.disableReadRecord,
+            )
+        }
         if (book?.isLocal == true) {
             RoundDropdownMenuItem(
                 text = stringResource(R.string.re_sync_webdav),
@@ -1129,15 +1155,17 @@ private fun BookInfoOverflowMenu(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun BookInfoHeader(
     book: BookInfoBookUi,
     highlightedTags: List<HighlightedTag>,
     kindLabels: List<String>,
     groupNames: String?,
+    onKindClick: (String, String) -> Unit,
     onCoverClick: () -> Unit,
     onCoverLongClick: () -> Unit,
-    onAuthorClick: (Boolean) -> Unit,
+    onAuthorClick: (Boolean, String?) -> Unit,
     onBookNameClick: (Boolean) -> Unit,
     onOriginClick: () -> Unit,
     onNetworkCoverLoadError: () -> Unit,
@@ -1151,6 +1179,28 @@ private fun BookInfoHeader(
 ) {
     val coverDescription = stringResource(R.string.a11y_book_cover_actions, book.name)
     val hiddenDescription = stringResource(R.string.private_hidden_label)
+    val coverPath = if (usesDefaultCover) null else book.coverPath
+    // “限制封面比例”设置开启（默认）时固定 5:7，与旧版一致；关闭后按原图比例自适应
+    val allowCoverRatioAdapt =
+        !LocalAppUiConfiguration.current.cover.restrictCoverRatio
+    // 初始值优先取该封面已加载过的比例缓存，重进详情页不必先回弹 5:7 再等图重载
+    val coverAspectRatioState = remember(allowCoverRatioAdapt, book.bookUrl, coverPath) {
+        mutableFloatStateOf(
+            if (allowCoverRatioAdapt) {
+                cachedCoverAspectRatio(coverPath) ?: BOOK_INFO_COVER_DEFAULT_ASPECT_RATIO
+            } else {
+                BOOK_INFO_COVER_DEFAULT_ASPECT_RATIO
+            }
+        )
+    }
+    val coverHeightDp = bookInfoCoverHeightDp(
+        if (allowCoverRatioAdapt) coverAspectRatioState.floatValue
+        else BOOK_INFO_COVER_DEFAULT_ASPECT_RATIO
+    )
+    // 比例合法性已在 BookCoverImage 上报前校验，这里直接写入
+    val onCoverImageAspectRatio: ((Float) -> Unit)? = if (allowCoverRatioAdapt) {
+        { aspectRatio -> coverAspectRatioState.floatValue = aspectRatio }
+    } else null
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -1182,7 +1232,8 @@ private fun BookInfoHeader(
             ) {
                 Box(
                     modifier = Modifier
-                        .width(112.dp)
+                        .width(BOOK_INFO_COVER_WIDTH_DP.dp)
+                        .height(coverHeightDp.dp)
                         .then(
                             // 脱敏时封面不可点：点开大图等于直接泄漏
                             if (locked) {
@@ -1203,37 +1254,33 @@ private fun BookInfoHeader(
                         PrivateLockedCover(
                             name = null,
                             author = null,
-                            path = if (usesDefaultCover) null else book.coverPath,
+                            path = coverPath,
                             sourceOrigin = if (usesDefaultCover) null else book.origin,
                             bookUrl = book.bookUrl,
-                            modifier = Modifier
-                                .width(112.dp)
-                                .aspectRatio(5f / 7f)
-                                .trackBookMorphCover(4.dp),
+                            modifier = Modifier.fillMaxSize(),
                             // 同一个 key + 同一个 scope：共享元素动画在脱敏态下依然连续
                             sharedCoverKey = sharedCoverKey,
                             sharedTransitionScope = sharedTransitionScope,
                             animatedVisibilityScope = animatedVisibilityScope,
+                            onImageAspectRatio = onCoverImageAspectRatio,
                         )
                     } else {
                         CoilBookCover(
                             name = book.name,
                             author = book.author,
-                            path = if (usesDefaultCover) null else book.coverPath,
+                            path = coverPath,
                             sourceOrigin = if (usesDefaultCover) null else book.origin,
                             // 传 bookUrl 供别名缓存键。详情页故意不设 preferCache：
                             // 在线时仍走完整链路拉新链接并刷新别名，保证封面换图后书架也能更新；
                             // 精确命中时同样不跑脚本。
                             bookUrl = book.bookUrl,
                             onError = onNetworkCoverLoadError,
-                            modifier = Modifier
-                                .width(112.dp)
-                                .aspectRatio(5f / 7f)
-                                .trackBookMorphCover(4.dp),
+                            modifier = Modifier.fillMaxSize(),
                             showLoadingPlaceholder = sharedCoverKey == null,
                             sharedTransitionScope = sharedTransitionScope,
                             animatedVisibilityScope = animatedVisibilityScope,
-                            sharedCoverKey = sharedCoverKey
+                            sharedCoverKey = sharedCoverKey,
+                            onImageAspectRatio = onCoverImageAspectRatio,
                         )
                     }
                 }
@@ -1291,15 +1338,38 @@ private fun BookInfoHeader(
                                 )
                             }
                         }
-                        AnimatedTextLine(
-                            text = stringResource(R.string.author_show, book.realAuthor),
-                            style = LegadoTheme.typography.bodyLarge,
-                            color = LegadoTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.combinedClickable(
-                                onClick = { onAuthorClick(false) },
-                                onLongClick = { onAuthorClick(true) }
+                        val authorLabels = remember(book.realAuthor) {
+                            book.realAuthor.split(",", "，")
+                                .map { it.trim() }
+                                .filter { it.isNotBlank() }
+                        }
+                        if (authorLabels.size > 1) {
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            ) {
+                                authorLabels.forEach { author ->
+                                    AnimatedTextLine(
+                                        text = author,
+                                        style = LegadoTheme.typography.bodyLarge,
+                                        color = LegadoTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.combinedClickable(
+                                            onClick = { onAuthorClick(false, author) },
+                                            onLongClick = { onAuthorClick(true, author) }
+                                        )
+                                    )
+                                }
+                            }
+                        } else {
+                            AnimatedTextLine(
+                                text = stringResource(R.string.author_show, book.realAuthor),
+                                style = LegadoTheme.typography.bodyLarge,
+                                color = LegadoTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.combinedClickable(
+                                    onClick = { onAuthorClick(false, null) },
+                                    onLongClick = { onAuthorClick(true, null) }
+                                )
                             )
-                        )
+                        }
                         AnimatedTextLine(
                             text = stringResource(R.string.origin_show, book.originName),
                             style = LegadoTheme.typography.labelMedium,
@@ -1343,11 +1413,13 @@ private fun BookInfoHeader(
                         items = kindLabels,
                         key = { index, label -> "kind-$index-$label" }
                     ) { _, label ->
+                        val (labelText, labelUrl) = parseKindTagLabel(label)
                         TextCard(
-                            text = label,
+                            text = labelText,
                             textStyle = LegadoTheme.typography.labelLargeEmphasized,
                             backgroundColor = LegadoTheme.colorScheme.surfaceContainer,
                             contentColor = LegadoTheme.colorScheme.onSurfaceVariant,
+                            onClick = labelUrl?.let { url -> { onKindClick(labelText, url) } },
                         )
                     }
                 }
@@ -1514,7 +1586,7 @@ private fun BookInfoSummary(
         modifier = Modifier
             .fillMaxWidth()
             .background(LegadoTheme.colorScheme.surface)
-            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 120.dp),
+            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         AnimatedTextLine(
@@ -1714,9 +1786,12 @@ private fun parseBookInfoIntro(intro: String?): BookInfoIntroContent? {
  * `<useweb>` 简介：用 WebView 渲染，注入与上游一致的 JS 桥接
  * （WebCacheManager 缓存、书源对象、WebJsExtensions），
  * 并处理 legado/yuedu scheme（导入）与其他 scheme（确认后跳转）。
+ *
+ * WebView 经 [WebViewContainerCompose] 的 FrameLayout 间接挂载：直接作为
+ * AndroidView 子 View 时，加载后改高度会触发 Vulkan functor 重绘路径，
+ * 在 Android 16 HWUI Vulkan 后端上引发 drawVk SIGTRAP 原生崩溃（issue #2468）。
  */
 @Composable
-@SuppressLint("SetJavaScriptEnabled")
 private fun BookInfoWebIntro(
     html: String,
     baseUrl: String?,
@@ -1725,7 +1800,10 @@ private fun BookInfoWebIntro(
 ) {
     val context = LocalContext.current
     // 初始高度先给一屏，否则 WebView 在 0 高度下不会被布局，也就无法测量内容高度
-    val pageHeight = LocalConfiguration.current.screenHeightDp.dp.coerceAtLeast(320.dp)
+    // 分屏/折叠屏下物理屏高不等于容器高，初始占位高度按窗口容器算
+    val pageHeight = with(LocalDensity.current) {
+        LocalWindowInfo.current.containerSize.height.toDp()
+    }.coerceAtLeast(320.dp)
     val textColor = LegadoTheme.colorScheme.onSurface
     val textColorHex = remember(textColor) {
         ColorUtils.intToString(textColor.toArgb())
@@ -1737,84 +1815,101 @@ private fun BookInfoWebIntro(
     val contentHeightState = remember(loadKey) { mutableStateOf<Dp?>(null) }
     val loadedKeyState = remember { mutableStateOf<String?>(null) }
     val isCurrentLoad = { loadedKeyState.value == loadKey }
+    val jumpToAnotherApp by rememberUpdatedState(onJumpToAnotherApp)
+    // 首次测量立即收起整屏占位；后续内容变化（图片加载等）防抖后一次性提交，
+    // 减少加载后的 resize 次数
+    val pendingCssHeightState = remember(loadKey) { mutableStateOf<Float?>(null) }
     // evaluateJavascript 返回的是 CSS px，与 Compose dp 等值，不能再乘/除 density
     val onCssHeight: (Float) -> Unit = { cssHeight ->
+        if (contentHeightState.value == null) {
+            contentHeightState.value = cssHeight.dp
+        } else {
+            pendingCssHeightState.value = cssHeight
+        }
+    }
+    LaunchedEffect(pendingCssHeightState.value) {
+        val cssHeight = pendingCssHeightState.value ?: return@LaunchedEffect
+        delay(400)
         val next = cssHeight.dp
         val current = contentHeightState.value
         if (current == null || abs(current.value - next.value) > 8f) {
             contentHeightState.value = next
         }
     }
-    val webView = remember(bookSource?.bookSourceUrl) {
-        WebView(context).apply {
-            setBackgroundColor(android.graphics.Color.TRANSPARENT)
-            settings.apply {
-                javaScriptEnabled = true
-                domStorageEnabled = true
-                loadsImagesAutomatically = true
-                blockNetworkImage = false
-                mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-                mediaPlaybackRequiresUserGesture = false
-                builtInZoomControls = false
-                displayZoomControls = false
-                textZoom = 100
-            }
-            // useweb 简介可能是整页 HTML：禁用 overscroll 与滚动条，滚动交给外层 LazyColumn
-            overScrollMode = View.OVER_SCROLL_NEVER
-            isVerticalScrollBarEnabled = false
-            webChromeClient = buildBookInfoWebChromeClient()
-            addJavascriptInterface(WebCacheManager, WebJsExtensions.nameCache)
-            bookSource?.let { source ->
-                addJavascriptInterface(source as BaseSource, WebJsExtensions.nameSource)
-                addJavascriptInterface(
-                    WebJsExtensions(source, null, this),
-                    WebJsExtensions.nameJava
-                )
-            }
-        }
-    }
-    DisposableEffect(webView) {
-        webView.onResume()
-        onDispose {
-            webView.stopLoading()
-            (webView.parent as? ViewGroup)?.removeView(webView)
-            webView.destroy()
-        }
-    }
-    AndroidView(
-        factory = { webView },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(contentHeightState.value ?: pageHeight),
-        update = { view ->
-            view.webViewClient = buildBookInfoWebIntroClient(
-                context = context,
-                isCurrentLoad = isCurrentLoad,
-                onCssHeight = onCssHeight,
-                onJumpToAnotherApp = onJumpToAnotherApp,
-            )
-            view.setOnTouchListener { _, event ->
-                if (
-                    event.action == MotionEvent.ACTION_UP ||
-                    event.action == MotionEvent.ACTION_CANCEL
-                ) {
-                    scheduleBookInfoWebIntroHeightMeasure(
-                        webView = view,
+    // 书源变化（关联书籍换源等）时整体重建：JavascriptInterface 绑定了源对象
+    key(bookSource?.bookSourceUrl) {
+        WebViewContainerCompose(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(contentHeightState.value ?: pageHeight),
+            createWebView = { context ->
+                createBookInfoWebIntroWebView(context, bookSource)
+            },
+            update = { webView ->
+                if (loadedKeyState.value != loadKey) {
+                    loadedKeyState.value = loadKey
+                    // client 与触摸监听持有本次加载的状态闭包，只在换载时重建，
+                    // 不随每次重组重复创建
+                    webView.webViewClient = buildBookInfoWebIntroClient(
+                        context = context,
                         isCurrentLoad = isCurrentLoad,
                         onCssHeight = onCssHeight,
-                        delays = bookInfoWebIntroTouchMeasureDelays,
+                        onJumpToAnotherApp = { jumpToAnotherApp(it) },
                     )
+                    webView.setOnTouchListener { _, event ->
+                        if (
+                            event.action == MotionEvent.ACTION_UP ||
+                            event.action == MotionEvent.ACTION_CANCEL
+                        ) {
+                            scheduleBookInfoWebIntroHeightMeasure(
+                                webView = webView,
+                                isCurrentLoad = isCurrentLoad,
+                                onCssHeight = onCssHeight,
+                                delays = bookInfoWebIntroTouchMeasureDelays,
+                            )
+                        }
+                        false
+                    }
+                    webView.stopLoading()
+                    webView.loadDataWithBaseURL(baseUrl, wrappedHtml, "text/html", "utf-8", baseUrl)
                 }
-                false
-            }
-            if (loadedKeyState.value != loadKey) {
-                loadedKeyState.value = loadKey
-                view.stopLoading()
-                view.loadDataWithBaseURL(baseUrl, wrappedHtml, "text/html", "utf-8", baseUrl)
-            }
-        },
-    )
+            },
+        )
+    }
 }
+
+/**
+ * 详情页 `<useweb>` 简介的 WebView：实例级配置（settings、JS 桥接、ChromeClient），
+ * 随 [WebViewContainerCompose] 的 factory 创建。
+ */
+@SuppressLint("SetJavaScriptEnabled")
+private fun createBookInfoWebIntroWebView(context: Context, bookSource: BookSource?): WebView =
+    WebView(context).apply {
+        setBackgroundColor(android.graphics.Color.TRANSPARENT)
+        settings.apply {
+            javaScriptEnabled = true
+            domStorageEnabled = true
+            loadsImagesAutomatically = true
+            blockNetworkImage = false
+            mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+            mediaPlaybackRequiresUserGesture = false
+            builtInZoomControls = false
+            displayZoomControls = false
+            textZoom = 100
+        }
+        // useweb 简介可能是整页 HTML：禁用 overscroll 与滚动条，滚动交给外层 LazyColumn
+        overScrollMode = View.OVER_SCROLL_NEVER
+        isVerticalScrollBarEnabled = false
+        webChromeClient = buildBookInfoWebChromeClient()
+        addJavascriptInterface(WebCacheManager, WebJsExtensions.nameCache)
+        bookSource?.let { source ->
+            addJavascriptInterface(source as BaseSource, WebJsExtensions.nameSource)
+            addJavascriptInterface(
+                WebJsExtensions(source, null, this),
+                WebJsExtensions.nameJava
+            )
+        }
+    }
 
 /**
  * `<useweb>` 简介的 HTML 外壳：透明背景 + viewport + 主题文字色。
@@ -1850,6 +1945,8 @@ private fun buildBookInfoWebIntroHtml(html: String, textColorHex: String): Strin
     </html>
 """.trimIndent()
 
+// MissingOnRenderProcessGone：该规则按 Java PSI 查构造调用，看不到 Kotlin 匿名对象里的 override。
+@SuppressLint("MissingOnRenderProcessGone")
 private fun buildBookInfoWebIntroClient(
     context: Context,
     isCurrentLoad: () -> Boolean,
@@ -1882,6 +1979,10 @@ private fun buildBookInfoWebIntroClient(
         }
     }
 
+    // 渲染进程被系统回收时默认会连带杀掉宿主进程
+    override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean =
+        view.handleRenderProcessGone()
+
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
         view?.let { runCatching { it.evaluateJavascript(injectionString, null) } }
@@ -1900,7 +2001,9 @@ private fun buildBookInfoWebIntroClient(
     }
 }
 
-@SuppressLint("SetJavaScriptEnabled")
+// MissingOnRenderProcessGone：onCreateWindow 里的弹窗 WebViewClient 已实现该回调，
+// 但规则按 Java PSI 查构造调用，看不到 Kotlin 匿名对象里的 override。
+@SuppressLint("SetJavaScriptEnabled", "MissingOnRenderProcessGone")
 private fun buildBookInfoWebChromeClient(): WebChromeClient = object : WebChromeClient() {
 
     override fun onCreateWindow(
@@ -1914,6 +2017,11 @@ private fun buildBookInfoWebChromeClient(): WebChromeClient = object : WebChrome
         val popup = WebView(host.context).apply {
             settings.javaScriptEnabled = true
             webViewClient = object : WebViewClient() {
+                override fun onRenderProcessGone(
+                    view: WebView,
+                    detail: RenderProcessGoneDetail,
+                ): Boolean = view.handleRenderProcessGone()
+
                 override fun shouldOverrideUrlLoading(
                     popupView: WebView?,
                     request: WebResourceRequest?,
@@ -2076,6 +2184,7 @@ private fun RelatedBooksBanner(
     books: ImmutableList<SearchBook>,
     onBookClick: (SearchBook, String?) -> Unit,
     onMoreClick: () -> Unit,
+    showMore: Boolean = true,
 ) {
     Column(
         modifier = Modifier
@@ -2095,11 +2204,13 @@ private fun RelatedBooksBanner(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f),
                 )
-                SmallTonalButton(
-                    onClick = onMoreClick,
-                    icon = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = stringResource(R.string.a11y_related_books_more, title),
-                )
+                if (showMore) {
+                    SmallTonalButton(
+                        onClick = onMoreClick,
+                        icon = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = stringResource(R.string.a11y_related_books_more, title),
+                    )
+                }
             }
         }
         BannerModule(
@@ -2108,7 +2219,7 @@ private fun RelatedBooksBanner(
             onClick = onBookClick,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp),
+                .padding(horizontal = 16.dp),
         )
     }
 }
@@ -2422,4 +2533,19 @@ private fun EventInfoCard(
             )
         }
     }
+}
+
+/**
+ * kind 标签支持「显示名|链接」编码，链接必须是 http(s) 绝对地址或根相对路径；
+ * 后半段不像链接时整段按普通文本展示，避免存量 kind 里合法的 `|` 被误拆或误跳转。
+ */
+internal fun parseKindTagLabel(label: String): Pair<String, String?> {
+    val separator = label.indexOf('|')
+    if (separator <= 0 || separator == label.lastIndex) return label to null
+    val text = label.substring(0, separator)
+    val url = label.substring(separator + 1).trim()
+    val isLink = url.startsWith("http://", ignoreCase = true) ||
+        url.startsWith("https://", ignoreCase = true) ||
+        url.startsWith("/")
+    return if (isLink) text to url else label to null
 }

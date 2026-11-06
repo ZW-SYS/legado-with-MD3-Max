@@ -47,6 +47,7 @@ class KtorServer(private val port: Int) {
 
     fun start() {
         server = embeddedServer(CIO, port = port) {
+            install(IgnoreTrailingSlash)
             install(ContentNegotiation) {
                 gson {
                     setLenient()
@@ -127,7 +128,7 @@ class KtorServer(private val port: Int) {
 
                 get("/getBookSource") { handleGet { BookSourceController.getSource(it) } }
                 get("/getBookSources") { handleGet { BookSourceController.sources } }
-                get("/getBookshelf") { handleGet { BookController.bookshelf } }
+                get("/getBookshelf") { handleGet { BookController.getBookshelf(it) } }
                 get("/getChapterList") { handleGet { BookController.getChapterList(it) } }
                 get("/refreshToc") { handleGet { BookController.refreshToc(it) } }
                 get("/getBookContent") { handleGet { BookController.getBookContent(it) } }
@@ -362,7 +363,7 @@ class KtorServer(private val port: Int) {
             respondReturnData(returnData)
         } catch (e: Exception) {
             LogUtils.e(TAG, e.stackTraceStr)
-            call.respondText(e.message ?: "Unknown error")
+            respondReturnData(ReturnData().setErrorMsg(e.localizedMessage ?: e.message ?: "Unknown error"))
         }
     }
 
@@ -381,7 +382,7 @@ class KtorServer(private val port: Int) {
             }
         } catch (e: Exception) {
             LogUtils.e(TAG, e.stackTraceStr)
-            call.respondText(e.message ?: "Unknown error")
+            respondReturnData(ReturnData().setErrorMsg(e.localizedMessage ?: e.message ?: "Unknown error"))
         }
     }
 
