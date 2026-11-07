@@ -8,6 +8,17 @@ It keeps all upstream features and adds full support for the **.nex format**.
 
 ---
 
+## Maintainer's Note
+
+- **Maintainer**: 张云安 (ZW-SYS). Built on HapeLee's legado-with-MD3; all original credits are kept (see the end of this page).
+- **Current version**: 3.26.24, merged with upstream 3.26.23.
+- **Feedback**: please report bugs or ideas on this project's GitHub **Issues** page, ideally with your phone model, Android version and steps to reproduce.
+- **About update speed**: I'm 13 and still in school, so I can only work on this on weekends and holidays. Updates may be slow, thanks for understanding.
+- **Contact**: for anything important, email **cranecloud@hotmail.com**.
+- **Scam warning**: I **don't run any groups** and **never charge anything**. Anyone asking you to join a group, pay, or buy an activation code in the name of 阅读Max (YueduMax) is **a scammer**. 阅读Max is **100% open source and free**.
+
+---
+
 ## The .nex Format
 
 `.nex` is an ebook format designed and implemented by **ZW-SYS**, first defined on 2026-10-03.
