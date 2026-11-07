@@ -36,6 +36,14 @@ This format is defined by ZW-SYS. Anyone may freely implement and use it, but pl
 
 ---
 
+## What's New in 3.26.24
+
+- Merged upstream legado-with-MD3 3.26.23: video sources and player, AI chat with reading context, reader theme grid, tablet split view, custom top-bar buttons, reworked offline cache, update check on startup, plus many reader / TTS / comic fixes
+- New: classic-book splash quotes, reading statistics, auto covers for local books, excerpt cards, bedtime mode, LAN-share QR code
+- Full details in [CHANGELOG.md](CHANGELOG.md)
+
+---
+
 ## New Features
 
 ### Conversion and Import
@@ -69,8 +77,12 @@ This format is defined by ZW-SYS. Anyone may freely implement and use it, but pl
 
 - **Image display** — images inside `.nex` render correctly in the reader
 - **Video playback** — chapters containing videos show a ▶ button at the top-right of the reader; tapping it opens the system player
-- **Welcome message** — a random encouraging line is shown on every app launch
-- **LAN sharing** — devices on the same Wi-Fi can browse and download your books via a browser
+- **Classic-book splash quotes** — each launch shows a line from a classic novel (67 quotes, with author and title) on a theme-colored gradient, fading in character by character; tap to skip; can be turned off in Other Settings → Main Screen
+- **Reading statistics** — My → Reading Stats: time read today / this week / this year, reading streak, a one-year heatmap, and your most-read books
+- **Auto covers for local books** — local books without a cover get a generated one (gradient, pattern, title and author); can be turned off in Other Settings
+- **Excerpt cards** — select text in the reader → Excerpt Card; three styles (rice paper / night / plain), save to gallery or share
+- **Bedtime mode** — Reading Settings → More Settings: over 15 / 30 / 45 / 60 minutes the screen gradually dims and warms, then reminds you to rest (off by default)
+- **LAN sharing** — devices on the same Wi-Fi can browse and download your books via a browser; My → Web Service → QR code lets them scan instead of typing the IP
 
 ### UI and Updates
 
@@ -89,6 +101,8 @@ This format is defined by ZW-SYS. Anyone may freely implement and use it, but pl
 
    For example, `http://192.168.1.46:1122/share`.
 4. You will see the library; tap "Download" on any book.
+
+Shortcut: with the Web service running, open **My → Web Service → QR code** and scan it from the other device (both devices must be on the same Wi-Fi).
 
 ---
 
