@@ -1085,8 +1085,10 @@ open class MainActivity : BaseComposeActivity(), AudioPlay.CallBack {
             }
         }
         TextSheetHost()
-        // 开屏鼓励语：覆盖在应用界面之上，只在进程首次启动时弹一次，转屏不重复
-        var showEncouragement by rememberSaveable { mutableStateOf(true) }
+        // 开屏名句（阅读Max）：覆盖在应用界面之上，转屏不重复；可在「其它设置」里关闭
+        var showEncouragement by rememberSaveable {
+            mutableStateOf(io.legado.app.feature.max.MaxPrefs.splashQuoteEnabled)
+        }
         if (showEncouragement) {
             EncouragementOverlay(
                 onDismiss = { showEncouragement = false },

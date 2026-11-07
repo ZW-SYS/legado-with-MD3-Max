@@ -4,12 +4,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.legado.app.R
+import io.legado.app.feature.max.MaxPrefs
 import io.legado.app.ui.theme.adaptiveContentPadding
 import io.legado.app.ui.widget.components.AppScaffold
 import io.legado.app.ui.widget.components.SplicedColumnGroup
@@ -92,6 +97,28 @@ fun OtherConfigScreen(
             }
 
             SplicedColumnGroup(title = stringResource(R.string.main_activity)) {
+
+                var splashQuoteEnabled by remember { mutableStateOf(MaxPrefs.splashQuoteEnabled) }
+                SwitchSettingItem(
+                    title = "开屏名句",
+                    description = "启动时展示一句中外经典名著中的原句，轻触可跳过",
+                    checked = splashQuoteEnabled,
+                    onCheckedChange = {
+                        splashQuoteEnabled = it
+                        MaxPrefs.splashQuoteEnabled = it
+                    }
+                )
+
+                var autoCoverEnabled by remember { mutableStateOf(MaxPrefs.autoCoverEnabled) }
+                SwitchSettingItem(
+                    title = "本地书自动封面",
+                    description = "没有封面的本地书（含 .nex）自动生成一张书名封面；手动设置的封面始终优先",
+                    checked = autoCoverEnabled,
+                    onCheckedChange = {
+                        autoCoverEnabled = it
+                        MaxPrefs.autoCoverEnabled = it
+                    }
+                )
 
                 SwitchSettingItem(
                     title = stringResource(R.string.pt_auto_refresh),
