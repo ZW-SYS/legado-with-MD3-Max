@@ -5,6 +5,7 @@ import io.legado.app.constant.AppLog
 import io.legado.app.data.entities.Book
 import io.legado.app.data.entities.BookChapter
 import io.legado.app.help.book.BookHelp
+import io.legado.app.utils.FileUtils
 import io.legado.app.utils.HtmlFormatter
 import io.legado.app.utils.MD5Utils
 import io.legado.app.utils.printOnDebug
@@ -160,8 +161,31 @@ class NexFile(var book: Book) {
         upBookCover()
     }
 
+    /**
+     * manifest.json 里声明了 "cover"（zip 内路径，如 assets/img/cover.jpg）时，解出到本书封面路径。
+     * 没有声明时留空，由阅读Max 的自动封面兜底。
+     */
     private fun upBookCover(fastCheck: Boolean = false) {
-        // .nex 暂不支持封面，留空
+        try {
+            val manifest = readEntry("manifest.json") ?: return
+            val coverPath = JSONObject(manifest).optString("cover", "").trim()
+            if (coverPath.isEmpty()) return
+            val target = LocalBook.getCoverPath(book)
+            if (fastCheck && File(target).exists()) {
+                book.coverUrl = target
+                return
+            }
+            ensureOpen()
+            val entry = zipFile?.getEntry(coverPath) ?: return
+            zipFile?.getInputStream(entry)?.use { input ->
+                FileOutputStream(FileUtils.createFileIfNotExist(target)).use { output ->
+                    input.copyTo(output)
+                }
+            }
+            book.coverUrl = target
+        } catch (e: Exception) {
+            AppLog.put(".nex 封面读取失败\n${e.localizedMessage}", e)
+        }
     }
 
     /* ============ 章节列表 ============ */

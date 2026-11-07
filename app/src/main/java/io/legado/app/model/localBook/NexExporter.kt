@@ -124,6 +124,21 @@ object NexExporter {
                         orig to epub.removePrefix("OEBPS/")
                     }
 
+                    // 封面：.nex 自带封面优先，否则用书架上显示的本地封面（自定义封面或阅读Max自动封面）
+                    var coverHref: String? = coverPathInZip?.let { assetMap[it] }
+                    if (coverHref == null) {
+                        val local = book.getDisplayCover()
+                            ?.takeIf { !it.startsWith("http", ignoreCase = true) }
+                            ?.let { File(it) }
+                            ?.takeIf { it.isFile && it.length() > 0 }
+                        if (local != null) {
+                            out.putNextEntry(ZipEntry("OEBPS/images/cover.jpg"))
+                            local.inputStream().use { it.copyTo(out) }
+                            out.closeEntry()
+                            coverHref = "images/cover.jpg"
+                        }
+                    }
+
                     // 每章
                     chapterList.forEachIndexed { i, (id, chTitle, file) ->
                         val entry = zip.getEntry(file) ?: return@forEachIndexed
@@ -160,7 +175,7 @@ $body
                     putText(out, "OEBPS/style.css", EPUB_CSS)
 
                     // content.opf
-                    val opf = buildOpf(title, author, chapterList, assets, coverPathInZip)
+                    val opf = buildOpf(title, author, chapterList, assets, coverHref)
                     putText(out, "OEBPS/content.opf", opf)
 
                     // nav.xhtml（EPUB3 目录）
@@ -271,7 +286,7 @@ $body
         author: String,
         chapters: List<Triple<String, String, String>>,
         assets: List<Triple<String, String, String>>,
-        coverPathInZip: String?
+        coverHref: String?
     ): String {
         val sb = StringBuilder()
         sb.append("""<?xml version="1.0" encoding="UTF-8"?>
@@ -282,6 +297,7 @@ $body
 <dc:creator>${escapeXml(author)}</dc:creator>
 <dc:language>zh-CN</dc:language>
 <meta property="dcterms:modified">${java.time.Instant.now().toString().substringBefore('.') + "Z"}</meta>
+${if (coverHref != null) "<meta name=\"cover\" content=\"cover-image\"/>" else ""}
 </metadata>
 <manifest>
 <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
@@ -292,8 +308,20 @@ $body
             sb.append("""<item id="ch${i + 1}" href="text/ch${i + 1}.xhtml" media-type="application/xhtml+xml"/>
 """)
         }
+        var coverListed = false
         assets.forEachIndexed { i, (_, epubPath, mediaType) ->
-            sb.append("""<item id="asset$i" href="${epubPath.removePrefix("OEBPS/")}" media-type="$mediaType"/>
+            val href = epubPath.removePrefix("OEBPS/")
+            if (href == coverHref) {
+                coverListed = true
+                sb.append("""<item id="cover-image" href="$href" media-type="$mediaType" properties="cover-image"/>
+""")
+            } else {
+                sb.append("""<item id="asset$i" href="$href" media-type="$mediaType"/>
+""")
+            }
+        }
+        if (coverHref != null && !coverListed) {
+            sb.append("""<item id="cover-image" href="$coverHref" media-type="image/jpeg" properties="cover-image"/>
 """)
         }
         sb.append("</manifest>\n<spine toc=\"ncx\">\n")

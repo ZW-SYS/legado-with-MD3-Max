@@ -398,6 +398,8 @@ object LocalBook {
             book.isPdf -> PdfFile.upBookInfo(book)
             book.isMobi -> MobiFile.upBookInfo(book)
         }
+        // 阅读Max：没有封面（含 EPUB 内无封面图）时本地生成一张；用户自定义封面优先，不会覆盖
+        io.legado.app.feature.autocover.AutoCover.ensure(book)
     }
 
     /* 导入压缩包内的书籍 */

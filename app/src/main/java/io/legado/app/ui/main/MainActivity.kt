@@ -441,6 +441,13 @@ open class MainActivity : BaseComposeActivity(), AudioPlay.CallBack {
             startWebServiceWithLocalNetworkPermission()
         }
 
+        // 阅读Max：给书架上没有封面的本地书补一张自动封面（只在冷启动时跑一次，后台执行）
+        if (savedInstanceState == null) {
+            lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                runCatching { io.legado.app.feature.autocover.AutoCover.backfill() }
+            }
+        }
+
         // 局域网请求（书源 / 图源 / WebDAV）被系统拦下时，前台立即补一次本地网络权限申请。
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
