@@ -1,16 +1,12 @@
 package io.legado.app.feature.max
 
-import io.legado.app.utils.getPrefBoolean
-import io.legado.app.utils.getPrefInt
-import io.legado.app.utils.putPrefBoolean
-import io.legado.app.utils.putPrefInt
-import splitties.init.appCtx
+import io.legado.app.help.config.AppConfigStore
 
 /**
  * 阅读Max 自有的轻量开关。
  *
- * 这些开关只在本 fork 里存在，直接落 SharedPreferences，不进上游的 settings gateway，
- * 合并上游时不会和上游的设置结构冲突。
+ * 直接读写应用统一的配置快照 [AppConfigStore]（DataStore 持久化），键名带 max_ 前缀，
+ * 不进上游的 settings gateway，合并上游时不会和上游的设置结构冲突。
  */
 object MaxPrefs {
     private const val KEY_SPLASH_QUOTE = "max_splash_quote_enabled"
@@ -19,16 +15,16 @@ object MaxPrefs {
 
     /** 开屏名句，默认开启 */
     var splashQuoteEnabled: Boolean
-        get() = appCtx.getPrefBoolean(KEY_SPLASH_QUOTE, true)
-        set(value) = appCtx.putPrefBoolean(KEY_SPLASH_QUOTE, value)
+        get() = runCatching { AppConfigStore.getBoolean(KEY_SPLASH_QUOTE) }.getOrNull() ?: true
+        set(value) = AppConfigStore.putBoolean(KEY_SPLASH_QUOTE, value)
 
     /** 本地书无封面时自动生成封面，默认开启 */
     var autoCoverEnabled: Boolean
-        get() = appCtx.getPrefBoolean(KEY_AUTO_COVER, true)
-        set(value) = appCtx.putPrefBoolean(KEY_AUTO_COVER, value)
+        get() = runCatching { AppConfigStore.getBoolean(KEY_AUTO_COVER) }.getOrNull() ?: true
+        set(value) = AppConfigStore.putBoolean(KEY_AUTO_COVER, value)
 
     /** 睡前模式上次选择的时长（分钟），只用于记住选项；睡前模式本身每次手动开启，默认关闭 */
     var bedtimeMinutes: Int
-        get() = appCtx.getPrefInt(KEY_BEDTIME_MINUTES, 30)
-        set(value) = appCtx.putPrefInt(KEY_BEDTIME_MINUTES, value)
+        get() = runCatching { AppConfigStore.getInt(KEY_BEDTIME_MINUTES) }.getOrNull() ?: 30
+        set(value) = AppConfigStore.putInt(KEY_BEDTIME_MINUTES, value)
 }

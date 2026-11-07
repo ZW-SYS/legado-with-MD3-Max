@@ -1458,13 +1458,13 @@ fun MainActivity.mainEntryProvider(
     }
 
     entry<MainRouteReadStats> {
+        val bookRepository: io.legado.app.data.repository.BookRepository =
+            org.koin.compose.koinInject()
         io.legado.app.feature.readstats.ReadStatsRouteScreen(
             onBackClick = { onNavigateBack() },
             onBookClick = { name, author ->
                 lifecycleScope.launch {
-                    val book = withContext(IO) {
-                        io.legado.app.data.appDb.bookDao.getBook(name, author)
-                    }
+                    val book = withContext(IO) { bookRepository.getBook(name, author) }
                     if (book != null) this@mainEntryProvider.startActivityForBook(book)
                     else {
                         onNavigateToRoute(MainRouteSearch(key = name))

@@ -40,7 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.legado.app.data.dao.ReadRecordDao
+import io.legado.app.data.repository.ReadRecordRepository
 import io.legado.app.ui.theme.LegadoTheme
 import io.legado.app.ui.theme.adaptiveContentPadding
 import io.legado.app.ui.widget.components.AppScaffold
@@ -69,9 +69,9 @@ fun ReadStatsRouteScreen(
     onBackClick: () -> Unit,
     onBookClick: (name: String, author: String) -> Unit,
 ) {
-    val dao: ReadRecordDao = koinInject()
-    val flow = remember(dao) {
-        dao.getAllDetails()
+    val repository: ReadRecordRepository = koinInject()
+    val flow = remember(repository) {
+        repository.getAllRecordDetails()
             .map { ReadStats.compute(it) }
             .flowOn(Dispatchers.Default)
     }
