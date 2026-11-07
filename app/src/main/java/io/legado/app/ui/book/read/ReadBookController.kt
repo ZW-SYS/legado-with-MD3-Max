@@ -2246,6 +2246,7 @@ class ReadBookController(
             val items = mutableListOf<ActionMenuItem>()
             items.add(ActionMenuItem(R.id.menu_copy, activity.getString(android.R.string.copy)))
             items.add(ActionMenuItem(R.id.menu_share_str, activity.getString(R.string.share)))
+            items.add(ActionMenuItem(R.id.menu_excerpt_card, "摘录卡片"))
             items.add(ActionMenuItem(R.id.menu_browser, activity.getString(R.string.browser)))
             items.add(ActionMenuItem(R.id.menu_aloud, activity.getString(R.string.read_aloud)))
             items.add(ActionMenuItem(R.id.menu_bookmark, activity.getString(R.string.bookmark)))
@@ -2356,6 +2357,16 @@ class ReadBookController(
             when (item.id) {
                 R.id.menu_copy -> activity.sendToClip(selectedText)
                 R.id.menu_share_str -> activity.share(selectedText)
+                R.id.menu_excerpt_card -> {
+                    val book = ReadBook.book
+                    io.legado.app.feature.excerpt.ExcerptCardActivity.start(
+                        activity,
+                        text = selectedText,
+                        book = book?.name.orEmpty(),
+                        author = book?.author.orEmpty(),
+                        chapter = book?.durChapterTitle.orEmpty(),
+                    )
+                }
                 R.id.menu_browser -> {
                     runCatching {
                         val intent = if (selectedText.isAbsUrl()) {
@@ -3423,6 +3434,7 @@ data class ActionMenuItem(
             when (id) {
                 R.id.menu_copy -> "menu_copy"
                 R.id.menu_share_str -> "menu_share_str"
+                R.id.menu_excerpt_card -> "menu_excerpt_card"
                 R.id.menu_browser -> "menu_browser"
                 R.id.menu_aloud -> "menu_aloud"
                 R.id.menu_bookmark -> "menu_bookmark"

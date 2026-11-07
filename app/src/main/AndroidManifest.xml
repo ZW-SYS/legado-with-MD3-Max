@@ -252,6 +252,12 @@
             android:enableOnBackInvokedCallback="true"
             android:configChanges="locale|layoutDirection|uiMode|orientation|screenSize|screenLayout"
             android:hardwareAccelerated="true" />
+        <!-- 阅读Max：摘录卡片 -->
+        <activity
+            android:name=".feature.excerpt.ExcerptCardActivity"
+            android:enableOnBackInvokedCallback="true"
+            android:configChanges="locale|layoutDirection|uiMode|orientation|screenSize|screenLayout"
+            android:hardwareAccelerated="true" />
         <!-- 文件管理 -->
         <activity
             android:name=".ui.file.FileManageActivity"

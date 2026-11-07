@@ -35,6 +35,7 @@ import androidx.compose.material.icons.automirrored.outlined.VolumeUp
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Bookmark
+import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.BorderColor
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Edit
@@ -585,6 +586,7 @@ private fun MoreMenuItem(
 private fun ActionMenuItem.builtInIcon(): ImageVector? = when (id) {
     R.id.menu_copy -> Icons.Outlined.ContentCopy
     R.id.menu_share_str -> Icons.Outlined.Share
+    R.id.menu_excerpt_card -> Icons.Outlined.Image
     R.id.menu_browser -> Icons.Outlined.Language
     R.id.menu_aloud -> Icons.AutoMirrored.Outlined.VolumeUp
     R.id.menu_bookmark -> Icons.Outlined.Bookmark
