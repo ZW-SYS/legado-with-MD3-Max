@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.OpenInBrowser
+import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Source
@@ -45,6 +46,9 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -289,6 +293,21 @@ fun WebServiceSettingBlock(
                     .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
                 horizontalArrangement = Arrangement.End
             ) {
+                var showQr by remember { mutableStateOf(false) }
+                SmallPlainButton(
+                    onClick = { showQr = true },
+                    icon = Icons.Default.QrCode2,
+                    text = "二维码"
+                )
+                if (showQr) {
+                    io.legado.app.feature.lanshare.LanShareQrDialog(
+                        address = uiState.webServiceAddress,
+                        onDismiss = { showQr = false },
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
                 SmallPlainButton(
                     onClick = {
                         onNavigate(PrefClickEvent.CopyUrl(uiState.webServiceAddress))
