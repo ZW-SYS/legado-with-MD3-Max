@@ -821,6 +821,8 @@ fun ReadBookRouteScreen(
                 modifier = Modifier.align(Alignment.BottomCenter),
             )
         }
+        // 阅读Max：睡前模式的暖色/压暗层与休息提醒
+        io.legado.app.feature.bedtime.BedtimeOverlay()
         ReaderVideoFloatingButton(
             book = state.book,
             menuVisible = state.menuVisible,

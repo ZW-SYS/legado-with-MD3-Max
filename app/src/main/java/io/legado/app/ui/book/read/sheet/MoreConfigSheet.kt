@@ -87,6 +87,10 @@ fun MoreConfigSheet(
                 }
             )
 
+            // 阅读Max：睡前模式
+            SectionTitle("睡前模式")
+            BedtimeSettings()
+
             // Page control
             SectionTitle(stringResource(R.string.page_control))
             PageControlSettings(
@@ -177,6 +181,34 @@ fun MoreConfigSheet(
             )
         }
     }
+}
+
+@Composable
+private fun BedtimeSettings() {
+    val bedtime by io.legado.app.feature.bedtime.BedtimeMode.state.collectAsStateWithLifecycle()
+    val entries = arrayOf("关闭") + io.legado.app.feature.bedtime.BedtimeMode.presetMinutes
+        .map { "$it 分钟" }.toTypedArray()
+    val values = arrayOf("0") + io.legado.app.feature.bedtime.BedtimeMode.presetMinutes
+        .map { it.toString() }.toTypedArray()
+    val selected = if (bedtime.active) {
+        (bedtime.durationMillis / 60_000L).toString().takeIf { it in values } ?: "0"
+    } else "0"
+    TinyDropdownSettingItem(
+        title = "睡前模式定时",
+        description = "逐渐调暗屏幕并转为暖色，到点温和提醒休息",
+        selectedValue = selected,
+        displayEntries = entries,
+        entryValues = values,
+        onValueChange = { value ->
+            val minutes = value.toIntOrNull() ?: 0
+            if (minutes > 0) {
+                io.legado.app.feature.max.MaxPrefs.bedtimeMinutes = minutes
+                io.legado.app.feature.bedtime.BedtimeMode.start(minutes)
+            } else {
+                io.legado.app.feature.bedtime.BedtimeMode.stop()
+            }
+        },
+    )
 }
 
 @Composable
