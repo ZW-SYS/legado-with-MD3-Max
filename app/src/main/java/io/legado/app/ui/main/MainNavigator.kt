@@ -356,6 +356,7 @@ object MainNavigator {
             MainRouteDictRule,
             MainRouteAllBookmark,
             MainRouteMultiRoleRule,
+            MainRouteReadStats,
             MainRouteReadRecord -> {
                 if (currentRoute == MainRouteHome) {
                     backStack.add(route)

@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.FindReplace
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material.icons.filled.Settings
@@ -210,6 +211,12 @@ fun MyScreen(
                     title = stringResource(R.string.bookmark),
                     imageVector = Icons.Default.Bookmark,
                     onClick = { onNavigate(PrefClickEvent.OpenAllBookmark) }
+                )
+                ClickableSettingItem(
+                    title = "阅读统计",
+                    description = "今日/本周时长、连续天数、年度热力图",
+                    imageVector = Icons.Default.Insights,
+                    onClick = { onNavigate(PrefClickEvent.OpenReadStats) }
                 )
                 ClickableSettingItem(
                     title = stringResource(R.string.read_record),

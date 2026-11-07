@@ -652,6 +652,9 @@ fun MainActivity.mainEntryProvider(
             onNavigateToReadRecordOverview = {
                 onNavigateToRoute(MainRouteReadRecordOverview)
             },
+            onNavigateToReadStats = {
+                onNavigateToRoute(MainRouteReadStats)
+            },
             onNavigateToHighlightTagRule = {
                 onNavigateToRoute(MainRouteHighlightTagRule)
             },
@@ -1450,6 +1453,23 @@ fun MainActivity.mainEntryProvider(
             },
             onSummaryClick = {
                 onNavigateToRoute(MainRouteReadRecordOverview)
+            }
+        )
+    }
+
+    entry<MainRouteReadStats> {
+        io.legado.app.feature.readstats.ReadStatsRouteScreen(
+            onBackClick = { onNavigateBack() },
+            onBookClick = { name, author ->
+                lifecycleScope.launch {
+                    val book = withContext(IO) {
+                        io.legado.app.data.appDb.bookDao.getBook(name, author)
+                    }
+                    if (book != null) this@mainEntryProvider.startActivityForBook(book)
+                    else {
+                        onNavigateToRoute(MainRouteSearch(key = name))
+                    }
+                }
             }
         )
     }

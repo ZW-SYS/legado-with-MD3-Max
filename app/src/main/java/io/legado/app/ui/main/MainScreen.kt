@@ -171,6 +171,7 @@ fun MainScreen(
     onNavigateToRuleSub: () -> Unit,
     onNavigateToReadRecord: () -> Unit,
     onNavigateToReadRecordOverview: () -> Unit,
+    onNavigateToReadStats: () -> Unit = {},
     onNavigateToHighlightTagRule: () -> Unit,
     onNavigateToDictRule: () -> Unit,
     onNavigateToTxtTocRule: () -> Unit,
@@ -664,6 +665,7 @@ fun MainScreen(
                                         PrefClickEvent.OpenBookSourceManage -> onNavigateToBookSourceManage()
                                         PrefClickEvent.OpenReplaceRules -> onNavigateToReplaceRules()
                                         PrefClickEvent.OpenReadRecord -> onNavigateToReadRecord()
+                                        PrefClickEvent.OpenReadStats -> onNavigateToReadStats()
                                         PrefClickEvent.OpenDictRule -> onNavigateToDictRule()
                                         PrefClickEvent.OpenTxtTocRule -> onNavigateToTxtTocRule()
                                         PrefClickEvent.OpenAllBookmark -> onNavigateToAllBookmark()

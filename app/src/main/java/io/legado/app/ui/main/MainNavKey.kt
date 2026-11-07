@@ -153,6 +153,10 @@ data object MainRouteReadRecord : MainRoute
 @Serializable
 data object MainRouteReadRecordOverview : MainRoute
 
+/** 阅读Max：阅读统计面板 */
+@Serializable
+data object MainRouteReadStats : MainRoute
+
 @Serializable
 data class MainRouteCache(val groupId: Long) : MainRoute
 
